@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리인 대상 부당 구상권 청구 방지 | 대한집합건물관리협회</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  
+  <style>
+    /* ============================================================
+       KCBMA — 대한집합건물관리협회 · 프리미엄 통합 스타일시트
+       ============================================================ */
+    :root {
+      --navy:        #0B2A5B;
+      --navy-deep:   #061A3D;
+      --navy-soft:   #102D6B;
+      --blue:        #1E5AA8;
+      --teal:        #2BA8A0;
+      --teal-dark:   #1f8a83;
+      --white:       #FFFFFF;
+      --gray-50:     #F8FAFC;
+      --gray-100:    #F1F5F9;
+      --gray-200:    #E2E8F0;
+      --gray-400:    #94A3B8;
+      --gray-500:    #64748B;
+      --gray-700:    #334155;
+      --gray-900:    #0F172A;
+      --bg:          var(--gray-50);
+      --trans:       .22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+      color: var(--text);
+      background: #F8FAFC;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; background: none; outline: none; }
+    ul { list-style: none; }
+
+    [data-href], [data-open-modal] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+    /* 상단 헤더 스크롤 효과 */
+    #header-wrapper { transition: box-shadow var(--trans); }
+    #header-wrapper.scrolled { box-shadow: 0 4px 20px rgba(11,42,91,.15); }
+
+    /* GNB 메뉴 */
+    .menu-item { color: #333333; transition: color var(--trans); font-weight: 700; }
+    .menu-item:hover, .menu-item.active { color: var(--teal); } 
+    .gnb { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .gnb > li { position: relative; padding: 18px 0; }
+    .gnb-dropdown {
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(8px);
+      min-width: 170px; background: var(--white); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: 0 8px 32px rgba(11,42,91,.18); padding: 8px 0;
+      opacity: 0; visibility: hidden; transition: all var(--trans); z-index: 200;
+    }
+    .gnb > li:hover .gnb-dropdown { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    .gnb-dropdown div { display: block; padding: 10px 20px; font-size: 0.9rem; color: var(--text-mid); font-weight: 500; transition: all var(--trans); }
+    .gnb-dropdown div:hover { background: var(--bg); color: var(--navy); }
+
+    .hamburger-btn { display: none; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--navy); border-radius: 6px; }
+
+    /* 모바일 메뉴 */
+    #mobile-menu { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(6,26,61,.98); overflow-y: auto; }
+    #mobile-menu.open { display: block; }
+    .mobile-menu-inner { padding: 24px 20px 40px; max-width: 480px; margin: 0 auto; }
+    .mobile-menu-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .mobile-close { color: #fff; font-size: 1.6rem; line-height: 1; padding: 4px 8px; }
+    .mobile-nav-group { display: block; padding: 14px 4px; color: #fff; font-size: 1rem; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .mobile-nav-sub { padding: 8px 0 8px 12px; }
+    .mobile-nav-sub div { display: block; padding: 9px 8px; color: var(--gray-400); font-size: .9rem; }
+    .mobile-nav-sub div:hover { color: var(--teal); }
+
+    /* 모달 팝업 */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 1050; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: opacity .2s, visibility .2s; }
+    .modal-backdrop.is-open { opacity: 1; visibility: visible; }
+    .modal-dialog { background: #fff; border-radius: 16px; padding: 40px 36px 36px; width: 100%; max-width: 420px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .modal-close { position: absolute; top: 16px; right: 18px; background: none; border: none; color: #94A3B8; font-size: 1.2rem; cursor: pointer; transition: color var(--trans); }
+    .modal-close:hover { color: var(--navy); }
+    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; transition: border-color var(--trans); }
+    .modal-input:focus { border-color: var(--teal); }
+    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; transition: background var(--trans); }
+    .btn-primary-full:hover { background: var(--navy-soft); }
+
+    @media (max-width: 960px) {
+      .gnb { display: none; }
+      .hamburger-btn { display: flex !important; }
+    }
+  </style>
+  
+  <script>
+    function handleNavigation(element) {
+      const url = element.getAttribute('data-href');
+      const target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        if (target === '_blank') {
+          const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+          if(newWindow) setTimeout(() => { element.blur(); window.focus(); }, 10);
+        } else if (url.startsWith('#')) {
+          const targetElement = document.querySelector(url);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        } else {
+          window.location.href = url; 
+        }
+      }
+    }
+
+    function setupModals() {
+      document.querySelectorAll('[data-open-modal]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.getElementById('modal-' + btn.getAttribute('data-open-modal')).classList.add('is-open');
+        });
+      });
+      document.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
+          document.getElementById('modal-' + btn.getAttribute('data-close-modal')).classList.remove('is-open');
+        });
+      });
+      document.querySelectorAll('.modal-backdrop').forEach(modal => {
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('is-open'); });
+      });
+    }
+
+    function handleFormSubmit(event, modalId, message) {
+      event.preventDefault(); alert(message);
+      document.getElementById('modal-' + modalId).classList.remove('is-open');
+    }
+
+    function setupMobileMenu() {
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const closeBtn = document.getElementById('mobile-close');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (menuBtn) menuBtn.addEventListener('click', () => mobileMenu.classList.add('open'));
+      if (closeBtn) closeBtn.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    }
+
+    function setupHeaderScroll() {
+      const headerWrapper = document.getElementById('header-wrapper');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 10) headerWrapper.classList.add('scrolled');
+        else headerWrapper.classList.remove('scrolled');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setupModals(); setupMobileMenu(); setupHeaderScroll();
+    });
+  </script>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+
+  <div id="header-wrapper" class="sticky top-0 z-[900] w-full flex flex-col bg-white">
+    <div class="w-full bg-[#0a1931] py-1.5">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex justify-end items-center space-x-3">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[12px] font-bold px-3 py-1 rounded transition-colors flex items-center justify-center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="mr-1"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
+          네이버카페
+        </div>
+        <button type="button" data-open-modal="login" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[12px] font-bold px-3 py-1 rounded transition-colors">로그인</button>
+        <button type="button" data-open-modal="signup" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[12px] font-bold px-3 py-1 rounded transition-colors">회원가입</button>
+        <div class="text-white text-[12px] font-bold ml-2 flex items-center">
+          <span data-open-modal="find-id" class="hover:text-gray-300 transition-colors">아이디찾기</span>
+          <span class="mx-1.5 text-gray-400 font-normal">|</span>
+          <span data-open-modal="find-pw" class="hover:text-gray-300 transition-colors">비밀번호찾기</span>
+        </div>
+      </div>
+    </div>
+
+    <header id="site-header" class="w-full border-b border-gray-200">
+      <div class="flex justify-between items-center px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full h-[60px]">
+        <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-full py-1">
+          <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-full w-auto max-w-[240px] md:max-w-[400px] object-contain flex-shrink-0">
+        </div>
+        <nav class="hidden md:block">
+          <ul class="gnb font-bold text-[16px] md:text-[17px]">
+            <li><div data-href="intro.html" onclick="handleNavigation(this)" class="menu-item active">협회소개</div></li>
+            <li>
+              <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item relative group">
+                정보교류
+                <div class="gnb-dropdown">
+                  <div data-href="../policy/law.html" onclick="handleNavigation(this)">법규·정책</div>
+                  <div data-href="../info/videos.html" onclick="handleNavigation(this)">영상 자료실</div>
+                  <div data-href="../info/columns.html" onclick="handleNavigation(this)">시설업체 칼럼</div>
+                </div>
+              </div>
+            </li>
+            <li><div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item">정책토론</div></li>
+            <li><div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item">구인구직</div></li>
+            <li><div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item">자유발언대</div></li>
+          </ul>
+        </nav>
+        <a href="javascript:void(0);" class="hamburger-btn" id="mobile-menu-btn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </a>
+      </div>
+    </header>
+  </div>
+
+  <div id="mobile-menu" role="dialog" aria-modal="true">
+    <div class="mobile-menu-inner">
+      <div class="mobile-menu-header">
+        <div class="flex items-center bg-white px-3 py-2 rounded">
+          <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[28px] w-auto max-w-[200px] object-contain">
+        </div>
+        <button class="mobile-close" id="mobile-close">✕</button>
+      </div>
+      <ul class="text-left">
+        <li><div data-href="intro.html" onclick="handleNavigation(this)" class="mobile-nav-group">협회소개</div></li>
+        <li class="mobile-nav-group">
+          <details>
+            <summary class="text-white cursor-pointer outline-none">정보교류</summary>
+            <div class="mobile-nav-sub">
+              <div data-href="../policy/law.html" onclick="handleNavigation(this)">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="handleNavigation(this)">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="handleNavigation(this)">시설업체 칼럼</div>
+            </div>
+          </details>
+        </li>
+        <li><div data-href="../info/forum.html" onclick="handleNavigation(this)" class="mobile-nav-group">정책토론</div></li>
+        <li><div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="mobile-nav-group">구인구직</div></li>
+        <li><div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="mobile-nav-group">자유발언대</div></li>
+      </ul>
+      <div class="mobile-cta-area">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" style="background:rgba(255,255,255,.08);">네이버카페 바로가기</div>
+      </div>
+    </div>
+  </div>
+
+  <main class="flex-1 py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full">
+    <div class="flex items-center gap-3 mb-8">
+      <div data-href="intro.html#core-business" onclick="handleNavigation(this)" class="text-gray-400 hover:text-[#0B2A5B] cursor-pointer transition-colors">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </div>
+      <h1 class="text-2xl md:text-3xl font-black text-[#0a1931] tracking-tight">사업 3: 관리인 대상 부당 구상권 청구 방지</h1>
+    </div>
+    
+    <div class="bg-white border border-gray-200 p-8 md:p-10 rounded-2xl mb-8 shadow-sm">
+      <p class="text-[15px] md:text-base text-gray-700 leading-relaxed mb-10 word-break:keep-all">
+        건물 내 사고 발생 시 보험사는 보험금을 지급한 뒤 관리인에게 구상권을 청구하는 경우가 빈번합니다. 협회는 부당 구상권 독소조항 개선 입법 및 전용 공제·보험 인프라 구축을 통해 관리인을 실질적으로 보호합니다.
+      </p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-gray-50 p-6 border-t-4 border-t-[#008f8c] rounded-xl shadow-sm">
+          <p class="font-bold text-lg text-gray-900 mb-4">현황 및 문제점</p>
+          <ul class="text-[15px] text-gray-600 list-none space-y-3">
+            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#008f8c] before:rounded-full break-keep">보험사, 경미한 관리 소홀에도 전액 구상권 청구</li>
+            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#008f8c] before:rounded-full break-keep">계약서 내 독소조항으로 책임 무한 확대</li>
+            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#008f8c] before:rounded-full break-keep">관리인 전용 배상책임보험 부재</li>
+          </ul>
+        </div>
+        <div class="bg-gray-50 p-6 border-t-4 border-t-[#1E5AA8] rounded-xl shadow-sm">
+          <p class="font-bold text-lg text-gray-900 mb-4">추진 방향</p>
+          <ul class="text-[15px] text-gray-600 list-none space-y-3">
+            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#1E5AA8] before:rounded-full break-keep">구상권 청구 제한 법령 개정 추진</li>
+            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#1E5AA8] before:rounded-full break-keep">독소조항 삭제 및 표준 계약서 보급</li>
+            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#1E5AA8] before:rounded-full break-keep">협회 전용 공제·배상책임보험 개발</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <footer style="background: #040f24; color: #fff; padding: 60px 20px; margin-top: 50px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start;">
+    
+    <div style="flex: 1;">
+      <img src="../assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고">
+      <div style="font-size: 0.9rem; line-height: 1.8; color: #fff;">
+        <p style="margin: 5px 0;">주소: 경기도 김포시 김포대로 699</p>
+        <p style="margin: 5px 0;">전화: 031-984-6199 · 팩스: 031-985-6199</p>
+        <p style="margin: 5px 0;">이메일: idea8888@naver.com</p>
+      </div>
+    </div>
+
+    <div style="flex: 0.5;">
+      <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">사이트맵</h4>
+      <div style="font-size: 0.9rem; line-height: 2.2;">
+        <a href="../info/index.html" style="color: #fff; text-decoration: none;">정보교류 종합 포털</a><br>
+        <a href="../info/forum.html" style="color: #fff; text-decoration: none;">정책 토론 광장</a><br>
+        <a href="../jobs/list.html" style="color: #fff; text-decoration: none;">구인구직 센터</a>
+      </div>
+    </div>
+
+    <div style="flex: 0.5;">
+      <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">제휴 파트너</h4>
+      <div style="font-size: 0.9rem; line-height: 2.2;">
+        <a href="../partners/list.html" style="color: #fff; text-decoration: none;">우수 파트너사 목록</a><br>
+        <a href="../partners/apply.html" style="color: #fff; text-decoration: none;">유지 보수사 협력 신청</a>
+      </div>
+      <a href="https://cafe.naver.com/kcbma114" target="_blank" style="display: inline-block; background: #00C73C; color: #fff; padding: 8px 16px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; margin-top: 15px; text-decoration: none;">N 네이버카페</a>
+    </div>
+
+  </div>
+  
+  <div style="max-width: 1200px; margin: 40px auto 0 auto; border-top: 1px solid #1e3a8a; padding-top: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; color: #fff;">
+    <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
+    <div>
+      <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">이용약관</a>
+      <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">개인정보처리방침</a>
+    </div>
+  </div>
+</footer>
+
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" data-close-modal="login">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="w-full max-w-[240px] sm:max-w-[280px] h-auto mb-5 object-contain" />
+        <p class="modal-title">로그인</p>
+        <p class="text-xs text-gray-500 text-center mt-1">대한집합건물관리협회 포털 서비스</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'login', '로그인 처리 준비 중입니다.');">
+        <input class="modal-input" type="text" placeholder="아이디 또는 이메일" required />
+        <input class="modal-input" type="password" placeholder="비밀번호" required />
+        <button type="submit" class="btn-primary-full mt-2">안전 로그인</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" data-close-modal="signup">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="w-full max-w-[240px] sm:max-w-[280px] h-auto mb-5 object-contain" />
+        <p class="modal-title">회원가입</p>
+        <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'signup', '회원가입 신청이 완료되었습니다.');">
+        <input class="modal-input" type="text" placeholder="성함" required />
+        <input class="modal-input" type="text" placeholder="아이디 희망문자" required />
+        <input class="modal-input" type="email" placeholder="이메일 주소" required />
+        <input class="modal-input" type="password" placeholder="비밀번호 서식 (8자 이상)" required />
+        <button type="submit" class="btn-primary-full mt-2">가입 신청 완료</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" data-close-modal="find-id">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="w-full max-w-[240px] sm:max-w-[280px] h-auto mb-5 object-contain" />
+        <p class="modal-title">아이디 찾기</p>
+        <p class="text-xs text-gray-500 text-center mt-1">가입 시 등록하신 이메일 정보를 입력해 주세요.</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-id', '입력하신 이메일로 아이디 정보가 발송되었습니다.');">
+        <input class="modal-input" type="text" placeholder="이름" required />
+        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
+        <button type="submit" class="btn-primary-full mt-2">아이디 찾기</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" data-close-modal="find-pw">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="w-full max-w-[240px] sm:max-w-[280px] h-auto mb-5 object-contain" />
+        <p class="modal-title">비밀번호 찾기</p>
+        <p class="text-xs text-gray-500 text-center mt-1">아이디와 이메일을 입력하시면 임시 비밀번호를 발송해 드립니다.</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-pw', '입력하신 이메일로 임시 비밀번호가 발송되었습니다.');">
+        <input class="modal-input" type="text" placeholder="아이디" required />
+        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
+        <button type="submit" class="btn-primary-full mt-2">임시 비밀번호 발송</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

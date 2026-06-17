@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>입주민 민원 응대 매뉴얼 표준화 | 정책토론 | 대한집합건물관리인협회</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; }
+    a, [data-href], [data-open-modal], [data-switch-modal], [data-close-modal] { cursor: pointer; }
+    
+    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
+    .menu-item:hover { color: #008f8c; } 
+    .menu-item.active { color: #000000; font-weight: 900; }
+
+    /* 상세페이지 스타일 */
+    .detail-wrap { max-width: 860px; margin: 0 auto; padding: 0 16px 60px; }
+    .detail-header { border-bottom: 2px solid #0a1931; padding-bottom: 18px; margin-bottom: 24px; }
+    .detail-cat-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: .75rem; font-weight: 700; margin-bottom: 10px; background: #DBEAFE; color: #1D4ED8; }
+    .detail-title { font-size: 1.3rem; font-weight: 900; color: #0a1931; line-height: 1.45; margin-bottom: 12px; }
+    .detail-meta { display: flex; gap: 16px; font-size: .82rem; color: #94A3B8; }
+    .detail-body { font-size: .95rem; color: #334155; line-height: 2.0; }
+    .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; background: #0a1931; color: #fff; border-radius: 8px; font-size: .88rem; font-weight: 700; transition: background .15s; }
+  </style>
+
+  <script>
+    function handleNavigation(element) {
+      const url = element.getAttribute('data-href');
+      const target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        if (target === '_blank') { window.open(url, '_blank'); } 
+        else { window.location.href = url; }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50">
+
+  <header class="w-full bg-white border-b border-gray-300 shadow-sm flex flex-col">
+    <div class="w-full bg-[#0a1931] py-2">
+      <div class="max-w-7xl mx-auto px-8 flex justify-end items-center space-x-2">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">네이버카페</div>
+        <div data-href="#" data-open-modal="login" onclick="handleNavigation(this)" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">로그인</div>
+        <div data-href="#" data-open-modal="signup" onclick="handleNavigation(this)" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">회원가입</div>
+        <div class="text-white text-[13px] font-bold ml-3 flex items-center">
+          <span data-href="#" onclick="handleNavigation(this)" class="hover:text-gray-300 transition-colors">아이디찾기</span>
+          <span class="mx-1.5 text-gray-400 font-normal">|</span>
+          <span data-href="#" onclick="handleNavigation(this)" class="hover:text-gray-300 transition-colors">비밀번호찾기</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center space-x-3 py-1">
+        <img src="../방패로고.jpg" alt="KCBMA 로고" class="h-[48px] w-auto object-contain flex-shrink-0">
+        <img src="../로고_글자.png" alt="대한집합건물관리협회" class="h-[44px] w-auto object-contain flex-shrink-0 mt-1">
+      </div>
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
+        <div class="menu-item py-1 relative group cursor-pointer" data-href="../info/index.html" onclick="handleNavigation(this)">
+          정보교류
+          <div class="gnb-dropdown absolute left-0 top-full hidden group-hover:block bg-white border border-gray-200 shadow-lg mt-1 w-40 z-50">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="block px-4 py-2 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="block px-4 py-2 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="block px-4 py-2 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+          </div>
+        </div>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item active py-1">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+      </nav>
+      <button class="mobile-menu-btn md:hidden" id="mobile-menu-btn" aria-label="메뉴열기">
+        <span class="block w-6 h-0.5 bg-gray-800 mb-1"></span>
+        <span class="block w-6 h-0.5 bg-gray-800 mb-1"></span>
+        <span class="block w-6 h-0.5 bg-gray-800"></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <span data-href="../index.html" onclick="handleNavigation(this)" class="hover:underline cursor-pointer">홈</span>
+        <span class="breadcrumb-sep">›</span>
+        <span data-href="../info/forum.html" onclick="handleNavigation(this)" class="hover:underline cursor-pointer">정책토론</span>
+      </nav>
+      <h1>정책 토론방</h1>
+    </div>
+  </section>
+
+  <div class="page-content pt-12">
+    <div class="detail-wrap">
+      <div class="detail-header">
+        <span class="detail-cat-badge">제도개선</span>
+        <h2 class="detail-title">입주민 민원 응대 매뉴얼 표준화</h2>
+        <div class="detail-meta">
+          <span>작성자: 최O석</span>
+          <span>작성일: 2026.04.27</span>
+          <span>조회: 367</span>
+          <span>댓글: 33</span>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <p>현재 전국의 집합건물 관리사무소마다 민원 응대 방식이 제각각이어서 불필요한 갈등이 반복되고 있습니다. 표준화된 민원 응대 매뉴얼이 없다 보니 관리인들이 개인의 경험과 판단에만 의존해야 하는 상황이 지속되고 있습니다.</p>
+        <p>협회 차원에서 ① 민원 접수 → ② 내용 확인 → ③ 담당 부서/업체 연결 → ④ 처리 결과 통보의 4단계 표준 프로세스를 마련하고, 유형별(소음, 누수, 주차 등) 응대 스크립트를 배포할 것을 제안합니다.</p>
+        <p>이를 통해 관리인의 불필요한 감정 소모를 줄이고, 입주민에게도 일관된 서비스를 제공할 수 있습니다. 나아가 법적 분쟁 발생 시 표준 절차 이행 여부가 관리인 보호의 근거가 될 수 있습니다.</p>
+        <p>국토교통부 및 각 지자체와 협력하여 공식 가이드라인으로 격상시키는 것을 장기 목표로 제안합니다.</p>
+      </div>
+
+      <div class="detail-nav">
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="btn-back">목록으로</div>
+      </div>
+    </div>
+  </div>
+
+ <!-- 통합 공통 푸터 -->
+<footer style="background: #040f24; color: #fff; padding: 60px 20px; margin-top: 50px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start;">
+    
+    <div style="flex: 1;">
+      <img src="../assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고">
+      <div style="font-size: 0.9rem; line-height: 1.8; color: #fff;">
+        <p style="margin: 5px 0;">주소: 경기도 김포시 김포대로 699</p>
+        <p style="margin: 5px 0;">전화: 031-984-6199 · 팩스: 031-985-6199</p>
+        <p style="margin: 5px 0;">이메일: idea8888@naver.com</p>
+      </div>
+    </div>
+
+    <div style="flex: 0.5;">
+      <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">사이트맵</h4>
+      <div style="font-size: 0.9rem; line-height: 2.2;">
+        <a href="../info/index.html" style="color: #fff; text-decoration: none;">정보교류 종합 포털</a><br>
+        <a href="../info/forum.html" style="color: #fff; text-decoration: none;">정책 토론 광장</a><br>
+        <a href="../jobs/list.html" style="color: #fff; text-decoration: none;">구인구직 센터</a>
+      </div>
+    </div>
+
+    <div style="flex: 0.5;">
+      <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">제휴 파트너</h4>
+      <div style="font-size: 0.9rem; line-height: 2.2;">
+        <a href="../partners/list.html" style="color: #fff; text-decoration: none;">우수 파트너사 목록</a><br>
+        <a href="../partners/apply.html" style="color: #fff; text-decoration: none;">유지 보수사 협력 신청</a>
+      </div>
+      <a href="https://cafe.naver.com/kcbma114" target="_blank" style="display: inline-block; background: #00C73C; color: #fff; padding: 8px 16px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; margin-top: 15px; text-decoration: none;">N 네이버카페</a>
+    </div>
+
+  </div>
+  
+  <div style="max-width: 1200px; margin: 40px auto 0 auto; border-top: 1px solid #1e3a8a; padding-top: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; color: #fff;">
+    <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
+    <div>
+      <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">이용약관</a>
+      <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">개인정보처리방침</a>
+    </div>
+  </div>
+</footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
