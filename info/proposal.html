@@ -1,69 +1,101 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>관리인 대상 부당 구상권 청구 방지 | 대한집합건물관리협회</title>
-  <meta name="description" content="대한집합건물관리협회의 관리인 대상 부당 구상권 청구 방지 및 보호 대책 안내입니다." />
+  <title>의견 제안하기 | 대한집합건물관리협회</title>
+  <meta name="description" content="집합건물 관리에 대한 의견 및 정책 건의사항을 제안하는 페이지입니다." />
   
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   
-  <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
     :root {
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
     }
-    body { font-family: 'Noto Sans KR', sans-serif; background: #F8FAFC; color: #333; line-height: 1.7; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
+    
+    a, [data-href] { cursor: pointer; }
     
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
-    
-    /* 모달 스타일 (표준화) */
+
+    /* 폼 입력창 포커스 효과 */
+    .form-input, .form-select, .form-textarea {
+      transition: all 0.2s ease-in-out;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(11, 42, 91, 0.1);
+    }
+
+    /* 모달 필수 스타일 (표준화) */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; }
     .modal-brand { text-align: center; margin-bottom: 20px; }
     .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
-    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; }
-    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; }
+    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; }
+    .modal-input:focus { border-color: #0e2b61; }
+    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+    .btn-primary-full:hover { background: #153b80; }
     .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
     .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; }
   </style>
-  
+
   <script>
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
-      if (url && url !== '#') window.location.href = url;
+      const target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        if (target === '_blank') { window.open(url, '_blank'); } 
+        else { window.location.href = url; }
+      }
     }
-    
-    // 모달 제어 함수
+
+    // 커스텀 모달 제어 함수
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
-      document.getElementById('modal-' + id).classList.add('is-open');
-      document.body.style.overflow = 'hidden';
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden'; 
+      }
     }
+
     function closeCustomModal(id) {
-      document.getElementById('modal-' + id).classList.remove('is-open');
-      document.body.style.overflow = '';
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = ''; 
+      }
     }
+
     function switchCustomModal(closeId, openId) {
       closeCustomModal(closeId);
-      setTimeout(() => openCustomModal(openId), 100);
+      setTimeout(() => openCustomModal(openId), 100); 
     }
 
-    // 폼 제출 시 새로고침 방지 및 안내 메시지
+    // 폼 제출 시 새로고침 방지 (공통)
     function handleFormSubmit(event, modalId, message) {
-      event.preventDefault(); // 페이지 새로고침 방지
+      event.preventDefault(); 
       alert(message);
-      closeCustomModal(modalId);
+      if(modalId) closeCustomModal(modalId);
     }
 
-    // 모바일 메뉴 제어 함수
+    // 신문고 제안 폼 제출
+    function handleProposalSubmit(e) {
+      e.preventDefault(); 
+      alert('소중한 의견이 성공적으로 접수되었습니다.\n담당자 검토 후 답변드리겠습니다.');
+      window.history.back(); // 접수 후 이전 페이지로 돌아가기
+    }
+
+    // 모바일 햄버거 메뉴 제어
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu.classList.contains('hidden')) {
@@ -95,20 +127,25 @@
     
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <!-- PC 네비게이션 -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
-        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item py-1">정보교류</div>
+        <div class="menu-item py-1 relative group cursor-pointer" data-href="../info/index.html" onclick="handleNavigation(this)">
+          정보교류
+          <div class="gnb-dropdown absolute left-0 top-full hidden group-hover:block bg-white border border-gray-200 shadow-lg mt-1 w-40 z-50 rounded">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+          </div>
+        </div>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">정책신문고</div>
       </nav>
 
-      <!-- 모바일 햄버거 버튼 -->
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -119,7 +156,7 @@
     </header>
   </div>
 
-  <!-- 모바일 사이드 메뉴 (기능 및 디자인 완성) -->
+  <!-- 모바일 사이드 메뉴 -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
@@ -142,7 +179,7 @@
         </details>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">정책신문고</div>
       </div>
 
       <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
@@ -152,47 +189,76 @@
     </div>
   </div>
 
-  <!-- =========================================================================
-       본문 영역 (관리인 대상 부당 구상권 청구 방지)
-       ========================================================================= -->
-  <main class="flex-1 py-8 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full">
-    <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-6 md:mb-8">
-      <!-- 뒤로 가기 버튼 -->
-      <div data-href="intro.html#core-business" onclick="handleNavigation(this)" class="text-gray-400 hover:text-[#0B2A5B] cursor-pointer transition-colors hidden md:block">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </div>
-      <h1 class="text-2xl md:text-3xl font-black text-[#0a1931] tracking-tight break-keep">사업 3: 관리인 대상 부당 구상권 청구 방지</h1>
+  <!-- 페이지 히어로 -->
+  <section class="bg-[#0B2A5B] text-white py-12 md:py-16 text-center px-4">
+    <div class="max-w-7xl mx-auto">
+      <nav class="text-sm text-blue-200 mb-4 flex items-center justify-center space-x-2">
+        <a data-href="../index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">홈</a>
+        <span>›</span>
+        <a data-href="sinmungo.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">정책신문고</a>
+        <span>›</span>
+        <span class="font-bold text-white">의견 제안하기</span>
+      </nav>
+      <h1 class="text-3xl md:text-4xl font-black mb-3">의견 제안하기</h1>
+      <p class="text-[15px] md:text-base text-blue-100 font-medium break-keep">집합건물 관리에 대한 다양한 의견이나 정책 건의사항을 자유롭게 남겨주세요.</p>
     </div>
-    
-    <div class="bg-white border border-gray-200 p-6 md:p-10 rounded-2xl mb-8 shadow-sm">
-      <p class="text-[14px] md:text-base text-gray-700 leading-relaxed mb-8 md:mb-10 break-keep">
-        건물 내 사고 발생 시 보험사는 보험금을 지급한 뒤 관리인에게 구상권을 청구하는 경우가 빈번합니다. 협회는 부당 구상권 독소조항 개선 입법 및 전용 공제·보험 인프라 구축을 통해 관리인을 실질적으로 보호합니다.
-      </p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        <div class="bg-gray-50 p-6 border-t-4 border-t-[#008f8c] rounded-xl shadow-sm">
-          <p class="font-bold text-lg text-gray-900 mb-4">현황 및 문제점</p>
-          <ul class="text-[14px] md:text-[15px] text-gray-600 list-none space-y-3">
-            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#008f8c] before:rounded-full break-keep">보험사, 경미한 관리 소홀에도 전액 구상권 청구</li>
-            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#008f8c] before:rounded-full break-keep">계약서 내 독소조항으로 책임 무한 확대</li>
-            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#008f8c] before:rounded-full break-keep">관리인 전용 배상책임보험 부재</li>
-          </ul>
+  </section>
+
+  <!-- 메인 콘텐츠 (등록 폼) -->
+  <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm">
+      <form onsubmit="handleProposalSubmit(event)">
+        
+        <div class="flex flex-col mb-6">
+          <label class="text-[14px] font-bold text-gray-800 mb-2" for="proposal-category">제안 분야 <span class="text-red-500 ml-1">*</span></label>
+          <select id="proposal-category" class="form-select border border-gray-300 p-3.5 rounded-lg text-[15px] w-full bg-white cursor-pointer" required>
+            <option value="">분야를 선택해주세요</option>
+            <option value="법규">관련 법규 개선</option>
+            <option value="제도">관리 제도 및 정책</option>
+            <option value="시설">시설물 유지보수 현장 의견</option>
+            <option value="협회">협회 건의사항</option>
+            <option value="기타">기타 의견</option>
+          </select>
         </div>
-        <div class="bg-gray-50 p-6 border-t-4 border-t-[#1E5AA8] rounded-xl shadow-sm">
-          <p class="font-bold text-lg text-gray-900 mb-4">추진 방향</p>
-          <ul class="text-[14px] md:text-[15px] text-gray-600 list-none space-y-3">
-            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#1E5AA8] before:rounded-full break-keep">구상권 청구 제한 법령 개정 추진</li>
-            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#1E5AA8] before:rounded-full break-keep">독소조항 삭제 및 표준 계약서 보급</li>
-            <li class="relative pl-5 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-[#1E5AA8] before:rounded-full break-keep">협회 전용 공제·배상책임보험 개발</li>
-          </ul>
+
+        <div class="flex flex-col mb-6">
+          <label class="text-[14px] font-bold text-gray-800 mb-2" for="proposal-title">제목 <span class="text-red-500 ml-1">*</span></label>
+          <input type="text" id="proposal-title" class="form-input border border-gray-300 p-3.5 rounded-lg text-[15px] w-full" placeholder="제안하시는 내용의 핵심을 짧게 적어주세요." required />
         </div>
-      </div>
+
+        <div class="flex flex-col mb-6">
+          <label class="text-[14px] font-bold text-gray-800 mb-2" for="proposal-content">제안 내용 <span class="text-red-500 ml-1">*</span></label>
+          <textarea id="proposal-content" class="form-textarea border border-gray-300 p-4 rounded-lg text-[15px] w-full resize-y min-h-[250px] leading-relaxed" placeholder="1. 현황 및 문제점:&#10;&#10;2. 개선 방안(제안 내용):&#10;&#10;3. 기대 효과:" required></textarea>
+        </div>
+
+        <div class="flex flex-col mb-6">
+          <label class="text-[14px] font-bold text-gray-800 mb-2">첨부파일</label>
+          <div class="border border-dashed border-gray-300 bg-gray-50 rounded-lg p-5 text-center text-[14px] text-gray-500">
+            <input type="file" id="proposal-file" class="mb-3 block w-full text-center file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            <p class="break-keep">※ 참고 자료가 있으신 경우 첨부해주세요. (10MB 이하, JPG/PNG/PDF/HWP/DOCX)</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-8">
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="privacy-agree" class="mt-1 w-4 h-4 cursor-pointer" required />
+            <span class="text-[14px] text-gray-600 leading-relaxed break-keep">
+              <strong class="text-red-500 font-bold">[필수]</strong> 원활한 의견 처리 및 답변을 위한 개인정보 수집 및 이용에 동의합니다.
+            </span>
+          </label>
+        </div>
+
+        <!-- 하단 버튼 영역 -->
+        <div class="flex flex-col sm:flex-row justify-center gap-3 mt-8">
+          <button type="button" class="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-10 rounded-xl transition-colors text-[15px]" onclick="window.history.back();">취소</button>
+          <button type="submit" class="w-full sm:w-auto bg-[#0B2A5B] hover:bg-[#153b80] text-white font-bold py-3.5 px-10 rounded-xl transition-colors shadow-sm text-[15px]">제안 등록하기</button>
+        </div>
+        
+      </form>
     </div>
   </main>
 
-  <!-- =========================================================================
-       협회 공식 푸터 (모바일 반응형 Tailwind 적용)
-       ========================================================================= -->
+  <!-- 통합 반응형 푸터 -->
   <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
       
@@ -221,7 +287,7 @@
           <a href="../partners/apply.html" class="hover:text-white transition-colors">유지 보수사 협력 신청</a>
         </div>
         <a href="https://cafe.naver.com/kcbma114" target="_blank" class="inline-block bg-[#00C73C] text-white px-4 py-2 rounded font-bold text-[14px] mt-4 hover:bg-[#00a833] transition-colors">
-          N 네이버카페
+          네이버카페
         </a>
       </div>
 
@@ -236,9 +302,7 @@
     </div>
   </footer>
 
-  <!-- =========================================================================
-       인증 보조 모달 4종 (표준 레이아웃 적용)
-       ========================================================================= -->
+  <!-- 인증 보조 모달 4종 (표준 레이아웃 적용) -->
   
   <!-- 로그인 모달 -->
   <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">

@@ -13,7 +13,7 @@
   
   <style>
     body { font-family: 'Noto Sans KR', sans-serif; }
-    a, [data-href], [data-open-modal], [data-switch-modal], [data-close-modal] { cursor: pointer; }
+    a, [data-href] { cursor: pointer; }
     
     .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
     .menu-item:hover { color: #008f8c; } 
@@ -27,6 +27,28 @@
     .detail-meta { display: flex; gap: 16px; font-size: .82rem; color: #94A3B8; }
     .detail-body { font-size: .95rem; color: #334155; line-height: 2.0; }
     .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; background: #0a1931; color: #fff; border-radius: 8px; font-size: .88rem; font-weight: 700; transition: background .15s; }
+
+    /* 모달 필수 스타일 (main.js 충돌 방지용) */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex !important; }
+    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; }
+    .modal-brand { text-align: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
+    .modal-subtitle { font-size: 0.9rem; color: #64748b; }
+    .modal-form { display: flex; flex-direction: column; gap: 15px; }
+    .modal-field { display: flex; flex-direction: column; text-align: left; }
+    .modal-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #333; }
+    .modal-input { border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .modal-input:focus { border-color: #0e2b61; }
+    .btn-primary-full { background: #0e2b61; color: white; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; border: none; margin-top: 10px; transition: background 0.2s; }
+    .btn-primary-full:hover { background: #153b80; }
+    .modal-row { display: flex; justify-content: space-between; font-size: 0.85rem; align-items: center; }
+    .modal-forgot { color: #64748b; cursor: pointer; }
+    .modal-forgot:hover { text-decoration: underline; }
+    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; text-decoration: none; }
+    .modal-switch a:hover { text-decoration: underline; }
   </style>
 
   <script>
@@ -38,6 +60,39 @@
         else { window.location.href = url; }
       }
     }
+
+    // 커스텀 모달 제어 함수
+    function openCustomModal(id) {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden'; 
+      }
+    }
+
+    function closeCustomModal(id) {
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = ''; 
+      }
+    }
+
+    function switchCustomModal(closeId, openId) {
+      closeCustomModal(closeId);
+      setTimeout(() => openCustomModal(openId), 100); 
+    }
+
+    // 모달 바깥 배경 클릭 시 닫기
+    document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-backdrop')) {
+          e.target.classList.remove('is-open');
+          document.body.style.overflow = '';
+        }
+      });
+    });
   </script>
 </head>
 <body class="bg-gray-50">
@@ -45,19 +100,20 @@
   <header class="w-full bg-white border-b border-gray-300 shadow-sm flex flex-col">
     <div class="w-full bg-[#0a1931] py-2">
       <div class="max-w-7xl mx-auto px-8 flex justify-end items-center space-x-2">
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">네이버카페</div>
-        <div data-href="#" data-open-modal="login" onclick="handleNavigation(this)" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">로그인</div>
-        <div data-href="#" data-open-modal="signup" onclick="handleNavigation(this)" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">회원가입</div>
-        <div class="text-white text-[13px] font-bold ml-3 flex items-center">
-          <span data-href="#" onclick="handleNavigation(this)" class="hover:text-gray-300 transition-colors">아이디찾기</span>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer">네이버카페</div>
+        <!-- [수정됨] 커스텀 모달 호출 -->
+        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer">로그인</div>
+        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer">회원가입</div>
+        <div class="text-white text-[13px] font-bold ml-3 flex items-center cursor-pointer">
+          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 transition-colors">아이디찾기</span>
           <span class="mx-1.5 text-gray-400 font-normal">|</span>
-          <span data-href="#" onclick="handleNavigation(this)" class="hover:text-gray-300 transition-colors">비밀번호찾기</span>
+          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 transition-colors">비밀번호찾기</span>
         </div>
       </div>
     </div>
 
     <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full">
-      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center space-x-3 py-1">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center space-x-3 py-1 cursor-pointer">
         <img src="../방패로고.jpg" alt="KCBMA 로고" class="h-[48px] w-auto object-contain flex-shrink-0">
         <img src="../로고_글자.png" alt="대한집합건물관리협회" class="h-[44px] w-auto object-contain flex-shrink-0 mt-1">
       </div>
@@ -114,18 +170,18 @@
         <p>국토교통부 및 각 지자체와 협력하여 공식 가이드라인으로 격상시키는 것을 장기 목표로 제안합니다.</p>
       </div>
 
-      <div class="detail-nav">
+      <div class="detail-nav" style="margin-top:40px;">
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="btn-back">목록으로</div>
       </div>
     </div>
   </div>
 
- <!-- 통합 공통 푸터 -->
+<!-- 통합 공통 푸터 -->
 <footer style="background: #040f24; color: #fff; padding: 60px 20px; margin-top: 50px;">
   <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start;">
     
     <div style="flex: 1;">
-      <img src="../assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고">
+      <img src="../assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고" onerror="this.src='../방패로고.jpg'">
       <div style="font-size: 0.9rem; line-height: 1.8; color: #fff;">
         <p style="margin: 5px 0;">주소: 경기도 김포시 김포대로 699</p>
         <p style="margin: 5px 0;">전화: 031-984-6199 · 팩스: 031-985-6199</p>
@@ -161,6 +217,134 @@
     </div>
   </div>
 </footer>
+
+  <!-- 커스텀 모달 영역 (4가지 팝업 모두 포함) -->
+  
+  <!-- 로그인 모달 -->
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('login')" aria-label="닫기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-brand">
+        <img src="../방패로고.jpg" style="height:50px; width:auto; margin:0 auto 10px;" alt="KCBMA" class="modal-brand-img" />
+        <p class="modal-title">로그인</p>
+        <p class="modal-subtitle">대한집합건물관리협회에 오신 것을 환영합니다</p>
+      </div>
+      <form class="modal-form" novalidate>
+        <div class="modal-field">
+          <label class="modal-label" for="login-id">아이디</label>
+          <input class="modal-input" type="text" id="login-id" name="login-id" placeholder="아이디 또는 이메일" autocomplete="username" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="login-pw">비밀번호</label>
+          <input class="modal-input" type="password" id="login-pw" name="login-pw" placeholder="비밀번호" autocomplete="current-password" />
+        </div>
+        <div class="modal-row">
+          <label class="modal-remember" style="cursor:pointer;"><input type="checkbox" name="login-keep" /> 로그인 상태 유지</label>
+          <a class="modal-forgot" onclick="switchCustomModal('login', 'find-pw')">비밀번호 찾기</a>
+        </div>
+        <button type="button" class="btn-primary-full">로그인</button>
+      </form>
+      <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
+    </div>
+  </div>
+
+  <!-- 회원가입 모달 -->
+  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true" aria-label="회원가입">
+    <div class="modal-dialog signup-dialog" style="overflow-y: auto; max-height: 90vh;">
+      <button class="modal-close" onclick="closeCustomModal('signup')" aria-label="닫기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-brand">
+        <img src="../방패로고.jpg" style="height:50px; width:auto; margin:0 auto 10px;" alt="KCBMA" class="modal-brand-img" />
+        <p class="modal-title">회원가입</p>
+        <p class="modal-subtitle">대한집합건물관리협회 회원이 되어보세요</p>
+      </div>
+      <form class="modal-form" novalidate>
+        <div class="modal-field">
+          <label class="modal-label" for="signup-name">이름 <span style="color:#EF4444">*</span></label>
+          <input class="modal-input" type="text" id="signup-name" name="signup-name" placeholder="이름" required />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="signup-id">아이디 <span style="color:#EF4444">*</span></label>
+          <input class="modal-input" type="text" id="signup-id" name="signup-id" placeholder="아이디 (영문·숫자)" required />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="signup-email">이메일 <span style="color:#EF4444">*</span></label>
+          <input class="modal-input" type="email" id="signup-email" name="signup-email" placeholder="이메일" required />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="signup-pw">비밀번호 <span style="color:#EF4444">*</span></label>
+          <input class="modal-input" type="password" id="signup-pw" name="signup-pw" placeholder="비밀번호 (8자 이상)" required />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="signup-pw2">비밀번호 확인 <span style="color:#EF4444">*</span></label>
+          <input class="modal-input" type="password" id="signup-pw2" name="signup-pw2" placeholder="비밀번호 확인" required />
+        </div>
+        <div class="modal-checkbox-group" style="font-size:0.85rem; margin-top:5px; line-height: 1.8; background:#f9fafb; padding:15px; border-radius:6px;">
+          <label class="modal-check-label" style="display:block; cursor:pointer; margin-bottom:8px;">
+            <input type="checkbox" name="signup-tc1" /> <span style="color:#EF4444; font-weight:bold;">[필수]</span> <a>이용약관</a>에 동의합니다
+          </label>
+          <label class="modal-check-label" style="display:block; cursor:pointer;">
+            <input type="checkbox" name="signup-tc2" /> <span style="color:#EF4444; font-weight:bold;">[필수]</span> <a>개인정보 처리방침</a>에 동의합니다
+          </label>
+        </div>
+        <button type="button" class="btn-primary-full">회원가입</button>
+      </form>
+      <p class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></p>
+    </div>
+  </div>
+
+  <!-- 아이디 찾기 모달 -->
+  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true" aria-label="아이디 찾기">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-id')" aria-label="닫기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-brand">
+        <p class="modal-title">아이디 찾기</p>
+        <p class="modal-subtitle">가입 시 등록한 정보를 입력해주세요.</p>
+      </div>
+      <form class="modal-form">
+        <div class="modal-field">
+          <label class="modal-label" for="find-id-name">이름</label>
+          <input class="modal-input" type="text" id="find-id-name" placeholder="이름 입력" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="find-id-email">이메일</label>
+          <input class="modal-input" type="email" id="find-id-email" placeholder="가입한 이메일 입력" />
+        </div>
+        <button type="button" class="btn-primary-full" style="margin-top:10px;">아이디 찾기</button>
+      </form>
+      <p class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인으로 돌아가기</a></p>
+    </div>
+  </div>
+
+  <!-- 비밀번호 찾기 모달 -->
+  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true" aria-label="비밀번호 찾기">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-pw')" aria-label="닫기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-brand">
+        <p class="modal-title">비밀번호 찾기</p>
+        <p class="modal-subtitle">가입 시 등록한 정보를 입력해주세요.</p>
+      </div>
+      <form class="modal-form">
+        <div class="modal-field">
+          <label class="modal-label" for="find-pw-id">아이디</label>
+          <input class="modal-input" type="text" id="find-pw-id" placeholder="아이디 입력" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="find-pw-email">이메일</label>
+          <input class="modal-input" type="email" id="find-pw-email" placeholder="가입한 이메일 입력" />
+        </div>
+        <button type="button" class="btn-primary-full" style="margin-top:10px;">임시 비밀번호 발송</button>
+      </form>
+      <p class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인으로 돌아가기</a></p>
+    </div>
+  </div>
 
   <script src="../assets/js/main.js"></script>
 </body>

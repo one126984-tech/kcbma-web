@@ -1,214 +1,95 @@
-/* ===== KCBMA Main JS v4.0 ===== */
-document.addEventListener('DOMContentLoaded', function () {
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대한집합건물관리협회</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 모달 필수 스타일 */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex; }
+    .modal-dialog { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; position: relative; }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; }
+    .modal-form { display: flex; flex-direction: column; gap: 15px; }
+    .modal-input { border: 1px solid #ddd; padding: 10px; border-radius: 6px; width: 100%; }
+    .btn-primary-full { background: #0e2b61; color: white; padding: 12px; border-radius: 6px; font-weight: bold; width: 100%; }
+    .modal-switch { text-align: center; margin-top: 15px; font-size: 0.9rem; }
+    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body class="bg-gray-50">
 
-  /* ── Mobile Menu ── */
-  const mobileBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const mobileClose = document.getElementById('mobile-close');
-  function openMobile() { if (mobileMenu) { mobileMenu.classList.add('open'); document.body.style.overflow = 'hidden'; } }
-  function closeMobile() { if (mobileMenu) { mobileMenu.classList.remove('open'); document.body.style.overflow = ''; } }
-  if (mobileBtn) mobileBtn.addEventListener('click', openMobile);
-  if (mobileClose) mobileClose.addEventListener('click', closeMobile);
-  if (mobileMenu) mobileMenu.addEventListener('click', function (e) { if (e.target === mobileMenu) closeMobile(); });
+  <header class="w-full bg-[#0a1931] py-2">
+    <div class="max-w-7xl mx-auto px-8 flex justify-end items-center space-x-4 text-white text-[13px] font-bold">
+      <span data-open-modal="login" class="cursor-pointer hover:text-gray-300">로그인</span>
+      <span data-open-modal="signup" class="cursor-pointer hover:text-gray-300">회원가입</span>
+      <span data-open-modal="find-id" class="cursor-pointer hover:text-gray-300">아이디찾기</span>
+      <span data-open-modal="find-pw" class="cursor-pointer hover:text-gray-300">비밀번호찾기</span>
+    </div>
+  </header>
 
-  /* ── Sticky Header Shadow ── */
-  const header = document.getElementById('site-header');
-  if (header) {
-    window.addEventListener('scroll', function () {
-      header.classList.toggle('scrolled', window.scrollY > 50);
-    }, { passive: true });
-  }
+  <div class="modal-backdrop" id="modal-login">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeModal('login')">✕</button>
+      <h2 class="text-xl font-bold mb-4">로그인</h2>
+      <form class="modal-form"><input class="modal-input" placeholder="아이디"><input class="modal-input" type="password" placeholder="비밀번호"><button type="button" class="btn-primary-full">로그인</button></form>
+      <p class="modal-switch">아직 회원이 아니신가요? <a data-switch-modal="login:signup">회원가입</a></p>
+    </div>
+  </div>
 
-  /* ── Category Filter Chips ── */
-  document.querySelectorAll('.filter-chips').forEach(function (group) {
-    group.querySelectorAll('.chip').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        group.querySelectorAll('.chip').forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        const cat = btn.getAttribute('data-cat');
-        const container = document.getElementById(btn.getAttribute('data-target') || 'filter-items');
-        if (!container) return;
-        container.querySelectorAll('[data-cat]').forEach(function (item) {
-          item.style.display = (cat === 'all' || item.getAttribute('data-cat') === cat) ? '' : 'none';
-        });
-      });
-    });
-  });
+  <div class="modal-backdrop" id="modal-signup">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeModal('signup')">✕</button>
+      <h2 class="text-xl font-bold mb-4">회원가입</h2>
+      <form class="modal-form"><input class="modal-input" placeholder="이름"><input class="modal-input" placeholder="아이디"><button type="button" class="btn-primary-full">가입하기</button></form>
+      <p class="modal-switch">이미 계정이 있으신가요? <a data-switch-modal="signup:login">로그인</a></p>
+    </div>
+  </div>
 
-  /* ── Ad/Partner Apply Form ── */
-  const applyForm = document.getElementById('apply-form');
-  if (applyForm) {
-    applyForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const consent = applyForm.querySelector('[name="consent"]');
-      if (!consent || !consent.checked) { alert('개인정보 수집에 동의해주세요.'); return; }
-      applyForm.innerHTML = '<div style="text-align:center;padding:48px 0;"><div style="font-size:3.2rem;margin-bottom:16px;">✅</div><h3 style="font-size:1.3rem;font-weight:900;color:#0B2A5B;margin-bottom:8px;">광고 문의가 접수되었습니다!</h3><p style="color:#475569;font-size:.94rem;line-height:1.7;">담당자가 확인 후 1~2 영업일 이내 연락드리겠습니다.<br>감사합니다.</p></div>';
-    });
-  }
+  <div class="modal-backdrop" id="modal-find-id">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeModal('find-id')">✕</button>
+      <h2 class="text-xl font-bold mb-4">아이디 찾기</h2>
+      <form class="modal-form"><input class="modal-input" placeholder="이름"><input class="modal-input" placeholder="이메일"><button type="button" class="btn-primary-full">아이디 찾기</button></form>
+      <p class="modal-switch"><a data-switch-modal="find-id:login">로그인으로 돌아가기</a></p>
+    </div>
+  </div>
 
-  /* ── Jobs Register Alert ── */
-  const jobRegBtn = document.getElementById('job-reg-btn');
-  if (jobRegBtn) jobRegBtn.addEventListener('click', function () { alert('회원 로그인 후 공고를 등록하실 수 있습니다.'); });
+  <div class="modal-backdrop" id="modal-find-pw">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeModal('find-pw')">✕</button>
+      <h2 class="text-xl font-bold mb-4">비밀번호 찾기</h2>
+      <form class="modal-form"><input class="modal-input" placeholder="아이디"><input class="modal-input" placeholder="이메일"><button type="button" class="btn-primary-full">비밀번호 찾기</button></form>
+      <p class="modal-switch"><a data-switch-modal="find-pw:login">로그인으로 돌아가기</a></p>
+    </div>
+  </div>
 
-  /* ── Board Row Click ── */
-  document.querySelectorAll('[data-href]').forEach(function (row) {
-    row.addEventListener('click', function () {
-      const href = row.getAttribute('data-href');
-      if (href) window.location.href = href;
-    });
-  });
-
-  /* ── Inquiry Alert (partner detail) ── */
-  document.querySelectorAll('.btn-inquiry-alert').forEach(function (btn) {
-    btn.addEventListener('click', function () { alert('업체 담당자에게 연결됩니다.\n전화: ' + (btn.getAttribute('data-phone') || '02-000-0000')); });
-  });
-
-  /* ── Smooth Anchor (About page) ── */
-  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-    a.addEventListener('click', function (e) {
-      const id = a.getAttribute('href').slice(1);
-      if (!id) return;
-      const target = document.getElementById(id);
-      if (target) {
-        e.preventDefault();
-        const top = target.getBoundingClientRect().top + window.scrollY - 76;
-        window.scrollTo({ top: top, behavior: 'smooth' });
-      }
-    });
-  });
-
-  /* ── About sidebar active on scroll ── */
-  const sections = document.querySelectorAll('.about-section[id]');
-  const sideLinks = document.querySelectorAll('.sidebar-menu a[href^="#"]');
-  if (sections.length && sideLinks.length) {
-    window.addEventListener('scroll', function () {
-      let cur = '';
-      sections.forEach(function (s) {
-        if (window.scrollY >= s.offsetTop - 100) cur = s.id;
-      });
-      sideLinks.forEach(function (l) { l.classList.toggle('active', l.getAttribute('href') === '#' + cur); });
-    }, { passive: true });
-  }
-
-  /* ── Modal Controller ── */
-  (function () {
-    var loginBackdrop = document.getElementById('modal-login');
-    var signupBackdrop = document.getElementById('modal-signup');
-
+  <script>
+    // 모든 모달 제어 로직
     function openModal(name) {
-      var el = name === 'login' ? loginBackdrop : signupBackdrop;
-      if (!el) return;
-      el.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-      // clear errors
-      el.querySelectorAll('.modal-error').forEach(function (e) { e.classList.remove('show'); });
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
+      const el = document.getElementById('modal-' + name);
+      if (el) el.classList.add('is-open');
     }
 
     function closeModal(name) {
-      var el = name === 'login' ? loginBackdrop : signupBackdrop;
-      if (!el) return;
-      el.classList.remove('is-open');
-      // restore overflow only if both modals closed
-      if (loginBackdrop && !loginBackdrop.classList.contains('is-open') &&
-          signupBackdrop && !signupBackdrop.classList.contains('is-open')) {
-        document.body.style.overflow = '';
-      }
+      const el = document.getElementById('modal-' + name);
+      if (el) el.classList.remove('is-open');
     }
 
-    function switchModal(from, to) {
-      closeModal(from);
-      setTimeout(function () { openModal(to); }, 60);
-    }
-
-    // trigger binding: data-open-modal="login" or data-open-modal="signup"
-    document.querySelectorAll('[data-open-modal]').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        openModal(el.getAttribute('data-open-modal'));
-      });
+    // 버튼 이벤트 리스너 등록
+    document.querySelectorAll('[data-open-modal]').forEach(el => {
+      el.addEventListener('click', () => openModal(el.getAttribute('data-open-modal')));
     });
 
-    // backdrop click to close (but not dialog click)
-    [loginBackdrop, signupBackdrop].forEach(function (bd) {
-      if (!bd) return;
-      bd.addEventListener('click', function (e) {
-        if (e.target === bd) closeModal(bd.id === 'modal-login' ? 'login' : 'signup');
+    document.querySelectorAll('[data-switch-modal]').forEach(el => {
+      el.addEventListener('click', () => {
+        const [close, open] = el.getAttribute('data-switch-modal').split(':');
+        closeModal(close);
+        setTimeout(() => openModal(open), 100);
       });
     });
-
-    // close buttons
-    document.querySelectorAll('.modal-close[data-close-modal]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        closeModal(btn.getAttribute('data-close-modal'));
-      });
-    });
-
-    // switch links
-    document.querySelectorAll('[data-switch-modal]').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        var parts = el.getAttribute('data-switch-modal').split(':');
-        switchModal(parts[0], parts[1]);
-      });
-    });
-
-    // Esc key
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {
-        if (loginBackdrop && loginBackdrop.classList.contains('is-open')) closeModal('login');
-        if (signupBackdrop && signupBackdrop.classList.contains('is-open')) closeModal('signup');
-      }
-    });
-
-    // Login form submit
-    var loginForm = document.getElementById('login-form');
-    if (loginForm) {
-      loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var id = loginForm.querySelector('[name="login-id"]').value.trim();
-        var pw = loginForm.querySelector('[name="login-pw"]').value.trim();
-        var idErr = document.getElementById('login-id-err');
-        var pwErr = document.getElementById('login-pw-err');
-        var ok = true;
-        if (idErr) idErr.classList.remove('show');
-        if (pwErr) pwErr.classList.remove('show');
-        if (!id) { if (idErr) idErr.classList.add('show'); ok = false; }
-        if (!pw) { if (pwErr) pwErr.classList.add('show'); ok = false; }
-        if (!ok) return;
-        var body = loginForm.closest('.modal-dialog');
-        if (body) {
-          body.innerHTML = '<div class="modal-success"><div class="modal-success-icon">&#10003;</div><p class="modal-success-msg">로그인 시뮬레이션: ' + id + '</p><p class="modal-success-sub">환영합니다!</p></div>';
-          setTimeout(function () { closeModal('login'); }, 1500);
-        }
-      });
-    }
-
-    // Signup form submit
-    var signupForm = document.getElementById('signup-form');
-    if (signupForm) {
-      signupForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var pw = signupForm.querySelector('[name="signup-pw"]').value;
-        var pw2 = signupForm.querySelector('[name="signup-pw2"]').value;
-        var pwErr = document.getElementById('signup-pw-err');
-        var pw2Err = document.getElementById('signup-pw2-err');
-        var tc1Err = document.getElementById('signup-tc1-err');
-        var tc2Err = document.getElementById('signup-tc2-err');
-        var tc1 = signupForm.querySelector('[name="signup-tc1"]');
-        var tc2 = signupForm.querySelector('[name="signup-tc2"]');
-        var ok = true;
-        [pwErr, pw2Err, tc1Err, tc2Err].forEach(function (e) { if (e) e.classList.remove('show'); });
-        if (pw && pw2 && pw !== pw2) { if (pw2Err) pw2Err.classList.add('show'); ok = false; }
-        if (tc1 && !tc1.checked) { if (tc1Err) tc1Err.classList.add('show'); ok = false; }
-        if (tc2 && !tc2.checked) { if (tc2Err) tc2Err.classList.add('show'); ok = false; }
-        if (!ok) return;
-        var body = signupForm.closest('.modal-dialog');
-        if (body) {
-          body.innerHTML = '<div class="modal-success"><div class="modal-success-icon">&#10003;</div><p class="modal-success-msg">회원가입이 완료되었습니다 (시뮬레이션)</p><p class="modal-success-sub">로그인 후 이용해주세요.</p></div>';
-          setTimeout(function () { closeModal('signup'); }, 2000);
-        }
-      });
-    }
-  })();
-
-});
+  </script>
+</body>
+</html>

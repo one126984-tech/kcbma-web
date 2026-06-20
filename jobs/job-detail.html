@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>구인 상세 | 대한집합건물관리협회</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -10,57 +10,45 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/style.css" />
   
   <style>
-    body { font-family: 'Noto Sans KR', sans-serif; }
+    :root {
+      --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
+      --bg: #F8FAFC; --trans: .22s ease;
+    }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
     
     /* URL 숨김 및 클릭을 위한 커서 스타일 */
-    a, [data-href], [data-open-modal], [data-switch-modal], [data-close-modal] { cursor: pointer; }
+    a, [data-href] { cursor: pointer; }
     
     /* 메뉴 호버 시 청록색 변경 */
     .menu-item { color: #333333; transition: color 0.2s ease-in-out; }
-    .menu-item:hover { color: #008f8c; } 
+    .menu-item:hover { color: #2BA8A0; } 
     .menu-item.active { color: #000000; font-weight: 900; }
 
-    /* 구인 상세페이지 전용 스타일 유지 */
-    .job-article { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:36px; margin-bottom:24px; }
-    .job-badge-row { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
-    .job-badge-deadline { display:inline-block; background:#FEE2E2; color:#B91C1C; font-size:.7rem; font-weight:900; padding:3px 12px; border-radius:99px; }
-    .job-badge-type { display:inline-block; background:#DBEAFE; color:#1D4ED8; font-size:.7rem; font-weight:900; padding:3px 12px; border-radius:99px; }
-    .job-meta-row { display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:.8rem; color:var(--text-light); margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
-    .job-info-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:28px; }
-    .job-info-cell { display:flex; flex-direction:column; gap:4px; padding:14px 18px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); }
-    .job-info-cell:nth-child(2n) { border-right:none; }
-    .job-info-cell:nth-last-child(-n+2) { border-bottom:none; }
-    @media(max-width:540px){ .job-info-grid { grid-template-columns:1fr; } .job-info-cell { border-right:none; } .job-info-cell:nth-last-child(-n+2) { border-bottom:1px solid var(--border); } .job-info-cell:last-child { border-bottom:none; } }
-    .job-info-label { font-size:.72rem; color:var(--text-light); font-weight:700; }
-    .job-info-value { font-size:.9rem; color:var(--navy); font-weight:700; }
-    .job-section-title { font-size:1rem; font-weight:900; color:var(--navy); margin:28px 0 12px; padding-bottom:8px; border-bottom:2px solid var(--teal); display:inline-block; }
-    .job-body { font-size:.91rem; color:var(--text); line-height:1.9; }
-    .job-body p { margin-bottom:14px; }
-    .job-body ul { list-style:disc; padding-left:20px; margin-bottom:14px; }
-    .job-body li { margin-bottom:6px; }
-    .job-apply-box { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:20px 24px; margin-top:24px; }
-    .job-apply-box-title { font-size:.88rem; font-weight:900; color:var(--navy); margin-bottom:12px; }
-    .job-apply-row { display:flex; gap:10px; align-items:center; font-size:.85rem; color:var(--text-mid); margin-bottom:8px; }
-    .job-apply-row:last-child { margin-bottom:0; }
-    .job-apply-label { font-weight:700; color:var(--navy); min-width:56px; }
-    .job-cta { display:inline-flex; align-items:center; gap:8px; background:var(--teal); color:#fff; font-weight:900; font-size:.95rem; padding:14px 32px; border-radius:99px; border:none; cursor:pointer; margin-top:20px; transition:background .15s; }
-    .job-cta:hover { background:#0d9488; }
-    .job-nav { display:flex; gap:12px; margin-bottom:32px; flex-wrap:wrap; }
-    .job-nav-btn { flex:1; min-width:200px; background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; font-size:.82rem; color:var(--text-mid); text-decoration:none; transition:background var(--trans),border-color var(--trans); }
-    .job-nav-btn:hover { background:var(--bg); border-color:var(--teal); color:var(--navy); }
-    .job-nav-btn .nav-dir { font-size:.72rem; color:var(--text-light); margin-bottom:4px; }
-    .job-nav-btn .nav-title { font-weight:700; }
-    .apply-info-box { background:#F8FAFC; border-left:4px solid #2BA8A0; border-radius:12px; padding:20px 24px; margin-top:20px; line-height:1.6; }
-    .apply-info-title { font-size:.95rem; font-weight:900; color:var(--navy); margin-bottom:14px; }
-    .apply-info-row { display:flex; align-items:center; gap:10px; font-size:.88rem; color:var(--text-mid); margin-bottom:10px; }
-    .apply-info-row:last-of-type { margin-bottom:12px; }
-    .apply-info-link { color:#2BA8A0; font-weight:700; text-decoration:none; }
-    .apply-info-link:hover { text-decoration:underline; }
-    .apply-info-note { font-size:.82rem; color:var(--text-light); line-height:1.6; margin:0; }
-    .apply-info-highlight { outline:2px solid #2BA8A0; box-shadow:0 0 0 4px rgba(43,168,160,.18); transition:outline .2s,box-shadow .2s; }
+    /* 모달 필수 스타일 (표준화) */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex !important; }
+    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; }
+    .modal-brand { text-align: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
+    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; }
+    .modal-input:focus { border-color: #0e2b61; }
+    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+    .btn-primary-full:hover { background: #153b80; }
+    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; }
+
+    /* 지원 정보 하이라이트 애니메이션 */
+    .apply-info-highlight {
+      animation: highlightPulse 2s ease-out;
+    }
+    @keyframes highlightPulse {
+      0% { box-shadow: 0 0 0 0 rgba(43,168,160,0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(43,168,160,0); }
+      100% { box-shadow: 0 0 0 0 rgba(43,168,160,0); }
+    }
   </style>
 
   <script>
@@ -72,377 +60,487 @@
         else { window.location.href = url; }
       }
     }
+
+    // 커스텀 모달 제어 함수
+    function openCustomModal(id) {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden'; 
+      }
+    }
+
+    function closeCustomModal(id) {
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = ''; 
+      }
+    }
+
+    function switchCustomModal(closeId, openId) {
+      closeCustomModal(closeId);
+      setTimeout(() => openCustomModal(openId), 100); 
+    }
+
+    // 폼 제출 시 새로고침 방지
+    function handleFormSubmit(event, modalId, message) {
+      event.preventDefault(); 
+      alert(message);
+      closeCustomModal(modalId);
+    }
+
+    // 모바일 햄버거 메뉴 제어
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } else {
+        menu.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // 지원하기 스크롤 및 하이라이트 효과
+    function scrollToApplyInfo() {
+      const el = document.getElementById('apply-info');
+      if(el) {
+        el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        el.classList.add('apply-info-highlight');
+        setTimeout(function(){
+          el.classList.remove('apply-info-highlight');
+        }, 2000);
+      }
+    }
   </script>
 </head>
-<body class="bg-gray-50">
+<body class="flex flex-col min-h-screen">
 
-  <header class="w-full bg-white border-b border-gray-300 shadow-sm flex flex-col">
-    <div class="w-full bg-[#0a1931] py-2">
-      <div class="max-w-7xl mx-auto px-8 flex justify-end items-center space-x-2">
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">네이버카페</div>
-        <div data-href="#" data-open-modal="login" onclick="handleNavigation(this)" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">로그인</div>
-        <div data-href="#" data-open-modal="signup" onclick="handleNavigation(this)" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[13px] font-bold px-4 py-1.5 rounded transition-colors flex items-center justify-center">회원가입</div>
-        <div class="text-white text-[13px] font-bold ml-3 flex items-center">
-          <span data-href="#" onclick="handleNavigation(this)" class="hover:text-gray-300 transition-colors">아이디찾기</span>
-          <span class="mx-1.5 text-gray-400 font-normal">|</span>
-          <span data-href="#" onclick="handleNavigation(this)" class="hover:text-gray-300 transition-colors">비밀번호찾기</span>
+  <!-- 통합 표준 헤더 (모바일 터치 최적화 적용) -->
+  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
+    <div class="w-full bg-[#0a1931] py-2.5">
+      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
+        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
+        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
+        <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
+          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
+          <span class="text-gray-400 font-normal">|</span>
+          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
         </div>
       </div>
     </div>
-
-    <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full">
-      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center space-x-3 py-1">
-        <img src="../방패로고.jpg" alt="KCBMA 로고" class="h-[48px] w-auto object-contain flex-shrink-0">
-        <img src="../로고_글자.png" alt="대한집합건물관리협회" class="h-[44px] w-auto object-contain flex-shrink-0 mt-1">
+    
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
+      
       <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
-        <div class="menu-item py-1 relative group cursor-pointer" data-href="../info/index.html" onclick="handleNavigation(this)">
-          정보교류
-          <div class="gnb-dropdown absolute left-0 top-full hidden group-hover:block bg-white border border-gray-200 shadow-lg mt-1 w-40 z-50">
-            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="block px-4 py-2 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
-            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="block px-4 py-2 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
-            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="block px-4 py-2 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
-          </div>
-        </div>
+        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item py-1">정보교류</div>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item active py-1">구인구직</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
       </nav>
-      <button class="mobile-menu-btn md:hidden" id="mobile-menu-btn" aria-label="메뉴열기">
-        <span class="block w-6 h-0.5 bg-gray-800 mb-1"></span>
-        <span class="block w-6 h-0.5 bg-gray-800 mb-1"></span>
-        <span class="block w-6 h-0.5 bg-gray-800"></span>
+
+      <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
       </button>
-    </div>
-  </header>
-  <div id="mobile-menu" role="dialog" aria-modal="true" aria-label="모바일 메뉴" class="hidden">
-    <div class="mobile-menu-inner">
-      <div class="mobile-menu-header">
-        <img src="../assets/img/logo-horizontal.png" alt="KCBMA" />
-        <button class="mobile-close" id="mobile-close" aria-label="메뉴닫기">✕</button>
+    </header>
+  </div>
+
+  <!-- 모바일 사이드 메뉴 -->
+  <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+    <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+      <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
+        <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
       </div>
-      <ul>
-        <li><div data-href="../about/intro.html" onclick="handleNavigation(this)" class="mobile-nav-group" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;color:#fff;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);">협회소개</div></li>
-        <li class="mobile-nav-group">
-          <details>
-            <summary>정보교류</summary>
-            <div class="mobile-nav-sub">
-              <div data-href="../policy/law.html" onclick="handleNavigation(this)">법규·정책</div>
-              <div data-href="../info/videos.html" onclick="handleNavigation(this)">영상 자료실</div>
-              <div data-href="../info/columns.html" onclick="handleNavigation(this)">시설업체 칼럼</div>
-            </div>
-          </details>
-        </li>
-        <li><div data-href="../info/forum.html" onclick="handleNavigation(this)" class="mobile-nav-group" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;color:#fff;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);">정책토론</div></li>
-        <li><div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="mobile-nav-group" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;color:#fff;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);">구인구직</div></li>
-        <li><div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="mobile-nav-group" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;color:#fff;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);">정책신문고</div></li>
-      </ul>
-      <div class="mobile-cta-area">
-        <div data-href="../partners/apply.html" onclick="handleNavigation(this)">광고 문의</div>
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" style="background:rgba(255,255,255,.08);">네이버카페 바로가기</div>
+      
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
+        <details class="group">
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            정보교류
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+      </div>
+
+      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
       </div>
     </div>
   </div>
 
-  <section class="page-hero">
-    <div class="page-hero-inner">
-      <nav class="breadcrumb" aria-label="breadcrumb">
-        <span data-href="../index.html" onclick="handleNavigation(this)" class="hover:underline cursor-pointer">홈</span>
-        <span class="breadcrumb-sep">›</span>
-        <span data-href="list.html" onclick="handleNavigation(this)" class="hover:underline cursor-pointer">구인구직</span>
-        <span class="breadcrumb-sep">›</span>
-        <span>상세보기</span>
+  <!-- 페이지 히어로 -->
+  <section class="bg-[#0B2A5B] text-white py-12 md:py-16 text-center px-4">
+    <div class="max-w-7xl mx-auto">
+      <nav class="text-sm text-blue-200 mb-4 flex items-center justify-center space-x-2">
+        <a data-href="../index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">홈</a>
+        <span>›</span>
+        <a data-href="list.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">구인구직</a>
+        <span>›</span>
+        <span class="font-bold text-white">상세보기</span>
       </nav>
-      <h1>구인구직</h1>
+      <h1 class="text-3xl md:text-4xl font-black mb-3">구인구직</h1>
     </div>
   </section>
 
-  <main class="page-main">
-    <div class="inner" style="max-width:840px;">
+  <!-- 메인 콘텐츠 -->
+  <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
+    
+    <!-- 구인구직 상세 아티클 -->
+    <article class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm mb-8">
+      
+      <!-- 배지 및 메타 -->
+      <div class="flex gap-2 mb-4 flex-wrap items-center">
+        <span class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full">D-7 마감임박</span>
+        <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">구인</span>
+        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">상용직</span>
+      </div>
+      <h2 class="text-xl md:text-2xl font-black text-[#0B2A5B] leading-snug mb-4 break-keep">서울 강동구 OO아파트 (350세대) 전담 관리인 채용</h2>
+      
+      <div class="flex gap-4 items-center flex-wrap text-sm text-gray-500 mb-6 pb-4 border-b border-gray-100">
+        <span>2026.05.18 등록</span>
+        <span>마감: 2026.05.31</span>
+        <span>조회 412</span>
+      </div>
 
-      <article class="job-article">
-        <div class="job-badge-row">
-          <span class="job-badge-deadline">D-7 마감임박</span>
-          <span class="job-badge-type">구인</span>
-          <span class="job-badge-type" style="background:#EDE9FE;color:#6D28D9;">상용직</span>
+      <!-- 건물 정보 그리드 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-gray-200 rounded-xl overflow-hidden mb-8 bg-white">
+        <div class="flex flex-col p-4 border-b sm:border-r sm:border-b border-gray-200">
+          <span class="text-xs text-gray-500 font-bold mb-1">근무지</span>
+          <span class="text-sm font-bold text-[#0B2A5B]">서울 강동구</span>
         </div>
-        <h2 style="font-size:1.2rem;font-weight:900;color:var(--navy);line-height:1.5;margin-bottom:14px;word-break:keep-all;">서울 강동구 OO아파트 (350세대) 전담 관리인 채용</h2>
-        <div class="job-meta-row">
-          <span>2026.05.18 등록</span>
-          <span>마감: 2026.05.31</span>
-          <span>조회 412</span>
+        <div class="flex flex-col p-4 border-b border-gray-200">
+          <span class="text-xs text-gray-500 font-bold mb-1">고용형태</span>
+          <span class="text-sm font-bold text-[#0B2A5B]">상용직</span>
         </div>
+        <div class="flex flex-col p-4 border-b sm:border-r border-gray-200">
+          <span class="text-xs text-gray-500 font-bold mb-1">급여</span>
+          <span class="text-sm font-bold text-[#0B2A5B]">월 2,500,000원 (협의 가능)</span>
+        </div>
+        <div class="flex flex-col p-4 border-b border-gray-200">
+          <span class="text-xs text-gray-500 font-bold mb-1">근무시간</span>
+          <span class="text-sm font-bold text-[#0B2A5B]">09:00~18:00 (주5일)</span>
+        </div>
+        <div class="flex flex-col p-4 border-b sm:border-b-0 sm:border-r border-gray-200">
+          <span class="text-xs text-gray-500 font-bold mb-1">숙소</span>
+          <span class="text-sm font-bold text-[#0B2A5B]">관리실 내 주거 가능</span>
+        </div>
+        <div class="flex flex-col p-4">
+          <span class="text-xs text-gray-500 font-bold mb-1">담당단지</span>
+          <span class="text-sm font-bold text-[#0B2A5B]">350세대 아파트</span>
+        </div>
+      </div>
 
-        <div class="job-info-grid">
-          <div class="job-info-cell"><span class="job-info-label">근무지</span><span class="job-info-value">서울 강동구</span></div>
-          <div class="job-info-cell"><span class="job-info-label">고용형태</span><span class="job-info-value">상용직</span></div>
-          <div class="job-info-cell"><span class="job-info-label">급여</span><span class="job-info-value">월 2,500,000원 (협의 가능)</span></div>
-          <div class="job-info-cell"><span class="job-info-label">근무시간</span><span class="job-info-value">09:00~18:00 (주5일)</span></div>
-          <div class="job-info-cell"><span class="job-info-label">숙소</span><span class="job-info-value">관리실 내 주거 가능</span></div>
-          <div class="job-info-cell"><span class="job-info-label">담당단지</span><span class="job-info-value">350세대 아파트</span></div>
-        </div>
-
-        <p class="job-section-title">모집 내용</p>
-        <div class="job-body">
+      <!-- 모집 내용 본문 -->
+      <div class="mb-8">
+        <h3 class="text-base font-black text-[#0B2A5B] mb-3 pb-2 border-b-2 border-[#2BA8A0] inline-block">모집 내용</h3>
+        <div class="text-[15px] text-gray-700 leading-relaxed space-y-4 break-keep">
           <p>서울 강동구에 위치한 OO아파트 350세대를 전담 관리할 관리인을 모집합니다. 입주자 민원 처리, 공용시설 유지보수 관리, 관리비 정산 등 단지 운영 전반을 책임질 분을 찾고 있습니다.</p>
           <p>집합건물법 개정에 따라 본 채용은 서면 표준 고용 계약서 작성을 원칙으로 하며, 임기 2년에 재계약이 가능합니다. 입주자대표회의와의 원활한 소통 능력과 기초 전기·소방 안전 지식을 갖춘 분이라면 적극 환영합니다.</p>
-          <p class="job-section-title" style="margin-top:0;">주요 업무</p>
-          <ul>
-            <li>입주민 민원 접수 및 처리, 공용 시설물 유지보수 관리 감독</li>
-            <li>관리비 징수 및 회계 처리, 월별 수지 보고서 작성</li>
-            <li>경비·청소 인력 관리 및 업무 지시</li>
-            <li>소방·전기·승강기 등 안전 점검 일정 관리 및 업체 협력</li>
-            <li>입주자대표회의 안건 준비 및 회의 진행 보조</li>
-          </ul>
-          <p class="job-section-title" style="margin-top:0;">자격 요건</p>
-          <ul>
-            <li>주택관리사 자격증 소지자 우대 (무자격자도 경력자 지원 가능)</li>
-            <li>공동주택 또는 집합건물 관리 경력 3년 이상 우대</li>
-            <li>기초 컴퓨터 활용 능력 (엑셀, 이메일 등) 필수</li>
-            <li>성실하고 책임감 있는 분, 입주민과의 소통을 즐기는 분</li>
-          </ul>
         </div>
+      </div>
 
-        <p class="job-section-title">지원 방법</p>
-        <div class="job-apply-box">
-          <p class="job-apply-box-title">아래 방법으로 지원서를 제출해 주세요</p>
-          <div class="job-apply-row"><span class="job-apply-label">이메일</span><span>idea8888@naver.com (이력서 및 경력 기술서 첨부)</span></div>
-          <div class="job-apply-row"><span class="job-apply-label">전화</span><span>031-984-6199 (평일 09:00~18:00)</span></div>
-          <div class="job-apply-row"><span class="job-apply-label">마감일</span><span>2026년 5월 31일 (서류 전형 → 면접 순서로 진행)</span></div>
-        </div>
+      <!-- 주요 업무 -->
+      <div class="mb-8">
+        <h3 class="text-base font-black text-[#0B2A5B] mb-3 pb-2 border-b-2 border-[#2BA8A0] inline-block">주요 업무</h3>
+        <ul class="list-disc list-inside text-[15px] text-gray-700 space-y-2 marker:text-gray-400 break-keep">
+          <li>입주민 민원 접수 및 처리, 공용 시설물 유지보수 관리 감독</li>
+          <li>관리비 징수 및 회계 처리, 월별 수지 보고서 작성</li>
+          <li>경비·청소 인력 관리 및 업무 지시</li>
+          <li>소방·전기·승강기 등 안전 점검 일정 관리 및 업체 협력</li>
+          <li>입주자대표회의 안건 준비 및 회의 진행 보조</li>
+        </ul>
+      </div>
 
-        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-          <button class="job-cta" onclick="document.getElementById('apply-info').scrollIntoView({behavior:'smooth',block:'center'});var el=document.getElementById('apply-info');el.classList.add('apply-info-highlight');setTimeout(function(){el.classList.remove('apply-info-highlight');},2000);">지원하기 →</button>
-          <span data-href="list.html" onclick="handleNavigation(this)" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);color:var(--text-mid);font-size:.84rem;padding:10px 22px;border-radius:99px;cursor:pointer;" class="hover:bg-gray-100 transition-colors">목록으로</span>
-        </div>
+      <!-- 자격 요건 -->
+      <div class="mb-8">
+        <h3 class="text-base font-black text-[#0B2A5B] mb-3 pb-2 border-b-2 border-[#2BA8A0] inline-block">자격 요건</h3>
+        <ul class="list-disc list-inside text-[15px] text-gray-700 space-y-2 marker:text-gray-400 break-keep">
+          <li>주택관리사 자격증 소지자 우대 (무자격자도 경력자 지원 가능)</li>
+          <li>공동주택 또는 집합건물 관리 경력 3년 이상 우대</li>
+          <li>기초 컴퓨터 활용 능력 (엑셀, 이메일 등) 필수</li>
+          <li>성실하고 책임감 있는 분, 입주민과의 소통을 즐기는 분</li>
+        </ul>
+      </div>
 
-        <div id="apply-info" class="apply-info-box">
-          <p class="apply-info-title">지원 방법 안내</p>
-          <div class="apply-info-row">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#2BA8A0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <span>이메일: <span data-href="mailto:idea8888@naver.com" onclick="handleNavigation(this)" class="apply-info-link cursor-pointer">idea8888@naver.com</span></span>
+      <!-- 지원 방법 안내 박스 -->
+      <div>
+        <h3 class="text-base font-black text-[#0B2A5B] mb-3 pb-2 border-b-2 border-[#2BA8A0] inline-block">지원 방법</h3>
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 md:p-6 mb-6">
+          <p class="text-sm font-black text-[#0B2A5B] mb-3">아래 방법으로 지원서를 제출해 주세요</p>
+          <div class="space-y-2 text-[14px] text-gray-600">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3"><span class="font-bold text-[#0B2A5B] w-14">이메일</span><span class="break-all">idea8888@naver.com (이력서 및 경력 기술서 첨부)</span></div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3"><span class="font-bold text-[#0B2A5B] w-14">전화</span><span>031-984-6199 (평일 09:00~18:00)</span></div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3"><span class="font-bold text-[#0B2A5B] w-14">마감일</span><span>2026년 5월 31일 (서류 전형 → 면접 순서로 진행)</span></div>
           </div>
-          <div class="apply-info-row">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#2BA8A0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.58 2.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.3a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
-            <span>전화: <span data-href="tel:031-984-6199" onclick="handleNavigation(this)" class="apply-info-link cursor-pointer">031-984-6199</span></span>
-          </div>
-          <p class="apply-info-note">이력서 및 경력기술서를 첨부해 이메일로 보내주시거나 전화로 지원해 주세요.</p>
         </div>
-      </article>
-
-      <div class="job-nav">
-        <div data-href="job-detail.html" onclick="handleNavigation(this)" class="job-nav-btn cursor-pointer"><div class="nav-dir">← 이전 글</div><div class="nav-title">경기 고양시 OO오피스텔 (180실) 관리인 모집</div></div>
-        <div data-href="job-detail.html" onclick="handleNavigation(this)" class="job-nav-btn cursor-pointer" style="text-align:right;"><div class="nav-dir">다음 글 →</div><div class="nav-title">인천 연수구 OO아파트 (520세대) 공동 관리인 구인</div></div>
       </div>
 
-      <section class="comment-section" id="comments">
-        <h3 class="comment-section-title">댓글 <span class="comment-count">2</span></h3>
-        <div class="comment-list" id="comment-list">
-          <div class="comment-item"><div class="comment-avatar">익</div><div class="comment-body"><div class="comment-meta"><span class="comment-author">익명회원</span><span class="comment-date">2026.05.19</span></div><p class="comment-text">숙소 제공이 가능하다고 하셨는데 관리실 내 주거 환경이 어떻게 되나요? 이메일로 문의드려도 될까요?</p></div></div>
-          <div class="comment-item"><div class="comment-avatar">익</div><div class="comment-body"><div class="comment-meta"><span class="comment-author">익명회원</span><span class="comment-date">2026.05.21</span></div><p class="comment-text">주택관리사 자격증이 없어도 경력만으로 지원 가능한지 확인하고 싶습니다.</p></div></div>
+      <!-- 하단 버튼 영역 -->
+      <div class="mt-6 flex flex-wrap gap-3 items-center">
+        <button onclick="scrollToApplyInfo()" class="bg-[#2BA8A0] hover:bg-[#208882] text-white font-bold py-3.5 px-8 rounded-full transition-colors shadow-sm w-full sm:w-auto text-[15px]">지원하기 →</button>
+        <button data-href="list.html" onclick="handleNavigation(this)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-bold py-3.5 px-8 rounded-full transition-colors w-full sm:w-auto text-[15px]">목록으로</button>
+      </div>
+
+      <!-- 하이라이트 되는 지원 안내 상세 박스 -->
+      <div id="apply-info" class="bg-blue-50 border-l-4 border-[#2BA8A0] rounded-r-xl p-5 md:p-6 mt-6 transition-shadow">
+        <p class="text-[15px] font-black text-[#0B2A5B] mb-3">지원 방법 상세 안내</p>
+        <div class="flex items-center gap-2 text-[14px] text-gray-700 mb-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#2BA8A0] flex-shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span>이메일: <a data-href="mailto:idea8888@naver.com" onclick="handleNavigation(this)" class="text-[#2BA8A0] font-bold hover:underline cursor-pointer">idea8888@naver.com</a></span>
         </div>
-        <div class="comment-form-wrap">
-          <div class="comment-form-header"><span class="comment-form-label">댓글 작성</span><label class="comment-anon-toggle cursor-pointer"><input type="checkbox" id="comment-anon" checked /><span>익명</span></label></div>
-          <textarea class="comment-textarea" id="comment-input" placeholder="댓글을 입력하세요."></textarea>
-          <div class="comment-form-footer"><span class="comment-char-count"><span id="comment-char">0</span>/500</span><button class="comment-submit-btn cursor-pointer" id="comment-submit">등록</button></div>
+        <div class="flex items-center gap-2 text-[14px] text-gray-700 mb-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#2BA8A0] flex-shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.58 2.7h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.3a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
+          <span>전화: <a data-href="tel:031-984-6199" onclick="handleNavigation(this)" class="text-[#2BA8A0] font-bold hover:underline cursor-pointer">031-984-6199</a></span>
         </div>
-      </section>
-    </div>
- <!-- 통합 공통 푸터 -->
-<footer style="background: #040f24; color: #fff; padding: 60px 20px; margin-top: 50px;">
-  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start;">
-    
-    <div style="flex: 1;">
-      <img src="../assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고">
-      <div style="font-size: 0.9rem; line-height: 1.8; color: #fff;">
-        <p style="margin: 5px 0;">주소: 경기도 김포시 김포대로 699</p>
-        <p style="margin: 5px 0;">전화: 031-984-6199 · 팩스: 031-985-6199</p>
-        <p style="margin: 5px 0;">이메일: idea8888@naver.com</p>
+        <p class="text-[13px] text-gray-500 leading-relaxed break-keep">이력서 및 경력기술서를 첨부해 이메일로 보내주시거나 전화로 지원해 주세요.</p>
+      </div>
+
+    </article>
+
+    <!-- 이전 글 / 다음 글 네비게이션 -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-10">
+      <div data-href="job-detail.html" onclick="handleNavigation(this)" class="flex-1 bg-white border border-gray-200 rounded-xl p-4 hover:border-[#2BA8A0] hover:bg-gray-50 transition-colors cursor-pointer text-left">
+        <p class="text-xs text-gray-500 mb-1">← 이전 글</p>
+        <p class="text-sm font-bold text-gray-800 line-clamp-1 break-keep">경기 고양시 OO오피스텔 (180실) 관리인 모집</p>
+      </div>
+      <div data-href="job-detail.html" onclick="handleNavigation(this)" class="flex-1 bg-white border border-gray-200 rounded-xl p-4 hover:border-[#2BA8A0] hover:bg-gray-50 transition-colors cursor-pointer text-right">
+        <p class="text-xs text-gray-500 mb-1">다음 글 →</p>
+        <p class="text-sm font-bold text-gray-800 line-clamp-1 break-keep">인천 연수구 OO아파트 (520세대) 공동 관리인 구인</p>
       </div>
     </div>
 
-    <div style="flex: 0.5;">
-      <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">사이트맵</h4>
-      <div style="font-size: 0.9rem; line-height: 2.2;">
-        <a href="../info/index.html" style="color: #fff; text-decoration: none;">정보교류 종합 포털</a><br>
-        <a href="../info/forum.html" style="color: #fff; text-decoration: none;">정책 토론 광장</a><br>
-        <a href="../jobs/list.html" style="color: #fff; text-decoration: none;">구인구직 센터</a>
-      </div>
-    </div>
-
-    <div style="flex: 0.5;">
-      <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">제휴 파트너</h4>
-      <div style="font-size: 0.9rem; line-height: 2.2;">
-        <a href="../partners/list.html" style="color: #fff; text-decoration: none;">우수 파트너사 목록</a><br>
-        <a href="../partners/apply.html" style="color: #fff; text-decoration: none;">유지 보수사 협력 신청</a>
-      </div>
-      <a href="https://cafe.naver.com/kcbma114" target="_blank" style="display: inline-block; background: #00C73C; color: #fff; padding: 8px 16px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; margin-top: 15px; text-decoration: none;">N 네이버카페</a>
-    </div>
-
-  </div>
-  
-  <div style="max-width: 1200px; margin: 40px auto 0 auto; border-top: 1px solid #1e3a8a; padding-top: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; color: #fff;">
-    <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
-    <div>
-      <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">이용약관</a>
-      <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">개인정보처리방침</a>
-    </div>
-  </div>
-</footer>
-
-
-
-
-  <div class="modal-backdrop hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
-    <div class="modal-dialog bg-white rounded-lg p-8 w-full max-w-md relative">
-      <button class="modal-close absolute top-4 right-4 text-gray-400 hover:text-gray-600" data-close-modal="login" aria-label="닫기">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <div class="modal-brand text-center mb-6">
-        <img src="../방패로고.jpg" alt="KCBMA" class="modal-brand-img h-12 mx-auto mb-2" />
-        <p class="modal-title font-bold text-xl text-gray-800">로그인</p>
-        <p class="modal-subtitle text-sm text-gray-500">대한집합건물관리협회에 오신 것을 환영합니다</p>
-      </div>
-      <form class="modal-form" id="login-form" novalidate>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="login-id">아이디</label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="text" id="login-id" name="login-id" placeholder="아이디 또는 이메일" autocomplete="username" />
-        </div>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="login-pw">비밀번호</label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="password" id="login-pw" name="login-pw" placeholder="비밀번호" autocomplete="current-password" />
-        </div>
-        <div class="modal-row flex justify-between items-center mb-6 text-sm">
-          <label class="modal-remember flex items-center text-gray-600 cursor-pointer"><input type="checkbox" name="login-keep" class="mr-2" /> 로그인 상태 유지</label>
-          <span data-href="#" onclick="handleNavigation(this)" class="modal-forgot text-[#008f8c] hover:underline cursor-pointer">비밀번호 찾기</span>
-        </div>
-        <button type="submit" class="btn-primary-full w-full bg-[#1f3b73] hover:bg-[#152a55] text-white font-bold py-2.5 rounded transition cursor-pointer">로그인</button>
-      </form>
-      <p class="modal-switch text-center text-sm text-gray-500 mt-6">아직 회원이 아니신가요? <span data-href="#" data-switch-modal="login:signup" onclick="handleNavigation(this)" class="text-[#008f8c] font-medium hover:underline cursor-pointer">회원가입</span></p>
-    </div>
-  </div>
-
-  <div class="modal-backdrop hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center" id="modal-signup" role="dialog" aria-modal="true" aria-label="회원가입">
-    <div class="modal-dialog signup-dialog bg-white rounded-lg p-8 w-full max-w-md relative overflow-y-auto max-h-[90vh]">
-      <button class="modal-close absolute top-4 right-4 text-gray-400 hover:text-gray-600" data-close-modal="signup" aria-label="닫기">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <div class="modal-brand text-center mb-6">
-        <img src="../방패로고.jpg" alt="KCBMA" class="modal-brand-img h-12 mx-auto mb-2" />
-        <p class="modal-title font-bold text-xl text-gray-800">회원가입</p>
-        <p class="modal-subtitle text-sm text-gray-500">대한집합건물관리협회 회원이 되어보세요</p>
-      </div>
-      <form class="modal-form" id="signup-form" novalidate>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="signup-name">이름 <span class="text-red-500">*</span></label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="text" id="signup-name" name="signup-name" placeholder="이름" required />
-        </div>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="signup-id">아이디 <span class="text-red-500">*</span></label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="text" id="signup-id" name="signup-id" placeholder="아이디 (영문·숫자)" required />
-        </div>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="signup-email">이메일 <span class="text-red-500">*</span></label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="email" id="signup-email" name="signup-email" placeholder="이메일" required />
-        </div>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="signup-pw">비밀번호 <span class="text-red-500">*</span></label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="password" id="signup-pw" name="signup-pw" placeholder="비밀번호 (8자 이상)" required />
-        </div>
-        <div class="modal-field mb-4">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="signup-pw2">비밀번호 확인 <span class="text-red-500">*</span></label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="password" id="signup-pw2" name="signup-pw2" placeholder="비밀번호 확인" required />
-        </div>
-        <div class="modal-field mb-6">
-          <label class="modal-label block text-sm font-medium text-gray-700 mb-1" for="signup-phone">휴대전화 <span class="text-gray-400 text-xs">(선택)</span></label>
-          <input class="modal-input w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#008f8c]" type="tel" id="signup-phone" name="signup-phone" placeholder="010-0000-0000" />
-        </div>
-        <div class="modal-checkbox-group bg-gray-50 p-4 rounded-md mb-6 space-y-3">
-          <label class="modal-check-label flex items-start text-sm text-gray-600 cursor-pointer">
-            <input type="checkbox" name="signup-tc1" class="mt-1 mr-2" />
-            <span><span class="text-red-500 font-bold mr-1">[필수]</span><span data-href="#" onclick="handleNavigation(this)" class="underline hover:text-gray-900 cursor-pointer">이용약관</span>에 동의합니다</span>
-          </label>
-          <label class="modal-check-label flex items-start text-sm text-gray-600 cursor-pointer">
-            <input type="checkbox" name="signup-tc2" class="mt-1 mr-2" />
-            <span><span class="text-red-500 font-bold mr-1">[필수]</span><span data-href="#" onclick="handleNavigation(this)" class="underline hover:text-gray-900 cursor-pointer">개인정보 처리방침</span>에 동의합니다</span>
-          </label>
-          <label class="modal-check-label flex items-start text-sm text-gray-600 cursor-pointer">
-            <input type="checkbox" name="signup-mkt" class="mt-1 mr-2" />
-            <span><span class="text-gray-400 font-bold mr-1">[선택]</span>마케팅 정보 수신에 동의합니다</span>
-          </label>
-        </div>
-        <button type="submit" class="btn-primary-full w-full bg-[#1f3b73] hover:bg-[#152a55] text-white font-bold py-2.5 rounded transition cursor-pointer">회원가입</button>
-      </form>
-      <p class="modal-switch text-center text-sm text-gray-500 mt-6">이미 계정이 있으신가요? <span data-href="#" data-switch-modal="signup:login" onclick="handleNavigation(this)" class="text-[#008f8c] font-medium hover:underline cursor-pointer">로그인</span></p>
-    </div>
-  </div>
-
-<script src="../assets/js/main.js"></script>
-<script>
-// 기존 댓글 입력 스크립트 그대로 유지
-(function(){
-  var input = document.getElementById('comment-input');
-  var charCount = document.getElementById('comment-char');
-  var submitBtn = document.getElementById('comment-submit');
-  var commentList = document.getElementById('comment-list');
-  var countEl = document.querySelector('.comment-count');
-  
-  if(input){
-    input.addEventListener('input',function(){
-      var len=input.value.length;
-      if(len>500){
-        input.value=input.value.slice(0,500);
-        len=500;
-      }
-      if(charCount) charCount.textContent=len;
-    });
-  }
-  
-  if(submitBtn){
-    submitBtn.addEventListener('click',function(){
-      var text = input ? input.value.trim() : '';
-      if(!text){
-        alert('댓글을 입력해주세요.');
-        return;
-      }
-      var now = new Date();
-      var dateStr = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0');
-      var div = document.createElement('div');
-      div.className = 'comment-item';
-      div.innerHTML = '<div class="comment-avatar">익</div><div class="comment-body"><div class="comment-meta"><span class="comment-author">익명회원</span><span class="comment-date">'+dateStr+'</span></div><p class="comment-text">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p></div>';
+    <!-- 댓글 영역 -->
+    <section id="comments" class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm">
+      <h3 class="text-lg font-black text-gray-900 mb-6 border-b border-gray-100 pb-3">댓글 <span class="text-[#2BA8A0] comment-count">2</span></h3>
       
-      if(commentList) commentList.appendChild(div);
-      input.value = '';
-      if(charCount) charCount.textContent = '0';
-      var current = countEl ? parseInt(countEl.textContent) : 0;
-      if(countEl) countEl.textContent = current + 1;
-    });
-  }
-})();
+      <!-- 댓글 리스트 -->
+      <div id="comment-list" class="space-y-6 mb-8">
+        <div class="flex gap-4 pt-4 border-t border-gray-100 first:border-0 first:pt-0">
+          <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold flex-shrink-0">익</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-bold text-[14px] text-gray-900">익명회원</span>
+              <span class="text-xs text-gray-400">2026.05.19</span>
+            </div>
+            <p class="text-[14px] text-gray-700 leading-relaxed break-keep">숙소 제공이 가능하다고 하셨는데 관리실 내 주거 환경이 어떻게 되나요? 이메일로 문의드려도 될까요?</p>
+          </div>
+        </div>
+        <div class="flex gap-4 pt-4 border-t border-gray-100 first:border-0 first:pt-0">
+          <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold flex-shrink-0">익</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-bold text-[14px] text-gray-900">익명회원</span>
+              <span class="text-xs text-gray-400">2026.05.21</span>
+            </div>
+            <p class="text-[14px] text-gray-700 leading-relaxed break-keep">주택관리사 자격증이 없어도 경력만으로 지원 가능한지 확인하고 싶습니다.</p>
+          </div>
+        </div>
+      </div>
 
-// 모달 제어 자바스크립트 추가
-document.querySelectorAll('[data-open-modal]').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const modalId = e.currentTarget.getAttribute('data-open-modal');
-    document.getElementById(`modal-${modalId}`).classList.remove('hidden');
-  });
-});
+      <!-- 댓글 작성 폼 -->
+      <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-bold text-[13px] text-gray-700">댓글 작성</span>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="comment-anon" checked class="w-3.5 h-3.5 cursor-pointer" />
+            <span class="text-xs text-gray-600">익명</span>
+          </label>
+        </div>
+        <textarea id="comment-input" class="w-full bg-white border border-gray-300 rounded-lg p-3 text-[14px] outline-none focus:border-[#0B2A5B] resize-y min-h-[80px] mb-3" placeholder="댓글을 입력하세요."></textarea>
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-gray-400"><span id="comment-char">0</span>/500</span>
+          <button id="comment-submit" class="bg-[#0B2A5B] hover:bg-[#153b80] text-white text-[13px] font-bold py-2 px-6 rounded-lg transition-colors cursor-pointer">등록</button>
+        </div>
+      </div>
+    </section>
 
-document.querySelectorAll('[data-close-modal]').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const modalId = e.currentTarget.getAttribute('data-close-modal');
-    document.getElementById(`modal-${modalId}`).classList.add('hidden');
-  });
-});
+  </main>
 
-document.querySelectorAll('[data-switch-modal]').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const [fromId, toId] = e.currentTarget.getAttribute('data-switch-modal').split(':');
-    document.getElementById(`modal-${fromId}`).classList.add('hidden');
-    document.getElementById(`modal-${toId}`).classList.remove('hidden');
-  });
-});
-</script>
+  <!-- 통합 반응형 푸터 -->
+  <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
+      
+      <div class="flex-1 w-full">
+        <img src="../대한집합건물관리협회-removebg-preview.png" class="h-[50px] md:h-[60px] filter brightness-0 invert mb-5" alt="대한집합건물관리협회 로고" onerror="this.src='../방패로고.jpg'">
+        <div class="text-[14px] md:text-[15px] leading-relaxed text-gray-300">
+          <p class="mb-1">주소: 경기도 김포시 김포대로 699</p>
+          <p class="mb-1">전화: 031-984-6199 · 팩스: 031-985-6199</p>
+          <p class="mb-1">이메일: idea8888@naver.com</p>
+        </div>
+      </div>
+
+      <div class="flex-[0.5] w-full">
+        <h4 class="mb-4 font-bold text-white text-[16px]">사이트맵</h4>
+        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
+          <a href="../info/index.html" class="hover:text-white transition-colors">정보교류 종합 포털</a>
+          <a href="../info/forum.html" class="hover:text-white transition-colors">정책 토론 광장</a>
+          <a href="list.html" class="hover:text-white transition-colors">구인구직 센터</a>
+        </div>
+      </div>
+
+      <div class="flex-[0.5] w-full">
+        <h4 class="mb-4 font-bold text-white text-[16px]">제휴 파트너</h4>
+        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
+          <a href="../partners/list.html" class="hover:text-white transition-colors">우수 파트너사 목록</a>
+          <a href="../partners/apply.html" class="hover:text-white transition-colors">유지 보수사 협력 신청</a>
+        </div>
+        <a href="https://cafe.naver.com/kcbma114" target="_blank" class="inline-block bg-[#00C73C] text-white px-4 py-2 rounded font-bold text-[14px] mt-4 hover:bg-[#00a833] transition-colors">
+          네이버카페
+        </a>
+      </div>
+
+    </div>
+    
+    <div class="max-w-7xl mx-auto mt-10 md:mt-12 pt-6 border-t border-blue-900 text-[12px] md:text-[13px] flex flex-col md:flex-row justify-between items-center text-gray-400 gap-4">
+      <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
+      <div class="flex space-x-5">
+        <a href="#" class="hover:text-white transition-colors">이용약관</a>
+        <a href="#" class="hover:text-white transition-colors">개인정보처리방침</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 인증 보조 모달 4종 (표준 레이아웃 적용) -->
+  
+  <!-- 로그인 모달 -->
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
+        <p class="modal-title">로그인</p>
+        <p class="text-xs text-gray-500 text-center mt-1">대한집합건물관리협회 포털 서비스</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'login', '로그인 처리 준비 중입니다.');">
+        <input class="modal-input" type="text" placeholder="아이디 또는 이메일" required />
+        <input class="modal-input" type="password" placeholder="비밀번호" required />
+        <button type="submit" class="btn-primary-full mt-2">안전 로그인</button>
+      </form>
+      <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
+    </div>
+  </div>
+
+  <!-- 회원가입 모달 -->
+  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
+    <div class="modal-dialog overflow-y-auto max-h-[90vh]">
+      <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
+        <p class="modal-title">회원가입</p>
+        <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'signup', '회원가입 신청이 완료되었습니다.');">
+        <input class="modal-input" type="text" placeholder="성함" required />
+        <input class="modal-input" type="text" placeholder="아이디 희망문자" required />
+        <input class="modal-input" type="email" placeholder="이메일 주소" required />
+        <input class="modal-input" type="password" placeholder="비밀번호 서식 (8자 이상)" required />
+        <button type="submit" class="btn-primary-full mt-2">가입 신청 완료</button>
+      </form>
+      <p class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></p>
+    </div>
+  </div>
+
+  <!-- 아이디 찾기 모달 -->
+  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-id')">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
+        <p class="modal-title">아이디 찾기</p>
+        <p class="text-xs text-gray-500 text-center mt-1">가입 시 등록하신 이메일 정보를 입력해 주세요.</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-id', '입력하신 이메일로 아이디 정보가 발송되었습니다.');">
+        <input class="modal-input" type="text" placeholder="이름" required />
+        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
+        <button type="submit" class="btn-primary-full mt-2">아이디 찾기</button>
+      </form>
+      <p class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인으로 돌아가기</a></p>
+    </div>
+  </div>
+
+  <!-- 비밀번호 찾기 모달 -->
+  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button>
+      <div class="modal-brand">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
+        <p class="modal-title">비밀번호 찾기</p>
+        <p class="text-xs text-gray-500 text-center mt-1">아이디와 이메일을 입력하시면 임시 비밀번호를 발송해 드립니다.</p>
+      </div>
+      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-pw', '입력하신 이메일로 임시 비밀번호가 발송되었습니다.');">
+        <input class="modal-input" type="text" placeholder="아이디" required />
+        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
+        <button type="submit" class="btn-primary-full mt-2">임시 비밀번호 발송</button>
+      </form>
+      <p class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인으로 돌아가기</a></p>
+    </div>
+  </div>
+
+  <!-- 댓글 작성 스크립트 -->
+  <script>
+    (function(){
+      var input = document.getElementById('comment-input');
+      var charCount = document.getElementById('comment-char');
+      var submitBtn = document.getElementById('comment-submit');
+      var commentList = document.getElementById('comment-list');
+      var countEl = document.querySelector('.comment-count');
+      
+      if(input){
+        input.addEventListener('input',function(){
+          var len=input.value.length;
+          if(len>500){
+            input.value=input.value.slice(0,500);
+            len=500;
+          }
+          if(charCount) charCount.textContent=len;
+        });
+      }
+      
+      if(submitBtn){
+        submitBtn.addEventListener('click',function(){
+          var text = input ? input.value.trim() : '';
+          if(!text){
+            alert('댓글을 입력해주세요.');
+            return;
+          }
+          var now = new Date();
+          var dateStr = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0');
+          var div = document.createElement('div');
+          
+          // Tailwind CSS 디자인 적용
+          div.className = 'flex gap-4 pt-4 border-t border-gray-100 first:border-0 first:pt-0';
+          div.innerHTML = '<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold flex-shrink-0">익</div><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-bold text-[14px] text-gray-900">익명회원</span><span class="text-xs text-gray-400">'+dateStr+'</span></div><p class="text-[14px] text-gray-700 leading-relaxed break-keep">'+text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p></div>';
+          
+          if(commentList) commentList.appendChild(div);
+          input.value = '';
+          if(charCount) charCount.textContent = '0';
+          var current = countEl ? parseInt(countEl.textContent) : 0;
+          if(countEl) countEl.textContent = current + 1;
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
