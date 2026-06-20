@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>법규·정책 | 대한집합건물관리인협회</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -54,6 +54,7 @@
       align-items: center; 
       height: 75px; 
       padding: 0 20px; 
+      position: relative; /* 모바일 메뉴 절대 배치를 위한 기준 */
     }
     
     /* 로고 마크/글자 분리 및 크기 조절 */
@@ -79,6 +80,40 @@
     .gnb-new { display: flex; gap: 32px; font-weight: 700; font-size: 16px; list-style: none; margin: 0; padding: 0; }
     .gnb-new a { color: #1e293b; text-decoration: none; cursor: pointer; transition: color 0.2s; }
     .gnb-new a:hover { color: #2BA8A0 !important; }
+
+    /* 모바일 전용 햄버거 버튼 및 드롭다운 메뉴 스타일 (기본 숨김) */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      color: #0a1931;
+    }
+    .mobile-dropdown {
+      display: none;
+      flex-direction: column;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 100%;
+      z-index: 999;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .mobile-dropdown.is-open {
+      display: flex !important;
+    }
+    .mobile-dropdown a {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mobile-dropdown a:hover { color: #2BA8A0; }
 
     /* ─── 집합건물법 요약 카드 (해당 페이지 전용) ─── */
     .law-summary-section {
@@ -148,7 +183,24 @@
       font-size: .76rem;
       color: var(--text-light, #94A3B8);
     }
-    @media (max-width: 640px) {
+
+    /* ★ 모바일 반응형 미디어 쿼리 추가 ★ */
+    @media (max-width: 768px) {
+      /* GNB 숨김 및 모바일 버튼 표시 */
+      .gnb-new { display: none; }
+      .mobile-menu-btn { display: block; }
+      
+      /* 로고 크기 모바일에 맞춰 축소 */
+      .logo-mark { height: 36px; }
+      .logo-text { height: 32px; margin-top: 4px; }
+      .logo-wrap { gap: 8px; }
+      .main-header-new { height: 60px; padding: 0 15px; }
+
+      /* 최상단 유틸리티 바 모바일 줄바꿈 정렬 */
+      .util-inner-new { justify-content: center; padding: 0 10px; }
+      .auth-wrap { flex-wrap: wrap; justify-content: center; gap: 6px; }
+      .auth-links { margin-left: 0; margin-top: 2px; }
+
       .summary-cards {
         grid-template-columns: 1fr;
       }
@@ -181,6 +233,8 @@
       <img src="../assets/img/방패로고-removebg-preview.png" class="logo-mark" alt="KCBMA 마크">
       <img src="../assets/img/로고_글자-removebg-preview.png" class="logo-text" alt="대한집합건물관리협회">
     </a>
+    
+    <!-- PC용 메뉴 -->
     <ul class="gnb-new">
       <li><a onclick="window.location.href='../about/intro.html'">협회소개</a></li>
       <li><a onclick="window.location.href='../info/index.html'">정보교류</a></li>
@@ -188,6 +242,24 @@
       <li><a onclick="window.location.href='../jobs/list.html'">구인구직</a></li>
       <li><a onclick="window.location.href='../info/sinmungo.html'">정책신문고</a></li>
     </ul>
+
+    <!-- 모바일 햄버거 버튼 -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    
+    <!-- 모바일 드롭다운 메뉴 (초기 숨김) -->
+    <div id="mobile-menu" class="mobile-dropdown">
+      <a onclick="window.location.href='../about/intro.html'">협회소개</a>
+      <a onclick="window.location.href='../info/index.html'">정보교류</a>
+      <a onclick="window.location.href='../info/forum.html'">정책토론</a>
+      <a onclick="window.location.href='../jobs/list.html'">구인구직</a>
+      <a onclick="window.location.href='../info/sinmungo.html'">정책신문고</a>
+    </div>
   </header>
 </div>
 
@@ -442,9 +514,9 @@
 
 <!-- 통합 공통 푸터 -->
 <footer style="background: #040f24; color: #fff; padding: 60px 20px; margin-top: 50px;">
-  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px;">
     
-    <div style="flex: 1;">
+    <div style="flex: 1; min-width: 250px;">
       <img src="../assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고">
       <div style="font-size: 0.9rem; line-height: 1.8; color: #fff;">
         <p style="margin: 5px 0;">주소: 경기도 김포시 김포대로 699</p>
@@ -453,7 +525,7 @@
       </div>
     </div>
 
-    <div style="flex: 0.5;">
+    <div style="flex: 0.5; min-width: 150px;">
       <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">사이트맵</h4>
       <div style="font-size: 0.9rem; line-height: 2.2;">
         <a href="../info/index.html" style="color: #fff; text-decoration: none;">정보교류 종합 포털</a><br>
@@ -462,7 +534,7 @@
       </div>
     </div>
 
-    <div style="flex: 0.5;">
+    <div style="flex: 0.5; min-width: 150px;">
       <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">제휴 파트너</h4>
       <div style="font-size: 0.9rem; line-height: 2.2;">
         <a href="../partners/list.html" style="color: #fff; text-decoration: none;">우수 파트너사 목록</a><br>
@@ -473,7 +545,7 @@
 
   </div>
   
-  <div style="max-width: 1200px; margin: 40px auto 0 auto; border-top: 1px solid #1e3a8a; padding-top: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; color: #fff;">
+  <div style="max-width: 1200px; margin: 40px auto 0 auto; border-top: 1px solid #1e3a8a; padding-top: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: #fff;">
     <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
     <div>
       <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">이용약관</a>
@@ -631,6 +703,14 @@
     function switchModal(closeId, openId) {
       closeModal(closeId);
       openModal(openId);
+    }
+    
+    // ★ 모바일 메뉴 토글 스크립트 추가 ★
+    function toggleMobileMenu() {
+      var menu = document.getElementById('mobile-menu');
+      if (menu) {
+        menu.classList.toggle('is-open');
+      }
     }
   </script>
 

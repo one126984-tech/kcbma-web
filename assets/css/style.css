@@ -1683,6 +1683,9 @@ table { border-collapse: collapse; }
 
 /* (구 scaleX 트릭 제거 — 섹션 32에서 text-align-last:justify 방식으로 대체) */
 
+/* [주석 처리 시작]
+   아래 코드를 모두 이렇게 주석 기호로 감싸서 작동하지 않게 만드세요.
+
 /* ── 34. 법규·영상·칼럼 섹션 hover 모션 완전 제거 ──────── */
 .law-card, .law-card *,
 .col-card, .col-card *,
@@ -1720,3 +1723,7 @@ section[aria-labelledby="col-title"] *:hover,
   animation: none !important;
   filter: none !important;
 }
+
+
+   [주석 처리 끝] 
+*/
