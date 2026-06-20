@@ -103,17 +103,17 @@
       const menu = document.getElementById('mobile-menu');
       if (menu.classList.contains('hidden')) {
         menu.classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+        menu.classList.add('flex');
       } else {
         menu.classList.add('hidden');
-        document.body.style.overflow = ''; // 배경 스크롤 복구
+        menu.classList.remove('flex');
       }
     }
   </script>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
 
-  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
+  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm relative">
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-4 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-2 md:gap-3">
         <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[13px] font-bold px-3 md:px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer">네이버카페</div>
@@ -148,13 +148,13 @@
         <div data-href="info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
       </nav>
       
-      <button class="md:hidden p-2 text-[#0a1931] cursor-pointer" onclick="toggleMobileMenu()" aria-label="메뉴열기">
-  <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="3" y1="12" x2="21" y2="12"></line>
-    <line x1="3" y1="6" x2="21" y2="6"></line>
-    <line x1="3" y1="18" x2="21" y2="18"></line>
-  </svg>
-</button>
+      <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
     </header>
   </div>
 
@@ -788,5 +788,6 @@
     </div>
   </div>
 
+  <script src="assets/js/main.js"></script>
 </body>
 </html>
