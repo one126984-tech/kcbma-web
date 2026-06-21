@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/css/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* ── [공통 헤더/푸터 디자인 설정] ── */
     body { background-color: #f4f7fa; margin: 0; }
@@ -77,9 +78,17 @@
       object-fit: contain;
     }
     
-    .gnb-new { display: flex; gap: 32px; font-weight: 700; font-size: 16px; list-style: none; margin: 0; padding: 0; }
+    .gnb-new { display: flex; gap: 32px; font-weight: 700; font-size: 16px; list-style: none; margin: 0; padding: 0; align-items: center; }
     .gnb-new a { color: #1e293b; text-decoration: none; cursor: pointer; transition: color 0.2s; }
     .gnb-new a:hover { color: #2BA8A0 !important; }
+
+    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box a { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569 !important; border-bottom: 1px solid #f8fafc; text-align: left; }
+    .dropdown-box a:hover { background: #f1f5f9; color: #2BA8A0 !important; }
 
     /* 모바일 전용 햄버거 버튼 및 드롭다운 메뉴 스타일 (기본 숨김) */
     .mobile-menu-btn {
@@ -105,7 +114,7 @@
     .mobile-dropdown.is-open {
       display: flex !important;
     }
-    .mobile-dropdown a {
+    .mobile-dropdown > a {
       padding: 16px 20px;
       border-bottom: 1px solid #f1f5f9;
       color: #1e293b;
@@ -113,7 +122,7 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .mobile-dropdown a:hover { color: #2BA8A0; }
+    .mobile-dropdown > a:hover { color: #2BA8A0; }
 
     /* ─── 집합건물법 요약 카드 (해당 페이지 전용) ─── */
     .law-summary-section {
@@ -234,10 +243,22 @@
       <img src="../assets/img/로고_글자-removebg-preview.png" class="logo-text" alt="대한집합건물관리협회">
     </a>
     
-    <!-- PC용 메뉴 -->
+    <!-- PC용 메뉴 (드롭다운 및 클릭 이동 수정) -->
     <ul class="gnb-new">
       <li><a onclick="window.location.href='../about/intro.html'">협회소개</a></li>
-      <li><a onclick="window.location.href='../info/index.html'">정보교류</a></li>
+      
+      <li class="gnb-dropdown-wrap">
+        <a onclick="window.location.href='../info/index.html'">정보교류</a>
+        <!-- 호버 시 나타나는 드롭다운 -->
+        <div class="gnb-dropdown-menu">
+          <div class="dropdown-box">
+            <a onclick="window.location.href='../policy/law.html'">법규·정책</a>
+            <a onclick="window.location.href='../info/videos.html'">영상 자료실</a>
+            <a onclick="window.location.href='../info/columns.html'">시설업체 칼럼</a>
+          </div>
+        </div>
+      </li>
+
       <li><a onclick="window.location.href='../info/forum.html'">정책토론</a></li>
       <li><a onclick="window.location.href='../jobs/list.html'">구인구직</a></li>
       <li><a onclick="window.location.href='../info/sinmungo.html'">정책신문고</a></li>
@@ -252,10 +273,22 @@
       </svg>
     </button>
     
-    <!-- 모바일 드롭다운 메뉴 (초기 숨김) -->
+    <!-- 모바일 드롭다운 메뉴 (아코디언 형태 추가) -->
     <div id="mobile-menu" class="mobile-dropdown">
       <a onclick="window.location.href='../about/intro.html'">협회소개</a>
-      <a onclick="window.location.href='../info/index.html'">정보교류</a>
+      
+      <details class="group list-none">
+        <summary class="flex justify-between items-center cursor-pointer outline-none" style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: #1e293b; list-style: none;">
+          정보교류
+          <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+        </summary>
+        <div class="flex flex-col bg-gray-50 border-b border-gray-200">
+          <a onclick="window.location.href='../policy/law.html'" style="padding: 12px 30px; font-weight: 500; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9;">법규·정책</a>
+          <a onclick="window.location.href='../info/videos.html'" style="padding: 12px 30px; font-weight: 500; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9;">영상 자료실</a>
+          <a onclick="window.location.href='../info/columns.html'" style="padding: 12px 30px; font-weight: 500; font-size: 0.95rem; border-bottom: none;">시설업체 칼럼</a>
+        </div>
+      </details>
+
       <a onclick="window.location.href='../info/forum.html'">정책토론</a>
       <a onclick="window.location.href='../jobs/list.html'">구인구직</a>
       <a onclick="window.location.href='../info/sinmungo.html'">정책신문고</a>

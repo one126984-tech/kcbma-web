@@ -105,16 +105,32 @@
     
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
-        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item py-1">정보교류</div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+      <!-- PC용 메뉴 (드롭다운 & 이동 기능 완벽 적용) -->
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
+        
+        <!-- 정보교류 메뉴 영역 -->
+        <div class="relative group cursor-pointer py-1">
+          <!-- 클릭 시 정보교류 메인으로 이동 -->
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          
+          <!-- 호버 시 나타나는 드롭다운 메뉴 (pt-2로 끊김 방지) -->
+          <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
+            <div class="bg-white border border-gray-200 shadow-lg rounded overflow-hidden">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">

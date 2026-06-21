@@ -22,6 +22,14 @@
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
 
+    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
+
     /* 필터 칩 스타일 (반응형 유지용) */
     .chip { padding: 8px 20px; border-radius: 99px; background: #fff; border: 1px solid #E2E8F0; color: #64748b; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .chip:hover { border-color: #2BA8A0; color: #2BA8A0; }
@@ -97,7 +105,6 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- 통합 표준 헤더 (모바일 터치 최적화 적용) -->
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
@@ -118,19 +125,23 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
-        <div class="menu-item active py-1 relative group cursor-pointer text-[#2BA8A0]" data-href="../info/index.html" onclick="handleNavigation(this)">
-          정보교류
-          <div class="gnb-dropdown absolute left-0 top-full hidden group-hover:block bg-white border border-gray-200 shadow-lg mt-1 w-40 z-50 rounded">
-            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
-            <div data-href="videos.html" onclick="handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
-            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
+        
+        <div class="relative gnb-dropdown-wrap cursor-pointer">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active text-[#2BA8A0]">정보교류</div>
+          <div class="gnb-dropdown-menu">
+            <div class="dropdown-box">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
+              <div data-href="videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+            </div>
           </div>
         </div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -143,7 +154,6 @@
     </header>
   </div>
 
-  <!-- 모바일 사이드 메뉴 -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
@@ -153,7 +163,7 @@
       
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
-        <details class="group">
+        <details class="group" open>
           <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none text-[#2BA8A0]">
             정보교류
             <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
@@ -176,7 +186,6 @@
     </div>
   </div>
 
-  <!-- 페이지 히어로 -->
   <section class="bg-[#0B2A5B] text-white py-12 md:py-16 text-center px-4">
     <div class="max-w-7xl mx-auto">
       <nav class="text-sm text-blue-200 mb-4 flex items-center justify-center space-x-2">
@@ -191,11 +200,9 @@
     </div>
   </section>
 
-  <!-- 메인 콘텐츠 -->
   <main class="flex-1 py-8 md:py-12 px-4 sm:px-6 w-full">
     <div class="max-w-7xl mx-auto">
       
-      <!-- 카테고리 필터 (모바일 스와이프 기능 포함) -->
       <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide" id="filter-chips">
         <button class="chip active" data-cat="all">전체</button>
         <button class="chip" data-cat="law">법령·판례</button>
@@ -204,7 +211,6 @@
         <button class="chip" data-cat="case">현장사례</button>
       </div>
 
-      <!-- 영상 리스트 그리드 -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="video-items">
         
         <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="law">
@@ -264,7 +270,6 @@
     </div>
   </main>
 
-  <!-- 통합 반응형 푸터 -->
   <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
       
@@ -308,9 +313,6 @@
     </div>
   </footer>
 
-  <!-- 인증 보조 모달 4종 (표준 레이아웃 적용) -->
-  
-  <!-- 로그인 모달 -->
   <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
@@ -328,7 +330,6 @@
     </div>
   </div>
 
-  <!-- 회원가입 모달 -->
   <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
     <div class="modal-dialog overflow-y-auto max-h-[90vh]">
       <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
@@ -348,7 +349,6 @@
     </div>
   </div>
 
-  <!-- 아이디 찾기 모달 -->
   <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <button class="modal-close" onclick="closeCustomModal('find-id')">✕</button>
@@ -366,7 +366,6 @@
     </div>
   </div>
 
-  <!-- 비밀번호 찾기 모달 -->
   <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button>
@@ -384,7 +383,6 @@
     </div>
   </div>
 
-  <!-- 카테고리 필터링 스크립트 -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const chips = document.querySelectorAll("#filter-chips .chip");

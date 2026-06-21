@@ -22,6 +22,14 @@
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
 
+    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
+
     /* 모달 필수 스타일 (표준화) */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
@@ -70,7 +78,7 @@
       setTimeout(() => openCustomModal(openId), 100); 
     }
 
-    // 폼 제출 시 새로고침 방지
+    // 폼 제출 시 새로고침 방지 (공통)
     function handleFormSubmit(event, modalId, message) {
       event.preventDefault(); 
       alert(message);
@@ -113,20 +121,25 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
-        <div class="menu-item py-1 relative group cursor-pointer" data-href="../info/index.html" onclick="handleNavigation(this)">
-          정보교류
-          <!-- 수정됨: 하위 메뉴 onclick에 event.stopPropagation(); 추가 -->
-          <div class="gnb-dropdown absolute left-0 top-full hidden group-hover:block bg-white border border-gray-200 shadow-lg mt-1 w-40 z-50 rounded">
-            <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
-            <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
-            <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+      <!-- 수정된 PC용 메뉴 (드롭다운 추가 및 호버 끊김 해결) -->
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
+        
+        <!-- 정보교류 드롭다운 적용 영역 -->
+        <div class="relative gnb-dropdown-wrap cursor-pointer">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div class="gnb-dropdown-menu">
+            <div class="dropdown-box">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+            </div>
           </div>
         </div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
-        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1 text-[#2BA8A0] cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -154,11 +167,10 @@
             정보교류
             <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
           </summary>
-          <!-- 수정됨: 모바일 메뉴도 동일하게 전파 방지 처리 -->
           <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
-            <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
-            <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
-            <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
           </div>
         </details>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">정책토론</div>
@@ -195,7 +207,7 @@
       <div class="border-b-2 border-[#0B2A5B] pb-5 mb-8">
         <span class="inline-block bg-green-100 text-green-800 text-[12px] font-bold px-3 py-1 rounded-full mb-3">근무환경</span>
         <h2 class="text-xl md:text-2xl font-black text-[#0B2A5B] leading-snug mb-4 break-keep">야간 격일제 근무 형태 개선안</h2>
-        <div class="flex flex-wrap gap-3 md:gap-4 text-[13px] text-gray-500">
+        <div class="flex flex-wrap gap-4 text-[13px] text-gray-500">
           <span>작성자: 김O호</span>
           <span>작성일: 2026.05.18</span>
           <span>조회: 312</span>
@@ -204,7 +216,7 @@
       </div>
 
       <!-- 게시글 본문 -->
-      <div class="text-[15px] md:text-base text-gray-700 leading-loose space-y-5 break-keep min-h-[250px]">
+      <div class="text-[15px] md:text-base text-gray-700 leading-loose space-y-5 break-keep min-h-[300px]">
         <p>집합건물 야간 경비·관리 인력의 상당수가 격일제 24시간 교대 근무 형태로 운영되고 있습니다. 이 방식은 근로자의 수면 부족, 만성 피로, 심뇌혈관 질환 위험 증가와 직결됩니다. 실제로 관련 산재 사례도 꾸준히 증가하고 있습니다.</p>
         <p>근로기준법상 주 52시간 상한 규정과 충돌하는 사례도 보고되며, 일부 건물에서는 편법적인 위탁 계약을 통해 법 적용을 회피하는 실태도 있습니다. 이에 대한 제도적 감독 강화가 필요합니다.</p>
         <p>구체적 개선안으로 ① 격일 24시간 근무 시 실 휴게시간 4시간 이상 보장 의무화, ② 야간 시간대(22시~06시) 별도 수당 지급 기준 명문화, ③ 격일제 근무 기피 시 2인 교대제 전환 지원 사업 도입을 제안합니다.</p>
@@ -212,7 +224,7 @@
 
       <!-- 목록으로 버튼 -->
       <div class="mt-12 text-center md:text-left">
-        <button data-href="../info/forum.html" onclick="handleNavigation(this)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3.5 px-8 rounded-full transition-colors w-full sm:w-auto text-[15px] shadow-sm">
+        <button data-href="../info/forum.html" onclick="handleNavigation(this)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 px-8 rounded-full transition-colors w-full sm:w-auto text-[14px] shadow-sm">
           ← 목록으로
         </button>
       </div>

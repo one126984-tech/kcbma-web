@@ -11,10 +11,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   
   <style>
-    body { font-family: 'Noto Sans KR', sans-serif; }
-    [data-href] { cursor: pointer; }
-    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s; cursor: pointer; }
-    .menu-item:hover { color: #008f8c; }
+    :root {
+      --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
+      --bg: #F8FAFC; --trans: .22s ease;
+    }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
+    
+    a, [data-href] { cursor: pointer; }
+    
+    .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
+    .menu-item:hover, .menu-item.active { color: var(--teal); } 
+
+    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
+
+    /* 모달 필수 스타일 (표준화) */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex !important; }
+    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; }
+    .modal-brand { text-align: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
+    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; }
+    .modal-input:focus { border-color: #0e2b61; }
+    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+    .btn-primary-full:hover { background: #153b80; }
+    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; }
   </style>
 
   <script>
@@ -22,16 +50,41 @@
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
       if (url && url !== '#') {
-        target === '_blank' ? window.open(url, '_blank') : window.location.href = url;
+        if (target === '_blank') { window.open(url, '_blank'); } 
+        else { window.location.href = url; }
       }
     }
 
-    // 모바일 사이드 메뉴 제어 스크립트 추가
+    // 모달 제어
+    function openCustomModal(id) {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    function closeCustomModal(id) {
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+    }
+    function switchCustomModal(closeId, openId) {
+      closeCustomModal(closeId);
+      setTimeout(() => openCustomModal(openId), 100);
+    }
+    function handleFormSubmit(event, modalId, message) {
+      event.preventDefault(); 
+      alert(message);
+      if(modalId) closeCustomModal(modalId);
+    }
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu.classList.contains('hidden')) {
         menu.classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // 뒤에 화면 스크롤 방지
+        document.body.style.overflow = 'hidden';
       } else {
         menu.classList.add('hidden');
         document.body.style.overflow = '';
@@ -41,33 +94,46 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
 
-  <!-- 반응형 헤더 영역 -->
-  <header class="w-full bg-white border-b border-gray-300 sticky top-0 z-[900]">
-    <!-- 상단 띠 배너 -->
-    <div class="w-full bg-[#0a1931] py-2">
-      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-nowrap justify-center sm:justify-end items-center gap-2 md:gap-4 text-white text-[11px] sm:text-[12px] font-bold whitespace-nowrap overflow-x-auto">
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2 py-1 md:px-3 md:py-1 rounded">네이버카페</div>
-        <div data-href="#" onclick="handleNavigation(this)" class="cursor-pointer hover:text-gray-300">로그인</div>
-        <div data-href="#" onclick="handleNavigation(this)" class="cursor-pointer hover:text-gray-300">회원가입</div>
-        <div class="text-gray-400">|</div>
-        <div data-href="#" onclick="handleNavigation(this)" class="text-gray-400 cursor-pointer hover:text-gray-200">아이디 찾기</div>
-        <div data-href="#" onclick="handleNavigation(this)" class="text-gray-400 cursor-pointer hover:text-gray-200">비번 찾기</div>
+  <!-- 통합 표준 헤더 -->
+  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
+    <div class="w-full bg-[#0a1931] py-2.5">
+      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
+        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
+        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
+        <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
+          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
+          <span class="text-gray-400 font-normal">|</span>
+          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
+        </div>
       </div>
     </div>
     
-    <!-- 메인 네비게이션 바 -->
-    <div class="flex justify-between items-center px-4 md:px-8 py-3 max-w-7xl mx-auto">
-      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center space-x-2 md:space-x-3 cursor-pointer">
-        <img src="../방패로고.jpg" class="h-10 md:h-12" alt="방패로고" onerror="this.src='../방패로고.jpg'">
-        <span class="text-lg md:text-xl font-black text-[#0a1931] hidden sm:block">대한집합건물관리협회</span>
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <nav class="hidden md:flex space-x-8 lg:space-x-10 font-bold text-[16px]">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item">협회소개</div>
-        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item">자유발언대</div>
+      <!-- 수정된 PC용 메뉴 -->
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
+        
+        <!-- 정보교류 드롭다운 적용 영역 -->
+        <div class="relative gnb-dropdown-wrap cursor-pointer">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div class="gnb-dropdown-menu">
+            <div class="dropdown-box">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -77,26 +143,38 @@
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
-    </div>
-  </header>
+    </header>
+  </div>
 
-  <!-- 모바일 전용 사이드 메뉴 -->
+  <!-- 모바일 사이드 메뉴 -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
-        <div class="flex items-center h-[35px]">
-          <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
-          <span class="ml-2 font-black text-[#0a1931] text-[15px]">집합건물관리협회</span>
-        </div>
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
         <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
       </div>
       
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
-        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정보교류</div>
+        <details class="group">
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            정보교류
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">자유발언대</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+      </div>
+
+      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
       </div>
     </div>
   </div>
@@ -128,52 +206,36 @@
       </div>
     </div>
 
-    <!-- 추가된 부분: 의견 제안하기 버튼 -->
-    <!-- data-href를 info 폴더의 proposal.html 파일로 연결되도록 설정했습니다. -->
     <div class="mt-4 md:mt-2 text-center md:text-left">
       <button data-href="../info/proposal.html" onclick="handleNavigation(this)" class="bg-[#008f8c] hover:bg-[#007370] text-white font-bold py-3.5 px-8 rounded-lg transition-colors w-full sm:w-auto text-[15px] shadow-sm">
         이 사업에 의견 제안하기
       </button>
     </div>
-
   </main>
 
-  <!-- 푸터 영역 -->
-  <footer class="w-full bg-[#0a1931] text-white py-10 md:py-12">
-    <div class="max-w-7xl mx-auto px-6 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
-      <div class="flex items-start gap-4">
-        <img src="../방패로고.jpg" class="h-12 bg-white p-1 rounded" alt="로고" onerror="this.src='../방패로고.jpg'">
-        <div>
-          <p class="font-bold text-[16px] md:text-lg text-white break-keep">대한집합건물관리협회</p>
-          <div class="text-[13px] md:text-sm text-gray-300 mt-2 space-y-1">
-            <p>주소: 경기도 김포시 김포대로 699</p>
-            <p>전화: 031-984-6199</p>
-            <p>팩스: 031-985-6199</p>
-            <p>이메일: idea8888@naver.com</p>
-          </div>
-        </div>
-      </div>
-      <div>
-        <p class="font-bold text-white mb-3 md:mb-4">사이트맵</p>
-        <div class="flex flex-col gap-2 text-[14px] text-gray-400">
-          <span data-href="../about/intro.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer w-fit">협회소개</span>
-          <span data-href="../info/forum.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer w-fit">정책토론</span>
-          <span data-href="../jobs/list.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer w-fit">구인구직</span>
-          <span data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer w-fit">자유발언대</span>
-        </div>
-      </div>
-      <div>
-        <p class="font-bold text-white mb-3 md:mb-4">파트너</p>
-        <div class="flex flex-col gap-2 text-[14px] text-gray-400">
-          <span data-href="../partners/list.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer w-fit">파트너사 디렉토리</span>
-          <span data-href="../partners/apply.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer w-fit">파트너사 등록 신청</span>
-        </div>
-      </div>
-    </div>
-    <div class="max-w-7xl mx-auto px-6 md:px-8 mt-8 md:mt-10 pt-6 border-t border-gray-700 text-[11px] md:text-xs text-gray-500 break-keep text-center md:text-left">
+  <!-- 푸터 생략 (동일) -->
+  <footer class="bg-[#040f24] text-white py-12 px-6 mt-auto w-full">
+    <div class="max-w-7xl mx-auto text-center text-gray-400 text-[12px]">
       © 2026 대한집합건물관리협회(KCBMA). All rights reserved.
     </div>
   </footer>
 
+  <!-- 인증 모달 -->
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
+      <div class="modal-brand"><p class="modal-title">로그인</p></div>
+      <form class="modal-form" onsubmit="handleFormSubmit(event, 'login', '로그인 처리 중...');">
+        <input class="modal-input" type="text" placeholder="아이디" required />
+        <input class="modal-input" type="password" placeholder="비밀번호" required />
+        <button type="submit" class="btn-primary-full">로그인</button>
+      </form>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
+    <div class="modal-dialog"><button class="modal-close" onclick="closeCustomModal('signup')">✕</button><p class="modal-title">회원가입</p><form class="modal-form" onsubmit="handleFormSubmit(event, 'signup', '회원가입 완료.');"><input class="modal-input" type="text" placeholder="이름" required /><input class="modal-input" type="text" placeholder="아이디" required /><input class="modal-input" type="password" placeholder="비밀번호" required /><button type="submit" class="btn-primary-full">가입하기</button></form></div>
+  </div>
+  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true"><div class="modal-dialog"><button class="modal-close" onclick="closeCustomModal('find-id')">✕</button><p class="modal-title">아이디 찾기</p><form class="modal-form" onsubmit="handleFormSubmit(event, 'find-id', '이메일로 아이디가 발송되었습니다.');"><input class="modal-input" type="text" placeholder="이름" required /><input class="modal-input" type="email" placeholder="이메일" required /><button type="submit" class="btn-primary-full">찾기</button></form></div></div>
+  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true"><div class="modal-dialog"><button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button><p class="modal-title">비밀번호 찾기</p><form class="modal-form" onsubmit="handleFormSubmit(event, 'find-pw', '임시 비밀번호가 발송되었습니다.');"><input class="modal-input" type="text" placeholder="아이디" required /><input class="modal-input" type="email" placeholder="이메일" required /><button type="submit" class="btn-primary-full">찾기</button></form></div></div>
 </body>
 </html>
