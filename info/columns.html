@@ -22,14 +22,6 @@
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
 
-    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
-    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
-    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
-    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
-    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
-    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
-    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
-
     /* 필터 칩 스타일 (반응형 최적화) */
     .chip { padding: 8px 18px; border-radius: 99px; border: 1.5px solid #E2E8F0; font-size: 0.85rem; font-weight: 700; color: #64748b; background: #fff; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .chip:hover { border-color: #2BA8A0; color: #2BA8A0; }
@@ -64,18 +56,12 @@
     // 모달 제어
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
-      const modal = document.getElementById('modal-' + id);
-      if (modal) {
-        modal.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-      }
+      document.getElementById('modal-' + id).classList.add('is-open');
+      document.body.style.overflow = 'hidden';
     }
     function closeCustomModal(id) {
-      const modal = document.getElementById('modal-' + id);
-      if (modal) {
-        modal.classList.remove('is-open');
-        document.body.style.overflow = '';
-      }
+      document.getElementById('modal-' + id).classList.remove('is-open');
+      document.body.style.overflow = '';
     }
     function switchCustomModal(closeId, openId) {
       closeCustomModal(closeId);
@@ -121,25 +107,12 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <!-- 수정된 PC용 메뉴 -->
-      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
-        
-        <!-- 정보교류 드롭다운 적용 영역 -->
-        <div class="relative gnb-dropdown-wrap cursor-pointer">
-          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active text-[#2BA8A0]">정보교류</div>
-          <div class="gnb-dropdown-menu">
-            <div class="dropdown-box">
-              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
-              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
-              <div data-href="columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
-            </div>
-          </div>
-        </div>
-
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책신문고</div>
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
+        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item py-1">정보교류</div>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -162,17 +135,7 @@
       
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
-        <details class="group" open>
-          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none text-[#2BA8A0]">
-            정보교류
-            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
-            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
-            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
-            <div data-href="columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white text-white">시설업체 칼럼</div>
-          </div>
-        </details>
+        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정보교류</div>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
@@ -211,6 +174,7 @@
 
     <!-- 칼럼 그리드 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="column-items">
+      
       <div data-href="column-view.html" onclick="handleNavigation(this)" class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer col-card" data-cat="fire">
         <div class="aspect-video bg-gray-100 flex items-center justify-center text-3xl">🔥</div>
         <div class="p-4">
@@ -219,6 +183,7 @@
           <p class="text-[12px] text-gray-400">㈜안심소방안전 · 2026.05.20</p>
         </div>
       </div>
+
       <div data-href="column-view.html" onclick="handleNavigation(this)" class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer col-card" data-cat="clean">
         <div class="aspect-video bg-gray-100 flex items-center justify-center text-3xl">🧹</div>
         <div class="p-4">
@@ -227,6 +192,7 @@
           <p class="text-[12px] text-gray-400">클린파트너 · 2026.05.18</p>
         </div>
       </div>
+
       <div data-href="column-view.html" onclick="handleNavigation(this)" class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer col-card" data-cat="elev">
         <div class="aspect-video bg-gray-100 flex items-center justify-center text-3xl">🛗</div>
         <div class="p-4">
@@ -235,6 +201,7 @@
           <p class="text-[12px] text-gray-400">한국엘리베이터 · 2026.05.15</p>
         </div>
       </div>
+
       <div data-href="column-view.html" onclick="handleNavigation(this)" class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer col-card" data-cat="sec">
         <div class="aspect-video bg-gray-100 flex items-center justify-center text-3xl">📷</div>
         <div class="p-4">
@@ -243,6 +210,7 @@
           <p class="text-[12px] text-gray-400">세이프가드 · 2026.05.12</p>
         </div>
       </div>
+
     </div>
 
     <!-- 페이지네이션 -->
@@ -253,7 +221,7 @@
   </main>
 
   <!-- 푸터 -->
-  <footer class="bg-[#040f24] text-white py-12 px-6 mt-auto w-full">
+  <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-auto w-full">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
       <div class="flex-1 w-full">
         <img src="../대한집합건물관리협회-removebg-preview.png" class="h-[50px] md:h-[60px] filter brightness-0 invert mb-5" alt="로고" onerror="this.src='../방패로고.jpg'">
@@ -275,7 +243,7 @@
     <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-blue-900 text-[12px] text-gray-400">© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</div>
   </footer>
 
-  <!-- 로그인/회원가입 모달 등 -->
+  <!-- 로그인 모달 등 -->
   <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
@@ -287,9 +255,9 @@
       </form>
     </div>
   </div>
+  <!-- 기타 회원가입/아이디찾기/비밀번호찾기 모달은 위 규격으로 동일하게 추가 -->
 
   <script>
-    // 필터링 스크립트
     document.querySelectorAll(".chip").forEach(chip => {
       chip.addEventListener("click", () => {
         document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
