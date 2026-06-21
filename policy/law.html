@@ -102,7 +102,7 @@
       z-index: 999;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
-    .mobile-dropdown.menu-active {
+    .mobile-dropdown.is-open {
       display: flex !important;
     }
     .mobile-dropdown a {
@@ -709,7 +709,7 @@
     function toggleMobileMenu() {
       var menu = document.getElementById('mobile-menu');
       if (menu) {
-        menu.classList.toggle('menu-active');
+        menu.classList.toggle('is-open');
       }
     }
   </script>
