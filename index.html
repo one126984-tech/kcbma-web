@@ -78,7 +78,6 @@
   <script>
     let supabaseClientInstance;
 
-    // 1. 네비게이션 함수
     function handleNavigation(element) {
       var url = element.getAttribute('data-href');
       var target = element.getAttribute('data-target');
@@ -88,7 +87,6 @@
       }
     }
 
-    // 2. 모달 열기/닫기/전환 함수
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(function(m) { m.classList.remove('is-open'); });
       var modal = document.getElementById('modal-' + id);
@@ -121,7 +119,6 @@
       }
     }
 
-    // 3. 모바일 메뉴 토글
     function toggleMobileMenu() {
       var menu = document.getElementById('mobile-menu');
       if (menu.style.display === 'block') {
@@ -133,7 +130,6 @@
       }
     }
 
-    // 4. 전역 로그아웃 함수
     window.handleLogout = async function() {
       if (supabaseClientInstance) {
         await supabaseClientInstance.auth.signOut();
@@ -142,7 +138,6 @@
       }
     };
 
-    // 5. Supabase 및 폼 이벤트 리스너 로드
     document.addEventListener('DOMContentLoaded', () => {
       const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
@@ -150,7 +145,6 @@
       if (!window.supabase) return;
       supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // 인증 상태 체크 및 실시간 반영
       supabaseClientInstance.auth.getSession().then(({ data: { session } }) => updateUI(session));
       supabaseClientInstance.auth.onAuthStateChange((event, session) => updateUI(session));
 
@@ -171,7 +165,7 @@
         }
       }
 
-      // 폼 제출 이벤트 연결 (새로고침 원천 차단)
+      // 로그인 처리
       document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const emailOrId = document.getElementById('login-id').value.trim();
@@ -182,10 +176,9 @@
         
         btn.disabled = true; btn.textContent = '로그인 중...';
         
-        // 아이디 칸에 이메일 형식을 넣든 일반 아이디를 넣든 인증 처리 가능하게 구성
         let loginEmail = emailOrId;
         if (!emailOrId.includes('@')) {
-          loginEmail = emailOrId + "@kcbma.com"; // 일반 아이디 가입자를 위한 도메인 자동 보완 안전장치
+          loginEmail = emailOrId + "@kcbma.com"; // 아이디 로그인 대응 안전장치
         }
 
         const { error } = await supabaseClientInstance.auth.signInWithPassword({ email: loginEmail, password });
@@ -193,11 +186,12 @@
           showMessage('login-message', '아이디 또는 비밀번호가 올바르지 않습니다.', 'error');
         } else {
           showMessage('login-message', '로그인 성공!', 'success');
-          setTimeout(() => closeCustomModal('login'), 1000);
+          setTimeout(() => window.location.reload(), 1000);
         }
         btn.disabled = false; btn.textContent = '로그인';
       });
 
+      // 회원가입 처리
       document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('signup-name').value.trim();
@@ -225,26 +219,25 @@
         if (error) {
           showMessage('signup-message', '가입 실패: ' + error.message, 'error');
         } else {
-          showMessage('signup-message', '회원가입이 완료되었습니다! 잠시 후 로그인해 주세요.', 'success');
+          showMessage('signup-message', '회원가입 성공! 잠시 후 자동으로 로그인 창으로 이동합니다.', 'success');
           e.target.reset();
-          setTimeout(() => switchCustomModal('signup', 'login'), 2500);
+          setTimeout(() => switchCustomModal('signup', 'login'), 2000);
         }
         btn.disabled = false; btn.textContent = '회원가입';
       });
 
+      // 아이디 찾기 처리
       document.getElementById('find-id-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('find-id-email').value.trim();
-        if(!email) return showMessage('find-id-message', '이메일을 입력해 주세요.', 'error');
         showMessage('find-id-message', `입력하신 이메일(${email}) 주소가 회원 아이디 식별 기준입니다.`, 'info');
       });
 
+      // 비밀번호 찾기 처리
       document.getElementById('find-pw-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('find-pw-email').value.trim();
         const btn = document.getElementById('find-pw-btn');
-
-        if(!email) return showMessage('find-pw-message', '가입 시 등록한 이메일을 입력해 주세요.', 'error');
         
         btn.disabled = true; btn.textContent = '발송 중...';
         const { error } = await supabaseClientInstance.auth.resetPasswordForEmail(email);
@@ -342,7 +335,7 @@
     <div class="hero-badge-new">대한집합건물관리협회</div>
     <p class="hero-title-sub-new">집합건물관리의 든든한 울타리</p>
     <h1 class="hero-title-main-new">대한집합건물관리협회</h1>
-    <p class="hero-desc-new">집합건물 관계인들의 권익증진과 전문성 향상을 위한 협회입니다</p>
+    <p class="hero-desc-new">집합건물 관계인들의 권익증진 and 전문성 향상을 위한 협회입니다</p>
     <div class="hero-btns-new">
       <a class="btn-new" style="background:#fff; color:#0e2b61;" onclick="window.location.href='about/intro.html'">협회 소개 보기</a>
       <a class="btn-new" style="background:#00C73C; color:#fff;" onclick="window.open('https://cafe.naver.com/kcbma114')">네이버카페 바로가기</a>
