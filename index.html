@@ -21,7 +21,7 @@
     .hero-title-main-new { font-size: 4.8rem; font-weight: 900; margin: 0 0 25px 0; letter-spacing: -0.03em; word-break: keep-all; }
     .hero-desc-new { font-size: 1.25rem; font-weight: 400; opacity: 0.85; margin: 0 0 50px 0; word-break: keep-all; }
 
-    /* 모달창(팝업) 스타일 - display:flex !important로 강제 활성화 */
+    /* 모달창 스타일 */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -43,12 +43,8 @@
   </style>
 
   <script>
-    // 팝업 열기 함수
     window.openCustomModal = function(id) {
-      console.log('버튼 클릭됨! 여는 창:', id);
-      // 모든 팝업 먼저 닫기
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
-      // 선택한 팝업 열기
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.add('is-open');
@@ -56,7 +52,6 @@
       }
     };
 
-    // 팝업 닫기 함수
     window.closeCustomModal = function(id) {
       const modal = document.getElementById('modal-' + id);
       if (modal) {
@@ -65,43 +60,53 @@
       }
     };
 
-    // 팝업 전환 (예: 로그인 -> 회원가입)
     window.switchCustomModal = function(closeId, openId) {
       window.closeCustomModal(closeId);
       setTimeout(() => window.openCustomModal(openId), 150); 
     };
 
-    // 메시지 띄우기 함수
     window.showMessage = function(elId, text, type) {
       const el = document.getElementById(elId);
-      el.textContent = text;
-      el.className = 'modal-message ' + type;
+      if (el) {
+        el.textContent = text;
+        el.className = 'modal-message ' + type;
+      }
     };
   </script>
 
   <script>
+    // 전역 변수로 빼내어 로그아웃 버튼이 언제든 쓸 수 있게 만듭니다.
+    let supabaseClientInstance;
+
+    // 전역 로그아웃 실행 함수
+    window.handleLogout = async function() {
+      if (supabaseClientInstance) {
+        await supabaseClientInstance.auth.signOut();
+        alert('안전하게 로그아웃 되었습니다.');
+        window.location.reload(); // 로그아웃 후 새로고침으로 화면 원상복구
+      } else {
+        alert('시스템에 오류가 발생했습니다. 다시 시도해 주세요.');
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
-      // 배경 클릭 시 팝업 닫기 이벤트 등록
       document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
         backdrop.addEventListener('click', e => {
           if (e.target === backdrop) window.closeCustomModal(backdrop.id.replace('modal-', ''));
         });
       });
 
-      // Supabase 키 설정
       const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
       
-      if (!window.supabase) {
-        console.warn('Supabase를 불러오지 못했습니다. 네트워크를 확인하세요.');
-        return;
-      }
+      if (!window.supabase) return;
       
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // 인스턴스를 전역 변수에 저장합니다.
+      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // 인증 상태 확인
-      supabase.auth.getSession().then(({ data: { session } }) => updateUI(session));
-      supabase.auth.onAuthStateChange((event, session) => updateUI(session));
+      // 인증 상태 확인 리스너 등록
+      supabaseClientInstance.auth.getSession().then(({ data: { session } }) => updateUI(session));
+      supabaseClientInstance.auth.onAuthStateChange((event, session) => updateUI(session));
 
       function updateUI(session) {
         const authBtns = document.getElementById('auth-buttons');
@@ -110,14 +115,14 @@
           const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
           authBtns.style.display = 'none';
           userSec.style.display = 'flex';
-          userSec.innerHTML = `<span class="text-white text-sm font-bold mr-3">👤 ${name}님</span><button class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded" onclick="supabase.auth.signOut()">로그아웃</button>`;
+          userSec.innerHTML = `<span class="text-white text-sm font-bold mr-3">👤 ${name}님</span><button class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded border-none cursor-pointer" onclick="window.handleLogout()">로그아웃</button>`;
         } else {
           authBtns.style.display = 'flex';
           userSec.style.display = 'none';
         }
       }
 
-      // 1. 회원가입 폼 제출
+      // 회원가입 제출
       document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault(); 
         const email = document.getElementById('signup-email').value.trim();
@@ -126,7 +131,7 @@
         const btn = document.getElementById('signup-btn');
 
         btn.disabled = true; btn.textContent = '처리 중...';
-        const { error } = await supabase.auth.signUp({ email, password: pw, options: { data: { name } } });
+        const { error } = await supabaseClientInstance.auth.signUp({ email, password: pw, options: { data: { name } } });
         
         if (error) {
           window.showMessage('signup-message', '오류: ' + error.message, 'error');
@@ -138,7 +143,7 @@
         btn.disabled = false; btn.textContent = '가입하기';
       });
 
-      // 2. 로그인 폼 제출
+      // 로그인 제출
       document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('login-id').value.trim();
@@ -146,7 +151,7 @@
         const btn = document.getElementById('login-btn');
 
         btn.disabled = true; btn.textContent = '로그인 중...';
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabaseClientInstance.auth.signInWithPassword({ email, password });
         
         if (error) {
           window.showMessage('login-message', '이메일 또는 비밀번호를 확인해주세요.', 'error');
@@ -158,21 +163,21 @@
         btn.disabled = false; btn.textContent = '로그인';
       });
 
-      // 3. 아이디 찾기 폼 제출
+      // 아이디 찾기 제출
       document.getElementById('find-id-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('find-id-email').value.trim();
         window.showMessage('find-id-message', `본 사이트는 이메일(${email})이 아이디입니다. 바로 로그인해주세요.`, 'info');
       });
 
-      // 4. 비밀번호 찾기 폼 제출
+      // 비밀번호 찾기 제출
       document.getElementById('find-pw-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('find-pw-email').value.trim();
         const btn = document.getElementById('find-pw-btn');
 
         btn.disabled = true; btn.textContent = '발송 중...';
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        const { error } = await supabaseClientInstance.auth.resetPasswordForEmail(email);
         if (error) {
           window.showMessage('find-pw-message', '오류: ' + error.message, 'error');
         } else {
@@ -198,7 +203,7 @@
         </div>
       </div>
 
-      <div id="user-section" style="display:none;"></div>
+      <div id="user-section" style="display:none;" class="items-center"></div>
     </div>
   </div>
 
@@ -214,7 +219,6 @@
     <h1 class="hero-title-main-new">로그인 기능 테스트 페이지</h1>
     <p class="hero-desc-new">오른쪽 위 버튼들을 눌러 로그인, 회원가입 팝업이 뜨는지 확인해 보세요.</p>
   </section>
-
 
   <div class="modal-backdrop" id="modal-login">
     <div class="modal-dialog">
