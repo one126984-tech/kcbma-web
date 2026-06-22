@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>정책신문고 — 대한집합건물관리협회</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  
+  <!-- info 폴더 안에서 상위 assets를 찾도록 경로 수정 (../ 추가) -->
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f7fa; }
+    a, [data-href] { cursor: pointer; }
+    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
+    .menu-item:hover { color: #008f8c; } 
+    .menu-item.active { color: #000000; font-weight: 900; }
+    
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex !important; }
+    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; }
+    .modal-brand { text-align: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
+    .modal-subtitle { font-size: 0.9rem; color: #64748b; }
+    .modal-form { display: flex; flex-direction: column; gap: 15px; }
+    .modal-field { display: flex; flex-direction: column; text-align: left; }
+    .modal-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #333; }
+    .modal-input { border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; color: #333; }
+    .modal-input:focus { border-color: #0e2b61; }
+    .btn-primary-full { background: #0e2b61; color: white; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; border: none; margin-top: 10px; transition: background 0.2s; }
+    .btn-primary-full:hover { background: #153b80; }
+    .modal-row { display: flex; justify-content: space-between; font-size: 0.85rem; align-items: center; }
+    .modal-forgot { color: #64748b; cursor: pointer; }
+    .modal-forgot:hover { text-decoration: underline; }
+    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; text-decoration: none; }
+    .modal-switch a:hover { text-decoration: underline; }
+    .signup-dialog { max-width: 480px; }
+
+    .modal-message { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-top: 5px; display: none; text-align: left; }
+    .modal-message.success { display: block; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .modal-message.error { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .modal-message.info { display: block; background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  </style>
+
+  <script>
+    let supabaseClientInstance;
+    let currentUserSession = null;
+
+    function handleNavigation(element) {
+      var url = element.getAttribute('data-href');
+      var target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        if (target === '_blank') { window.open(url, '_blank'); } 
+        else { window.location.href = url; }
+      }
+    }
+
+    function openCustomModal(id) {
+      document.querySelectorAll('.modal-backdrop').forEach(function(m) { m.classList.remove('is-open'); });
+      var modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden'; 
+        var msg = modal.querySelector('.modal-message');
+        if (msg) { msg.className = 'modal-message'; msg.textContent = ''; }
+      }
+    }
+
+    function closeCustomModal(id) {
+      var modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = ''; 
+      }
+    }
+
+    function switchCustomModal(closeId, openId) {
+      closeCustomModal(closeId);
+      setTimeout(function() { openCustomModal(openId); }, 150); 
+    }
+
+    function showMessage(elId, text, type) {
+      const el = document.getElementById(elId);
+      if (el) { el.textContent = text; el.className = 'modal-message ' + type; }
+    }
+
+    window.handleLogout = async function() {
+      if (supabaseClientInstance) {
+        await supabaseClientInstance.auth.signOut();
+        alert('안전하게 로그아웃 되었습니다.');
+        window.location.reload();
+      }
+    };
+
+    // 실시간 글 목록 읽어오기
+    async function loadPosts() {
+      const postListEl = document.getElementById('post-list');
+      if (!postListEl) return;
+
+      postListEl.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-400">데이터를 불러오는 중입니다...</td></tr>`;
+
+      const { data, error } = await supabaseClientInstance
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        postListEl.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-red-500">오류가 발생했습니다: ${error.message}</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        postListEl.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-400">등록된 신문고 민원이 없습니다. 첫 목소리를 내어보세요!</td></tr>`;
+        return;
+      }
+
+      postListEl.innerHTML = '';
+      data.forEach((post, index) => {
+        const row = document.createElement('tr');
+        row.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors";
+        
+        const dateObj = new Date(post.created_at);
+        const formattedDate = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`;
+
+        row.innerHTML = `
+          <td class="py-4 text-center text-gray-400 text-sm">${data.length - index}</td>
+          <td class="py-4 px-4 font-medium text-gray-800 text-base">${post.title}</td>
+          <td class="py-4 text-center text-gray-600 text-sm">${post.author || '익명회원'}</td>
+          <td class="py-4 text-center text-gray-400 text-sm">${formattedDate}</td>
+        `;
+        postListEl.appendChild(row);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+      
+      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      supabaseClientInstance.auth.getSession().then(({ data: { session } }) => updateUI(session));
+      supabaseClientInstance.auth.onAuthStateChange((event, session) => updateUI(session));
+
+      function updateUI(session) {
+        currentUserSession = session;
+        const authBtns = document.getElementById('auth-buttons');
+        const userSec = document.getElementById('user-section');
+        const writeBox = document.getElementById('write-box');
+        const loginWarning = document.getElementById('login-warning');
+        
+        if (session && session.user) {
+          const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
+          if(authBtns) authBtns.style.display = 'none';
+          if(userSec) {
+            userSec.style.display = 'flex';
+            userSec.innerHTML = `<span class="text-white text-[11px] md:text-[13px] font-bold mr-2">👤 ${name}님</span><button class="bg-red-600 hover:bg-red-700 text-white text-[11px] md:text-[13px] font-bold px-2 md:px-3 py-1 rounded border-none cursor-pointer transition-colors" onclick="window.handleLogout()">로그아웃</button>`;
+          }
+          if(writeBox) writeBox.style.display = 'block';
+          if(loginWarning) loginWarning.style.display = 'none';
+        } else {
+          if(authBtns) authBtns.style.display = 'flex';
+          if(userSec) userSec.style.display = 'none';
+          if(writeBox) writeBox.style.display = 'none';
+          if(loginWarning) loginWarning.style.display = 'block';
+        }
+
+        loadPosts();
+      }
+
+      // 글쓰기 저장
+      document.getElementById('write-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentUserSession || !currentUserSession.user) {
+          alert('로그인이 필요한 서비스입니다.');
+          return;
+        }
+
+        const title = document.getElementById('post-title').value.trim();
+        const content = document.getElementById('post-content').value.trim();
+        const authorName = currentUserSession.user.user_metadata?.name || currentUserSession.user.email.split('@')[0];
+        const submitBtn = document.getElementById('submit-post-btn');
+
+        if (!title || !content) {
+          alert('제목과 내용을 모두 입력해 주세요.');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = '등록 중...';
+
+        const { error } = await supabaseClientInstance
+          .from('posts')
+          .insert([{ title: title, content: content, author: authorName }]);
+
+        if (error) {
+          alert('등록 실패: ' + error.message);
+        } else {
+          alert('정책신문고에 소중한 애로사항이 정상 등록되었습니다!');
+          document.getElementById('post-title').value = '';
+          document.getElementById('post-content').value = '';
+          loadPosts();
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = '의견 등록하기';
+      });
+
+      // 인증 처리 백업
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const emailOrId = document.getElementById('login-id').value.trim();
+        const password = document.getElementById('login-pw').value;
+        const btn = document.getElementById('login-btn');
+        let loginEmail = emailOrId.includes('@') ? emailOrId : emailOrId + "@kcbma.com";
+
+        btn.disabled = true;
+        const { error } = await supabaseClientInstance.auth.signInWithPassword({ email: loginEmail, password });
+        if (error) { showMessage('login-message', '아이디 또는 비밀번호가 올바르지 않습니다.', 'error'); }
+        else { showMessage('login-message', '로그인 성공!', 'success'); setTimeout(() => window.location.reload(), 1000); }
+        btn.disabled = false; btn.textContent = '로그인';
+      });
+
+      document.getElementById('signup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signup-name').value.trim();
+        const username = document.getElementById('signup-id').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const pw = document.getElementById('signup-pw').value;
+        const pw2 = document.getElementById('signup-pw2').value;
+        const tc1 = document.querySelector('[name="signup-tc1"]').checked;
+        const tc2 = document.querySelector('[name="signup-tc2"]').checked;
+        const btn = document.getElementById('signup-btn');
+
+        if(pw !== pw2) return showMessage('signup-message', '비밀번호 확인이 일치하지 않습니다.', 'error');
+        if(!tc1 || !tc2) return showMessage('signup-message', '필수 약관에 동의해 주세요.', 'error');
+
+        btn.disabled = true;
+        const { error } = await supabaseClientInstance.auth.signUp({
+          email: email, password: pw, options: { data: { name: name, username: username } }
+        });
+        if (error) { showMessage('signup-message', '가입 실패: ' + error.message, 'error'); }
+        else { showMessage('signup-message', '회원가입 성공! 로그인해 주세요.', 'success'); e.target.reset(); setTimeout(() => switchCustomModal('signup', 'login'), 2000); }
+        btn.disabled = false; btn.textContent = '회원가입';
+      });
+    });
+  </script>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+
+  <!-- 표준 헤더 -->
+  <div class="w-full bg-[#0a1931] py-2">
+    <div class="max-w-7xl mx-auto px-3 md:px-8 flex justify-center sm:justify-end items-center gap-1 md:gap-3 flex-nowrap">
+      <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] text-white text-[11px] md:text-[13px] font-bold px-2 md:px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap">네이버카페</div>
+      <div id="auth-buttons" class="flex items-center gap-1 md:gap-3">
+        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[11px] md:text-[13px] font-bold px-2 md:px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap">로그인</div>
+        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] text-white text-[11px] md:text-[13px] font-bold px-2 md:px-4 py-1.5 rounded transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap">회원가입</div>
+        <div class="text-white text-[11px] md:text-[13px] font-bold flex items-center ml-1 md:ml-3 whitespace-nowrap">
+          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 transition-colors cursor-pointer">아이디찾기</span>
+          <span class="mx-1 text-gray-400 font-normal">|</span>
+          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 transition-colors cursor-pointer">비밀번호찾기</span>
+        </div>
+      </div>
+      <div id="user-section" style="display:none;" class="items-center flex-nowrap gap-2"></div>
+    </div>
+  </div>
+
+  <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full bg-white shadow-sm">
+    <div class="flex items-center space-x-3 py-1 cursor-pointer" data-href="../index.html" onclick="handleNavigation(this)">
+      <img src="../assets/img/방패로고-removebg-preview.png" class="h-[36px] md:h-[48px] w-auto object-contain flex-shrink-0" alt="KCBMA 마크" onerror="this.src='../방패로고.jpg'">
+      <img src="../assets/img/로고_글자-removebg-preview.png" class="h-[32px] md:h-[44px] w-auto object-contain flex-shrink-0 mt-1" alt="대한집합건물관리협회" onerror="this.src='../로고_글자.png'">
+    </div>
+    <nav class="hidden md:flex space-x-12 font-bold text-[17px]">
+      <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1">협회소개</div>
+      <div data-href="index.html" onclick="handleNavigation(this)" class="menu-item py-1">정보교류</div>
+      <div data-href="forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
+      <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1">구인구직</div>
+      <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1 active">정책신문고</div>
+    </nav>
+  </header>
+
+  <!-- 메인 레이아웃 본문 구역 -->
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h2 class="text-xl font-bold text-[#0e2b61] border-l-4 border-[#0e2b61] pl-3 mb-6">🏛️ 신문고 접수 현황</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-gray-200 text-gray-400 font-medium text-sm">
+                <th class="py-3 text-center w-16">번호</th>
+                <th class="py-3 px-4">민원 요지 (제목)</th>
+                <th class="py-3 text-center w-24">제안자</th>
+                <th class="py-3 text-center w-28">등록일</th>
+              </tr>
+            </thead>
+            <tbody id="post-list" class="text-gray-700">
+              <!-- Supabase 데이터 동적 삽입 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <div id="login-warning" class="bg-amber-50 border border-amber-200 p-6 rounded-xl text-center">
+        <span class="text-3xl">🔒</span>
+        <h3 class="font-bold text-gray-800 mt-2 mb-1 text-base">로그인 후 기록 가능</h3>
+        <p class="text-xs text-gray-500 leading-relaxed mb-4">현장의 무분별한 광고성 글을 막기 위해, 실제 소장님 회원인 것이 검증된 분들만 기록 권한을 드립니다.</p>
+        <button onclick="openCustomModal('login')" class="w-full py-2.5 bg-[#0e2b61] text-white text-sm font-bold rounded-lg">로그인하러 가기</button>
+      </div>
+
+      <div id="write-box" style="display:none;" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h3 class="font-bold text-gray-800 text-lg mb-4 border-b pb-3 flex items-center gap-2">✍️ 민원 및 정책 제안</h3>
+        <form id="write-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">민원 요지 (제목)</label>
+            <input type="text" id="post-title" class="w-full border border-gray-200 rounded-lg p-3 text-sm focus:border-[#0e2b61] outline-none" placeholder="예: 기계설비유지관리자 선임 요건 완화 건" required />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">상세 내용 (애로사항)</label>
+            <textarea id="post-content" rows="6" class="w-full border border-gray-200 rounded-lg p-3 text-sm focus:border-[#0e2b61] outline-none resize-none" placeholder="실제 현장에서 겪으시는 구체적인 어려움과 개선 방향을 작성해 주세요." required></textarea>
+          </div>
+          <button type="submit" id="submit-post-btn" class="w-full py-3 bg-[#0e2b61] text-white font-bold text-sm rounded-lg hover:bg-[#153b80] transition-colors">의견 등록하기</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer style="background: #040f24; color: #fff; padding: 40px 20px; font-size: 0.9rem; text-align: center; border-top:1px solid #112244;">
+    <p>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</p>
+  </footer>
+
+  <!-- 모달 세트 -->
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <button type="button" class="modal-close" onclick="closeCustomModal('login')">✖</button>
+      <div class="modal-brand">
+        <p class="modal-title">로그인</p>
+        <p class="modal-subtitle">대한집합건물관리협회 정책신문고</p>
+      </div>
+      <form class="modal-form" id="login-form" novalidate>
+        <div class="modal-field">
+          <label class="modal-label">아이디 또는 이메일</label>
+          <input class="modal-input" type="text" id="login-id" placeholder="아이디 입력" required />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">비밀번호</label>
+          <input class="modal-input" type="password" id="login-pw" placeholder="비밀번호" required />
+        </div>
+        <div id="login-message" class="modal-message"></div>
+        <button type="submit" id="login-btn" class="btn-primary-full">로그인</button>
+      </form>
+      <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
+    <div class="modal-dialog signup-dialog">
+      <button type="button" class="modal-close" onclick="closeCustomModal('signup')">✖</button>
+      <div class="modal-brand"><p class="modal-title">회원가입</p></div>
+      <form class="modal-form" id="signup-form" novalidate>
+        <div class="modal-field"><label class="modal-label">이름 *</label><input class="modal-input" type="text" id="signup-name" required /></div>
+        <div class="modal-field"><label class="modal-label">아이디 *</label><input class="modal-input" type="text" id="signup-id" required /></div>
+        <div class="modal-field"><label class="modal-label">이메일 *</label><input class="modal-input" type="email" id="signup-email" required /></div>
+        <div class="modal-field"><label class="modal-label">비밀번호 *</label><input class="modal-input" type="password" id="signup-pw" required /></div>
+        <div class="modal-field"><label class="modal-label">비밀번호 확인 *</label><input class="modal-input" type="password" id="signup-pw2" required /></div>
+        <div class="modal-checkbox-group" style="font-size:0.85rem;">
+          <label style="cursor:pointer;"><input type="checkbox" name="signup-tc1" /> [필수] 이용약관 동의</label><br>
+          <label style="cursor:pointer;"><input type="checkbox" name="signup-tc2" /> [필수] 개인정보 처리방침 동의</label>
+        </div>
+        <div id="signup-message" class="modal-message"></div>
+        <button type="submit" id="signup-btn" class="btn-primary-full">회원가입</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
