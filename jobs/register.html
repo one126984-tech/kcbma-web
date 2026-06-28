@@ -78,9 +78,41 @@
       if(modalId) closeCustomModal(modalId);
     }
 
-    // 구인구직 폼 제출 처리
+    // ★ 수정된 부분: 구인구직 폼 제출 처리 (빈칸 검사 및 DB 전송 준비)
     function handleJobSubmit(e) {
       e.preventDefault(); 
+      
+      const form = e.target;
+
+      // 각 입력 필드 값 가져오기
+      const category = form.category.value.trim();
+      const type = form.type.value.trim();
+      const title = form.title.value.trim();
+      const employment = form.employment.value.trim();
+      const experience = form.experience.value.trim();
+      const region = form.region.value.trim();
+      const salary = form.salary.value.trim();
+      const address = form.address.value.trim();
+      const startDate = form.start_date.value;
+      const endDate = form.end_date.value;
+      const description = form.description.value.trim();
+
+      // 유효성 검사 (빈칸 체크)
+      if (!category) { alert('건물 구분을 선택해 주세요.'); form.category.focus(); return; }
+      if (!type) { alert('모집 직종을 선택해 주세요.'); form.type.focus(); return; }
+      if (!title) { alert('공고 제목을 입력해 주세요.'); form.title.focus(); return; }
+      if (!employment) { alert('고용 형태를 선택해 주세요.'); form.employment.focus(); return; }
+      if (!experience) { alert('경력 여부를 선택해 주세요.'); form.experience.focus(); return; }
+      if (!region) { alert('근무 지역을 선택해 주세요.'); form.region.focus(); return; }
+      if (!salary) { alert('급여 조건을 입력해 주세요.'); form.salary.focus(); return; }
+      if (!address) { alert('상세 근무지 주소를 입력해 주세요.'); form.address.focus(); return; }
+      if (!startDate) { alert('모집 시작일을 선택해 주세요.'); form.start_date.focus(); return; }
+      if (!endDate) { alert('모집 마감일을 선택해 주세요.'); form.end_date.focus(); return; }
+      if (!description) { alert('상세 내용을 입력해 주세요.'); form.description.focus(); return; }
+
+      // 실제 데이터베이스 전송 로직 예시
+      // fetch('/api/submit-job', { method: 'POST', body: new FormData(form) }).then(...)
+
       alert('공고가 성공적으로 등록되었습니다.');
       window.location.href = 'list.html'; 
     }
@@ -100,7 +132,7 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- 통합 표준 헤더 (모바일 터치 최적화 적용) -->
+  <!-- 통합 표준 헤더 -->
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
@@ -121,11 +153,9 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='https://via.placeholder.com/200x44?text=KCBMA'">
       </div>
       
-      <!-- 수정된 PC용 메뉴 (드롭다운 추가 및 호버 끊김 해결) -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
         
-        <!-- 정보교류 드롭다운 적용 영역 -->
         <div class="relative group cursor-pointer py-1">
           <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
           <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
@@ -203,13 +233,15 @@
   <!-- 메인 콘텐츠 -->
   <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
     <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm">
-      <form onsubmit="handleJobSubmit(event)">
+      
+      <!-- ★ 폼 태그 수정됨: 데이터 전송 속성(name, method, action) 추가 -->
+      <form name="job-posting" method="POST" data-netlify="true" onsubmit="handleJobSubmit(event)">
         
         <!-- 1. 건물 유형 및 모집 직종 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-category">건물 구분 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-category" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" required>
+            <select id="job-category" name="category" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
               <option value="">선택해주세요</option>
               <option value="빌딩">빌딩</option>
               <option value="오피스텔">오피스텔</option>
@@ -219,7 +251,7 @@
           </div>
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-type">모집 직종 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-type" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" required>
+            <select id="job-type" name="type" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
               <option value="">선택해주세요</option>
               <option value="관리소장">관리소장</option>
               <option value="시설관리인">시설관리인</option>
@@ -233,14 +265,14 @@
         <!-- 2. 제목 -->
         <div class="flex flex-col mb-6">
           <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-title">공고 제목 <span class="text-red-500 ml-1">*</span></label>
-          <input type="text" id="job-title" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: [강남구 빌딩] 성실한 시설관리 주임 모십니다." required />
+          <input type="text" id="job-title" name="title" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: [강남구 빌딩] 성실한 시설관리 주임 모십니다." />
         </div>
 
         <!-- 3. 고용 형태 및 경력 여부 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-employment">고용 형태 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-employment" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" required>
+            <select id="job-employment" name="employment" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
               <option value="">선택해주세요</option>
               <option value="정규직">정규직</option>
               <option value="계약직">계약직</option>
@@ -250,7 +282,7 @@
           </div>
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-experience">경력 여부 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-experience" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" required>
+            <select id="job-experience" name="experience" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
               <option value="">선택해주세요</option>
               <option value="무관">경력 무관</option>
               <option value="신입">신입</option>
@@ -265,7 +297,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-region">근무 지역 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-region" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" required>
+            <select id="job-region" name="region" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
               <option value="">시/도 선택</option>
               <option value="서울">서울특별시</option>
               <option value="경기">경기도</option>
@@ -276,31 +308,31 @@
           </div>
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-salary">급여 조건 <span class="text-red-500 ml-1">*</span></label>
-            <input type="text" id="job-salary" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 월 300만원 (또는 면접 후 결정)" required />
+            <input type="text" id="job-salary" name="salary" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 월 300만원 (또는 면접 후 결정)" />
           </div>
         </div>
 
         <div class="flex flex-col mb-6">
           <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-address">상세 근무지 주소 <span class="text-red-500 ml-1">*</span></label>
-          <input type="text" id="job-address" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 서울 강남구 테헤란로 OO빌딩" required />
+          <input type="text" id="job-address" name="address" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 서울 강남구 테헤란로 OO빌딩" />
         </div>
 
         <!-- 5. 모집 기간 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-start-date">모집 시작일 <span class="text-red-500 ml-1">*</span></label>
-            <input type="date" id="job-start-date" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" required />
+            <input type="date" id="job-start-date" name="start_date" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" />
           </div>
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-end-date">모집 마감일 <span class="text-red-500 ml-1">*</span></label>
-            <input type="date" id="job-end-date" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" required />
+            <input type="date" id="job-end-date" name="end_date" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" />
           </div>
         </div>
 
         <!-- 6. 상세 내용 -->
         <div class="flex flex-col mb-2">
           <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-description">상세 내용 <span class="text-red-500 ml-1">*</span></label>
-          <textarea id="job-description" class="form-textarea border border-gray-300 p-4 rounded-lg text-[15px] w-full resize-y min-h-[240px]" placeholder="- 주요 업무:&#10;- 자격 요건:&#10;- 우대 사항:&#10;- 복리 후생:&#10;- 지원 방법:" required></textarea>
+          <textarea id="job-description" name="description" class="form-textarea border border-gray-300 p-4 rounded-lg text-[15px] w-full resize-y min-h-[240px]" placeholder="- 주요 업무:&#10;- 자격 요건:&#10;- 우대 사항:&#10;- 복리 후생:&#10;- 지원 방법:"></textarea>
         </div>
 
         <!-- 7. 버튼 영역 -->
@@ -357,8 +389,7 @@
     </div>
   </footer>
 
-  <!-- 인증 보조 모달 4종 (표준 레이아웃 적용) -->
-  
+  <!-- 인증 보조 모달 4종 -->
   <!-- 로그인 모달 -->
   <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
     <div class="modal-dialog">
