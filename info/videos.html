@@ -30,12 +30,36 @@
     .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
     .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
 
-    /* 필터 칩 스타일 (반응형 유지용) */
-    .chip { padding: 8px 20px; border-radius: 99px; background: #fff; border: 1px solid #E2E8F0; color: #64748b; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-    .chip:hover { border-color: #2BA8A0; color: #2BA8A0; }
-    .chip.active { background: #0B2A5B; border-color: #0B2A5B; color: #fff; }
+    /* 히어로 텍스트 밑줄 애니메이션 (왼쪽 -> 오른쪽) */
+    .hero-title {
+      position: relative;
+      display: inline-block;
+      padding-bottom: 4px;
+    }
+    .hero-title::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      bottom: 0;
+      left: 0;
+      background-color: var(--teal);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .group:hover .hero-title::after,
+    .hero-title.active::after {
+      transform: scaleX(1);
+    }
 
-    /* 모달 필수 스타일 (표준화) */
+    /* 필터 칩 스타일 */
+    .chip { padding: 8px 18px; border-radius: 99px; border: 1.5px solid #E2E8F0; font-size: 0.85rem; font-weight: 700; color: #64748b; background: #fff; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .chip:hover { border-color: #2BA8A0; color: #2BA8A0; }
+    .chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+    /* 모달 스타일 생략 (이전과 동일) */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -60,37 +84,25 @@
       }
     }
 
-    // 커스텀 모달 제어 함수
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.add('is-open');
-        document.body.style.overflow = 'hidden'; 
+        document.body.style.overflow = 'hidden';
       }
     }
-
     function closeCustomModal(id) {
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.remove('is-open');
-        document.body.style.overflow = ''; 
+        document.body.style.overflow = '';
       }
     }
-
     function switchCustomModal(closeId, openId) {
       closeCustomModal(closeId);
-      setTimeout(() => openCustomModal(openId), 100); 
+      setTimeout(() => openCustomModal(openId), 100);
     }
-
-    // 폼 제출 시 새로고침 방지
-    function handleFormSubmit(event, modalId, message) {
-      event.preventDefault(); 
-      alert(message);
-      closeCustomModal(modalId);
-    }
-
-    // 모바일 햄버거 메뉴 제어
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu.classList.contains('hidden')) {
@@ -105,6 +117,7 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
+  <!-- 통합 표준 헤더 -->
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
@@ -120,13 +133,17 @@
     </div>
     
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
-      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
+      
+      <!-- ★ 로고 크기 고정 수정 부분 ★ -->
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center cursor-pointer">
+        <!-- h-10(40px), h-12(48px) 등 표준 Tailwind 클래스를 직접 적용하여 로고 팽창 완벽 차단 -->
+        <img src="../방패로고.jpg" alt="방패로고" class="h-10 md:h-12 w-auto object-contain" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-9 md:h-11 w-auto ml-2 mt-1 object-contain" onerror="this.src='../로고_글자.png'">
       </div>
       
+      <!-- PC용 메뉴 -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
         
         <div class="relative gnb-dropdown-wrap cursor-pointer">
           <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active text-[#2BA8A0]">정보교류</div>
@@ -134,14 +151,14 @@
             <div class="dropdown-box">
               <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
               <div data-href="videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
-              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+              <div data-href="columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
             </div>
           </div>
         </div>
 
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -154,6 +171,7 @@
     </header>
   </div>
 
+  <!-- 모바일 사이드 메뉴 -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
@@ -170,261 +188,147 @@
           </summary>
           <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
             <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
-            <div data-href="videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white text-white">영상 자료실</div>
-            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+            <div data-href="videos.html" onclick="handleNavigation(this)" class="cursor-pointer text-white">영상 자료실</div>
+            <div data-href="columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
           </div>
         </details>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
       </div>
-
-      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
-        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
-      </div>
     </div>
   </div>
 
-  <section class="bg-[#0B2A5B] text-white py-12 md:py-16 text-center px-4">
+  <!-- 페이지 히어로 -->
+  <section class="bg-[#0B2A5B] text-white py-10 md:py-12 px-4">
     <div class="max-w-7xl mx-auto">
-      <nav class="text-sm text-blue-200 mb-4 flex items-center justify-center space-x-2">
-        <a data-href="../index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">홈</a>
-        <span>›</span>
-        <a data-href="index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">정보교류</a>
-        <span>›</span>
-        <span class="font-bold text-white">영상 자료실</span>
-      </nav>
-      <h1 class="text-3xl md:text-4xl font-black mb-3">영상 자료실</h1>
-      <p class="text-[15px] md:text-base text-blue-100 font-medium break-keep">집합건물 관리 실무에 도움이 되는 영상을 모아드립니다.</p>
+      <div class="text-[13px] md:text-sm text-gray-300 mb-5 font-medium">
+        홈 &gt; 정보교류
+      </div>
+      
+      <!-- 3단 서브 메뉴 구성 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- 법규·정책 -->
+        <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 group-hover:text-[#2BA8A0] transition-colors text-white">법규·정책</h1>
+          <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리인이 꼭 알아야 할 법규와<br class="hidden md:block"> 정책 변경사항을 안내합니다.</p>
+        </div>
+        
+        <!-- ★ 영상 자료실 (현재 활성화 페이지) ★ -->
+        <div data-href="videos.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+          <!-- .active 클래스 추가로 밑줄 유지 및 Teal 색상 고정 -->
+          <h1 class="hero-title active text-2xl md:text-3xl font-black mb-3 text-[#2BA8A0] transition-colors">영상 자료실</h1>
+          <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리 실무에 도움이 되는<br class="hidden md:block"> 영상을 모아드립니다.</p>
+        </div>
+        
+        <!-- 시설업체 칼럼 -->
+        <div data-href="columns.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 group-hover:text-[#2BA8A0] transition-colors text-white">시설업체 칼럼</h1>
+          <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">등록 파트너사가 직접 작성한<br class="hidden md:block"> 실무 정보 칼럼입니다.</p>
+        </div>
+
+      </div>
     </div>
   </section>
 
-  <main class="flex-1 py-8 md:py-12 px-4 sm:px-6 w-full">
-    <div class="max-w-7xl mx-auto">
-      
-      <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide" id="filter-chips">
-        <button class="chip active" data-cat="all">전체</button>
-        <button class="chip" data-cat="law">법령·판례</button>
-        <button class="chip" data-cat="tips">실무팁</button>
-        <button class="chip" data-cat="edu">교육영상</button>
-        <button class="chip" data-cat="case">현장사례</button>
+  <!-- 메인 콘텐츠 (영상 자료실용 샘플 레이아웃) -->
+  <main class="flex-1 py-8 md:py-12 px-4 sm:px-6 w-full max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8 gap-4">
+      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide w-full" id="filter-chips">
+        <button class="chip active" data-cat="all">전체 영상</button>
+        <button class="chip" data-cat="edu">실무 교육</button>
+        <button class="chip" data-cat="case">사례 분석</button>
+      </div>
+    </div>
+
+    <!-- 영상 그리드 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="video-items">
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+        <div class="aspect-video bg-gray-800 flex items-center justify-center relative">
+          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="p-4">
+          <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">실무 교육</span>
+          <h3 class="font-bold text-gray-900 mt-2 mb-1 line-clamp-2 text-base">2026년 개정 집합건물법 완벽 정리</h3>
+          <p class="text-[13px] text-gray-500 mt-2">조회수 1,240회 · 2일 전</p>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="video-items">
-        
-        <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="law">
-          <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-[#0B2A5B] to-[#1E5AA8] flex items-center justify-center relative">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#2BA8A0] transition-colors">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="px-1">
-            <span class="inline-block bg-blue-100 text-blue-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">법령·판례</span>
-            <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">집합건물법 핵심 정리 2025 (개정안 포함)</h3>
-            <p class="text-xs text-gray-400 mt-1">2026.05.20</p>
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+        <div class="aspect-video bg-gray-800 flex items-center justify-center relative">
+          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           </div>
         </div>
-
-        <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="tips">
-          <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-[#2BA8A0] to-[#137a73] flex items-center justify-center relative">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#0B2A5B] transition-colors">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="px-1">
-            <span class="inline-block bg-green-100 text-green-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">실무팁</span>
-            <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">초보 소장을 위한 1년차 필수 관리 스케줄 (봄/여름 편)</h3>
-            <p class="text-xs text-gray-400 mt-1">2026.05.15</p>
-          </div>
+        <div class="p-4">
+          <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">사례 분석</span>
+          <h3 class="font-bold text-gray-900 mt-2 mb-1 line-clamp-2 text-base">하자보수 청구 기간, 놓치기 쉬운 포인트</h3>
+          <p class="text-[13px] text-gray-500 mt-2">조회수 850회 · 1주 전</p>
         </div>
-
-        <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="edu">
-          <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-purple-800 to-purple-900 flex items-center justify-center relative">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#2BA8A0] transition-colors">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="px-1">
-            <span class="inline-block bg-purple-100 text-purple-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">교육영상</span>
-            <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">투명한 관리비 회계 처리 기초 강의 1강</h3>
-            <p class="text-xs text-gray-400 mt-1">2026.05.08</p>
-          </div>
-        </div>
-
-        <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="case">
-          <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center relative">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#0B2A5B] transition-colors">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="px-1">
-            <span class="inline-block bg-orange-100 text-orange-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">현장사례</span>
-            <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">누수 분쟁 해결 현장! 입주민과의 소통 노하우</h3>
-            <p class="text-xs text-gray-400 mt-1">2026.04.28</p>
-          </div>
-        </div>
-
       </div>
-
     </div>
   </main>
 
-  <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
-      
-      <div class="flex-1 w-full">
-        <img src="../대한집합건물관리협회-removebg-preview.png" class="h-[50px] md:h-[60px] filter brightness-0 invert mb-5" alt="대한집합건물관리협회 로고" onerror="this.src='../방패로고.jpg'">
-        <div class="text-[14px] md:text-[15px] leading-relaxed text-gray-300">
-          <p class="mb-1">주소: 경기도 김포시 김포대로 699</p>
-          <p class="mb-1">전화: 031-984-6199 · 팩스: 031-985-6199</p>
-          <p class="mb-1">이메일: idea8888@naver.com</p>
+  <!-- 푸터 -->
+  <footer style="background: #040f24; color: #fff; padding: 60px 20px; margin-top: 50px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px;">
+      <div style="flex: 1; min-width: 250px;">
+        <img src="assets/img/대한집합건물관리협회-removebg-preview.png" style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 20px;" alt="대한집합건물관리협회 로고" onerror="this.style.display='none'">
+        <div style="font-size: 0.9rem; line-height: 1.8; color: #fff;">
+          <p style="margin: 5px 0;">주소: 경기도 김포시 김포대로 699</p>
+          <p style="margin: 5px 0;">전화: 031-984-6199 · 팩스: 031-985-6199</p>
+          <p style="margin: 5px 0;">이메일: idea8888@naver.com</p>
         </div>
       </div>
-
-      <div class="flex-[0.5] w-full">
-        <h4 class="mb-4 font-bold text-white text-[16px]">사이트맵</h4>
-        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
-          <a href="../info/index.html" class="hover:text-white transition-colors">정보교류 종합 포털</a>
-          <a href="../info/forum.html" class="hover:text-white transition-colors">정책 토론 광장</a>
-          <a href="../jobs/list.html" class="hover:text-white transition-colors">구인구직 센터</a>
+      <div style="flex: 0.5; min-width: 150px;">
+        <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">사이트맵</h4>
+        <div style="font-size: 0.9rem; line-height: 2.2;">
+          <a href="info/index.html" style="color: #fff; text-decoration: none;">정보교류 종합 포털</a><br>
+          <a href="info/forum.html" style="color: #fff; text-decoration: none;">정책 토론 광장</a><br>
+          <a href="jobs/list.html" style="color: #fff; text-decoration: none;">구인구직 센터</a>
         </div>
       </div>
-
-      <div class="flex-[0.5] w-full">
-        <h4 class="mb-4 font-bold text-white text-[16px]">제휴 파트너</h4>
-        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
-          <a href="../partners/list.html" class="hover:text-white transition-colors">우수 파트너사 목록</a>
-          <a href="../partners/apply.html" class="hover:text-white transition-colors">유지 보수사 협력 신청</a>
+      <div style="flex: 0.5; min-width: 150px;">
+        <h4 style="margin: 0 0 20px 0; font-weight:bold; color: #fff;">제휴 파트너</h4>
+        <div style="font-size: 0.9rem; line-height: 2.2;">
+          <a href="partners/list.html" style="color: #fff; text-decoration: none;">우수 파트너사 목록</a><br>
+          <a href="partners/apply.html" style="color: #fff; text-decoration: none;">유지 보수사 협력 신청</a>
         </div>
-        <a href="https://cafe.naver.com/kcbma114" target="_blank" class="inline-block bg-[#00C73C] text-white px-4 py-2 rounded font-bold text-[14px] mt-4 hover:bg-[#00a833] transition-colors">
-          네이버카페
-        </a>
+        <a href="https://cafe.naver.com/kcbma114" target="_blank" style="display: inline-block; background: #00C73C; color: #fff; padding: 8px 16px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; margin-top: 15px; text-decoration: none;">N 네이버카페</a>
       </div>
-
     </div>
-    
-    <div class="max-w-7xl mx-auto mt-10 md:mt-12 pt-6 border-t border-blue-900 text-[12px] md:text-[13px] flex flex-col md:flex-row justify-between items-center text-gray-400 gap-4">
+    <div style="max-width: 1200px; margin: 40px auto 0 auto; border-top: 1px solid #1e3a8a; padding-top: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; color: #fff; flex-wrap: wrap; gap: 10px;">
       <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
-      <div class="flex space-x-5">
-        <a href="#" class="hover:text-white transition-colors">이용약관</a>
-        <a href="#" class="hover:text-white transition-colors">개인정보처리방침</a>
+      <div>
+        <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">이용약관</a>
+        <a href="#" style="color: #fff; text-decoration: none; margin-left: 20px;">개인정보처리방침</a>
       </div>
     </div>
   </footer>
 
-    <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
+  <!-- 로그인 모달 -->
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
     <div class="modal-dialog">
       <button type="button" class="modal-close" onclick="closeCustomModal('login')" aria-label="닫기">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <div class="modal-brand">
-        <img src="assets/img/방패로고-removebg-preview.png" style="height:50px; width:auto; margin:0 auto 10px;" alt="KCBMA" class="modal-brand-img" onerror="this.style.display='none'" />
         <p class="modal-title">로그인</p>
-        <p class="modal-subtitle">대한집합건물관리협회에 오신 것을 환영합니다</p>
       </div>
-      <form class="modal-form" id="login-form" novalidate>
+      <form class="modal-form" id="login-form">
         <div class="modal-field">
-          <label class="modal-label" for="login-id">아이디 또는 이메일</label>
-          <input class="modal-input" type="text" id="login-id" name="login-id" placeholder="아이디 또는 이메일 입력" autocomplete="username" required />
+          <input class="modal-input" type="text" placeholder="아이디" required />
         </div>
         <div class="modal-field">
-          <label class="modal-label" for="login-pw">비밀번호</label>
-          <input class="modal-input" type="password" id="login-pw" name="login-pw" placeholder="비밀번호" autocomplete="current-password" required />
+          <input class="modal-input" type="password" placeholder="비밀번호" required />
         </div>
-     <div class="modal-row">
-  <label class="modal-remember" style="cursor:pointer;"><input type="checkbox" name="login-keep" /> 로그인 상태 유지</label>
-  <div>
-    <a class="modal-forgot" onclick="switchCustomModal('login', 'find-id')">아이디 찾기</a>
-    <span class="mx-1 text-gray-400">|</span>
-    <a class="modal-forgot" onclick="switchCustomModal('login', 'find-pw')">비밀번호 찾기</a>
-  </div>
-</div>
-        <div id="login-message" class="modal-message"></div>
-        <button type="submit" id="login-btn" class="btn-primary-full">로그인</button>
+        <button type="submit" class="btn-primary-full">로그인</button>
       </form>
-      <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
     </div>
   </div>
 
-
-
-  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
-    <div class="modal-dialog overflow-y-auto max-h-[90vh]">
-      <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">회원가입</p>
-        <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'signup', '회원가입 신청이 완료되었습니다.');">
-        <input class="modal-input" type="text" placeholder="성함" required />
-        <input class="modal-input" type="text" placeholder="아이디 희망문자" required />
-        <input class="modal-input" type="email" placeholder="이메일 주소" required />
-        <input class="modal-input" type="password" placeholder="비밀번호 서식 (8자 이상)" required />
-        <button type="submit" class="btn-primary-full mt-2">가입 신청 완료</button>
-      </form>
-      <p class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></p>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
-    <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('find-id')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">아이디 찾기</p>
-        <p class="text-xs text-gray-500 text-center mt-1">가입 시 등록하신 이메일 정보를 입력해 주세요.</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-id', '입력하신 이메일로 아이디 정보가 발송되었습니다.');">
-        <input class="modal-input" type="text" placeholder="이름" required />
-        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
-        <button type="submit" class="btn-primary-full mt-2">아이디 찾기</button>
-      </form>
-      <p class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인으로 돌아가기</a></p>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
-    <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">비밀번호 찾기</p>
-        <p class="text-xs text-gray-500 text-center mt-1">아이디와 이메일을 입력하시면 임시 비밀번호를 발송해 드립니다.</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-pw', '입력하신 이메일로 임시 비밀번호가 발송되었습니다.');">
-        <input class="modal-input" type="text" placeholder="아이디" required />
-        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
-        <button type="submit" class="btn-primary-full mt-2">임시 비밀번호 발송</button>
-      </form>
-      <p class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인으로 돌아가기</a></p>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const chips = document.querySelectorAll("#filter-chips .chip");
-      const items = document.querySelectorAll(".video-card");
-
-      chips.forEach(chip => {
-        chip.addEventListener("click", () => {
-          // 버튼 스타일 변경
-          chips.forEach(c => c.classList.remove("active"));
-          chip.classList.add("active");
-          
-          // 필터링 적용
-          const filter = chip.getAttribute("data-cat");
-          items.forEach(item => {
-            if (filter === "all" || item.getAttribute("data-cat") === filter) {
-              item.style.display = "block";
-            } else {
-              item.style.display = "none";
-            }
-          });
-        });
-      });
-    });
-  </script>
 </body>
 </html>
