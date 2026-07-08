@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   
   <style>
+    /* ★ 화면 전환 시 흔들림 방지: 스크롤바를 항상 노출시켜 가로폭 변동을 막습니다 ★ */
+    html { overflow-y: scroll; }
+
     :root {
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
@@ -22,7 +25,7 @@
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
 
-    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
+    /* PC GNB 드롭다운 강제 활성화 CSS */
     .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
     .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
     .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
@@ -30,7 +33,7 @@
     .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
     .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
 
-    /* 히어로 텍스트 밑줄 애니메이션 (왼쪽 -> 오른쪽) */
+    /* 히어로 텍스트 밑줄 애니메이션 (모든 선 흰색 고정) */
     .hero-title {
       position: relative;
       display: inline-block;
@@ -42,7 +45,7 @@
       height: 3px;
       bottom: -6px;
       left: 0;
-      background-color: var(--teal);
+      background-color: #ffffff; 
       transform: scaleX(0);
       transform-origin: left center;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -51,13 +54,13 @@
       transform: scaleX(1);
     }
 
-    /* 필터 칩 스타일 (반응형 최적화) */
+    /* 필터 칩 스타일 */
     .chip { padding: 8px 18px; border-radius: 99px; border: 1.5px solid #E2E8F0; font-size: 0.85rem; font-weight: 700; color: #64748b; background: #fff; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .chip:hover { border-color: #2BA8A0; color: #2BA8A0; }
     .chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-    /* 모달 필수 스타일 (표준화) */
+    /* 모달 필수 스타일 */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -121,10 +124,11 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- 통합 표준 헤더 -->
+  <!-- 통합 표준 헤더 (모든 페이지에 동일하게 복사/붙여넣기 해야 흔들리지 않습니다) -->
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
     <div class="w-full bg-[#0a1931] py-2.5">
-      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
+      <!-- 최상단 유틸리티 여백 통일: px-4 md:px-8 -->
+      <div class="max-w-7xl mx-auto px-4 md:px-8 w-full flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
         <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
         <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
         <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
@@ -136,23 +140,21 @@
       </div>
     </div>
     
-    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
+    <!-- 메인 로고 및 메뉴 여백 통일: px-4 md:px-8 -->
+    <header class="flex justify-between items-center max-w-7xl mx-auto px-4 md:px-8 py-4 w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
         <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-      <!-- 수정된 PC용 메뉴 -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
         
-        <!-- 정보교류 드롭다운 적용 영역 -->
         <div class="relative gnb-dropdown-wrap cursor-pointer">
           <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active text-[#2BA8A0]">정보교류</div>
           <div class="gnb-dropdown-menu">
             <div class="dropdown-box">
               <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
-              <!-- 상대경로 꼬임 수정 (형제 위치인 videos.html로 변경) -->
               <div data-href="videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
               <div data-href="columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
             </div>
@@ -207,29 +209,30 @@
     </div>
   </div>
 
-  <!-- 페이지 히어로 (수정됨: 애니메이션 및 링크 경로 수정) -->
-  <section class="bg-[#0B2A5B] text-white py-10 md:py-12 px-4">
-    <div class="max-w-7xl mx-auto">
+  <!-- 페이지 히어로 (모든 페이지에 동일하게 복사/붙여넣기 해야 흔들리지 않습니다) -->
+  <!-- 배경색은 첫 화면과 동일한 짙은 남색(bg-[#0B2A5B]) 복구, 상하 여백(py-10 md:py-12) 복구, 좌우 여백(px-4 md:px-8) 통일 -->
+  <section class="bg-[#0B2A5B] text-white w-full">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-12 w-full">
       <!-- 빵판(Breadcrumb) -->
       <div class="text-[13px] md:text-sm text-gray-300 mb-5 font-medium">
         홈 &gt; 정보교류
       </div>
       
       <!-- 3단 서브 메뉴 구성 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
         <!-- 법규·정책 -->
         <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer group">
-          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 group-hover:text-[#2BA8A0] transition-colors text-white">법규·정책</h1>
+          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 text-white transition-colors">법규·정책</h1>
           <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리인이 꼭 알아야 할 법규와<br class="hidden md:block"> 정책 변경사항을 안내합니다.</p>
         </div>
         
-        <!-- 영상 자료실 (상대경로 오류 수정: videos.html) -->
+        <!-- 영상 자료실 -->
         <div data-href="videos.html" onclick="handleNavigation(this)" class="cursor-pointer group">
-          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 group-hover:text-[#2BA8A0] transition-colors text-white">영상 자료실</h1>
+          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 text-white transition-colors">영상 자료실</h1>
           <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리 실무에 도움이 되는<br class="hidden md:block"> 영상을 모아드립니다.</p>
         </div>
         
-        <!-- 시설업체 칼럼 (현재 활성화 - 색상 유지 및 호버 적용) -->
+        <!-- 시설업체 칼럼 (★ 현재 메뉴 글자색 유지, 단, 다른 화면에 복사할 때는 여기를 text-white로 변경) -->
         <div data-href="columns.html" onclick="handleNavigation(this)" class="cursor-pointer group">
           <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 text-[#2BA8A0] transition-colors">시설업체 칼럼</h1>
           <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">등록 파트너사가 직접 작성한<br class="hidden md:block"> 실무 정보 칼럼입니다.</p>
@@ -239,7 +242,7 @@
   </section>
 
   <!-- 메인 콘텐츠 -->
-  <main class="flex-1 py-8 md:py-12 px-4 sm:px-6 w-full max-w-7xl mx-auto">
+  <main class="flex-1 max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 w-full">
     
     <div class="flex justify-between items-center mb-8 gap-4">
       <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide w-full" id="filter-chips">
