@@ -10,119 +10,20 @@
   <link rel="stylesheet" href="../assets/css/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* ── [공통 헤더/푸터 디자인 설정] ── */
-    body { background-color: #f4f7fa; margin: 0; }
+    /* ── [공통 헤더/모바일 메뉴 표준 디자인] ── */
+    body { background-color: #f4f7fa; margin: 0; font-family: 'Noto Sans KR', sans-serif; }
     
-    /* 1. 상단 헤더 및 유틸바 고정 */
-    .header-fixed { position: sticky; top: 0; z-index: 1000; background: #fff; border-bottom: 1px solid #e2e8f0; }
+    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
+    .menu-item:hover { color: #008f8c; } 
+    .menu-item.active { color: #000000; font-weight: 900; }
     
-    /* 최상단 유틸리티 바 (다크 네이비) */
-    .util-bar-new { background: #0a1931; padding: 6px 0; }
-    .util-inner-new { max-width: 1200px; margin: 0 auto; display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; }
-    
-    /* 상단 로그인/회원가입 등 버튼 영역 */
-    .auth-wrap { display: flex; align-items: center; gap: 12px; }
-    
-    .btn-naver {
-      display: flex; align-items: center; justify-content: center;
-      background-color: #03c75a; color: #ffffff !important;
-      padding: 4px 12px; border-radius: 4px;
-      font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; transition: background-color 0.2s;
-    }
-    .btn-naver:hover { background-color: #02a64b; }
-    
-    .btn-auth {
-      background-color: #1f3b73; color: #ffffff !important;
-      padding: 4px 12px; border-radius: 4px;
-      font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; transition: background-color 0.2s;
-    }
-    .btn-auth:hover { background-color: #152a55; }
-    
-    .auth-links {
-      display: flex; align-items: center;
-      margin-left: 8px; font-size: 12px; font-weight: 700; color: #ffffff;
-    }
-    .auth-links a { color: #ffffff !important; text-decoration: none; cursor: pointer; transition: color 0.2s; }
-    .auth-links a:hover { color: #d1d5db !important; }
-    .auth-divider { color: #9ca3af; font-weight: normal; margin: 0 6px; }
-
-    /* 메인 흰색 헤더 영역 */
-    .main-header-new { 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      height: 75px; 
-      padding: 0 20px; 
-      position: relative; /* 모바일 메뉴 절대 배치를 위한 기준 */
-    }
-    
-    /* 로고 마크/글자 분리 및 크기 조절 */
-    .logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      height: 100%;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .logo-mark {
-      height: 50px; 
-      width: auto;
-      object-fit: contain;
-    }
-    .logo-text {
-      height: 48px; 
-      width: auto;
-      object-fit: contain;
-    }
-    
-    .gnb-new { display: flex; gap: 32px; font-weight: 700; font-size: 16px; list-style: none; margin: 0; padding: 0; align-items: center; }
-    .gnb-new a { color: #1e293b; text-decoration: none; cursor: pointer; transition: color 0.2s; }
-    .gnb-new a:hover { color: #2BA8A0 !important; }
-
-    /* ★ PC GNB 드롭다운 강제 활성화 CSS ★ */
+    /* PC GNB 드롭다운 강제 활성화 CSS */
     .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
     .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
     .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
     .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
-    .dropdown-box a { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569 !important; border-bottom: 1px solid #f8fafc; text-align: left; }
-    .dropdown-box a:hover { background: #f1f5f9; color: #2BA8A0 !important; }
-
-    /* 모바일 전용 햄버거 버튼 및 드롭다운 메뉴 스타일 (기본 숨김) */
-    .mobile-menu-btn {
-      display: none;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 5px;
-      color: #0a1931;
-    }
-    .mobile-dropdown {
-      display: none;
-      flex-direction: column;
-      background: white;
-      border-top: 1px solid #e2e8f0;
-      position: absolute;
-      width: 100%;
-      left: 0;
-      top: 100%;
-      z-index: 999;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    .mobile-dropdown.is-open {
-      display: flex !important;
-    }
-    .mobile-dropdown > a {
-      padding: 16px 20px;
-      border-bottom: 1px solid #f1f5f9;
-      color: #1e293b;
-      text-decoration: none;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .mobile-dropdown > a:hover { color: #2BA8A0; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
 
     /* ★ 통합 히어로 텍스트 밑줄 애니메이션 (왼쪽 -> 오른쪽) ★ */
     .hero-title {
@@ -148,170 +49,139 @@
     }
 
     /* ─── 집합건물법 요약 카드 (해당 페이지 전용) ─── */
-    .law-summary-section {
-      margin-bottom: 48px;
-    }
+    .law-summary-section { margin-bottom: 48px; }
     .law-summary-section .section-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: .78rem;
-      font-weight: 700;
-      color: var(--primary, #0B2A5B);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
+      display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--primary, #0B2A5B); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px;
     }
-    .law-summary-section h2 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--text-dark, #0f172a);
-      margin: 0 0 24px;
-    }
-    .summary-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-    .summary-card {
-      background: #fff;
-      border: 1px solid #E2E8F0;
-      border-radius: 12px;
-      padding: 22px 20px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: box-shadow .2s, transform .2s;
-    }
-    .summary-card:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,.09);
-      transform: translateY(-2px);
-    }
-    .summary-card-tag {
-      display: inline-block;
-      background: #EFF6FF;
-      color: #1D4ED8;
-      font-size: .72rem;
-      font-weight: 700;
-      padding: 2px 10px;
-      border-radius: 20px;
-      width: fit-content;
-    }
-    .summary-card h3 {
-      font-size: .97rem;
-      font-weight: 700;
-      color: var(--text-dark, #0f172a);
-      line-height: 1.4;
-      margin: 0;
-    }
-    .summary-card p {
-      font-size: .85rem;
-      color: var(--text-mid, #475569);
-      line-height: 1.65;
-      margin: 0;
-      flex: 1;
-    }
-    .summary-card-meta {
-      font-size: .76rem;
-      color: var(--text-light, #94A3B8);
-    }
+    .law-summary-section h2 { font-size: 1.25rem; font-weight: 800; color: var(--text-dark, #0f172a); margin: 0 0 24px; }
+    .summary-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .summary-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 22px 20px 18px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .2s, transform .2s; }
+    .summary-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.09); transform: translateY(-2px); }
+    .summary-card-tag { display: inline-block; background: #EFF6FF; color: #1D4ED8; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; width: fit-content; }
+    .summary-card h3 { font-size: .97rem; font-weight: 700; color: var(--text-dark, #0f172a); line-height: 1.4; margin: 0; }
+    .summary-card p { font-size: .85rem; color: var(--text-mid, #475569); line-height: 1.65; margin: 0; flex: 1; }
+    .summary-card-meta { font-size: .76rem; color: var(--text-light, #94A3B8); }
 
-    /* ★ 모바일 반응형 미디어 쿼리 추가 ★ */
+    /* ★ 모바일 반응형 미디어 쿼리 ★ */
     @media (max-width: 768px) {
-      /* GNB 숨김 및 모바일 버튼 표시 */
-      .gnb-new { display: none; }
-      .mobile-menu-btn { display: block; }
-      
-      /* 로고 크기 모바일에 맞춰 축소 */
-      .logo-mark { height: 36px; }
-      .logo-text { height: 32px; margin-top: 4px; }
-      .logo-wrap { gap: 8px; }
-      .main-header-new { height: 60px; padding: 0 15px; }
-
-      /* 최상단 유틸리티 바 모바일 줄바꿈 정렬 */
-      .util-inner-new { justify-content: center; padding: 0 10px; }
-      .auth-wrap { flex-wrap: wrap; justify-content: center; gap: 6px; }
-      .auth-links { margin-left: 0; margin-top: 2px; }
-
-      .summary-cards {
-        grid-template-columns: 1fr;
-      }
+      .summary-cards { grid-template-columns: 1fr; }
     }
   </style>
+
+  <script>
+    function handleNavigation(element) {
+      var url = element.getAttribute('data-href');
+      var target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        if (target === '_blank') { window.open(url, '_blank'); } 
+        else { window.location.href = url; }
+      }
+    }
+
+    function toggleMobileMenu() {
+      var menu = document.getElementById('mobile-menu');
+      if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+        document.body.style.overflow = '';
+      } else {
+        menu.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+  </script>
 </head>
 <body>
 
-<!-- 통합 공통 헤더 -->
-<div class="header-fixed">
-  <div class="util-bar-new">
-    <div class="util-inner-new">
-      <div class="auth-wrap">
-        <a onclick="window.open('https://cafe.naver.com/kcbma114')" class="btn-naver">네이버카페</a>
-        <a onclick="openModal('login')" class="btn-auth">로그인</a>
-        <a onclick="openModal('signup')" class="btn-auth">회원가입</a>
-        <div class="auth-links">
-          <a onclick="openModal('find-id')">아이디찾기</a>
-          <span class="auth-divider">|</span>
-          <a onclick="openModal('find-pw')">비밀번호찾기</a>
+  <!-- ================= [1] 상단 고정 헤더 영역 ================= -->
+  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
+    <div class="w-full bg-[#0a1931] py-2.5">
+      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer whitespace-nowrap">네이버카페</div>
+        
+        <div id="auth-buttons" class="flex flex-wrap items-center gap-1.5 md:gap-3">
+          <div onclick="openModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer whitespace-nowrap">로그인</div>
+          <div onclick="openModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer whitespace-nowrap">회원가입</div>
+          <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2 whitespace-nowrap">
+            <span onclick="openModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
+            <span class="text-gray-400 font-normal">|</span>
+            <span onclick="openModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
+          </div>
         </div>
+        
+        <div id="user-section" style="display:none;" class="flex-wrap items-center gap-1.5 md:gap-3"></div>
+      </div>
+    </div>
+    
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
+      <div class="flex items-center h-[40px] md:h-[48px] cursor-pointer" data-href="../index.html" onclick="handleNavigation(this)">
+        <img src="../assets/img/방패로고-removebg-preview.png" class="h-full w-auto object-contain flex-shrink-0" alt="KCBMA 마크" onerror="this.src='../assets/img/방패로고.jpg'">
+        <img src="../assets/img/로고_글자-removebg-preview.png" class="h-[36px] md:h-[44px] w-auto object-contain flex-shrink-0 ml-2 mt-1" alt="대한집합건물관리협회" onerror="this.src='../assets/img/로고_글자.png'">
+      </div>
+      
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
+        
+        <div class="relative gnb-dropdown-wrap cursor-pointer">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div class="gnb-dropdown-menu">
+            <div class="dropdown-box">
+              <div data-href="law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
+      </nav>
+
+      <button class="md:hidden p-2 text-[#0a1931] cursor-pointer" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+        <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+  </div>
+
+  <!-- ================= [2] 모바일 슬라이드 메뉴 ================= -->
+  <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+    <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+      <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <img src="../assets/img/방패로고-removebg-preview.png" alt="KCBMA 방패마크" class="h-[36px] w-auto object-contain" onerror="this.style.display='none'" />
+          <img src="../assets/img/로고_글자-removebg-preview.png" alt="대한집합건물관리협회" class="h-[28px] w-auto object-contain" onerror="this.style.display='none'" />
+        </div>
+        <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
+        <details class="group" open>
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            정보교류
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white text-white font-bold">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+      </div>
+      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
       </div>
     </div>
   </div>
-  <header class="main-header-new">
-    <a onclick="window.location.href='../index.html'" class="logo-wrap">
-      <img src="../assets/img/방패로고-removebg-preview.png" class="logo-mark" alt="KCBMA 마크">
-      <img src="../assets/img/로고_글자-removebg-preview.png" class="logo-text" alt="대한집합건물관리협회">
-    </a>
-    
-    <!-- PC용 메뉴 -->
-    <ul class="gnb-new">
-      <li><a onclick="window.location.href='../about/intro.html'">협회소개</a></li>
-      <li class="gnb-dropdown-wrap">
-        <a onclick="window.location.href='../info/index.html'">정보교류</a>
-        <div class="gnb-dropdown-menu">
-          <div class="dropdown-box">
-            <a onclick="window.location.href='law.html'">법규·정책</a>
-            <a onclick="window.location.href='../info/videos.html'">영상 자료실</a>
-            <a onclick="window.location.href='../info/columns.html'">시설업체 칼럼</a>
-          </div>
-        </div>
-      </li>
-      <li><a onclick="window.location.href='../info/forum.html'">정책토론</a></li>
-      <li><a onclick="window.location.href='../jobs/list.html'">구인구직</a></li>
-      <li><a onclick="window.location.href='../info/sinmungo.html'">정책신문고</a></li>
-    </ul>
 
-    <!-- 모바일 햄버거 버튼 -->
-    <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
-    
-    <!-- 모바일 드롭다운 메뉴 -->
-    <div id="mobile-menu" class="mobile-dropdown">
-      <a onclick="window.location.href='../about/intro.html'">협회소개</a>
-      <details class="group list-none">
-        <summary class="flex justify-between items-center cursor-pointer outline-none" style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: #1e293b; list-style: none;">
-          정보교류
-          <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
-        </summary>
-        <div class="flex flex-col bg-gray-50 border-b border-gray-200">
-          <a onclick="window.location.href='law.html'" style="padding: 12px 30px; font-weight: 500; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9;">법규·정책</a>
-          <a onclick="window.location.href='../info/videos.html'" style="padding: 12px 30px; font-weight: 500; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9;">영상 자료실</a>
-          <a onclick="window.location.href='../info/columns.html'" style="padding: 12px 30px; font-weight: 500; font-size: 0.95rem; border-bottom: none;">시설업체 칼럼</a>
-        </div>
-      </details>
-      <a onclick="window.location.href='../info/forum.html'">정책토론</a>
-      <a onclick="window.location.href='../jobs/list.html'">구인구직</a>
-      <a onclick="window.location.href='../info/sinmungo.html'">정책신문고</a>
-    </div>
-  </header>
-</div>
-
-  <!-- 통합 3단 페이지 히어로 영역 (정보교류 초기 화면과 완벽히 일치) -->
+  <!-- 통합 3단 페이지 히어로 영역 -->
   <section class="bg-[#0B2A5B] text-white py-10 md:py-12 px-4">
     <div class="max-w-[1200px] mx-auto">
       <div class="text-[13px] md:text-sm text-gray-300 mb-5 font-medium">
@@ -319,8 +189,7 @@
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <!-- ★ 법규·정책 (현재 활성화: .active 클래스, 테마 색상 적용) ★ -->
+        <!-- ★ 법규·정책 -->
         <div onclick="window.location.href='law.html'" class="cursor-pointer group">
           <h1 class="hero-title active text-2xl md:text-3xl font-black mb-3 text-[#2BA8A0] transition-colors">법규·정책</h1>
           <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리인이 꼭 알아야 할 법규와<br class="hidden md:block"> 정책 변경사항을 안내합니다.</p>
@@ -337,7 +206,6 @@
           <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 group-hover:text-[#2BA8A0] transition-colors text-white">시설업체 칼럼</h1>
           <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">등록 파트너사가 직접 작성한<br class="hidden md:block"> 실무 정보 칼럼입니다.</p>
         </div>
-
       </div>
     </div>
   </section>
@@ -621,7 +489,6 @@
 <!-- 통합 공통 모달 -->
   <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
     <div class="modal-dialog">
-      <!-- 닫기 버튼 수정: closeModal 사용 -->
       <button type="button" class="modal-close" onclick="closeModal('login')" aria-label="닫기">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -633,28 +500,23 @@
       <form class="modal-form" id="login-form" novalidate>
         <div class="modal-field">
           <label class="modal-label" for="login-id">아이디 또는 이메일</label>
-          <!-- autocomplete="off" 추가 -->
           <input class="modal-input" type="text" id="login-id" name="login-id" placeholder="아이디 또는 이메일 입력" autocomplete="off" required />
         </div>
         <div class="modal-field">
           <label class="modal-label" for="login-pw">비밀번호</label>
-          <!-- autocomplete="off" 추가 -->
           <input class="modal-input" type="password" id="login-pw" name="login-pw" placeholder="비밀번호" autocomplete="off" required />
         </div>
-     <div class="modal-row">
+      <div class="modal-row">
   <label class="modal-remember" style="cursor:pointer;"><input type="checkbox" name="login-keep" /> 로그인 상태 유지</label>
   <div>
-    <!-- 화면 전환 시 switchModal 사용 -->
     <a class="modal-forgot" onclick="switchModal('login', 'find-id')">아이디 찾기</a>
     <span class="mx-1 text-gray-400">|</span>
     <a class="modal-forgot" onclick="switchModal('login', 'find-pw')">비밀번호 찾기</a>
   </div>
 </div>
-        <!-- 메시지 출력 영역 디자인 인라인 적용 -->
         <div id="login-message" style="margin-top: 10px; font-size: 0.85rem; text-align: center;"></div>
         <button type="submit" id="login-btn" class="btn-primary-full" style="margin-top: 15px;">로그인</button>
       </form>
-      <!-- 화면 전환 시 switchModal 사용 -->
       <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchModal('login', 'signup')">회원가입</a></p>
     </div>
   </div>
@@ -766,7 +628,7 @@
       });
     });
 
-    // ─── [로그인 폼 초기화 함수 추가] ───
+    // ─── [로그인 폼 초기화 함수] ───
     function resetLoginForm() {
       const idInput = document.getElementById('login-id');
       const pwInput = document.getElementById('login-pw');
@@ -799,14 +661,6 @@
       openModal(openId);
     }
     
-    // 모바일 메뉴 토글 스크립트
-    function toggleMobileMenu() {
-      var menu = document.getElementById('mobile-menu');
-      if (menu) {
-        menu.classList.toggle('is-open');
-      }
-    }
-
     // ─── [로그인 처리 및 Supabase 연동 코드] ───
     const loginForm = document.getElementById('login-form');
     if(loginForm) {
@@ -821,10 +675,9 @@
         const emailOrId = idInput.value.trim();
         const password = pwInput.value;
 
-        // 알림 메시지 출력 함수
         const showMsg = (text, isError) => {
           msgDiv.textContent = text;
-          msgDiv.style.color = isError ? '#EF4444' : '#10B981'; // 실패: 빨강, 성공: 초록
+          msgDiv.style.color = isError ? '#EF4444' : '#10B981';
         };
 
         if(!emailOrId || !password) {
@@ -840,20 +693,11 @@
         }
 
         try {
-          // ★ 실제 Supabase 연동 시 아래 주석을 풀고 사용하세요.
-          /*
-          const { error } = await supabaseClientInstance.auth.signInWithPassword({ 
-            email: loginEmail, 
-            password: password 
-          });
-          */
-          
-          // [테스트용] 임시 에러 변수 - 연동 시 삭제하세요.
           const error = false; // 강제로 성공 처리 (테스트용)
 
           if (error) {
             showMsg('아이디 또는 비밀번호가 올바르지 않습니다.', true);
-            pwInput.value = ''; // 실패 시 비밀번호만 비우기
+            pwInput.value = ''; 
             pwInput.focus();
           } else {
             showMsg('로그인 성공!', false);
@@ -873,6 +717,5 @@
       });
     }
   </script>
-
 </body>
 </html>
