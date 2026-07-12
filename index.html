@@ -174,31 +174,73 @@
         }
       }
 
-      // 로그인 처리
-      document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const emailOrId = document.getElementById('login-id').value.trim();
-        const password = document.getElementById('login-pw').value;
-        const btn = document.getElementById('login-btn');
+    // [추가됨] 폼 입력값을 깨끗하게 비워주는 함수
+// 모달창을 닫거나 열 때 이 함수를 호출(실행)해주시면 글자가 남는 현상이 사라집니다.
+function resetLoginForm() {
+  document.getElementById('login-id').value = '';
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-message').textContent = '';
+}
 
-        if(!emailOrId || !password) return showMessage('login-message', '정보를 모두 입력해 주세요.', 'error');
-        
-        btn.disabled = true; btn.textContent = '로그인 중...';
-        
-        let loginEmail = emailOrId;
-        if (!emailOrId.includes('@')) {
-          loginEmail = emailOrId + "@kcbma.com"; // 아이디 로그인 대응 안전장치
-        }
+// 로그인 모달 닫기 예시 함수
+function closeLoginModal() {
+  // 모달을 숨기는 코드 작성 (예: document.getElementById('login-modal').style.display = 'none';)
+  resetLoginForm(); // 모달이 닫힐 때 폼을 초기화하여 다음에 열 때 비어있게 만듭니다.
+}
 
-        const { error } = await supabaseClientInstance.auth.signInWithPassword({ email: loginEmail, password });
-        if (error) {
-          showMessage('login-message', '아이디 또는 비밀번호가 올바르지 않습니다.', 'error');
-        } else {
-          showMessage('login-message', '로그인 성공!', 'success');
-          setTimeout(() => window.location.reload(), 1000);
-        }
-        btn.disabled = false; btn.textContent = '로그인';
-      });
+// 기존 로그인 처리 로직
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const idInput = document.getElementById('login-id');
+  const pwInput = document.getElementById('login-pw');
+  const btn = document.getElementById('login-btn');
+  
+  const emailOrId = idInput.value.trim();
+  const password = pwInput.value;
+
+  if(!emailOrId || !password) {
+    return showMessage('login-message', '정보를 모두 입력해 주세요.', 'error');
+  }
+  
+  // 로그인 버튼 비활성화 및 텍스트 변경
+  btn.disabled = true; 
+  btn.textContent = '로그인 중...';
+  
+  let loginEmail = emailOrId;
+  if (!emailOrId.includes('@')) {
+    loginEmail = emailOrId + "@kcbma.com"; // 아이디 로그인 대응 안전장치
+  }
+
+  // Supabase 인증 요청
+  const { error } = await supabaseClientInstance.auth.signInWithPassword({ 
+    email: loginEmail, 
+    password: password 
+  });
+  
+  if (error) {
+    showMessage('login-message', '아이디 또는 비밀번호가 올바르지 않습니다.', 'error');
+    // 로그인 실패 시 비밀번호 입력창만 비워주고 포커스를 맞춥니다.
+    pwInput.value = '';
+    pwInput.focus();
+  } else {
+    showMessage('login-message', '로그인 성공!', 'success');
+    resetLoginForm(); // 로그인 성공 시 폼 전체 초기화
+    setTimeout(() => window.location.reload(), 1000);
+  }
+  
+  // 버튼 상태 복구
+  btn.disabled = false; 
+  btn.textContent = '로그인';
+});
+
+// 메시지 출력 유틸리티 함수 (기존에 있으시다면 생략 가능)
+function showMessage(elementId, text, type) {
+  const msgDiv = document.getElementById(elementId);
+  if(!msgDiv) return;
+  msgDiv.textContent = text;
+  msgDiv.style.color = type === 'error' ? 'red' : 'green';
+}
 
 // 회원가입 처리 (아이디 한글 체크 추가)
       document.getElementById('signup-form').addEventListener('submit', async (e) => {
