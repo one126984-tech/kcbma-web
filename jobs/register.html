@@ -7,6 +7,8 @@
   <meta name="description" content="집합건물 관리인·관리소장·시설관리 구인구직 공고 등록 페이지입니다." />
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
@@ -21,17 +23,11 @@
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
     
-    /* 폼 입력창 포커스 효과 */
-    .form-input, .form-select, .form-textarea {
-      transition: all 0.2s ease-in-out;
-    }
+    .form-input, .form-select, .form-textarea { transition: all 0.2s ease-in-out; }
     .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none;
-      border-color: var(--navy);
-      box-shadow: 0 0 0 3px rgba(11, 42, 91, 0.1);
+      outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11, 42, 91, 0.1);
     }
     
-    /* 모달 필수 스타일 (표준화) */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -47,6 +43,10 @@
   </style>
   
   <script>
+    const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
@@ -56,7 +56,6 @@
       }
     }
     
-    // 모달 제어 함수
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
       document.getElementById('modal-' + id).classList.add('is-open');
@@ -71,25 +70,41 @@
       setTimeout(() => openCustomModal(openId), 100);
     }
 
-    // 폼 제출 시 새로고침 방지
     function handleFormSubmit(event, modalId, message) {
       event.preventDefault(); 
       alert(message);
       if(modalId) closeCustomModal(modalId);
     }
 
-    // ★ 수정된 부분: 구인구직 폼 제출 처리 (빈칸 검사 및 DB 전송 준비)
-    function handleJobSubmit(e) {
+    // ★ 추가됨: '직접 입력' 선택할 때 텍스트창을 열고 닫는 함수
+    function toggleDirectExperience(selectElement) {
+      const directInput = document.getElementById('job-experience-direct');
+      if (selectElement.value === '직접입력') {
+        directInput.classList.remove('hidden');
+        directInput.focus();
+      } else {
+        directInput.classList.add('hidden');
+        directInput.value = '';
+      }
+    }
+
+    // 구인 공고 등록 처리 함수
+    async function handleJobSubmit(e) {
       e.preventDefault(); 
       
       const form = e.target;
 
-      // 각 입력 필드 값 가져오기
       const category = form.category.value.trim();
       const type = form.type.value.trim();
       const title = form.title.value.trim();
       const employment = form.employment.value.trim();
-      const experience = form.experience.value.trim();
+      
+      // ★ 수정됨: '직접 입력'을 썼다면 직접 쓴 글자를 가져오도록 판별하는 로직
+      let experience = form.experience.value.trim();
+      if (experience === '직접입력') {
+        experience = form.experience_direct.value.trim();
+      }
+
       const region = form.region.value.trim();
       const salary = form.salary.value.trim();
       const address = form.address.value.trim();
@@ -97,12 +112,15 @@
       const endDate = form.end_date.value;
       const description = form.description.value.trim();
 
-      // 유효성 검사 (빈칸 체크)
       if (!category) { alert('건물 구분을 선택해 주세요.'); form.category.focus(); return; }
       if (!type) { alert('모집 직종을 선택해 주세요.'); form.type.focus(); return; }
       if (!title) { alert('공고 제목을 입력해 주세요.'); form.title.focus(); return; }
       if (!employment) { alert('고용 형태를 선택해 주세요.'); form.employment.focus(); return; }
-      if (!experience) { alert('경력 여부를 선택해 주세요.'); form.experience.focus(); return; }
+      
+      // ★ 경력 필수 체크 유효성 검사 수정
+      if (form.experience.value === '') { alert('경력 여부를 선택해 주세요.'); form.experience.focus(); return; }
+      if (form.experience.value === '직접입력' && !experience) { alert('경력 사항을 직접 입력해 주세요.'); form.experience_direct.focus(); return; }
+
       if (!region) { alert('근무 지역을 선택해 주세요.'); form.region.focus(); return; }
       if (!salary) { alert('급여 조건을 입력해 주세요.'); form.salary.focus(); return; }
       if (!address) { alert('상세 근무지 주소를 입력해 주세요.'); form.address.focus(); return; }
@@ -110,14 +128,37 @@
       if (!endDate) { alert('모집 마감일을 선택해 주세요.'); form.end_date.focus(); return; }
       if (!description) { alert('상세 내용을 입력해 주세요.'); form.description.focus(); return; }
 
-      // 실제 데이터베이스 전송 로직 예시
-      // fetch('/api/submit-job', { method: 'POST', body: new FormData(form) }).then(...)
+      try {
+        const { data, error } = await supabaseClient
+          .from('jobs')
+          .insert([
+            {
+              category: category,
+              type: type,
+              title: title,
+              employment: employment,
+              experience: experience, // 최종 가공된 경력 텍스트가 DB로 안전하게 들어갑니다.
+              region: region,
+              salary: salary,
+              address: address,
+              start_date: startDate,
+              end_date: endDate,
+              description: description,
+              status: '모집중',
+              view_count: 0
+            }
+          ]);
 
-      alert('공고가 성공적으로 등록되었습니다.');
-      window.location.href = 'list.html'; 
+        if (error) throw error;
+
+        alert('공고가 성공적으로 등록되었습니다!');
+        window.location.href = 'list.html';
+      } catch (error) {
+        alert('공고 등록 중 오류가 발생했습니다: ' + error.message);
+        console.error('DB 저장 에러:', error);
+      }
     }
 
-    // 모바일 햄버거 메뉴 제어
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu.classList.contains('hidden')) {
@@ -132,7 +173,6 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- 통합 표준 헤더 -->
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
@@ -182,20 +222,17 @@
     </header>
   </div>
 
-  <!-- 모바일 사이드 메뉴 -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
         <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
       </div>
-      
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
         <details class="group">
           <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
-            정보교류
-            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+            정보교류 <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
           </summary>
           <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
             <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
@@ -207,22 +244,14 @@
         <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
       </div>
-
-      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
-        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
-      </div>
     </div>
   </div>
 
-  <!-- 페이지 히어로 -->
   <section class="bg-[#0B2A5B] text-white py-12 md:py-16 text-center px-4">
     <div class="max-w-7xl mx-auto">
       <nav class="text-sm text-blue-200 mb-4 flex items-center justify-center space-x-2">
-        <a data-href="../index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">홈</a>
-        <span>›</span>
-        <a data-href="list.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">구인구직</a>
-        <span>›</span>
+        <a data-href="../index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">홈</a><span>›</span>
+        <a data-href="list.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">구인구직</a><span>›</span>
         <span class="font-bold text-white">공고 등록</span>
       </nav>
       <h1 class="text-3xl md:text-4xl font-black mb-3">구인구직 공고 등록</h1>
@@ -230,14 +259,11 @@
     </div>
   </section>
 
-  <!-- 메인 콘텐츠 -->
   <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
     <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm">
       
-      <!-- ★ 폼 태그 수정됨: 데이터 전송 속성(name, method, action) 추가 -->
-      <form name="job-posting" method="POST" data-netlify="true" onsubmit="handleJobSubmit(event)">
+      <form name="job-posting" method="POST" onsubmit="handleJobSubmit(event)">
         
-        <!-- 1. 건물 유형 및 모집 직종 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-category">건물 구분 <span class="text-red-500 ml-1">*</span></label>
@@ -262,13 +288,11 @@
           </div>
         </div>
 
-        <!-- 2. 제목 -->
         <div class="flex flex-col mb-6">
           <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-title">공고 제목 <span class="text-red-500 ml-1">*</span></label>
           <input type="text" id="job-title" name="title" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: [강남구 빌딩] 성실한 시설관리 주임 모십니다." />
         </div>
 
-        <!-- 3. 고용 형태 및 경력 여부 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-employment">고용 형태 <span class="text-red-500 ml-1">*</span></label>
@@ -280,20 +304,22 @@
               <option value="일용직">일용직</option>
             </select>
           </div>
+          
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-experience">경력 여부 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-experience" name="experience" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
+            <select id="job-experience" name="experience" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" onchange="toggleDirectExperience(this)">
               <option value="">선택해주세요</option>
-              <option value="무관">경력 무관</option>
+              <option value="직접입력">직접 입력</option> <option value="무관">경력 무관</option>
               <option value="신입">신입</option>
               <option value="1년">경력 1년 이상</option>
-              <option value="3년">경력 3년 이상</option>
-              <option value="5년">경력 5년 이상</option>
+              <option value="2년">경력 2년 이상</option> <option value="3년">경력 3년 이상</option>
+              <option value="4년">경력 4년 이상</option> <option value="5년">경력 5년 이상</option>
             </select>
+            
+            <input type="text" id="job-experience-direct" name="experience_direct" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full mt-2 hidden" placeholder="예: 경력 7년 이상, 소장 경력 3년 등 직접 입력" />
           </div>
         </div>
 
-        <!-- 4. 근무지 및 급여 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-region">근무 지역 <span class="text-red-500 ml-1">*</span></label>
@@ -317,7 +343,6 @@
           <input type="text" id="job-address" name="address" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 서울 강남구 테헤란로 OO빌딩" />
         </div>
 
-        <!-- 5. 모집 기간 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
             <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-start-date">모집 시작일 <span class="text-red-500 ml-1">*</span></label>
@@ -329,13 +354,11 @@
           </div>
         </div>
 
-        <!-- 6. 상세 내용 -->
         <div class="flex flex-col mb-2">
           <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-description">상세 내용 <span class="text-red-500 ml-1">*</span></label>
           <textarea id="job-description" name="description" class="form-textarea border border-gray-300 p-4 rounded-lg text-[15px] w-full resize-y min-h-[240px]" placeholder="- 주요 업무:&#10;- 자격 요건:&#10;- 우대 사항:&#10;- 복리 후생:&#10;- 지원 방법:"></textarea>
         </div>
 
-        <!-- 7. 버튼 영역 -->
         <div class="flex flex-col sm:flex-row justify-center gap-3 mt-10">
           <button type="button" class="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-10 rounded-xl transition-colors text-[15px]" onclick="window.history.back();">취소</button>
           <button type="submit" class="w-full sm:w-auto bg-[#0B2A5B] hover:bg-[#153b80] text-white font-bold py-3.5 px-10 rounded-xl transition-colors shadow-sm text-[15px]">공고 등록하기</button>
@@ -345,124 +368,11 @@
     </div>
   </main>
 
-  <!-- 통합 반응형 푸터 -->
   <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
-      
-      <div class="flex-1 w-full">
-        <img src="../대한집합건물관리협회-removebg-preview.png" class="h-[50px] md:h-[60px] filter brightness-0 invert mb-5" alt="대한집합건물관리협회 로고" onerror="this.src='../방패로고.jpg'">
-        <div class="text-[14px] md:text-[15px] leading-relaxed text-gray-300">
-          <p class="mb-1">주소: 경기도 김포시 김포대로 699</p>
-          <p class="mb-1">전화: 031-984-6199 · 팩스: 031-985-6199</p>
-          <p class="mb-1">이메일: idea8888@naver.com</p>
-        </div>
-      </div>
-
-      <div class="flex-[0.5] w-full">
-        <h4 class="mb-4 font-bold text-white text-[16px]">사이트맵</h4>
-        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
-          <a href="../info/index.html" class="hover:text-white transition-colors">정보교류 종합 포털</a>
-          <a href="../info/forum.html" class="hover:text-white transition-colors">정책 토론 광장</a>
-          <a href="list.html" class="hover:text-white transition-colors">구인구직 센터</a>
-        </div>
-      </div>
-
-      <div class="flex-[0.5] w-full">
-        <h4 class="mb-4 font-bold text-white text-[16px]">제휴 파트너</h4>
-        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
-          <a href="../partners/list.html" class="hover:text-white transition-colors">우수 파트너사 목록</a>
-          <a href="../partners/apply.html" class="hover:text-white transition-colors">유지 보수사 협력 신청</a>
-        </div>
-        <a href="https://cafe.naver.com/kcbma114" target="_blank" class="inline-block bg-[#00C73C] text-white px-4 py-2 rounded font-bold text-[14px] mt-4 hover:bg-[#00a833] transition-colors">
-          네이버카페
-        </a>
-      </div>
-
-    </div>
-    
-    <div class="max-w-7xl mx-auto mt-10 md:mt-12 pt-6 border-t border-blue-900 text-[12px] md:text-[13px] flex flex-col md:flex-row justify-between items-center text-gray-400 gap-4">
+    <div class="max-w-7xl mx-auto text-center text-[12px] text-gray-400">
       <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
-      <div class="flex space-x-5">
-        <a href="#" class="hover:text-white transition-colors">이용약관</a>
-        <a href="#" class="hover:text-white transition-colors">개인정보처리방침</a>
-      </div>
     </div>
   </footer>
-
-  <!-- 인증 보조 모달 4종 -->
-  <!-- 로그인 모달 -->
-  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
-    <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">로그인</p>
-        <p class="text-xs text-gray-500 text-center mt-1">대한집합건물관리협회 포털 서비스</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'login', '로그인 처리 준비 중입니다.');">
-        <input class="modal-input" type="text" placeholder="아이디 또는 이메일" required />
-        <input class="modal-input" type="password" placeholder="비밀번호" required />
-        <button type="submit" class="btn-primary-full mt-2">안전 로그인</button>
-      </form>
-      <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
-    </div>
-  </div>
-
-  <!-- 회원가입 모달 -->
-  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
-    <div class="modal-dialog overflow-y-auto max-h-[90vh]">
-      <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">회원가입</p>
-        <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'signup', '회원가입 신청이 완료되었습니다.');">
-        <input class="modal-input" type="text" placeholder="성함" required />
-        <input class="modal-input" type="text" placeholder="아이디 희망문자" required />
-        <input class="modal-input" type="email" placeholder="이메일 주소" required />
-        <input class="modal-input" type="password" placeholder="비밀번호 서식 (8자 이상)" required />
-        <button type="submit" class="btn-primary-full mt-2">가입 신청 완료</button>
-      </form>
-      <p class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></p>
-    </div>
-  </div>
-
-  <!-- 아이디 찾기 모달 -->
-  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
-    <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('find-id')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">아이디 찾기</p>
-        <p class="text-xs text-gray-500 text-center mt-1">가입 시 등록하신 이메일 정보를 입력해 주세요.</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-id', '입력하신 이메일로 아이디 정보가 발송되었습니다.');">
-        <input class="modal-input" type="text" placeholder="이름" required />
-        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
-        <button type="submit" class="btn-primary-full mt-2">아이디 찾기</button>
-      </form>
-      <p class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인으로 돌아가기</a></p>
-    </div>
-  </div>
-
-  <!-- 비밀번호 찾기 모달 -->
-  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
-    <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">비밀번호 찾기</p>
-        <p class="text-xs text-gray-500 text-center mt-1">아이디와 이메일을 입력하시면 임시 비밀번호를 발송해 드립니다.</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'find-pw', '입력하신 이메일로 임시 비밀번호가 발송되었습니다.');">
-        <input class="modal-input" type="text" placeholder="아이디" required />
-        <input class="modal-input" type="email" placeholder="가입 이메일 주소" required />
-        <button type="submit" class="btn-primary-full mt-2">임시 비밀번호 발송</button>
-      </form>
-      <p class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인으로 돌아가기</a></p>
-    </div>
-  </div>
 
 </body>
 </html>

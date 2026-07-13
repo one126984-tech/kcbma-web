@@ -7,6 +7,9 @@
   <meta name="description" content="집합건물 관리인·관리소장·시설관리 전문 구인구직 게시판입니다." />
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- ★ 추가됨: Supabase 데이터베이스 통신을 위한 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
@@ -37,6 +40,11 @@
   </style>
   
   <script>
+    // ★ 추가됨: Supabase 창고 연결 세팅
+    const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
@@ -79,6 +87,90 @@
         document.body.style.overflow = '';
       }
     }
+
+    // ★ 추가됨: 데이터베이스에서 목록을 가져와서 화면에 뿌려주는 핵심 함수
+    async function loadJobs() {
+      // 1. 창고에서 데이터 가져오기 (가장 최근 등록된 순서대로 정렬)
+      const { data, error } = await supabaseClient
+        .from('jobs')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) {
+        console.error('데이터 불러오기 에러:', error);
+        return;
+      }
+
+      const pcTableBody = document.getElementById('jobTableBody');
+      const mobileContainer = document.getElementById('mobileJobCards');
+
+      // 2. 가짜(더미) 데이터 싹 지우기 (단, '결과 없음' 메시지는 남겨둠)
+      pcTableBody.innerHTML = '<tr id="job-no-result" style="display:none;"><td colspan="6" class="text-center py-10 text-gray-500 font-medium">검색 결과가 없습니다.</td></tr>';
+      mobileContainer.innerHTML = '<p id="mobile-no-result" style="display:none;text-align:center;padding:32px;color:#94a3b8;">검색 결과가 없습니다.</p>';
+
+      // 3. 가져온 데이터를 하나씩 화면에 그리기
+      data.forEach((job) => {
+        // 모집 기간 만들기
+        const startDate = job.start_date ? job.start_date.replace(/-/g, '.') : '';
+        const endDate = job.end_date ? job.end_date.replace(/-/g, '.') : '';
+        const dateString = (startDate && endDate) ? `${startDate}~${endDate}` : '상시 모집';
+
+        // 건물 구분에 따른 색상 배지 지정
+        let badgeClass = 'bg-gray-100 text-gray-700';
+        if (job.category === '오피스텔') badgeClass = 'bg-purple-100 text-purple-700';
+        else if (job.category === '빌딩') badgeClass = 'bg-blue-100 text-blue-700';
+        else if (job.category === '상가') badgeClass = 'bg-green-100 text-green-700';
+
+        // 시/군/구 정도만 보이게 주소 자르기 (예: "서울 강남구 테헤란로" -> "서울 강남구")
+        const shortAddress = job.address ? job.address.split(' ').slice(0, 2).join(' ') : job.region;
+
+        // [PC 버전 <tr> 그리기]
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer';
+        tr.dataset.region = job.region;
+        tr.dataset.type = job.type;
+        tr.dataset.employment = job.employment;
+        // 나중에 상세페이지로 넘어가기 위한 링크 (job-detail.html?id=글번호)
+        tr.onclick = () => window.location.href = `job-detail.html?id=${job.id}`;
+        
+        tr.innerHTML = `
+          <td class="py-4 px-4 text-center text-gray-500">${job.id}</td>
+          <td class="py-4 px-4 text-center"><span class="${badgeClass} text-xs font-bold px-2 py-1 rounded">${job.category || '기타'}</span></td>
+          <td class="py-4 px-4 font-bold text-gray-900">${job.title}</td>
+          <td class="py-4 px-4 text-gray-600">${shortAddress}</td>
+          <td class="py-4 px-4 text-gray-600">${job.employment} / ${job.experience}</td>
+          <td class="py-4 px-4 text-gray-400 text-xs">${dateString}</td>
+        `;
+        pcTableBody.insertBefore(tr, document.getElementById('job-no-result'));
+
+        // [모바일 버전 카드 그리기]
+        const div = document.createElement('div');
+        div.className = 'bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card mb-3';
+        div.dataset.region = job.region;
+        div.dataset.type = job.type;
+        div.dataset.employment = job.employment;
+        div.onclick = () => window.location.href = `job-detail.html?id=${job.id}`;
+
+        div.innerHTML = `
+          <div class="flex justify-between items-center mb-2">
+            <span class="${badgeClass} text-[11px] font-bold px-2.5 py-1 rounded">${job.category || '기타'}</span>
+            <span class="text-xs text-gray-400">${dateString}</span>
+          </div>
+          <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">${job.title}</p>
+          <p class="text-[13px] text-gray-500">${shortAddress} · ${job.employment} / ${job.experience}</p>
+        `;
+        mobileContainer.insertBefore(div, document.getElementById('mobile-no-result'));
+      });
+
+      // 데이터를 다 그린 후 검색/필터 기능 업데이트 적용
+      if(typeof applyFilters === 'function') {
+        applyFilters();
+      }
+    }
+
+    // 페이지가 열리면 무조건 loadJobs() 함수를 실행해라
+    window.addEventListener('DOMContentLoaded', loadJobs);
+
   </script>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -104,11 +196,9 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
-<!-- 수정된 PC용 메뉴 (드롭다운 추가 및 호버 끊김 해결) -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
         
-        <!-- 정보교류 드롭다운 적용 -->
         <div class="relative group cursor-pointer py-1">
           <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
           <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
@@ -119,8 +209,6 @@
             </div>
           </div>
         </div>
-
-
 
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
         <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">구인구직</div>
@@ -186,7 +274,7 @@
   <!-- 메인 콘텐츠 -->
   <main class="flex-1 py-8 md:py-12 max-w-7xl mx-auto px-4 sm:px-6 w-full">
     
-    <!-- 검색 및 상단 컨트롤 (반응형 그리드) -->
+    <!-- 검색 및 상단 컨트롤 -->
     <div class="bg-white border border-gray-200 p-4 md:p-6 rounded-2xl shadow-sm mb-8 flex flex-col lg:flex-row gap-4 lg:items-center">
       
       <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 board-search w-full">
@@ -197,7 +285,7 @@
           <option>경기</option>
           <option>인천</option>
           <option>부산</option>
-          <option>기타 지역</option>
+          <option>기타</option>
         </select>
         <select class="border border-gray-300 p-2.5 rounded-lg text-sm w-full outline-none bg-white cursor-pointer transition-colors focus:border-[#0B2A5B]">
           <option>전체직종</option>
@@ -205,23 +293,25 @@
           <option>시설관리인</option>
           <option>야간관리원</option>
           <option>미화원</option>
+          <option>기타</option>
         </select>
         <select class="border border-gray-300 p-2.5 rounded-lg text-sm w-full outline-none bg-white cursor-pointer transition-colors focus:border-[#0B2A5B]">
           <option>전체근무형태</option>
           <option>정규직</option>
           <option>계약직</option>
           <option>일용직</option>
+          <option>위탁</option>
         </select>
       </div>
 
       <div class="flex gap-3 w-full lg:w-auto">
-        <button class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-colors w-full sm:w-auto flex-1 lg:flex-none">검색</button>
+        <button onclick="applyFilters()" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-colors w-full sm:w-auto flex-1 lg:flex-none">검색</button>
         <button onclick="window.location.href='register.html'" class="bg-[#2BA8A0] hover:bg-[#208882] text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-colors w-full sm:w-auto flex-1 lg:flex-none whitespace-nowrap">+ 공고 등록</button>
       </div>
 
     </div>
 
-    <!-- PC 버전 테이블 -->
+    <!-- PC 버전 테이블 (내용은 loadJobs() 함수가 자동으로 채웁니다) -->
     <div class="board-wrap bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hidden md:block mb-8">
       <table class="w-full text-left">
         <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 text-sm">
@@ -235,193 +325,26 @@
           </tr>
         </thead>
         <tbody id="jobTableBody" class="text-[14px]">
-          <tr data-region="서울" data-type="관리소장" data-employment="정규직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">10</td>
-            <td class="py-4 px-4 text-center"><span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">오피스텔</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">관리소장 채용 — 강남구 OO오피스텔</td>
-            <td class="py-4 px-4 text-gray-600">서울 강남구</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 경력3년+</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.20~06.10</td>
-          </tr>
-          <tr data-region="서울" data-type="기타" data-employment="위탁" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">9</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">경리업무 대행(파트) — 마포구 OO빌딩</td>
-            <td class="py-4 px-4 text-gray-600">서울 마포구</td>
-            <td class="py-4 px-4 text-gray-600">위탁 / 무관</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.18~06.05</td>
-          </tr>
-          <tr data-region="경기" data-type="시설관리인" data-employment="정규직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">8</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">시설관리 주임 — 성남시 분당구</td>
-            <td class="py-4 px-4 text-gray-600">경기 성남시</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 경력 무관</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.22~06.15</td>
-          </tr>
-          <tr data-region="인천" data-type="미화원" data-employment="계약직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">7</td>
-            <td class="py-4 px-4 text-center"><span class="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded">기타</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">미화반장 — 인천 연수구 송도</td>
-            <td class="py-4 px-4 text-gray-600">인천 연수구</td>
-            <td class="py-4 px-4 text-gray-600">계약직 / 경력1년+</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.15~05.31</td>
-          </tr>
-          <tr data-region="서울" data-type="야간관리원" data-employment="계약직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">6</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">경비반장(야간) — 서울 송파구</td>
-            <td class="py-4 px-4 text-gray-600">서울 송파구</td>
-            <td class="py-4 px-4 text-gray-600">계약직 / 무관</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.21~06.10</td>
-          </tr>
-          <tr data-region="경기" data-type="관리소장" data-employment="정규직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">5</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">관리과장 — 수원시 영통구</td>
-            <td class="py-4 px-4 text-gray-600">경기 수원시</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 경력5년+</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.19~06.18</td>
-          </tr>
-          <tr data-region="서울" data-type="기타" data-employment="정규직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">4</td>
-            <td class="py-4 px-4 text-center"><span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">오피스텔</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">회계 담당자 — 영등포구 여의도</td>
-            <td class="py-4 px-4 text-gray-600">서울 영등포구</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 경력2년+</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.23~06.20</td>
-          </tr>
-          <tr data-region="서울" data-type="기타" data-employment="정규직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">3</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">전기기사 — 서울 종로구</td>
-            <td class="py-4 px-4 text-gray-600">서울 종로구</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 자격증 필수</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.17~06.05</td>
-          </tr>
-          <tr data-region="경기" data-type="시설관리인" data-employment="정규직" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">2</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">시설보수 기사 — 고양시 일산</td>
-            <td class="py-4 px-4 text-gray-600">경기 고양시</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 경력 무관</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.20~06.12</td>
-          </tr>
-          <tr data-region="서울" data-type="기타" data-employment="정규직" class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='#'">
-            <td class="py-4 px-4 text-center text-gray-500">1</td>
-            <td class="py-4 px-4 text-center"><span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">빌딩</span></td>
-            <td class="py-4 px-4 font-bold text-gray-900">관리사무소 행정 — 서울 서초구</td>
-            <td class="py-4 px-4 text-gray-600">서울 서초구</td>
-            <td class="py-4 px-4 text-gray-600">정규직 / 신입가능</td>
-            <td class="py-4 px-4 text-gray-400 text-xs">2026.05.24~06.22</td>
-          </tr>
-          <tr id="job-no-result" style="display:none;">
-            <td colspan="6" class="text-center py-10 text-gray-500 font-medium">검색 결과가 없습니다.</td>
-          </tr>
+          <!-- 자바스크립트가 데이터를 불러와서 여기에 표를 그립니다 -->
         </tbody>
       </table>
     </div>
 
-    <!-- 모바일 버전 카드 리스트 -->
+    <!-- 모바일 버전 카드 리스트 (내용은 loadJobs() 함수가 자동으로 채웁니다) -->
     <div class="mobile-job-cards md:hidden mb-8" id="mobileJobCards">
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="서울" data-type="관리소장" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-purple-100 text-purple-700 text-[11px] font-bold px-2.5 py-1 rounded">오피스텔</span>
-          <span class="text-xs text-gray-400">2026.05.20~06.10</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">관리소장 채용 — 강남구 OO오피스텔</p>
-        <p class="text-[13px] text-gray-500">서울 강남구 · 정규직 / 경력3년+</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="서울" data-type="기타" data-employment="위탁" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.18~06.05</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">경리업무 대행(파트) — 마포구 OO빌딩</p>
-        <p class="text-[13px] text-gray-500">서울 마포구 · 위탁 / 무관</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="경기" data-type="시설관리인" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.22~06.15</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">시설관리 주임 — 성남시 분당구</p>
-        <p class="text-[13px] text-gray-500">경기 성남시 · 정규직 / 경력 무관</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="인천" data-type="미화원" data-employment="계약직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-gray-100 text-gray-700 text-[11px] font-bold px-2.5 py-1 rounded">기타</span>
-          <span class="text-xs text-gray-400">2026.05.15~05.31</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">미화반장 — 인천 연수구 송도</p>
-        <p class="text-[13px] text-gray-500">인천 연수구 · 계약직 / 경력1년+</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="서울" data-type="야간관리원" data-employment="계약직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.21~06.10</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">경비반장(야간) — 서울 송파구</p>
-        <p class="text-[13px] text-gray-500">서울 송파구 · 계약직 / 무관</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="경기" data-type="관리소장" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.19~06.18</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">관리과장 — 수원시 영통구</p>
-        <p class="text-[13px] text-gray-500">경기 수원시 · 정규직 / 경력5년+</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="서울" data-type="기타" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-purple-100 text-purple-700 text-[11px] font-bold px-2.5 py-1 rounded">오피스텔</span>
-          <span class="text-xs text-gray-400">2026.05.23~06.20</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">회계 담당자 — 영등포구 여의도</p>
-        <p class="text-[13px] text-gray-500">서울 영등포구 · 정규직 / 경력2년+</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="서울" data-type="기타" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.17~06.05</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">전기기사 — 서울 종로구</p>
-        <p class="text-[13px] text-gray-500">서울 종로구 · 정규직 / 자격증 필수</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="경기" data-type="시설관리인" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.20~06.12</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">시설보수 기사 — 고양시 일산</p>
-        <p class="text-[13px] text-gray-500">경기 고양시 · 정규직 / 경력 무관</p>
-      </div>
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md mobile-job-card" data-region="서울" data-type="기타" data-employment="정규직" onclick="window.location.href='#'">
-        <div class="flex justify-between items-center mb-2">
-          <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded">빌딩</span>
-          <span class="text-xs text-gray-400">2026.05.24~06.22</span>
-        </div>
-        <p class="text-[15px] font-bold text-gray-900 mb-1.5 break-keep">관리사무소 행정 — 서울 서초구</p>
-        <p class="text-[13px] text-gray-500">서울 서초구 · 정규직 / 신입가능</p>
-      </div>
-      <p id="mobile-no-result" style="display:none;text-align:center;padding:32px;color:#94a3b8;">검색 결과가 없습니다.</p>
+        <!-- 자바스크립트가 데이터를 불러와서 여기에 카드를 그립니다 -->
     </div>
 
     <!-- 페이지네이션 -->
     <nav class="flex justify-center items-center space-x-2 my-8" aria-label="페이지 이동">
       <span class="w-8 h-8 flex items-center justify-center bg-[#0B2A5B] text-white font-bold rounded-md">1</span>
-      <span onclick="window.location.href='#'" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 font-bold rounded-md cursor-pointer transition-colors">2</span>
-      <span onclick="window.location.href='#'" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 font-bold rounded-md cursor-pointer transition-colors">3</span>
-      <span class="w-8 h-8 flex items-center justify-center text-gray-400">…</span>
-      <span onclick="window.location.href='#'" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 font-bold rounded-md cursor-pointer transition-colors">4</span>
     </nav>
     
   </main>
 
-  <!-- 통합 반응형 푸터 -->
   <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-auto w-full">
+    <!-- 하단 푸터 내용은 생략 없이 기존 유지 -->
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
-      
       <div class="flex-1 w-full">
         <img src="../대한집합건물관리협회-removebg-preview.png" class="h-[50px] md:h-[60px] filter brightness-0 invert mb-5" alt="대한집합건물관리협회 로고" onerror="this.src='../방패로고.jpg'">
         <div class="text-[14px] md:text-[15px] leading-relaxed text-gray-300">
@@ -430,7 +353,6 @@
           <p class="mb-1">이메일: idea8888@naver.com</p>
         </div>
       </div>
-
       <div class="flex-[0.5] w-full">
         <h4 class="mb-4 font-bold text-white text-[16px]">사이트맵</h4>
         <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
@@ -439,7 +361,6 @@
           <a href="list.html" class="hover:text-white transition-colors">구인구직 센터</a>
         </div>
       </div>
-
       <div class="flex-[0.5] w-full">
         <h4 class="mb-4 font-bold text-white text-[16px]">제휴 파트너</h4>
         <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
@@ -450,7 +371,6 @@
           네이버카페
         </a>
       </div>
-
     </div>
     
     <div class="max-w-7xl mx-auto mt-10 md:mt-12 pt-6 border-t border-blue-900 text-[12px] md:text-[13px] flex flex-col md:flex-row justify-between items-center text-gray-400 gap-4">
@@ -462,27 +382,41 @@
     </div>
   </footer>
 
-  <!-- 인증 보조 모달 4종 (표준 레이아웃 적용) -->
-  
-  <!-- 로그인 모달 -->
-  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
+  <!-- 인증 보조 모달 4종 (기존 유지) -->
+  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
     <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
+      <button type="button" class="modal-close" onclick="closeCustomModal('login')" aria-label="닫기">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
+        <img src="assets/img/방패로고-removebg-preview.png" style="height:50px; width:auto; margin:0 auto 10px;" alt="KCBMA" class="modal-brand-img" onerror="this.style.display='none'" />
         <p class="modal-title">로그인</p>
-        <p class="text-xs text-gray-500 text-center mt-1">대한집합건물관리협회 포털 서비스</p>
+        <p class="modal-subtitle">대한집합건물관리협회에 오신 것을 환영합니다</p>
       </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'login', '로그인 처리 준비 중입니다.');">
-        <input class="modal-input" type="text" placeholder="아이디 또는 이메일" required />
-        <input class="modal-input" type="password" placeholder="비밀번호" required />
-        <button type="submit" class="btn-primary-full mt-2">안전 로그인</button>
+      <form class="modal-form" id="login-form" novalidate>
+        <div class="modal-field">
+          <label class="modal-label" for="login-id">아이디 또는 이메일</label>
+          <input class="modal-input" type="text" id="login-id" name="login-id" placeholder="아이디 또는 이메일 입력" autocomplete="username" required />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="login-pw">비밀번호</label>
+          <input class="modal-input" type="password" id="login-pw" name="login-pw" placeholder="비밀번호" autocomplete="current-password" required />
+        </div>
+        <div class="modal-row">
+          <label class="modal-remember" style="cursor:pointer;"><input type="checkbox" name="login-keep" /> 로그인 상태 유지</label>
+          <div>
+            <a class="modal-forgot" onclick="switchCustomModal('login', 'find-id')">아이디 찾기</a>
+            <span class="mx-1 text-gray-400">|</span>
+            <a class="modal-forgot" onclick="switchCustomModal('login', 'find-pw')">비밀번호 찾기</a>
+          </div>
+        </div>
+        <div id="login-message" class="modal-message"></div>
+        <button type="submit" id="login-btn" class="btn-primary-full">로그인</button>
       </form>
       <p class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
     </div>
   </div>
 
-  <!-- 회원가입 모달 -->
   <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
     <div class="modal-dialog overflow-y-auto max-h-[90vh]">
       <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
@@ -502,7 +436,6 @@
     </div>
   </div>
 
-  <!-- 아이디 찾기 모달 -->
   <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <button class="modal-close" onclick="closeCustomModal('find-id')">✕</button>
@@ -520,7 +453,6 @@
     </div>
   </div>
 
-  <!-- 비밀번호 찾기 모달 -->
   <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
     <div class="modal-dialog">
       <button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button>
@@ -538,47 +470,48 @@
     </div>
   </div>
 
-  <!-- 검색 필터 스크립트 -->
+  <!-- 검색 필터 스크립트 수정됨 -->
   <script>
-    (function() {
+    // 전역 함수로 변경하여, 데이터를 다 부른 후에도 실행 가능하게 수정
+    function applyFilters() {
       var input = document.getElementById('jobSearch');
       var selects = document.querySelectorAll('.board-search select');
       
-      function applyFilters() {
-        var kw = input.value.toLowerCase();
-        var reg = selects[0].value, typ = selects[1].value, emp = selects[2].value;
-        
-        // PC 테이블 필터링
-        var pcRows = document.querySelectorAll('#jobTableBody tr:not(#job-no-result)');
-        var pcVisibleCount = 0;
-        pcRows.forEach(row => {
-          var show = (kw === '' || row.innerText.toLowerCase().includes(kw)) && 
+      var kw = input.value.toLowerCase();
+      var reg = selects[0].value, typ = selects[1].value, emp = selects[2].value;
+      
+      // PC 테이블 필터링
+      var pcRows = document.querySelectorAll('#jobTableBody tr:not(#job-no-result)');
+      var pcVisibleCount = 0;
+      pcRows.forEach(row => {
+        var show = (kw === '' || row.innerText.toLowerCase().includes(kw)) && 
                      (reg === '전체지역' || row.dataset.region === reg) &&
                      (typ === '전체직종' || row.dataset.type === typ) &&
                      (emp === '전체근무형태' || row.dataset.employment === emp);
-          row.style.display = show ? '' : 'none';
-          if(show) pcVisibleCount++;
-        });
-        document.getElementById('job-no-result').style.display = pcVisibleCount === 0 ? '' : 'none';
+        row.style.display = show ? '' : 'none';
+        if(show) pcVisibleCount++;
+      });
+      var pcNoResult = document.getElementById('job-no-result');
+      if(pcNoResult) pcNoResult.style.display = pcVisibleCount === 0 ? '' : 'none';
 
-        // 모바일 카드 필터링
-        var mobCards = document.querySelectorAll('#mobileJobCards .mobile-job-card');
-        var mobVisibleCount = 0;
-        mobCards.forEach(card => {
-          var show = (kw === '' || card.innerText.toLowerCase().includes(kw)) && 
+      // 모바일 카드 필터링
+      var mobCards = document.querySelectorAll('#mobileJobCards .mobile-job-card');
+      var mobVisibleCount = 0;
+      mobCards.forEach(card => {
+        var show = (kw === '' || card.innerText.toLowerCase().includes(kw)) && 
                      (reg === '전체지역' || card.dataset.region === reg) &&
                      (typ === '전체직종' || card.dataset.type === typ) &&
                      (emp === '전체근무형태' || card.dataset.employment === emp);
-          card.style.display = show ? 'block' : 'none';
-          if(show) mobVisibleCount++;
-        });
-        var mobileNoResult = document.getElementById('mobile-no-result');
-        if(mobileNoResult) mobileNoResult.style.display = mobVisibleCount === 0 ? 'block' : 'none';
-      }
-      
-      input.addEventListener('input', applyFilters);
-      selects.forEach(sel => sel.addEventListener('change', applyFilters));
-    })();
+        card.style.display = show ? 'block' : 'none';
+        if(show) mobVisibleCount++;
+      });
+      var mobileNoResult = document.getElementById('mobile-no-result');
+      if(mobileNoResult) mobileNoResult.style.display = mobVisibleCount === 0 ? 'block' : 'none';
+    }
+    
+    // 이벤트 리스너 재부착
+    document.getElementById('jobSearch').addEventListener('input', applyFilters);
+    document.querySelectorAll('.board-search select').forEach(sel => sel.addEventListener('change', applyFilters));
   </script>
 </body>
 </html>

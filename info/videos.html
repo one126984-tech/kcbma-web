@@ -6,6 +6,7 @@
   <title>영상 자료실 | 대한집합건물관리협회</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
@@ -103,11 +104,12 @@
     </div>
     
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
-      <div class="flex items-center h-[40px] md:h-[48px] cursor-pointer" data-href="../index.html" onclick="handleNavigation(this)">
-        <img src="../assets/img/방패로고-removebg-preview.png" class="h-full w-auto object-contain flex-shrink-0" alt="KCBMA 마크" onerror="this.src='../assets/img/방패로고.jpg'">
-        <img src="../assets/img/로고_글자-removebg-preview.png" class="h-[36px] md:h-[44px] w-auto object-contain flex-shrink-0 ml-2" alt="대한집합건물관리협회" onerror="this.src='../assets/img/로고_글자.png'">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
       
+
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
         
@@ -171,100 +173,47 @@
     </div>
   </div>
 
-  <!-- 통합 3단 페이지 히어로 영역 -->
-  <section class="bg-[#0B2A5B] text-white py-10 md:py-12 px-4 w-full">
-    <div class="max-w-[1200px] mx-auto">
-      <div class="text-[13px] md:text-sm text-gray-300 mb-5 font-medium">
-        홈 &gt; 정보교류
-      </div>
+  <!-- ★ 정보교류 메인 페이지 히어로 영역 (모두 흰색) ★ -->
+  <section class="page-hero">
+    <div class="max-w-7xl mx-auto px-4 md:px-8">
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <span data-href="../index.html" onclick="handleNavigation(this)" class="hover:underline cursor-pointer">홈</span>
+        <span>›</span>
+        <span>정보교류</span>
+      </nav>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- 법규·정책 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 mt-2 text-left">
+        
         <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer group">
-          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 text-white transition-colors">법규·정책</h1>
-          <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리인이 꼭 알아야 할 법규와<br class="hidden md:block"> 정책 변경사항을 안내합니다.</p>
+          <div class="mb-3"><h2 class="hero-title text-3xl font-extrabold text-white transition-colors">법규·정책</h2></div>
+          <p class="text-[14px] text-gray-300 leading-relaxed group-hover:text-white transition-colors">집합건물 관리인이 꼭 알아야 할 법규와<br>정책 변경사항을 안내합니다.</p>
+        </div>
+
+        <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+          <div class="mb-3"><h2 class="hero-title text-3xl font-extrabold text-white transition-colors">영상 자료실</h2></div>
+          <p class="text-[14px] text-gray-300 leading-relaxed group-hover:text-white transition-colors">집합건물 관리 실무에 도움이 되는<br>영상을 모아드립니다.</p>
+        </div>
+
+        <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+          <div class="mb-3"><h2 class="hero-title text-3xl font-extrabold text-white transition-colors">시설업체 칼럼</h2></div>
+          <p class="text-[14px] text-gray-300 leading-relaxed group-hover:text-white transition-colors">등록 파트너사가 직접 작성한<br>실무 정보 칼럼입니다.</p>
         </div>
         
-        <!-- ★ 영상 자료실 (현재 활성화) -->
-        <div data-href="videos.html" onclick="handleNavigation(this)" class="cursor-pointer group">
-          <h1 class="hero-title active text-2xl md:text-3xl font-black mb-3 text-[#2BA8A0] transition-colors">영상 자료실</h1>
-          <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">집합건물 관리 실무에 도움이 되는<br class="hidden md:block"> 영상을 모아드립니다.</p>
-        </div>
-        
-        <!-- 시설업체 칼럼 -->
-        <div data-href="columns.html" onclick="handleNavigation(this)" class="cursor-pointer group">
-          <h1 class="hero-title text-2xl md:text-3xl font-black mb-3 text-white transition-colors">시설업체 칼럼</h1>
-          <p class="text-[14px] md:text-[15px] text-blue-100 font-medium break-keep">등록 파트너사가 직접 작성한<br class="hidden md:block"> 실무 정보 칼럼입니다.</p>
-        </div>
       </div>
     </div>
   </section>
-
   <!-- 메인 콘텐츠 (기존 영상자료실 콘텐츠 유지) -->
   <main class="flex-1 max-w-[1200px] mx-auto px-4 md:px-8 py-8 md:py-12 w-full">
     
     <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide" id="filter-chips">
       <button class="chip active" data-cat="all">전체</button>
-      <button class="chip" data-cat="law">법령·판례</button>
-      <button class="chip" data-cat="tips">실무팁</button>
-      <button class="chip" data-cat="edu">교육영상</button>
-      <button class="chip" data-cat="case">현장사례</button>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="video-items">
-      
-      <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="law">
-        <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-[#0B2A5B] to-[#1E5AA8] flex items-center justify-center relative">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#2BA8A0] transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-        <div class="px-1">
-          <span class="inline-block bg-blue-100 text-blue-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">법령·판례</span>
-          <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">집합건물법 핵심 정리 2025 (개정안 포함)</h3>
-          <p class="text-xs text-gray-400 mt-1">2026.05.20</p>
-        </div>
-      </div>
-
-      <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="tips">
-        <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-[#2BA8A0] to-[#137a73] flex items-center justify-center relative">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#0B2A5B] transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-        <div class="px-1">
-          <span class="inline-block bg-green-100 text-green-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">실무팁</span>
-          <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">초보 소장을 위한 1년차 필수 관리 스케줄 (봄/여름 편)</h3>
-          <p class="text-xs text-gray-400 mt-1">2026.05.15</p>
-        </div>
-      </div>
-
-      <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="edu">
-        <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-purple-800 to-purple-900 flex items-center justify-center relative">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#2BA8A0] transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-        <div class="px-1">
-          <span class="inline-block bg-purple-100 text-purple-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">교육영상</span>
-          <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">투명한 관리비 회계 처리 기초 강의 1강</h3>
-          <p class="text-xs text-gray-400 mt-1">2026.05.08</p>
-        </div>
-      </div>
-
-      <div data-href="videos-detail.html" onclick="handleNavigation(this)" class="video-card cursor-pointer group" data-cat="case">
-        <div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center relative">
-          <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#0B2A5B] transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-        <div class="px-1">
-          <span class="inline-block bg-orange-100 text-orange-800 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">현장사례</span>
-          <h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">누수 분쟁 해결 현장! 입주민과의 소통 노하우</h3>
-          <p class="text-xs text-gray-400 mt-1">2026.04.28</p>
-        </div>
-      </div>
-
+      <div class="animate-pulse"><div class="w-full aspect-video rounded-xl mb-3 bg-gray-200"></div><div class="h-3 bg-gray-200 rounded w-16 mb-2"></div><div class="h-4 bg-gray-200 rounded w-full mb-1"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div>
+      <div class="animate-pulse"><div class="w-full aspect-video rounded-xl mb-3 bg-gray-200"></div><div class="h-3 bg-gray-200 rounded w-16 mb-2"></div><div class="h-4 bg-gray-200 rounded w-full mb-1"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div>
+      <div class="animate-pulse"><div class="w-full aspect-video rounded-xl mb-3 bg-gray-200"></div><div class="h-3 bg-gray-200 rounded w-16 mb-2"></div><div class="h-4 bg-gray-200 rounded w-full mb-1"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div>
+      <div class="animate-pulse"><div class="w-full aspect-video rounded-xl mb-3 bg-gray-200"></div><div class="h-3 bg-gray-200 rounded w-16 mb-2"></div><div class="h-4 bg-gray-200 rounded w-full mb-1"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div>
     </div>
   </main>
 
@@ -442,27 +391,97 @@
   </div>
 
   <script>
-    // 영상 필터링 기능
-    document.addEventListener("DOMContentLoaded", () => {
-      const chips = document.querySelectorAll("#filter-chips .chip");
-      const items = document.querySelectorAll(".video-card");
+    // ─── [Supabase 연동: 영상 목록 동적 로딩] ───
+    const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv';
+    const videosSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
+    let allVideos = [];
+
+    const CATEGORY_LABELS = { '법령·판례': 'bg-blue-100 text-blue-800', '실무팁': 'bg-green-100 text-green-800', '교육': 'bg-purple-100 text-purple-800', '세미나': 'bg-blue-100 text-blue-800', '공지': 'bg-orange-100 text-orange-800' };
+    const CATEGORY_GRADIENTS = ['from-[#0B2A5B] to-[#1E5AA8]', 'from-[#2BA8A0] to-[#137a73]', 'from-purple-800 to-purple-900', 'from-orange-500 to-orange-600'];
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function renderChips(videos) {
+      const cats = Array.from(new Set(videos.map(v => v.category).filter(Boolean)));
+      const wrap = document.getElementById('filter-chips');
+      wrap.innerHTML = '<button class="chip active" data-cat="all">전체</button>' +
+        cats.map(c => '<button class="chip" data-cat="' + c + '">' + c + '</button>').join('');
+    }
+
+    function openYoutube(youtubeId) {
+      if (!youtubeId) return;
+      window.open('https://www.youtube.com/watch?v=' + youtubeId, '_blank', 'noopener,noreferrer');
+    }
+
+    function renderVideoCards(videos) {
+      const container = document.getElementById('video-items');
+      if (!videos.length) {
+        container.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12">등록된 영상이 없습니다.</p>';
+        return;
+      }
+      container.innerHTML = videos.map((v, i) => {
+        const badgeClass = CATEGORY_LABELS[v.category] || 'bg-gray-100 text-gray-800';
+        const gradient = CATEGORY_GRADIENTS[i % CATEGORY_GRADIENTS.length];
+        return '<div data-yt="' + (v.youtube_id || '') + '" onclick="openYoutube(this.getAttribute(\'data-yt\'))" title="새 탭에서 열립니다" class="video-card cursor-pointer group" data-cat="' + (v.category || '') + '">' +
+          '<div class="w-full aspect-video rounded-xl mb-3 overflow-hidden bg-gradient-to-br ' + gradient + ' flex items-center justify-center relative">' +
+            '<span class="absolute top-2 right-2 z-10 inline-flex items-center gap-1 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm">↗ YouTube</span>' +
+            '<div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#2BA8A0] transition-colors">' +
+              '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>' +
+            '</div>' +
+          '</div>' +
+          '<div class="px-1">' +
+            '<span class="inline-block ' + badgeClass + ' text-[11px] font-bold px-2 py-0.5 rounded mb-1.5">' + (v.category || '') + '</span>' +
+            '<h3 class="font-bold text-gray-900 group-hover:text-[#0B2A5B] transition-colors line-clamp-2">' + v.title + '</h3>' +
+            '<p class="text-xs text-gray-400 mt-1">' + formatDate(v.created_at) + '</p>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function attachChipEvents() {
+      const chips = document.querySelectorAll("#filter-chips .chip");
       chips.forEach(chip => {
         chip.addEventListener("click", () => {
           chips.forEach(c => c.classList.remove("active"));
           chip.classList.add("active");
-          
           const filter = chip.getAttribute("data-cat");
-          items.forEach(item => {
-            if (filter === "all" || item.getAttribute("data-cat") === filter) {
-              item.style.display = "block";
-            } else {
-              item.style.display = "none";
-            }
-          });
+          const filtered = filter === "all" ? allVideos : allVideos.filter(v => v.category === filter);
+          renderVideoCards(filtered);
         });
       });
-    });
+    }
+
+    async function loadVideos() {
+      const container = document.getElementById('video-items');
+      if (!videosSupabase) {
+        container.innerHTML = '<p class="col-span-full text-center text-red-400 py-12">영상 목록을 불러올 수 없습니다.</p>';
+        return;
+      }
+      try {
+        const { data, error } = await videosSupabase
+          .from('videos')
+          .select('*')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allVideos = data || [];
+        renderChips(allVideos);
+        renderVideoCards(allVideos);
+        attachChipEvents();
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p class="col-span-full text-center text-red-400 py-12">영상 목록을 불러오는 중 오류가 발생했습니다.</p>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadVideos);
 
     // ─── [모달 제어 및 폼 초기화 스크립트] ───
     function resetLoginForm() {

@@ -345,15 +345,39 @@ table { border-collapse: collapse; }
 .btn-outline:hover { background: var(--teal); color: #fff; }
 
 /* ── 6. Hero — 단일 정적 ─────────────────────────────── */
-.hero-section {
-  position: relative;
-  overflow: hidden;
-  min-height: 600px;
-  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-soft) 100%);
-  display: flex;
-  align-items: center;
-}
-@media (max-width: 768px) { .hero-section { min-height: 460px; } }
+/* 히어로 영역 제목 호버 밑줄 효과 및 링크 설정 */
+    .hero-title-link {
+      position: relative;
+      display: inline-block;
+      padding-bottom: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      color: white; /* 기본은 흰색 */
+    }
+    .hero-title-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background-color: #FFFFFF; 
+      transition: width 0.3s ease-in-out;
+    }
+    .hero-title-link:hover::after {
+      width: 100%;
+    }
+    /* 활성화된 페이지의 글자색과 밑줄 (항상 켜져 있음) */
+    .hero-title-active {
+      color: #4FD1C5 !important;
+    }
+    .hero-title-active::after {
+      background-color: #4FD1C5; 
+      width: 100%;
+    }
+
+
+
 
 /* 인라인 SVG 도시 야경 배경 */
 .hero-skyline {
@@ -1333,9 +1357,10 @@ table { border-collapse: collapse; }
   margin-bottom: 20px;
 }
 .modal-brand-img {
-  height: 40px;
-  width: auto;
-  margin-bottom: 12px;
+  height: 50px; 
+  width: auto; 
+  margin: 0 auto 10px;
+  display: block;
 }
 .modal-title {
   font-size: 1.4rem;
@@ -1379,24 +1404,23 @@ table { border-collapse: collapse; }
 .modal-input::placeholder { color: #CBD5E1; }
 .modal-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
-  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  color: #64748b;
 }
 .modal-remember {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: .82rem;
-  color: #64748B;
+  gap: 5px;
   cursor: pointer;
 }
 .modal-remember input { accent-color: #0B2A5B; }
 .modal-forgot {
-  font-size: .82rem;
-  color: #64748B;
-  transition: color .15s;
+  cursor: pointer;
+  color: #0e2b61;
+  font-weight: 600;
 }
 .modal-forgot:hover { color: #0B2A5B; text-decoration: underline; }
 .btn-primary-full {
@@ -1683,10 +1707,7 @@ table { border-collapse: collapse; }
 
 /* (구 scaleX 트릭 제거 — 섹션 32에서 text-align-last:justify 방식으로 대체) */
 
-/* [주석 처리 시작]
-   아래 코드를 모두 이렇게 주석 기호로 감싸서 작동하지 않게 만드세요.
-
-/* ── 34. 법규·영상·칼럼 섹션 hover 모션 완전 제거 ──────── */
+/* ── 34. 법규·영상·칼럼 섹션 hover 모션 완전 제거 (작동 중지 처리됨) ──────── 
 .law-card, .law-card *,
 .col-card, .col-card *,
 .video-card, .video-card *,
@@ -1702,8 +1723,9 @@ table { border-collapse: collapse; }
   box-shadow: inherit !important;
   filter: none !important;
 }
+*/
 
-/* ── 35. 마우스 오버 모션 영구 락 (섹션 와일드카드) ──────── */
+/* ── 35. 마우스 오버 모션 영구 락 (섹션 와일드카드) (작동 중지 처리됨) ──────── 
 section[aria-labelledby="law-title"] *,
 section[aria-labelledby="video-title"] *,
 section[aria-labelledby="col-title"] *,
@@ -1723,7 +1745,4 @@ section[aria-labelledby="col-title"] *:hover,
   animation: none !important;
   filter: none !important;
 }
-
-
-   [주석 처리 끝] 
 */
