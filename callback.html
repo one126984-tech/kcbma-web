@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>네이버 로그인 처리중...</title>
+    <!-- 네이버 및 Supabase SDK -->
+    <script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <p>로그인 처리 중입니다. 잠시만 기다려주세요...</p>
+
+    <script>
+      // 1. Supabase 세팅
+      const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+      const supabaseKey = '소장님의_SUPABASE_ANON_KEY'; // 꼭 실제 키로 변경하세요!
+      const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      // 2. 네이버 정보 받아오기 세팅
+      const naverLogin = new naver.LoginWithNaverId({
+        clientId: "QQt53ijWrcAksEFEIQcc",
+        callbackUrl: "https://www.kcbma.org/callback.html", 
+        isPopup: false
+      });
+      naverLogin.init();
+
+      // 3. 로그인 정보 처리 및 원래 페이지로 돌려보내기
+      window.addEventListener('load', function () {
+        naverLogin.getLoginStatus(async function (status) {
+          if (status) {
+            const email = naverLogin.user.getEmail();
+            const naverId = naverLogin.user.getId(); 
+            const name = naverLogin.user.getName();
+            
+            // Supabase 로그인/가입 처리
+            const { data, error } = await _supabase.auth.signInWithPassword({
+              email: email, password: naverId 
+            });
+
+            if (error && error.message.includes("Invalid login credentials")) {
+                await _supabase.auth.signUp({
+                  email: email, password: naverId, options: { data: { full_name: name } }
+                });
+            }
+
+            // 처리가 끝났으므로, 처음에 저장해둔 원래 페이지(예: 구인구직) 주소를 꺼내서 그곳으로 이동시킵니다.
+            const returnUrl = localStorage.getItem('returnUrl') || '/';
+            localStorage.removeItem('returnUrl'); // 쓴 주소는 청소
+            window.location.href = returnUrl; 
+          } else {
+             alert("네이버 로그인에 실패했습니다.");
+             window.location.href = '/';
+          }
+        });
+      });
+    </script>
+</body>
+</html>

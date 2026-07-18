@@ -8,38 +8,14 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   
   <style>
-    :root {
-      --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
-      --bg: #F8FAFC; --trans: .22s ease;
-    }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
-    
-    .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
-    .menu-item:hover, .menu-item.active { color: var(--teal); } 
-    
-    .form-input, .form-select, .form-textarea { transition: all 0.2s ease-in-out; }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11, 42, 91, 0.1);
-    }
-    
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
-    .modal-backdrop.is-open { display: flex !important; }
-    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; }
-    .modal-brand { text-align: center; margin-bottom: 20px; }
-    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
-    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; }
-    .modal-input:focus { border-color: #0e2b61; }
-    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
-    .btn-primary-full:hover { background: #153b80; }
-    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
-    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; }
+    :root { --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11, 42, 91, 0.1); }
   </style>
   
   <script>
@@ -47,227 +23,68 @@
     const SUPABASE_KEY = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function handleNavigation(element) {
-      const url = element.getAttribute('data-href');
-      const target = element.getAttribute('data-target');
-      if (url && url !== '#') {
-        if (target === '_blank') { window.open(url, '_blank'); } 
-        else { window.location.href = url; }
-      }
-    }
-    
-    function openCustomModal(id) {
-      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
-      document.getElementById('modal-' + id).classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeCustomModal(id) {
-      document.getElementById('modal-' + id).classList.remove('is-open');
-      document.body.style.overflow = '';
-    }
-    function switchCustomModal(closeId, openId) {
-      closeCustomModal(closeId);
-      setTimeout(() => openCustomModal(openId), 100);
-    }
-
-    function handleFormSubmit(event, modalId, message) {
-      event.preventDefault(); 
-      alert(message);
-      if(modalId) closeCustomModal(modalId);
-    }
-
-    // ★ 추가됨: '직접 입력' 선택할 때 텍스트창을 열고 닫는 함수
+    // 경력 직접 입력 토글
     function toggleDirectExperience(selectElement) {
       const directInput = document.getElementById('job-experience-direct');
       if (selectElement.value === '직접입력') {
         directInput.classList.remove('hidden');
+        directInput.required = true;
         directInput.focus();
       } else {
         directInput.classList.add('hidden');
+        directInput.required = false;
         directInput.value = '';
       }
     }
 
-    // 구인 공고 등록 처리 함수
+    // 구인 공고 등록 처리
     async function handleJobSubmit(e) {
       e.preventDefault(); 
-      
       const form = e.target;
 
-      const category = form.category.value.trim();
-      const type = form.type.value.trim();
-      const title = form.title.value.trim();
-      const employment = form.employment.value.trim();
-      
-      // ★ 수정됨: '직접 입력'을 썼다면 직접 쓴 글자를 가져오도록 판별하는 로직
-      let experience = form.experience.value.trim();
-      if (experience === '직접입력') {
-        experience = form.experience_direct.value.trim();
+      let experienceValue = form.experience.value;
+      if (experienceValue === '직접입력') {
+        experienceValue = form.experience_direct.value.trim();
       }
 
-      const region = form.region.value.trim();
-      const salary = form.salary.value.trim();
-      const address = form.address.value.trim();
-      const startDate = form.start_date.value;
-      const endDate = form.end_date.value;
-      const description = form.description.value.trim();
-
-      if (!category) { alert('건물 구분을 선택해 주세요.'); form.category.focus(); return; }
-      if (!type) { alert('모집 직종을 선택해 주세요.'); form.type.focus(); return; }
-      if (!title) { alert('공고 제목을 입력해 주세요.'); form.title.focus(); return; }
-      if (!employment) { alert('고용 형태를 선택해 주세요.'); form.employment.focus(); return; }
-      
-      // ★ 경력 필수 체크 유효성 검사 수정
-      if (form.experience.value === '') { alert('경력 여부를 선택해 주세요.'); form.experience.focus(); return; }
-      if (form.experience.value === '직접입력' && !experience) { alert('경력 사항을 직접 입력해 주세요.'); form.experience_direct.focus(); return; }
-
-      if (!region) { alert('근무 지역을 선택해 주세요.'); form.region.focus(); return; }
-      if (!salary) { alert('급여 조건을 입력해 주세요.'); form.salary.focus(); return; }
-      if (!address) { alert('상세 근무지 주소를 입력해 주세요.'); form.address.focus(); return; }
-      if (!startDate) { alert('모집 시작일을 선택해 주세요.'); form.start_date.focus(); return; }
-      if (!endDate) { alert('모집 마감일을 선택해 주세요.'); form.end_date.focus(); return; }
-      if (!description) { alert('상세 내용을 입력해 주세요.'); form.description.focus(); return; }
+      const jobData = {
+        category: form.category.value,
+        type: form.type.value,
+        title: form.title.value.trim(),
+        employment: form.employment.value,
+        experience: experienceValue,
+        region: form.region.value,
+        salary: form.salary.value.trim(),
+        address: form.address.value.trim(),
+        start_date: form.start_date.value,
+        end_date: form.end_date.value,
+        description: form.description.value.trim(),
+        status: '모집중',
+        view_count: 0
+      };
 
       try {
-        const { data, error } = await supabaseClient
-          .from('jobs')
-          .insert([
-            {
-              category: category,
-              type: type,
-              title: title,
-              employment: employment,
-              experience: experience, // 최종 가공된 경력 텍스트가 DB로 안전하게 들어갑니다.
-              region: region,
-              salary: salary,
-              address: address,
-              start_date: startDate,
-              end_date: endDate,
-              description: description,
-              status: '모집중',
-              view_count: 0
-            }
-          ]);
-
+        const { error } = await supabaseClient.from('jobs').insert([jobData]);
         if (error) throw error;
-
         alert('공고가 성공적으로 등록되었습니다!');
         window.location.href = 'list.html';
       } catch (error) {
-        alert('공고 등록 중 오류가 발생했습니다: ' + error.message);
-        console.error('DB 저장 에러:', error);
-      }
-    }
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu');
-      if (menu.classList.contains('hidden')) {
-        menu.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      } else {
-        menu.classList.add('hidden');
-        document.body.style.overflow = '';
+        alert('공고 등록 실패: ' + error.message);
       }
     }
   </script>
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
-    <div class="w-full bg-[#0a1931] py-2.5">
-      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
-        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
-        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
-        <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
-          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
-          <span class="text-gray-400 font-normal">|</span>
-          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
-        </div>
-      </div>
-    </div>
-    
-    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
-      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='https://via.placeholder.com/48x48?text=Logo'">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='https://via.placeholder.com/200x44?text=KCBMA'">
-      </div>
-      
-      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
-        
-        <div class="relative group cursor-pointer py-1">
-          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
-          <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
-            <div class="bg-white border border-gray-200 shadow-lg rounded overflow-hidden">
-              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
-              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
-              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
-            </div>
-          </div>
-        </div>
-
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책토론</div>
-        <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0] cursor-pointer">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책신문고</div>
-      </nav>
-
-      <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-    </header>
-  </div>
-
-  <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
-    <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
-      <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
-        <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
-      </div>
-      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
-        <details class="group">
-          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
-            정보교류 <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
-            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
-            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
-            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
-          </div>
-        </details>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
-        <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
-      </div>
-    </div>
-  </div>
-
-  <section class="bg-[#0B2A5B] text-white py-12 md:py-16 text-center px-4">
-    <div class="max-w-7xl mx-auto">
-      <nav class="text-sm text-blue-200 mb-4 flex items-center justify-center space-x-2">
-        <a data-href="../index.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">홈</a><span>›</span>
-        <a data-href="list.html" onclick="handleNavigation(this)" class="hover:text-white cursor-pointer transition-colors">구인구직</a><span>›</span>
-        <span class="font-bold text-white">공고 등록</span>
-      </nav>
-      <h1 class="text-3xl md:text-4xl font-black mb-3">구인구직 공고 등록</h1>
-      <p class="text-[15px] md:text-base text-blue-100 font-medium break-keep">우수한 인재를 찾기 위해 공고의 상세 내용을 정확하게 기입해주세요.</p>
-    </div>
-  </section>
-
   <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
     <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm">
+      <h1 class="text-2xl font-black text-[#0B2A5B] mb-8">구인구직 공고 등록</h1>
       
-      <form name="job-posting" method="POST" onsubmit="handleJobSubmit(event)">
-        
+      <form onsubmit="handleJobSubmit(event)">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-category">건물 구분 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-category" name="category" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">건물 구분 <span class="text-red-500">*</span></label>
+            <select name="category" class="border border-gray-300 p-3 rounded-lg w-full bg-white" required>
               <option value="">선택해주세요</option>
               <option value="빌딩">빌딩</option>
               <option value="오피스텔">오피스텔</option>
@@ -276,104 +93,58 @@
             </select>
           </div>
           <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-type">모집 직종 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-type" name="type" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">모집 직종 <span class="text-red-500">*</span></label>
+            <select name="type" class="border border-gray-300 p-3 rounded-lg w-full bg-white" required>
               <option value="">선택해주세요</option>
               <option value="관리소장">관리소장</option>
               <option value="시설관리인">시설관리인</option>
               <option value="야간관리원">야간관리원(경비)</option>
               <option value="미화원">미화원</option>
-              <option value="기타">행정/경리 및 기타</option>
             </select>
           </div>
         </div>
 
-        <div class="flex flex-col mb-6">
-          <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-title">공고 제목 <span class="text-red-500 ml-1">*</span></label>
-          <input type="text" id="job-title" name="title" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: [강남구 빌딩] 성실한 시설관리 주임 모십니다." />
+        <div class="mb-6">
+          <label class="text-[14px] font-bold text-gray-800 mb-2">공고 제목 <span class="text-red-500">*</span></label>
+          <input type="text" name="title" class="form-input border border-gray-300 p-3 rounded-lg w-full" placeholder="예: [강남구 빌딩] 성실한 시설관리 주임 모십니다." required />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-employment">고용 형태 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-employment" name="employment" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
-              <option value="">선택해주세요</option>
+            <label class="text-[14px] font-bold text-gray-800 mb-2">고용 형태 <span class="text-red-500">*</span></label>
+            <select name="employment" class="border border-gray-300 p-3 rounded-lg w-full bg-white" required>
               <option value="정규직">정규직</option>
               <option value="계약직">계약직</option>
-              <option value="위탁">위탁(파트)</option>
-              <option value="일용직">일용직</option>
             </select>
           </div>
-          
           <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-experience">경력 여부 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-experience" name="experience" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer" onchange="toggleDirectExperience(this)">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">경력 여부 <span class="text-red-500">*</span></label>
+            <select name="experience" class="border border-gray-300 p-3 rounded-lg w-full bg-white" onchange="toggleDirectExperience(this)" required>
               <option value="">선택해주세요</option>
-              <option value="직접입력">직접 입력</option> <option value="무관">경력 무관</option>
               <option value="신입">신입</option>
-              <option value="1년">경력 1년 이상</option>
-              <option value="2년">경력 2년 이상</option> <option value="3년">경력 3년 이상</option>
-              <option value="4년">경력 4년 이상</option> <option value="5년">경력 5년 이상</option>
+              <option value="경력무관">경력무관</option>
+              <option value="직접입력">직접 입력</option>
             </select>
-            
-            <input type="text" id="job-experience-direct" name="experience_direct" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full mt-2 hidden" placeholder="예: 경력 7년 이상, 소장 경력 3년 등 직접 입력" />
+            <input type="text" name="experience_direct" id="job-experience-direct" class="form-input border border-gray-300 p-3 rounded-lg w-full mt-2 hidden" placeholder="경력을 직접 입력하세요" />
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-          <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-region">근무 지역 <span class="text-red-500 ml-1">*</span></label>
-            <select id="job-region" name="region" class="form-select border border-gray-300 p-3 rounded-lg text-[15px] w-full bg-white cursor-pointer">
-              <option value="">시/도 선택</option>
-              <option value="서울">서울특별시</option>
-              <option value="경기">경기도</option>
-              <option value="인천">인천광역시</option>
-              <option value="부산">부산광역시</option>
-              <option value="기타">그 외 기타 지역</option>
-            </select>
-          </div>
-          <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-salary">급여 조건 <span class="text-red-500 ml-1">*</span></label>
-            <input type="text" id="job-salary" name="salary" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 월 300만원 (또는 면접 후 결정)" />
-          </div>
+        <div class="mb-6">
+          <label class="text-[14px] font-bold text-gray-800 mb-2">상세 근무지 주소 <span class="text-red-500">*</span></label>
+          <input type="text" name="address" class="form-input border border-gray-300 p-3 rounded-lg w-full" placeholder="예: 서울 강남구 테헤란로 OO빌딩" required />
         </div>
 
         <div class="flex flex-col mb-6">
-          <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-address">상세 근무지 주소 <span class="text-red-500 ml-1">*</span></label>
-          <input type="text" id="job-address" name="address" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" placeholder="예: 서울 강남구 테헤란로 OO빌딩" />
+          <label class="text-[14px] font-bold text-gray-800 mb-2">상세 내용 <span class="text-red-500">*</span></label>
+          <textarea name="description" class="form-textarea border border-gray-300 p-4 rounded-lg w-full min-h-[200px]" required></textarea>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-          <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-start-date">모집 시작일 <span class="text-red-500 ml-1">*</span></label>
-            <input type="date" id="job-start-date" name="start_date" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" />
-          </div>
-          <div class="flex flex-col">
-            <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-end-date">모집 마감일 <span class="text-red-500 ml-1">*</span></label>
-            <input type="date" id="job-end-date" name="end_date" class="form-input border border-gray-300 p-3 rounded-lg text-[15px] w-full" />
-          </div>
+        <div class="flex justify-center gap-3 mt-10">
+          <button type="button" class="px-10 py-3 bg-gray-100 rounded-xl font-bold" onclick="history.back()">취소</button>
+          <button type="submit" class="px-10 py-3 bg-[#0B2A5B] text-white rounded-xl font-bold">공고 등록하기</button>
         </div>
-
-        <div class="flex flex-col mb-2">
-          <label class="text-[14px] font-bold text-gray-800 mb-2" for="job-description">상세 내용 <span class="text-red-500 ml-1">*</span></label>
-          <textarea id="job-description" name="description" class="form-textarea border border-gray-300 p-4 rounded-lg text-[15px] w-full resize-y min-h-[240px]" placeholder="- 주요 업무:&#10;- 자격 요건:&#10;- 우대 사항:&#10;- 복리 후생:&#10;- 지원 방법:"></textarea>
-        </div>
-
-        <div class="flex flex-col sm:flex-row justify-center gap-3 mt-10">
-          <button type="button" class="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-10 rounded-xl transition-colors text-[15px]" onclick="window.history.back();">취소</button>
-          <button type="submit" class="w-full sm:w-auto bg-[#0B2A5B] hover:bg-[#153b80] text-white font-bold py-3.5 px-10 rounded-xl transition-colors shadow-sm text-[15px]">공고 등록하기</button>
-        </div>
-        
       </form>
     </div>
   </main>
-
-  <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
-    <div class="max-w-7xl mx-auto text-center text-[12px] text-gray-400">
-      <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
-    </div>
-  </footer>
-
-<script src="../assets/js/auth.js"></script>
 </body>
 </html>
