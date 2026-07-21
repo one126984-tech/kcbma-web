@@ -329,49 +329,11 @@
     </div>
   </main>
 
-  <!-- 통합 반응형 푸터 -->
-  <footer class="bg-[#040f24] text-white py-12 md:py-16 px-6 mt-12 w-full">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
-      
-      <div class="flex-1 w-full">
-        <img src="../대한집합건물관리협회-removebg-preview.png" class="h-[50px] md:h-[60px] filter brightness-0 invert mb-5" alt="대한집합건물관리협회 로고" onerror="this.src='../방패로고.jpg'">
-        <div class="text-[14px] md:text-[15px] leading-relaxed text-gray-300">
-          <p class="mb-1">주소: 경기도 김포시 김포대로 699</p>
-          <p class="mb-1">전화: 031-984-6199 · 팩스: 031-985-6199</p>
-          <p class="mb-1">이메일: idea8888@naver.com</p>
-        </div>
-      </div>
+  <!-- 지워진 푸터 자리에 아래와 같이 id를 부여한 빈 div를 넣습니다. -->
+<div id="footer-container"></div>
 
-      <div class="flex-[0.5] w-full">
-        <h4 class="mb-4 font-bold text-white text-[16px]">사이트맵</h4>
-        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
-          <a href="../info/index.html" class="hover:text-white transition-colors">정보교류 종합 포털</a>
-          <a href="../info/forum.html" class="hover:text-white transition-colors">정책 토론 광장</a>
-          <a href="../jobs/list.html" class="hover:text-white transition-colors">구인구직 센터</a>
-        </div>
-      </div>
 
-      <div class="flex-[0.5] w-full">
-        <h4 class="mb-4 font-bold text-white text-[16px]">제휴 파트너</h4>
-        <div class="text-[14px] md:text-[15px] leading-[2.2] text-gray-300 flex flex-col">
-          <a href="../partners/list.html" class="hover:text-white transition-colors">우수 파트너사 목록</a>
-          <a href="../partners/apply.html" class="hover:text-white transition-colors">유지 보수사 협력 신청</a>
-        </div>
-        <a href="https://cafe.naver.com/kcbma114" target="_blank" class="inline-block bg-[#00C73C] text-white px-4 py-2 rounded font-bold text-[14px] mt-4 hover:bg-[#00a833] transition-colors">
-          네이버카페
-        </a>
-      </div>
 
-    </div>
-    
-    <div class="max-w-7xl mx-auto mt-10 md:mt-12 pt-6 border-t border-blue-900 text-[12px] md:text-[13px] flex flex-col md:flex-row justify-between items-center text-gray-400 gap-4">
-      <span>© 2026 대한집합건물관리협회(KCBMA). All rights reserved.</span>
-      <div class="flex space-x-5">
-        <a href="#" class="hover:text-white transition-colors">이용약관</a>
-        <a href="#" class="hover:text-white transition-colors">개인정보처리방침</a>
-      </div>
-    </div>
-  </footer>
 
   <!-- ★ 인증 보조 모달 4종 (로고 68px 확대 + 인덱스 회원가입 양식 통일) ★ -->
   
@@ -486,6 +448,10 @@
       });
     });
   </script>
+
+<!-- body가 끝나기 전에 footer.js를 연결합니다. -->
+    <script src="../assets/js/footer.js"></script>
+
 
 </body>
 </html>
