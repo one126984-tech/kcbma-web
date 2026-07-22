@@ -217,26 +217,10 @@
 <div id="footer-container"></div>
 
 
-  <!-- 인증 모달 -->
-  <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true">
-    <div class="modal-dialog">
-      <button class="modal-close" onclick="closeCustomModal('login')">✕</button>
-      <div class="modal-brand"><p class="modal-title">로그인</p></div>
-      <form class="modal-form" onsubmit="handleFormSubmit(event, 'login', '로그인 처리 중...');">
-        <input class="modal-input" type="text" placeholder="아이디" required />
-        <input class="modal-input" type="password" placeholder="비밀번호" required />
-        <button type="submit" class="btn-primary-full">로그인</button>
-      </form>
-    </div>
-  </div>
-  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
-    <div class="modal-dialog"><button class="modal-close" onclick="closeCustomModal('signup')">✕</button><p class="modal-title">회원가입</p><form class="modal-form" onsubmit="handleFormSubmit(event, 'signup', '회원가입 완료.');"><input class="modal-input" type="text" placeholder="이름" required /><input class="modal-input" type="text" placeholder="아이디" required /><input class="modal-input" type="password" placeholder="비밀번호" required /><button type="submit" class="btn-primary-full">가입하기</button></form></div>
-  </div>
-  <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true"><div class="modal-dialog"><button class="modal-close" onclick="closeCustomModal('find-id')">✕</button><p class="modal-title">아이디 찾기</p><form class="modal-form" onsubmit="handleFormSubmit(event, 'find-id', '이메일로 아이디가 발송되었습니다.');"><input class="modal-input" type="text" placeholder="이름" required /><input class="modal-input" type="email" placeholder="이메일" required /><button type="submit" class="btn-primary-full">찾기</button></form></div></div>
-  <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true"><div class="modal-dialog"><button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button><p class="modal-title">비밀번호 찾기</p><form class="modal-form" onsubmit="handleFormSubmit(event, 'find-pw', '임시 비밀번호가 발송되었습니다.');"><input class="modal-input" type="text" placeholder="아이디" required /><input class="modal-input" type="email" placeholder="이메일" required /><button type="submit" class="btn-primary-full">찾기</button></form></div></div>
-
-<!-- body가 끝나기 전에 footer.js를 연결합니다. -->
+  <!-- body가 끝나기 전에 footer.js를 연결합니다. -->
     <script src="../assets/js/footer.js"></script>
+
+<script src="/assets/js/auth.js"></script>
 
 </body>
 </html>

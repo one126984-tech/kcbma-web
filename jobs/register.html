@@ -7,21 +7,70 @@
   <meta name="description" content="집합건물 관리인·관리소장·시설관리 구인구직 공고 등록 페이지입니다." />
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase 데이터베이스 통신을 위한 라이브러리 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   
   <style>
-    :root { --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF; }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; }
+    :root { 
+      --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF; 
+      --bg: #F8FAFC; --trans: .22s ease;
+    }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
+    
+    a, [data-href] { cursor: pointer; }
+    
+    .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
+    .menu-item:hover, .menu-item.active { color: var(--teal); } 
+
+    /* PC GNB 드롭다운 강제 활성화 CSS */
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
+
+    /* 폼 요소 스타일 */
     .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11, 42, 91, 0.1); }
   </style>
   
   <script>
+    // Supabase 설정
     const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 공통 내비게이션 및 메뉴 스크립트
+    function handleNavigation(element) {
+      const url = element.getAttribute('data-href');
+      const target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        if (target === '_blank') { window.open(url, '_blank'); } 
+        else { window.location.href = url; }
+      }
+    }
+
+    function getScrollbarWidth() {
+      return window.innerWidth - document.documentElement.clientWidth;
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        if (document.body.scrollHeight > window.innerHeight) {
+          document.body.style.paddingRight = getScrollbarWidth() + 'px';
+        }
+        document.body.style.overflow = 'hidden';
+      } else {
+        menu.classList.add('hidden');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = ''; 
+      }
+    }
 
     // 경력 직접 입력 토글
     function toggleDirectExperience(selectElement) {
@@ -76,6 +125,89 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
+  <!-- 통합 표준 헤더 -->
+  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
+    <div class="w-full bg-[#0a1931] py-2.5">
+      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
+        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
+        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
+        <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
+          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
+          <span class="text-gray-400 font-normal">|</span>
+          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
+        </div>
+      </div>
+    </div>
+    
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
+      </div>
+      
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
+        
+        <div class="relative group cursor-pointer py-1">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
+            <div class="bg-white border border-gray-200 shadow-lg rounded overflow-hidden">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+      </nav>
+
+      <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+  </div>
+
+  <!-- 모바일 사이드 메뉴 -->
+  <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+    <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+      <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
+        <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
+        <details class="group">
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            정보교류
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+      </div>
+
+      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
+      </div>
+    </div>
+  </div>
+
   <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
     <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm">
       <h1 class="text-2xl font-black text-[#0B2A5B] mb-8">구인구직 공고 등록</h1>
@@ -103,6 +235,25 @@
             </select>
           </div>
         </div>
+        
+        <!-- 누락되었던 지역 및 급여 입력란 추가 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          <div class="flex flex-col">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">근무 지역 <span class="text-red-500">*</span></label>
+            <select name="region" class="border border-gray-300 p-3 rounded-lg w-full bg-white" required>
+              <option value="">선택해주세요</option>
+              <option value="서울">서울</option>
+              <option value="경기">경기</option>
+              <option value="인천">인천</option>
+              <option value="부산">부산</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div class="flex flex-col">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">급여 조건 <span class="text-red-500">*</span></label>
+            <input type="text" name="salary" class="form-input border border-gray-300 p-3 rounded-lg w-full" placeholder="예: 월 300만원 / 면접 후 결정" required />
+          </div>
+        </div>
 
         <div class="mb-6">
           <label class="text-[14px] font-bold text-gray-800 mb-2">공고 제목 <span class="text-red-500">*</span></label>
@@ -115,6 +266,8 @@
             <select name="employment" class="border border-gray-300 p-3 rounded-lg w-full bg-white" required>
               <option value="정규직">정규직</option>
               <option value="계약직">계약직</option>
+              <option value="일용직">일용직</option>
+              <option value="위탁">위탁</option>
             </select>
           </div>
           <div class="flex flex-col">
@@ -129,6 +282,18 @@
           </div>
         </div>
 
+        <!-- 누락되었던 모집 기간(시작/종료일) 추가 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          <div class="flex flex-col">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">모집 시작일 <span class="text-red-500">*</span></label>
+            <input type="date" name="start_date" class="form-input border border-gray-300 p-3 rounded-lg w-full bg-white text-gray-700" required />
+          </div>
+          <div class="flex flex-col">
+            <label class="text-[14px] font-bold text-gray-800 mb-2">모집 종료일 <span class="text-red-500">*</span></label>
+            <input type="date" name="end_date" class="form-input border border-gray-300 p-3 rounded-lg w-full bg-white text-gray-700" required />
+          </div>
+        </div>
+
         <div class="mb-6">
           <label class="text-[14px] font-bold text-gray-800 mb-2">상세 근무지 주소 <span class="text-red-500">*</span></label>
           <input type="text" name="address" class="form-input border border-gray-300 p-3 rounded-lg w-full" placeholder="예: 서울 강남구 테헤란로 OO빌딩" required />
@@ -140,11 +305,19 @@
         </div>
 
         <div class="flex justify-center gap-3 mt-10">
-          <button type="button" class="px-10 py-3 bg-gray-100 rounded-xl font-bold" onclick="history.back()">취소</button>
-          <button type="submit" class="px-10 py-3 bg-[#0B2A5B] text-white rounded-xl font-bold">공고 등록하기</button>
+          <button type="button" class="px-10 py-3 bg-gray-100 rounded-xl font-bold transition-colors hover:bg-gray-200" onclick="history.back()">취소</button>
+          <button type="submit" class="px-10 py-3 bg-[#0B2A5B] text-white rounded-xl font-bold transition-colors hover:bg-[#153b80]">공고 등록하기</button>
         </div>
       </form>
     </div>
   </main>
+
+  <!-- 푸터 영역 컨테이너 -->
+  <div id="footer-container"></div>
+
+  <!-- 푸터 및 인증 모달 공통 스크립트 연결 -->
+  <script src="../assets/js/footer.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
 </body>
 </html>

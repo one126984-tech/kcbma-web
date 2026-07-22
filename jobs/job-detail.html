@@ -22,19 +22,8 @@
     .menu-item { color: #333333; transition: color 0.2s ease-in-out; }
     .menu-item:hover { color: #2BA8A0; } 
     .menu-item.active { color: #000000; font-weight: 900; }
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
-    .modal-backdrop.is-open { display: flex !important; }
-    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; }
-    .modal-brand { text-align: center; margin-bottom: 20px; }
-    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
-    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; }
-    .modal-input:focus { border-color: #0e2b61; }
-    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
-    .btn-primary-full:hover { background: #153b80; }
-    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
-    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; }
-    
+
+    /* 지원방법 하이라이트 애니메이션 */
     .apply-info-highlight { animation: highlightPulse 2s ease-out; }
     @keyframes highlightPulse {
       0% { box-shadow: 0 0 0 0 rgba(43,168,160,0.7); }
@@ -44,6 +33,7 @@
   </style>
 
   <script>
+    // 공통 내비게이션 함수
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
@@ -52,29 +42,29 @@
         else { window.location.href = url; }
       }
     }
-    function openCustomModal(id) {
-      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
-      const modal = document.getElementById('modal-' + id);
-      if (modal) { modal.classList.add('is-open'); document.body.style.overflow = 'hidden'; }
+    
+    // 모바일 햄버거 메뉴 및 스크롤바 제어
+    function getScrollbarWidth() {
+      return window.innerWidth - document.documentElement.clientWidth;
     }
-    function closeCustomModal(id) {
-      const modal = document.getElementById('modal-' + id);
-      if (modal) { modal.classList.remove('is-open'); document.body.style.overflow = ''; }
-    }
-    function switchCustomModal(closeId, openId) {
-      closeCustomModal(closeId);
-      setTimeout(() => openCustomModal(openId), 100); 
-    }
-    function handleFormSubmit(event, modalId, message) {
-      event.preventDefault(); 
-      alert(message);
-      closeCustomModal(modalId);
-    }
+
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
-      if (menu.classList.contains('hidden')) { menu.classList.remove('hidden'); document.body.style.overflow = 'hidden'; } 
-      else { menu.classList.add('hidden'); document.body.style.overflow = ''; }
+      if (menu.classList.contains('hidden')) { 
+        menu.classList.remove('hidden'); 
+        if (document.body.scrollHeight > window.innerHeight) {
+          document.body.style.paddingRight = getScrollbarWidth() + 'px';
+        }
+        document.body.style.overflow = 'hidden'; 
+      } 
+      else { 
+        menu.classList.add('hidden'); 
+        document.body.style.overflow = ''; 
+        document.body.style.paddingRight = ''; 
+      }
     }
+    
+    // ※ 주의: 기존에 있던 openCustomModal 등 팝업 관련 함수는 모두 제거되었습니다. (auth.js가 처리)
   </script>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -95,10 +85,67 @@
     </div>
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
       </div>
+      
+      <!-- 데스크톱 내비게이션 (이전 코드에서 누락된 부분 복구) -->
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
+        <div class="relative group cursor-pointer py-1">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
+            <div class="bg-white border border-gray-200 shadow-lg rounded overflow-hidden">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="block px-4 py-3 hover:bg-gray-100 text-sm font-normal text-gray-700">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+      </nav>
+
+      <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
     </header>
+  </div>
+
+  <!-- 모바일 사이드 메뉴 -->
+  <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+    <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+      <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
+        <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
+        <details class="group">
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            정보교류
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+      </div>
+      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
+      </div>
+    </div>
   </div>
 
   <main class="flex-1 py-8 md:py-12 max-w-4xl mx-auto px-4 sm:px-6 w-full">
@@ -119,7 +166,7 @@
         <span id="job-views">조회: -</span>
       </div>
 
-      <!-- 정보 그리드 (담당단지 -> 근무처 교체 완료 및 id 매핑 재수정) -->
+      <!-- 정보 그리드 -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-gray-200 rounded-xl overflow-hidden mb-8 bg-white">
         <div class="flex flex-col p-4 border-b sm:border-r sm:border-b border-gray-200">
           <span class="text-xs text-gray-500 font-bold mb-1">근무지</span>
@@ -142,13 +189,12 @@
           <span id="job-housing" class="text-sm font-bold text-[#0B2A5B]">-</span>
         </div>
         <div class="flex flex-col p-4">
-          <!-- [요청사항 반영] 담당단지에서 근무처로 텍스트 문구 교체 -->
           <span class="text-xs text-gray-500 font-bold mb-1">근무처</span>
           <span id="job-complex" class="text-sm font-bold text-[#0B2A5B]">-</span>
         </div>
       </div>
 
-      <!-- 모집 내용 본문 (동적 연동 완료) -->
+      <!-- 모집 내용 본문 -->
       <div class="mb-8">
         <h3 class="text-base font-black text-[#0B2A5B] mb-3 pb-2 border-b-2 border-[#2BA8A0] inline-block">모집 내용</h3>
         <div id="job-content" class="text-[15px] text-gray-700 leading-relaxed space-y-4 break-keep whitespace-pre-line">-</div>
@@ -169,7 +215,6 @@
               <span id="apply-phone-text" class="font-semibold">-</span>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <!-- [요청사항 반영] 마감일 동적 구동 영역 -->
               <span class="font-bold text-[#0B2A5B] w-14">마감일</span>
               <span id="apply-deadline-text">-</span>
             </div>
@@ -188,26 +233,14 @@
     </article>
   </main>
 
-  <!-- 회원가입 모달 -->
-  <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
-    <div class="modal-dialog overflow-y-auto max-h-[90vh]">
-      <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
-      <div class="modal-brand">
-        <img src="../대한집합건물관리협회-removebg-preview.png" alt="KCBMA" class="h-[40px] w-auto mx-auto mb-4 object-contain" onerror="this.src='../방패로고.jpg'" />
-        <p class="modal-title">회원가입</p>
-        <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
-      </div>
-      <form class="mt-4" onsubmit="handleFormSubmit(event, 'signup', '회원가입 신청이 완료되었습니다.');">
-        <input class="modal-input" type="text" placeholder="성함" required />
-        <input class="modal-input" type="text" placeholder="아이디 희망문자" required />
-        <input class="modal-input" type="email" placeholder="이메일 주소" required />
-        <input class="modal-input" type="password" placeholder="비밀번호 서식 (8자 이상)" required />
-        <button type="submit" class="btn-primary-full mt-2">가입 신청 완료</button>
-      </form>
-    </div>
-  </div>
+  <!-- 푸터 컨테이너 (여기에 footer.js가 푸터를 렌더링) -->
+  <div id="footer-container"></div>
 
-  <!-- Supabase 통합 엔진 -->
+  <!-- 공통 스크립트 연결 -->
+  <script src="../assets/js/footer.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <!-- Supabase 상세 정보 동적 연동 스크립트 -->
   <script>
     (function() {
       const URL_PATH = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
@@ -241,15 +274,12 @@
           if (job) {
             console.log('✅ 호출 성공 데이터:', job);
 
-            // 기본 타이틀 정보 동적 반영
             document.getElementById('job-title').textContent = job.title || '제목 없음';
             document.getElementById('job-created').textContent = `등록: ${job.created_at ? job.created_at.split('T')[0] : '-'}`;
             
-            // [수정] 상단 마감일 변수 연동 정상화
             const deadlineVal = job.deadline || '채용시까지';
             document.getElementById('job-deadline').textContent = `마감: ${deadlineVal}`;
 
-            // 상단 배지 상태 스위칭
             if (job.deadline && job.deadline !== '채용시까지') {
               const today = new Date();
               const end = new Date(job.deadline);
@@ -257,25 +287,19 @@
             } else {
               document.getElementById('badge-status').textContent = "진행중";
             }
+            
             document.getElementById('badge-category').textContent = job.category || '구인';
             document.getElementById('badge-type').textContent = job.type || job.job_type || '상용직';
 
-            // 중앙 그리드 연동 정상화 및 변수 누락 방지 매칭
             document.getElementById('job-region').textContent = job.region || job.location || '-';
             document.getElementById('job-type').textContent = job.type || job.job_type || '-';
             document.getElementById('job-salary').textContent = job.salary || job.pay || '-';
-            
-            // [수정] 근무시간(work_time) 필드 매칭 완료
             document.getElementById('job-worktime').textContent = job.work_time || job.worktime || '협의';
             document.getElementById('job-housing').textContent = job.housing || '미제공';
-            
-            // [수정] 근무처(category 또는 complex) 정상 출력 매칭
             document.getElementById('job-complex').textContent = job.complex || job.building || job.category || '-';
             
-            // [수정] 모집 내용 본문 정상 연동
             document.getElementById('job-content').innerText = job.content || job.description || '상세 내용이 없습니다.';
 
-            // 연락처 캐싱 및 지원방법 하단 마감일 반영
             rawEmail = job.email || '미기재';
             rawPhone = job.phone || job.tel || '미기재';
             document.getElementById('apply-deadline-text').textContent = deadlineVal;
@@ -321,7 +345,10 @@
 
       function triggerMembershipGate() {
         alert("회원만 볼 수 있습니다.");
-        openCustomModal('signup');
+        // auth.js 파일에 정의된 함수 호출
+        if (typeof openCustomModal === 'function') {
+          openCustomModal('signup');
+        }
       }
 
       document.addEventListener('DOMContentLoaded', loadJobDetail);
