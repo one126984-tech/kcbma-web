@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
   
+  <!-- Supabase 라이브러리 (auth.js에서 사용) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
@@ -60,8 +61,7 @@
   </style>
 
   <script>
-    let supabaseClientInstance;
-
+    // 공통 내비게이션
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
@@ -91,147 +91,6 @@
         document.body.style.overflow = 'hidden';
       }
     }
-
-    window.handleLogout = async function() {
-      if (supabaseClientInstance) {
-        await supabaseClientInstance.auth.signOut();
-        alert('안전하게 로그아웃 되었습니다.');
-        window.location.reload();
-      }
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-      
-      if (!window.supabase) return;
-      supabaseClientInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      supabaseClientInstance.auth.getSession().then(({ data: { session } }) => updateUI(session));
-      supabaseClientInstance.auth.onAuthStateChange((event, session) => updateUI(session));
-
-      function updateUI(session) {
-        const authBtns = document.getElementById('auth-buttons');
-        const userSec = document.getElementById('user-section');
-        
-        if (session && session.user) {
-          const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
-          if(authBtns) authBtns.style.display = 'none';
-          if(userSec) {
-            userSec.style.display = 'flex';
-            userSec.innerHTML = `<div class="flex items-center text-white text-[13px] md:text-[15px] font-bold px-1"><span class="text-[#8b5cf6] mr-1.5 text-lg">👤</span><span>${name}</span>님</div><div onclick="window.handleLogout()" class="bg-[#dc2626] hover:bg-[#b91c1c] px-2.5 py-1.5 md:px-4 md:py-1.5 text-[11px] md:text-[13px] rounded cursor-pointer transition-colors whitespace-nowrap">로그아웃</div>`;
-          }
-        } else {
-          if(authBtns) authBtns.style.display = 'flex';
-          if(userSec) userSec.style.display = 'none';
-        }
-      }
-
-      // ★ 이벤트 위임을 통한 동적 모달 폼 처리 로직 (auth.js가 나중에 HTML을 쏴주더라도 완벽하게 작동합니다)
-      document.addEventListener('submit', async (e) => {
-        
-        // 1. 로그인 폼 처리
-        if (e.target.id === 'login-form') {
-          e.preventDefault();
-          const idInput = document.getElementById('login-id');
-          const pwInput = document.getElementById('login-pw');
-          const btn = document.getElementById('login-btn');
-          const emailOrId = idInput.value.trim();
-          const password = pwInput.value;
-
-          if(!emailOrId || !password) return alert('아이디와 비밀번호를 모두 입력해 주세요.');
-          
-          btn.disabled = true; 
-          btn.textContent = '로그인 중...';
-          
-          let loginEmail = emailOrId;
-          if (!emailOrId.includes('@')) {
-            loginEmail = emailOrId + "@kcbma.com";
-          }
-
-          const { error } = await supabaseClientInstance.auth.signInWithPassword({ 
-            email: loginEmail, 
-            password: password 
-          });
-          
-          if (error) {
-            alert('아이디 또는 비밀번호가 올바르지 않습니다.');
-            pwInput.value = '';
-            pwInput.focus();
-          } else {
-            alert('로그인 성공!');
-            window.closeCustomModal('login');
-            setTimeout(() => window.location.reload(), 500);
-          }
-          btn.disabled = false; 
-          btn.textContent = '로그인';
-        }
-
-        // 2. 회원가입 폼 처리
-        else if (e.target.id === 'signup-form') {
-          e.preventDefault();
-          const name = document.getElementById('signup-name').value.trim();
-          const username = document.getElementById('signup-id').value.trim();
-          const email = document.getElementById('signup-email').value.trim();
-          const pw = document.getElementById('signup-pw').value;
-          const pw2 = document.getElementById('signup-pw2').value;
-          const tc1 = document.querySelector('[name="signup-tc1"]').checked;
-          const tc2 = document.querySelector('[name="signup-tc2"]').checked;
-          const btn = document.getElementById('signup-btn');
-
-          const idRegex = /^[a-zA-Z0-9]+$/;
-
-          if(!name || !username || !email || !pw) return alert('필수 입력 항목을 모두 채워주세요.');
-          if (!idRegex.test(username)) return alert('아이디는 영문과 숫자만 사용 가능합니다.');
-          if(pw.length < 8) return alert('비밀번호는 8자 이상이어야 합니다.');
-          if(pw !== pw2) return alert('비밀번호 확인이 일치하지 않습니다.');
-          if(!tc1 || !tc2) return alert('필수 약관에 모두 동의해 주세요.');
-
-          btn.disabled = true; btn.textContent = '처리 중...';
-
-          const { error } = await supabaseClientInstance.auth.signUp({
-            email: email,
-            password: pw,
-            options: { data: { name: name, username: username } }
-          });
-
-          if (error) {
-            alert('가입 실패: ' + error.message);
-          } else {
-            alert('회원가입 성공! 잠시 후 자동으로 로그인 창으로 이동합니다.');
-            e.target.reset();
-            setTimeout(() => window.switchCustomModal('signup', 'login'), 2000);
-          }
-          btn.disabled = false; btn.textContent = '가입 신청 완료';
-        }
-
-        // 3. 아이디 찾기 처리
-        else if (e.target.id === 'find-id-form') {
-          e.preventDefault();
-          const email = document.getElementById('find-id-email').value.trim();
-          alert(`입력하신 이메일(${email}) 주소가 회원 아이디 식별 기준입니다.\n정보가 발송되었습니다.`);
-          window.closeCustomModal('find-id');
-        }
-
-        // 4. 비밀번호 찾기 처리
-        else if (e.target.id === 'find-pw-form') {
-          e.preventDefault();
-          const email = document.getElementById('find-pw-email').value.trim();
-          const btn = document.getElementById('find-pw-btn');
-          
-          btn.disabled = true; btn.textContent = '발송 중...';
-          const { error } = await supabaseClientInstance.auth.resetPasswordForEmail(email);
-          if (error) {
-            alert('오류: ' + error.message);
-          } else {
-            alert('입력하신 이메일로 임시 비밀번호가 발송되었습니다.');
-            window.closeCustomModal('find-pw');
-          }
-          btn.disabled = false; btn.textContent = '임시 비밀번호 발송';
-        }
-
-      }); // 이벤트 위임 끝
-    });
   </script>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
@@ -773,9 +632,8 @@
   <!-- 푸터가 들어갈 공간 -->
   <div id="footer-container"></div>
   
-  <!-- 공통 모달 및 푸터 스크립트 연결 -->
-  <!-- 주의: 인덱스(최상위) 파일이므로 ../ 없이 폴더 경로를 바로 입력합니다. -->
-  <script src="assets/js/auth.js"></script>
+  <!-- 공통 모달 및 푸터 스크립트 연결 (최상위 파일 기준 경로 적용) -->
   <script src="assets/js/footer.js"></script>
+  <script src="assets/js/auth.js"></script>
 </body>
 </html>
