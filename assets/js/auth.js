@@ -23,12 +23,8 @@ const AuthManager = {
         this.bindEvents();
     },
 
-    // 2. 인증 관련 모달 4종 HTML 렌더링
+    // 2. 인증 관련 모달 4종 HTML 렌더링 (로고 삭제 및 비밀번호 찾기 문구 줄바꿈 적용)
     renderModals: function() {
-        // 절대 경로 변수 설정
-        const logoPath = "../assets/img/대한집합건물관리협회-removebg-preview.png";
-        const fallbackPath = "../assets/img/방패로고.jpg";
-
         const modalsHtml = `
             <!-- 로그인 모달 -->
             <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
@@ -36,9 +32,8 @@ const AuthManager = {
                     <button type="button" class="modal-close" onclick="closeCustomModal('login')" aria-label="닫기">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
-                    <div class="modal-brand">
-                        <img src="${logoPath}" style="height:68px; width:auto; max-width:85%; margin:0 auto 14px; object-fit:contain;" alt="KCBMA" class="modal-brand-img" onerror="this.src='${fallbackPath}'" />
-                        <p class="modal-title">로그인</p>
+                    <div class="modal-brand pt-2">
+                        <p class="modal-title text-xl font-bold">로그인</p>
                         <p class="text-xs text-gray-500 text-center mt-1">대한집합건물관리협회에 오신 것을 환영합니다</p>
                     </div>
                     <!-- 폼 제출 시 실제 로그인 함수(handleEmailLogin) 호출 -->
@@ -83,9 +78,8 @@ const AuthManager = {
             <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
                 <div class="modal-dialog overflow-y-auto max-h-[90vh]">
                     <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
-                    <div class="modal-brand">
-                        <img src="${logoPath}" style="height:68px; width:auto; max-width:85%; margin:0 auto 14px; object-fit:contain;" alt="KCBMA" class="modal-brand-img" onerror="this.src='${fallbackPath}'" />
-                        <p class="modal-title">회원가입</p>
+                    <div class="modal-brand pt-2">
+                        <p class="modal-title text-xl font-bold">회원가입</p>
                         <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
                     </div>
                     <!-- 폼 제출 시 실제 회원가입 함수(handleEmailSignup) 호출 -->
@@ -115,9 +109,8 @@ const AuthManager = {
             <div class="modal-backdrop" id="modal-find-id" role="dialog" aria-modal="true">
                 <div class="modal-dialog">
                     <button class="modal-close" onclick="closeCustomModal('find-id')">✕</button>
-                    <div class="modal-brand">
-                        <img src="${logoPath}" style="height:68px; width:auto; max-width:85%; margin:0 auto 14px; object-fit:contain;" alt="KCBMA" class="modal-brand-img" onerror="this.src='${fallbackPath}'" />
-                        <p class="modal-title">아이디(이메일) 찾기</p>
+                    <div class="modal-brand pt-2">
+                        <p class="modal-title text-xl font-bold">아이디(이메일) 찾기</p>
                         <p class="text-xs text-gray-500 text-center mt-1">가입 시 등록하신 성함을 입력해 주세요.</p>
                     </div>
                     <!-- 폼 제출 시 handleFindId 호출 -->
@@ -133,10 +126,9 @@ const AuthManager = {
             <div class="modal-backdrop" id="modal-find-pw" role="dialog" aria-modal="true">
                 <div class="modal-dialog">
                     <button class="modal-close" onclick="closeCustomModal('find-pw')">✕</button>
-                    <div class="modal-brand">
-                        <img src="${logoPath}" style="height:68px; width:auto; max-width:85%; margin:0 auto 14px; object-fit:contain;" alt="KCBMA" class="modal-brand-img" onerror="this.src='${fallbackPath}'" />
-                        <p class="modal-title">비밀번호 찾기</p>
-                        <p class="text-xs text-gray-500 text-center mt-1">가입하신 이메일을 입력하시면 비밀번호 재설정 링크를 발송해 드립니다.</p>
+                    <div class="modal-brand pt-2">
+                        <p class="modal-title text-xl font-bold">비밀번호 찾기</p>
+                        <p class="text-xs text-gray-500 text-center mt-1">가입하신 이메일을 입력하시면<br>비밀번호 재설정 링크를 발송해 드립니다.</p>
                     </div>
                     <!-- 폼 제출 시 handleFindPassword 호출 -->
                     <form class="mt-4" id="find-pw-form" onsubmit="handleFindPassword(event)">
@@ -253,8 +245,6 @@ const AuthManager = {
         // ==========================================
         window.handleFindId = async function(event) {
             event.preventDefault();
-            // Supabase는 이메일을 고유 ID로 사용합니다.
-            // 이름만으로 이메일을 찾으려면 별도의 데이터베이스 조회가 필요합니다.
             alert('보안 정책상 가입하신 이메일 전체를 직접 알려드리지 않습니다.\n관리자에게 문의하시거나 가입 시 사용한 이메일함을 확인해 주세요.');
             window.closeCustomModal('find-id');
         };
@@ -268,10 +258,7 @@ const AuthManager = {
 
             const email = document.getElementById('find-pw-email').value;
 
-            // Supabase 비밀번호 재설정 이메일 발송 요청
             const { data, error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
-                // 발송된 이메일의 링크를 클릭했을 때 돌아올 주소입니다.
-                // 향후 비밀번호 재설정 전용 페이지(예: /update-password.html)를 만들면 이곳을 수정하세요.
                 redirectTo: window.location.origin, 
             });
 

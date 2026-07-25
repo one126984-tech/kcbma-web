@@ -19,7 +19,20 @@
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
     }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
+    
+    /* 
+      하단부 밀림 현상 해결:
+      overflow-y: scroll; 을 추가하여 데이터 로딩 전후 상관없이 
+      우측 세로 스크롤바를 항상 띄워 화면 너비가 변하지 않도록 고정합니다.
+    */
+    body { 
+      font-family: 'Noto Sans KR', sans-serif; 
+      background-color: #F8FAFC; 
+      color: #333; 
+      line-height: 1.7; 
+      overflow-y: scroll; 
+      overflow-x: hidden;
+    }
     
     a, [data-href] { cursor: pointer; }
     
@@ -36,6 +49,17 @@
   </style>
   
   <script>
+    // 상단 메뉴 버튼(모달) 임시 동작 함수 - auth.js 파일 누락 시 오류 방지
+    window.openCustomModal = window.openCustomModal || function(type) {
+        const titles = {
+            'login': '로그인',
+            'signup': '회원가입',
+            'find-id': '아이디찾기',
+            'find-pw': '비밀번호찾기'
+        };
+        alert(titles[type] + ' 창 연결 기능이 아직 준비되지 않았거나 auth.js 파일이 없습니다.');
+    };
+
     // Supabase 창고 연결 세팅
     const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv'; // 기존 제공해주신 키
@@ -65,7 +89,7 @@
         document.body.style.overflow = 'hidden';
       } else {
         menu.classList.add('hidden');
-        document.body.style.overflow = '';
+        document.body.style.overflow = 'scroll'; // 스크롤 항시 유지되도록 원상복구
         document.body.style.paddingRight = ''; 
       }
     }
@@ -150,6 +174,7 @@
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
         <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
+        <!-- 모달 팝업 연결 버튼들 -->
         <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
         <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
         <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
