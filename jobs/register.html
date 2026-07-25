@@ -91,12 +91,21 @@
       e.preventDefault(); 
       const form = e.target;
 
+      // 로그인 여부 확인 (jobs 테이블은 로그인 사용자만 등록 가능하도록 정책이 설정되어 있음)
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+      if (userError || !userData?.user) {
+        alert('로그인이 필요합니다. 먼저 로그인해 주세요.');
+        if (typeof openCustomModal === 'function') openCustomModal('login');
+        return;
+      }
+
       let experienceValue = form.experience.value;
       if (experienceValue === '직접입력') {
         experienceValue = form.experience_direct.value.trim();
       }
 
       const jobData = {
+        user_id: userData.user.id,
         category: form.category.value,
         type: form.type.value,
         title: form.title.value.trim(),
@@ -108,7 +117,7 @@
         start_date: form.start_date.value,
         end_date: form.end_date.value,
         description: form.description.value.trim(),
-        status: '모집중',
+        status: 'active',
         view_count: 0
       };
 
@@ -142,8 +151,8 @@
     
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.onerror=null; this.src='../assets/img/방패로고-removebg-preview.png';">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
       </div>
       
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">

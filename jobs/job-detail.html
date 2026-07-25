@@ -6,7 +6,7 @@
   <title>구인 상세 | 대한집합건물관리협회</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -85,8 +85,8 @@
     </div>
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.src='../방패로고.jpg'">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.src='../로고_글자.png'">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.onerror=null; this.src='../assets/img/방패로고-removebg-preview.png';">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
       </div>
       
       <!-- 데스크톱 내비게이션 (이전 코드에서 누락된 부분 복구) -->
@@ -245,6 +245,10 @@
     (function() {
       const URL_PATH = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
       const ANON_KEY_PATH = 'sb_publishable_84t7lsP69H4iXBjMrmezhw_T73VLXhv';
+      if (typeof window.supabase === 'undefined') {
+        console.error('Supabase 라이브러리를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.');
+        return;
+      }
       const mySupabase = window.supabase.createClient(URL_PATH, ANON_KEY_PATH, { auth: { persistSession: false } });
 
       let rawEmail = '';
@@ -277,12 +281,12 @@
             document.getElementById('job-title').textContent = job.title || '제목 없음';
             document.getElementById('job-created').textContent = `등록: ${job.created_at ? job.created_at.split('T')[0] : '-'}`;
             
-            const deadlineVal = job.deadline || '채용시까지';
+            const deadlineVal = job.end_date || '채용시까지';
             document.getElementById('job-deadline').textContent = `마감: ${deadlineVal}`;
 
-            if (job.deadline && job.deadline !== '채용시까지') {
+            if (job.end_date) {
               const today = new Date();
-              const end = new Date(job.deadline);
+              const end = new Date(job.end_date);
               document.getElementById('badge-status').textContent = end >= today ? "진행중" : "마감";
             } else {
               document.getElementById('badge-status').textContent = "진행중";
@@ -307,9 +311,9 @@
             renderContactInformation();
 
             try {
-              const currentViews = (job.views || 0) + 1;
+              const currentViews = (job.view_count || 0) + 1;
               document.getElementById('job-views').textContent = `조회: ${currentViews}`;
-              await mySupabase.from('jobs').update({ views: currentViews }).eq('id', jobId);
+              await mySupabase.from('jobs').update({ view_count: currentViews }).eq('id', jobId);
             } catch (e) {}
           }
         } catch (error) {
