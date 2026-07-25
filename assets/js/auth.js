@@ -23,85 +23,94 @@ const AuthManager = {
         this.bindEvents();
     },
 
-    // 2. 인증 관련 모달 4종 HTML 렌더링 (로고 삭제 및 비밀번호 찾기 문구 줄바꿈 적용)
+    // 2. 인증 관련 모달 4종 HTML 렌더링 (첨부된 디자인 시안에 맞게 전면 개편)
     renderModals: function() {
         const modalsHtml = `
             <!-- 로그인 모달 -->
             <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true" aria-label="로그인">
-                <div class="modal-dialog">
+                <div class="modal-dialog !max-w-[400px] !p-8">
                     <button type="button" class="modal-close" onclick="closeCustomModal('login')" aria-label="닫기">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
-                    <div class="modal-brand pt-2">
-                        <p class="modal-title text-xl font-bold">로그인</p>
-                        <p class="text-xs text-gray-500 text-center mt-1">대한집합건물관리협회에 오신 것을 환영합니다</p>
+                    
+                    <div class="text-center pt-2 mb-6">
+                        <p class="text-[22px] font-extrabold text-[#0e2b61]">로그인</p>
+                        <p class="text-[13px] text-gray-500 mt-2">대한집합건물관리협회에 오신 것을 환영합니다</p>
                     </div>
-                    <!-- 폼 제출 시 실제 로그인 함수(handleEmailLogin) 호출 -->
-                    <form class="mt-4" id="login-form" novalidate onsubmit="handleEmailLogin(event)">
-                        <!-- 사용자의 혼동을 줄이기 위해 '가입하신 이메일'로 안내 문구 수정 -->
-                        <input class="modal-input" type="email" id="login-id" placeholder="가입하신 이메일 입력" autocomplete="username" required />
-                        <input class="modal-input" type="password" id="login-pw" placeholder="비밀번호" autocomplete="current-password" required />
-                        <div class="modal-row">
-                            <label class="modal-remember"><input type="checkbox" name="login-keep" /> 로그인 상태 유지</label>
-                            <div>
-                                <a class="modal-forgot" onclick="switchCustomModal('login', 'find-id')">아이디(이메일) 찾기</a>
-                                <span class="mx-1 text-gray-400">|</span>
-                                <a class="modal-forgot" onclick="switchCustomModal('login', 'find-pw')">비밀번호 찾기</a>
-                            </div>
-                        </div>
-                        <button type="submit" id="login-btn" class="btn-primary-full mt-2">이메일 로그인</button>
+
+                    <!-- 간편 로그인 구분선 -->
+                    <div class="flex items-center justify-center mb-5">
+                        <hr class="flex-grow border-gray-200">
+                        <span class="px-3 text-[13px] text-gray-500 font-bold">간편 로그인</span>
+                        <hr class="flex-grow border-gray-200">
+                    </div>
+                    
+                    <!-- 간편 로그인 버튼 (세로 배치) -->
+                    <div class="flex flex-col gap-3">
+                        <button onclick="socialLogin('google')" type="button" class="flex justify-center items-center h-[52px] rounded-lg bg-gray-50 font-bold text-[15px] text-gray-800 border border-gray-200 hover:bg-gray-100 transition shadow-sm">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 12.27c0-.81-.07-1.6-.2-2.36H12v4.46h6.71c-.29 1.44-1.07 2.66-2.22 3.48v2.9h3.6c2.1-1.93 3.32-4.78 3.32-8.48z"/><path fill="#34A853" d="M12 24c3.37 0 6.2-1.12 8.27-3.03l-3.6-2.9c-1.12.75-2.55 1.2-4.67 1.2-3.59 0-6.64-2.42-7.72-5.69H.52v3C2.6 20.73 6.96 24 12 24z"/><path fill="#FBBC05" d="M4.28 13.58c-.28-.84-.43-1.74-.43-2.67s.15-1.83.43-2.67v-3H.52C-.17 6.83-.5 8.35-.5 10c0 1.65.33 3.17.93 4.54l3.85-2.96z"/><path fill="#EA4335" d="M12 4.9c1.83 0 3.48.63 4.77 1.87l3.58-3.58C18.2 1.13 15.37 0 12 0 6.96 0 2.6 3.27.52 7.82l3.76 3.01C5.36 7.32 8.41 4.9 12 4.9z"/></svg> 구글 로그인
+                        </button>
+                        <button onclick="socialLogin('naver')" type="button" class="flex justify-center items-center h-[52px] rounded-lg bg-[#03C75A] font-bold text-[15px] text-white hover:bg-[#02b351] transition shadow-sm">
+                            <span class="mr-2 font-black text-lg">N</span> 네이버 로그인
+                        </button>
+                        <button onclick="socialLogin('kakao')" type="button" class="flex justify-center items-center h-[52px] rounded-lg bg-[#FEE500] font-bold text-[15px] text-[#000000] hover:bg-[#F4DC00] transition shadow-sm">
+                            <span class="mr-2 text-xl">💬</span> 카카오 로그인
+                        </button>
+                    </div>
+
+                    <!-- 다른 선택 구분선 -->
+                    <div class="flex items-center justify-center mt-7 mb-5">
+                        <hr class="flex-grow border-gray-200">
+                        <span class="px-3 text-[13px] text-gray-500 font-bold">다른 선택</span>
+                        <hr class="flex-grow border-gray-200">
+                    </div>
+                    
+                    <!-- 이메일 로그인 폼 -->
+                    <form id="login-form" novalidate onsubmit="handleEmailLogin(event)">
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-3 outline-none focus:border-[#0e2b61] text-[15px]" type="email" id="login-id" placeholder="가입하신 이메일 입력" autocomplete="username" required />
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-4 outline-none focus:border-[#0e2b61] text-[15px]" type="password" id="login-pw" placeholder="비밀번호" autocomplete="current-password" required />
+                        
+                        <!-- 이메일 로그인 버튼 (디자인에 어울리도록 추가) -->
+                        <button type="submit" id="login-btn" class="w-full py-4 bg-[#0B2A5B] text-white font-bold rounded-xl hover:bg-[#153b80] transition mb-5 text-[15px]">이메일 로그인</button>
                     </form>
                     
-                    <!-- 간편 로그인 구분선 -->
-                    <div class="mt-6 mb-5 relative flex items-center justify-center">
-                        <div class="border-t border-gray-300 w-full absolute"></div>
-                        <span class="bg-white px-3 text-sm text-gray-500 font-bold relative z-10">간편 로그인</span>
-                    </div>
-                    
-                    <!-- 간편 로그인 버튼 -->
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="socialLogin('kakao')" type="button" class="flex justify-center items-center h-12 rounded-lg bg-[#FEE500] font-bold text-[14px] text-[#000000] shadow-sm hover:bg-[#F4DC00] transition">
-                            <span class="mr-1.5 text-lg">💬</span> 카카오
-                        </button>
-                        <button onclick="socialLogin('naver')" type="button" class="flex justify-center items-center h-12 rounded-lg bg-[#03C75A] font-bold text-[14px] text-white shadow-sm hover:bg-[#02b351] transition">
-                            <span class="mr-1.5 font-black">N</span> 네이버
-                        </button>
-                        <button onclick="socialLogin('google')" type="button" class="flex justify-center items-center h-12 rounded-lg bg-gray-100 font-bold text-[14px] text-gray-800 shadow-sm hover:bg-gray-200 transition">
-                            <svg class="w-4 h-4 mr-1.5" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 12.27c0-.81-.07-1.6-.2-2.36H12v4.46h6.71c-.29 1.44-1.07 2.66-2.22 3.48v2.9h3.6c2.1-1.93 3.32-4.78 3.32-8.48z"/><path fill="#34A853" d="M12 24c3.37 0 6.2-1.12 8.27-3.03l-3.6-2.9c-1.12.75-2.55 1.2-4.67 1.2-3.59 0-6.64-2.42-7.72-5.69H.52v3C2.6 20.73 6.96 24 12 24z"/><path fill="#FBBC05" d="M4.28 13.58c-.28-.84-.43-1.74-.43-2.67s.15-1.83.43-2.67v-3H.52C-.17 6.83-.5 8.35-.5 10c0 1.65.33 3.17.93 4.54l3.85-2.96z"/><path fill="#EA4335" d="M12 4.9c1.83 0 3.48.63 4.77 1.87l3.58-3.58C18.2 1.13 15.37 0 12 0 6.96 0 2.6 3.27.52 7.82l3.76 3.01C5.36 7.32 8.41 4.9 12 4.9z"/></svg> 구글
-                        </button>
-                    </div>
-                    <p class="modal-switch mt-5">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
+                    <p class="text-center text-[14px] text-gray-600 mt-2">아직 회원이 아니신가요? <a class="font-bold text-[#0e2b61] cursor-pointer hover:underline" onclick="switchCustomModal('login', 'signup')">회원가입</a></p>
                 </div>
             </div>
 
             <!-- 회원가입 모달 -->
             <div class="modal-backdrop" id="modal-signup" role="dialog" aria-modal="true">
-                <div class="modal-dialog overflow-y-auto max-h-[90vh]">
-                    <button class="modal-close" onclick="closeCustomModal('signup')">✕</button>
-                    <div class="modal-brand pt-2">
-                        <p class="modal-title text-xl font-bold">회원가입</p>
-                        <p class="text-xs text-gray-500 text-center mt-1">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
+                <div class="modal-dialog overflow-y-auto max-h-[95vh] !max-w-[420px] !p-8">
+                    <button class="modal-close" onclick="closeCustomModal('signup')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                    
+                    <div class="text-center pt-2 mb-6">
+                        <p class="text-[22px] font-extrabold text-[#0e2b61]">회원가입</p>
+                        <p class="text-[13px] text-gray-500 mt-2">통합 회원이 되어 실무 권익 인프라를 누리세요</p>
                     </div>
+
                     <!-- 폼 제출 시 실제 회원가입 함수(handleEmailSignup) 호출 -->
-                    <form class="mt-4" id="signup-form" onsubmit="handleEmailSignup(event)">
-                        <input class="modal-input" type="text" id="signup-name" placeholder="성함" required />
-                        <input class="modal-input" type="text" id="signup-id" placeholder="아이디 희망문자" required />
-                        <input class="modal-input" type="email" id="signup-email" placeholder="이메일 주소 (로그인 시 사용됩니다)" required />
-                        <input class="modal-input" type="password" id="signup-pw" placeholder="비밀번호 서식 (8자 이상)" required />
-                        <input class="modal-input" type="password" id="signup-pw2" placeholder="비밀번호 확인" required />
-                        <div class="modal-checkbox-group" style="font-size:0.85rem; margin-top:5px; margin-bottom:15px; line-height: 1.8; background:#f9fafb; padding:15px; border-radius:6px;">
-                            <label class="modal-check-label flex items-center gap-2 cursor-pointer mb-2">
-                                <input type="checkbox" name="signup-tc1" class="w-4 h-4" required /> 
-                                <span><span style="color:#EF4444; font-weight:bold;">[필수]</span> <a>이용약관</a>에 동의합니다</span>
+                    <form id="signup-form" onsubmit="handleEmailSignup(event)">
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-3 outline-none focus:border-[#0e2b61] text-[15px]" type="text" id="signup-name" placeholder="이름(닉네임)" required />
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-3 outline-none focus:border-[#0e2b61] text-[15px]" type="email" id="signup-email" placeholder="이메일 주소 (로그인 시 사용됩니다)" required />
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-3 outline-none focus:border-[#0e2b61] text-[15px]" type="password" id="signup-pw" placeholder="비밀번호 서식 (8자 이상)" required />
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-5 outline-none focus:border-[#0e2b61] text-[15px]" type="password" id="signup-pw2" placeholder="비밀번호 확인" required />
+                        
+                        <div class="bg-[#F8FAFC] border border-gray-100 p-5 rounded-xl mb-6 space-y-3">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-[14px] text-gray-700">
+                                <input type="checkbox" name="signup-tc1" class="w-4 h-4 rounded border-gray-300 text-[#0B2A5B]" required /> 
+                                <span><span class="text-[#EF4444] font-bold">[필수]</span> <a class="hover:underline">이용약관</a>에 동의합니다</span>
                             </label>
-                            <label class="modal-check-label flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="signup-tc2" class="w-4 h-4" required /> 
-                                <span><span style="color:#EF4444; font-weight:bold;">[필수]</span> <a>개인정보 처리방침</a>에 동의합니다</span>
+                            <label class="flex items-center gap-2.5 cursor-pointer text-[14px] text-gray-700">
+                                <input type="checkbox" name="signup-tc2" class="w-4 h-4 rounded border-gray-300 text-[#0B2A5B]" required /> 
+                                <span><span class="text-[#EF4444] font-bold">[필수]</span> <a class="hover:underline">개인정보 처리방침</a>에 동의합니다</span>
                             </label>
                         </div>
-                        <button type="submit" id="signup-btn" class="btn-primary-full mt-2">가입 신청 완료</button>
+                        
+                        <button type="submit" id="signup-btn" class="w-full py-4 bg-[#0B2A5B] text-white font-bold rounded-xl hover:bg-[#153b80] transition text-[16px]">가입 신청 완료</button>
                     </form>
-                    <p class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></p>
+                    <p class="text-center text-[14px] text-gray-600 mt-6">이미 계정이 있으신가요? <a class="font-bold text-[#0e2b61] cursor-pointer hover:underline" onclick="switchCustomModal('signup', 'login')">로그인</a></p>
                 </div>
             </div>
 
@@ -113,12 +122,11 @@ const AuthManager = {
                         <p class="modal-title text-xl font-bold">아이디(이메일) 찾기</p>
                         <p class="text-xs text-gray-500 text-center mt-1">가입 시 등록하신 성함을 입력해 주세요.</p>
                     </div>
-                    <!-- 폼 제출 시 handleFindId 호출 -->
                     <form class="mt-4" id="find-id-form" onsubmit="handleFindId(event)">
-                        <input class="modal-input" type="text" id="find-id-name" placeholder="이름" required />
-                        <button type="submit" id="find-id-btn" class="btn-primary-full mt-2">아이디 찾기</button>
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-3 outline-none focus:border-[#0e2b61] text-[15px]" type="text" id="find-id-name" placeholder="이름" required />
+                        <button type="submit" class="w-full py-4 bg-[#0B2A5B] text-white font-bold rounded-xl mt-2 hover:bg-[#153b80] transition">아이디 찾기</button>
                     </form>
-                    <p class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인으로 돌아가기</a></p>
+                    <p class="text-center text-[14px] text-gray-600 mt-5"><a class="font-bold cursor-pointer hover:underline" onclick="switchCustomModal('find-id', 'login')">로그인으로 돌아가기</a></p>
                 </div>
             </div>
 
@@ -130,12 +138,11 @@ const AuthManager = {
                         <p class="modal-title text-xl font-bold">비밀번호 찾기</p>
                         <p class="text-xs text-gray-500 text-center mt-1">가입하신 이메일을 입력하시면<br>비밀번호 재설정 링크를 발송해 드립니다.</p>
                     </div>
-                    <!-- 폼 제출 시 handleFindPassword 호출 -->
                     <form class="mt-4" id="find-pw-form" onsubmit="handleFindPassword(event)">
-                        <input class="modal-input" type="email" id="find-pw-email" placeholder="가입 이메일 주소" required />
-                        <button type="submit" id="find-pw-btn" class="btn-primary-full mt-2">재설정 링크 발송</button>
+                        <input class="w-full p-4 border border-gray-200 rounded-xl mb-3 outline-none focus:border-[#0e2b61] text-[15px]" type="email" id="find-pw-email" placeholder="가입 이메일 주소" required />
+                        <button type="submit" class="w-full py-4 bg-[#0B2A5B] text-white font-bold rounded-xl mt-2 hover:bg-[#153b80] transition">재설정 링크 발송</button>
                     </form>
-                    <p class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인으로 돌아가기</a></p>
+                    <p class="text-center text-[14px] text-gray-600 mt-5"><a class="font-bold cursor-pointer hover:underline" onclick="switchCustomModal('find-pw', 'login')">로그인으로 돌아가기</a></p>
                 </div>
             </div>
         `;
@@ -187,7 +194,6 @@ const AuthManager = {
             if (!window.supabaseClient) return alert('시스템 오류: 통신 클라이언트가 연결되지 않았습니다.');
 
             const name = document.getElementById('signup-name').value;
-            const usernameId = document.getElementById('signup-id').value;
             const email = document.getElementById('signup-email').value;
             const pw = document.getElementById('signup-pw').value;
             const pw2 = document.getElementById('signup-pw2').value;
@@ -200,8 +206,7 @@ const AuthManager = {
                 password: pw,
                 options: {
                     data: {
-                        full_name: name,
-                        preferred_username: usernameId
+                        full_name: name
                     }
                 }
             });
