@@ -17,11 +17,44 @@
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
     }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; overflow-y: scroll; overflow-x: hidden; }
     a, [data-href] { cursor: pointer; }
     .menu-item { color: #333333; transition: color 0.2s ease-in-out; }
     .menu-item:hover { color: #2BA8A0; } 
     .menu-item.active { color: #000000; font-weight: 900; }
+
+    /* 모달 필수 스타일 (최신 디자인 적용) */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex !important; }
+    .modal-dialog { background: white; padding: 40px 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; transition: color 0.2s; }
+    .modal-close:hover { color: #333; }
+    .modal-brand { text-align: center; margin-bottom: 25px; }
+    .modal-title { font-size: 1.6rem; font-weight: 900; color: #0B2A5B; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .modal-subtitle { color: #64748b; font-size: 0.9rem; font-weight: 500; }
+    .modal-input { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 12px; font-size: 0.95rem; outline: none; transition: border 0.2s; color: #333; }
+    .modal-input::placeholder { color: #94A3B8; }
+    .modal-input:focus { border-color: #0B2A5B; }
+    .btn-primary-full { width: 100%; padding: 15px; background: #0B2A5B; color: #fff; font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; transition: background 0.2s; margin-top: 5px; }
+    .btn-primary-full:hover { background: #082046; }
+    .modal-switch { text-align: center; margin-top: 25px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0B2A5B; font-weight: 700; cursor: pointer; text-decoration: none; margin-left: 4px; }
+    .modal-switch a:hover { text-decoration: underline; }
+    .modal-divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; }
+    .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid #E2E8F0; }
+    .modal-divider::before { margin-right: 15px; }
+    .modal-divider::after { margin-left: 15px; }
+    .btn-social { display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; transition: opacity 0.2s; position: relative; }
+    .btn-social:hover { opacity: 0.9; }
+    .btn-social svg { position: absolute; left: 20px; width: 20px; height: 20px; }
+    .btn-google { background: #F4F6F8; color: #1E293B; border-color: #C3D4E6; }
+    .btn-naver { background: #03C75A; color: #FFFFFF; }
+    .btn-kakao { background: #FEE500; color: #371D1E; }
+    .terms-box { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 8px; padding: 16px; margin-bottom: 15px; margin-top: 5px; }
+    .terms-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.9rem; color: #475569; cursor: pointer; }
+    .terms-row:last-child { margin-bottom: 0; }
+    .terms-row input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; accent-color: #0B2A5B; cursor: pointer; }
+    .text-red { color: #E11D48; font-weight: 700; margin-right: 5px; }
 
     /* 지원방법 하이라이트 애니메이션 */
     .apply-info-highlight { animation: highlightPulse 2s ease-out; }
@@ -48,6 +81,39 @@
       return window.innerWidth - document.documentElement.clientWidth;
     }
 
+    // 모달 제어 함수 추가
+    function openCustomModal(id) {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        if (document.body.scrollHeight > window.innerHeight) {
+          document.body.style.paddingRight = getScrollbarWidth() + 'px';
+        }
+        document.body.style.overflow = 'hidden'; 
+      }
+    }
+
+    function closeCustomModal(id) {
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = ''; 
+        document.body.style.paddingRight = ''; 
+      }
+    }
+
+    function switchCustomModal(closeId, openId) {
+      closeCustomModal(closeId);
+      setTimeout(() => openCustomModal(openId), 100); 
+    }
+
+    function handleFormSubmit(event, modalId, message) {
+      event.preventDefault(); 
+      alert(message);
+      closeCustomModal(modalId);
+    }
+
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu.classList.contains('hidden')) { 
@@ -63,8 +129,6 @@
         document.body.style.paddingRight = ''; 
       }
     }
-    
-    // ※ 주의: 기존에 있던 openCustomModal 등 팝업 관련 함수는 모두 제거되었습니다. (auth.js가 처리)
   </script>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -89,7 +153,7 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
       </div>
       
-      <!-- 데스크톱 내비게이션 (이전 코드에서 누락된 부분 복구) -->
+      <!-- 데스크톱 내비게이션 -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
         <div class="relative group cursor-pointer py-1">
@@ -233,12 +297,110 @@
     </article>
   </main>
 
-  <!-- 푸터 컨테이너 (여기에 footer.js가 푸터를 렌더링) -->
+  <!-- 푸터 컨테이너 -->
   <div id="footer-container"></div>
-
-  <!-- 공통 스크립트 연결 -->
   <script src="../assets/js/footer.js"></script>
-  <script src="../assets/js/auth.js"></script>
+
+
+  <!-- ========================================== -->
+  <!-- ★ 로그인 및 회원가입 모달 HTML 추가 영역 ★ -->
+  <!-- ========================================== -->
+  
+  <!-- 1. 로그인 모달 -->
+  <div id="modal-login" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('login')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('login')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      
+      <div class="modal-brand">
+        <div class="modal-title">로그인</div>
+        <div class="modal-subtitle">대한집합건물관리협회에 오신 것을 환영합니다</div>
+      </div>
+      
+      <div class="modal-divider">간편 로그인</div>
+      <button type="button" class="btn-social btn-google" onclick="alert('구글 로그인 준비중')">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        구글 로그인
+      </button>
+      <button type="button" class="btn-social btn-naver" onclick="alert('네이버 로그인 준비중')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/></svg>
+        네이버 로그인
+      </button>
+      <button type="button" class="btn-social btn-kakao" onclick="alert('카카오 로그인 준비중')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c-5.523 0-10 3.538-10 7.9 0 2.825 1.83 5.305 4.621 6.745-.3 1.11-1.077 3.966-1.113 4.103-.046.167.06.257.195.168.103-.067 4.398-2.923 5.127-3.414.757.11 1.54.168 2.34.168 5.523 0 10-3.538 10-7.9S17.523 3 12 3z"/></svg>
+        카카오 로그인
+      </button>
+
+      <div class="modal-divider">다른 선택</div>
+      <form onsubmit="handleFormSubmit(event, 'login', '로그인 기능이 준비 중입니다.')">
+        <input type="email" class="modal-input" placeholder="가입하신 이메일 입력" required>
+        <input type="password" class="modal-input" placeholder="비밀번호" required>
+        <button type="submit" class="btn-primary-full">이메일 로그인</button>
+      </form>
+      
+      <div class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></div>
+    </div>
+  </div>
+
+  <!-- 2. 회원가입 모달 -->
+  <div id="modal-signup" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('signup')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('signup')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      
+      <div class="modal-brand">
+        <div class="modal-title">회원가입</div>
+        <div class="modal-subtitle">통합 회원이 되어 실무 권익 인프라를 누리세요</div>
+      </div>
+      
+      <form onsubmit="handleFormSubmit(event, 'signup', '회원가입 기능이 준비 중입니다.')">
+        <input type="text" class="modal-input" placeholder="이름(닉네임)" required>
+        <input type="email" class="modal-input" placeholder="이메일 주소 (로그인 시 사용됩니다)" required>
+        <input type="password" class="modal-input" placeholder="비밀번호 서식 (8자 이상)" required minlength="8">
+        <input type="password" class="modal-input" placeholder="비밀번호 확인" required minlength="8">
+        
+        <div class="terms-box">
+          <label class="terms-row">
+            <input type="checkbox" required>
+            <span class="text-red">[필수]</span> 이용약관에 동의합니다
+          </label>
+          <label class="terms-row">
+            <input type="checkbox" required>
+            <span class="text-red">[필수]</span> 개인정보 처리방침에 동의합니다
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary-full">가입 신청 완료</button>
+      </form>
+      <div class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></div>
+    </div>
+  </div>
+
+  <!-- 3. 아이디 찾기 모달 -->
+  <div id="modal-find-id" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('find-id')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-id')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <div class="modal-brand"><div class="modal-title">아이디 찾기</div><div class="modal-subtitle">가입 시 등록한 이름과 이메일을 입력해주세요.</div></div>
+      <form onsubmit="handleFormSubmit(event, 'find-id', '아이디 찾기 기능이 준비 중입니다.')">
+        <input type="text" class="modal-input" placeholder="이름" required>
+        <input type="email" class="modal-input" placeholder="이메일" required>
+        <button type="submit" class="btn-primary-full" style="margin-top:10px;">아이디 찾기</button>
+      </form>
+      <div class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인 화면으로 돌아가기</a></div>
+    </div>
+  </div>
+
+  <!-- 4. 비밀번호 찾기 모달 -->
+  <div id="modal-find-pw" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('find-pw')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-pw')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <div class="modal-brand"><div class="modal-title">비밀번호 찾기</div><div class="modal-subtitle">가입 시 등록한 아이디와 이메일을 입력해주세요.</div></div>
+      <form onsubmit="handleFormSubmit(event, 'find-pw', '비밀번호 찾기 기능이 준비 중입니다.')">
+        <input type="text" class="modal-input" placeholder="아이디" required>
+        <input type="email" class="modal-input" placeholder="이메일" required>
+        <button type="submit" class="btn-primary-full" style="margin-top:10px;">임시 비밀번호 발송</button>
+      </form>
+      <div class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인 화면으로 돌아가기</a></div>
+    </div>
+  </div>
 
   <!-- Supabase 상세 정보 동적 연동 스크립트 -->
   <script>
@@ -276,8 +438,6 @@
           if (error) throw error;
 
           if (job) {
-            console.log('✅ 호출 성공 데이터:', job);
-
             document.getElementById('job-title').textContent = job.title || '제목 없음';
             document.getElementById('job-created').textContent = `등록: ${job.created_at ? job.created_at.split('T')[0] : '-'}`;
             
@@ -349,7 +509,6 @@
 
       function triggerMembershipGate() {
         alert("회원만 볼 수 있습니다.");
-        // auth.js 파일에 정의된 함수 호출
         if (typeof openCustomModal === 'function') {
           openCustomModal('signup');
         }
