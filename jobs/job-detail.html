@@ -17,13 +17,17 @@
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
     }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; overflow-y: scroll; overflow-x: hidden; }
-    a, [data-href] { cursor: pointer; }
-    .menu-item { color: #333333; transition: color 0.2s ease-in-out; }
-    .menu-item:hover { color: #2BA8A0; } 
-    .menu-item.active { color: #000000; font-weight: 900; }
+    
+    html { overflow-y: scroll !important; background-color: #F8FAFC; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; margin: 0; overflow-x: hidden; }
+    
+    a, [data-href] { cursor: pointer; text-decoration: none; }
+    
+    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
+    .menu-item:hover { color: #008f8c; } 
+    .menu-item.active { color: #2BA8A0; font-weight: 900; }
 
-    /* 모달 필수 스타일 (최신 디자인 적용) */
+    /* 모달 필수 스타일 */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 40px 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
@@ -42,8 +46,6 @@
     .modal-switch a:hover { text-decoration: underline; }
     .modal-divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; }
     .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid #E2E8F0; }
-    .modal-divider::before { margin-right: 15px; }
-    .modal-divider::after { margin-left: 15px; }
     .btn-social { display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; transition: opacity 0.2s; position: relative; }
     .btn-social:hover { opacity: 0.9; }
     .btn-social svg { position: absolute; left: 20px; width: 20px; height: 20px; }
@@ -55,41 +57,29 @@
     .terms-row:last-child { margin-bottom: 0; }
     .terms-row input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; accent-color: #0B2A5B; cursor: pointer; }
     .text-red { color: #E11D48; font-weight: 700; margin-right: 5px; }
-
-    /* 지원방법 하이라이트 애니메이션 */
-    .apply-info-highlight { animation: highlightPulse 2s ease-out; }
-    @keyframes highlightPulse {
-      0% { box-shadow: 0 0 0 0 rgba(43,168,160,0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(43,168,160,0); }
-      100% { box-shadow: 0 0 0 0 rgba(43,168,160,0); }
-    }
   </style>
 
   <script>
-    // 공통 내비게이션 함수
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
       if (url && url !== '#') {
+        var currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        var targetPath = url.split('/').pop();
+        if (currentPath === targetPath && target !== '_blank') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
         if (target === '_blank') { window.open(url, '_blank'); } 
         else { window.location.href = url; }
       }
     }
     
-    // 모바일 햄버거 메뉴 및 스크롤바 제어
-    function getScrollbarWidth() {
-      return window.innerWidth - document.documentElement.clientWidth;
-    }
-
-    // 모달 제어 함수 추가
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.add('is-open');
-        if (document.body.scrollHeight > window.innerHeight) {
-          document.body.style.paddingRight = getScrollbarWidth() + 'px';
-        }
         document.body.style.overflow = 'hidden'; 
       }
     }
@@ -98,64 +88,118 @@
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.remove('is-open');
-        document.body.style.overflow = ''; 
-        document.body.style.paddingRight = ''; 
+        if (!document.querySelector('.modal-backdrop.is-open')) {
+          document.body.style.overflow = ''; 
+        }
       }
     }
 
     function switchCustomModal(closeId, openId) {
-      closeCustomModal(closeId);
+      const closeModal = document.getElementById('modal-' + closeId);
+      if (closeModal) closeModal.classList.remove('is-open');
       setTimeout(() => openCustomModal(openId), 100); 
     }
 
     function handleFormSubmit(event, modalId, message) {
       event.preventDefault(); 
-      alert(message);
-      closeCustomModal(modalId);
+      if(modalId === 'login') {
+        alert("로그인 되었습니다.");
+        closeCustomModal('login');
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', '홍길동'); 
+        updateAuthUI();
+        if(typeof window.renderContactInformation === 'function') {
+          window.renderContactInformation();
+        }
+      } else {
+        alert(message);
+        if(modalId) closeCustomModal(modalId);
+      }
     }
 
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
-      if (menu.classList.contains('hidden')) { 
-        menu.classList.remove('hidden'); 
-        if (document.body.scrollHeight > window.innerHeight) {
-          document.body.style.paddingRight = getScrollbarWidth() + 'px';
-        }
-        document.body.style.overflow = 'hidden'; 
+      if (menu.style.display === 'block' || menu.classList.contains('hidden') === false) { 
+        if(menu.classList.contains('hidden') === false) menu.classList.add('hidden');
+        menu.style.display = 'none';
+        document.body.style.overflow = ''; 
       } 
       else { 
-        menu.classList.add('hidden'); 
-        document.body.style.overflow = ''; 
-        document.body.style.paddingRight = ''; 
+        menu.style.display = 'block';
+        document.body.style.overflow = 'hidden'; 
       }
     }
+
+    function updateAuthUI() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const username = localStorage.getItem('username') || '회원';
+      
+      const loggedOutDiv = document.getElementById('auth-logged-out');
+      const loggedInDiv = document.getElementById('auth-logged-in');
+      const usernameSpan = document.getElementById('auth-username');
+
+      if (isLoggedIn) {
+        if(loggedOutDiv) { loggedOutDiv.classList.add('hidden'); loggedOutDiv.classList.remove('flex'); }
+        if(loggedInDiv) { loggedInDiv.classList.remove('hidden'); loggedInDiv.classList.add('flex'); }
+        if(usernameSpan) usernameSpan.textContent = username;
+      } else {
+        if(loggedOutDiv) { loggedOutDiv.classList.remove('hidden'); loggedOutDiv.classList.add('flex'); }
+        if(loggedInDiv) { loggedInDiv.classList.add('hidden'); loggedInDiv.classList.remove('flex'); }
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('username');
+      updateAuthUI(); 
+      alert('로그아웃 되었습니다.');
+      if(typeof window.renderContactInformation === 'function') {
+        window.renderContactInformation();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateAuthUI();
+    });
   </script>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen bg-[#F8FAFC]">
 
   <!-- 통합 표준 헤더 -->
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
-        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
-        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
-        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
-        <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
-          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
-          <span class="text-gray-400 font-normal">|</span>
-          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
+        
+        <div id="auth-logged-out" class="flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3">
+          <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
+          <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
+          <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
+          <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
+            <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
+            <span class="text-gray-400 font-normal">|</span>
+            <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
+          </div>
         </div>
+
+        <div id="auth-logged-in" class="hidden flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3">
+          <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#00c73c] hover:bg-[#02a64b] px-3 py-1.5 md:px-5 md:py-1.5 text-[12px] md:text-[14px] rounded cursor-pointer">네이버카페</div>
+          <div class="flex items-center text-white text-[13px] md:text-[15px] font-bold px-1">
+            <span class="text-[#8b5cf6] mr-1.5 text-lg">👤</span> <span id="auth-username">홍길동</span>님
+          </div>
+          <div onclick="handleLogout()" class="bg-[#dc2626] hover:bg-[#b91c1c] px-3 py-1.5 md:px-5 md:py-1.5 text-[12px] md:text-[14px] rounded cursor-pointer">로그아웃</div>
+        </div>
+
       </div>
     </div>
+    
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
         <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.onerror=null; this.src='../assets/img/방패로고-removebg-preview.png';">
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
       </div>
       
-      <!-- 데스크톱 내비게이션 -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
         <div class="relative group cursor-pointer py-1">
           <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
           <div class="absolute left-0 top-full hidden group-hover:block w-40 z-50 pt-2">
@@ -166,9 +210,9 @@
             </div>
           </div>
         </div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1">정책토론</div>
-        <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active py-1 text-[#2BA8A0]">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1">정책신문고</div>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="menu-item active cursor-pointer">구인구직</div>
+        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -182,7 +226,7 @@
   </div>
 
   <!-- 모바일 사이드 메뉴 -->
-  <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+  <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
         <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
@@ -202,7 +246,7 @@
           </div>
         </details>
         <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
-        <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">구인구직</div>
+        <div data-href="list.html" onclick="handleNavigation(this)" class="cursor-pointer text-[#2BA8A0]">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
       </div>
       <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
@@ -286,12 +330,17 @@
         </div>
       </div>
 
-      <!-- 제어 버튼 영역 -->
-      <div class="mt-8 flex flex-wrap gap-3 items-center">
-        <button id="btn-show-contact" class="bg-[#2BA8A0] hover:bg-[#208882] text-white font-bold py-3.5 px-8 rounded-full transition-colors shadow-sm w-full sm:w-auto text-[15px]">
-          연락처 보기 →
-        </button>
-        <button data-href="list.html" onclick="handleNavigation(this)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-bold py-3.5 px-8 rounded-full transition-colors w-full sm:w-auto text-[15px]">목록으로</button>
+      <!-- ★ 수정된 제어 버튼 영역 (이미지에 맞춘 여백 및 폰트 크기 변경) ★ -->
+      <div class="mt-8 flex flex-wrap gap-3 items-start">
+        <div class="flex flex-col items-center w-full sm:w-auto">
+          <!-- 연락처 보기 버튼 -->
+          <button id="btn-show-contact" class="bg-[#2BA8A0] hover:bg-[#208882] text-white font-bold py-3.5 px-8 rounded-full transition-colors shadow-sm w-full sm:w-auto text-[15px]">
+            연락처 보기 →
+          </button>
+          <!-- 회원전용 안내 문구 (로그인 시 숨겨짐, 크기 14px 및 색상 조정) -->
+          <span id="member-only-notice" class="text-[14px] text-[#e11d48] font-bold mt-2.5 tracking-tight">※ 회원전용</span>
+        </div>
+        <button data-href="list.html" onclick="handleNavigation(this)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-bold py-3.5 px-8 rounded-full transition-colors w-full sm:w-auto text-[15px] mt-0">목록으로</button>
       </div>
 
     </article>
@@ -301,11 +350,6 @@
   <div id="footer-container"></div>
   <script src="../assets/js/footer.js"></script>
 
-
-  <!-- ========================================== -->
-  <!-- ★ 로그인 및 회원가입 모달 HTML 추가 영역 ★ -->
-  <!-- ========================================== -->
-  
   <!-- 1. 로그인 모달 -->
   <div id="modal-login" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('login')">
     <div class="modal-dialog">
@@ -418,6 +462,10 @@
       let isUserLoggedIn = false;
 
       async function checkUserAuth() {
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+          isUserLoggedIn = true;
+          return;
+        }
         try {
           const { data: { user } } = await mySupabase.auth.getUser();
           if (user) isUserLoggedIn = true;
@@ -482,18 +530,23 @@
       }
 
       function renderContactInformation() {
+        if (localStorage.getItem('isLoggedIn') === 'true') isUserLoggedIn = true;
+        else isUserLoggedIn = false;
+
         const emailEl = document.getElementById('apply-email-text');
         const phoneEl = document.getElementById('apply-phone-text');
         const actionBtn = document.getElementById('btn-show-contact');
+        const noticeEl = document.getElementById('member-only-notice');
 
         if (isUserLoggedIn) {
-          emailEl.innerHTML = `<a href="mailto:${rawEmail}" class="text-blue-600 hover:underline">${rawEmail}</a>`;
-          phoneEl.innerHTML = `<a href="tel:${rawPhone}" class="text-blue-600 hover:underline">${rawPhone}</a>`;
+          // ★ 로그인 완료: 연락처 공개 및 버튼/회원전용 문구 숨김 ★
+          emailEl.innerHTML = `<a href="mailto:${rawEmail}" class="text-blue-600 hover:underline font-bold">${rawEmail}</a>`;
+          phoneEl.innerHTML = `<a href="tel:${rawPhone}" class="text-blue-600 hover:underline font-bold">${rawPhone}</a>`;
           
-          actionBtn.textContent = "지원 정보 확인 완료";
-          actionBtn.className = "bg-gray-400 text-white font-bold py-3.5 px-8 rounded-full shadow-sm w-full sm:w-auto text-[15px] cursor-not-allowed";
-          actionBtn.onclick = null;
+          if(actionBtn) actionBtn.style.display = 'none';
+          if(noticeEl) noticeEl.style.display = 'none';
         } else {
+          // ★ 비로그인: 잠금 상태 및 모달 연결 ★
           emailEl.textContent = "회원공개 🔒";
           emailEl.className = "text-gray-400 font-medium cursor-pointer";
           emailEl.onclick = triggerMembershipGate;
@@ -502,17 +555,23 @@
           phoneEl.className = "text-gray-400 font-medium cursor-pointer";
           phoneEl.onclick = triggerMembershipGate;
 
-          actionBtn.textContent = "연락처 보기 →";
-          actionBtn.onclick = triggerMembershipGate;
+          if(actionBtn) {
+            actionBtn.style.display = 'inline-block';
+            actionBtn.onclick = triggerMembershipGate;
+          }
+          if(noticeEl) noticeEl.style.display = 'block';
         }
       }
 
+      // 비회원 클릭 시 로그인 모달 바로 호출
       function triggerMembershipGate() {
-        alert("회원만 볼 수 있습니다.");
         if (typeof openCustomModal === 'function') {
-          openCustomModal('signup');
+          openCustomModal('login');
         }
       }
+
+      // 전역 스코프로 렌더링 함수 등록
+      window.renderContactInformation = renderContactInformation;
 
       document.addEventListener('DOMContentLoaded', loadJobDetail);
     })();
