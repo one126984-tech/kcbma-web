@@ -12,22 +12,18 @@
   <link rel="stylesheet" href="../assets/css/style.css" />
   
   <style>
-    /* ★★★ [1] 스크롤바 좌우 밀림 방지 ★★★ */
-    html { overflow-y: scroll !important; }
-    
-    /* ★★★ [2] 페이지 로딩 시 덜컹거림/깜빡임(FOUC) 원천 차단 애니메이션 ★★★ */
-    body {
-      background-color: #f4f7fa;
-      margin: 0;
-      font-family: 'Noto Sans KR', sans-serif;
-      line-height: 1.7;
-      color: #333;
-      overflow-x: hidden;
-      opacity: 0;
-      animation: smoothPageLoad 0.25s 0.05s ease-out forwards;
+    /* ★ 수정: 배경색을 #F8FAFC로 맞추고 깜빡임을 유발하던 애니메이션 삭제 ★ */
+    html { 
+      overflow-y: scroll !important; 
+      background-color: #F8FAFC; 
     }
-    @keyframes smoothPageLoad {
-      to { opacity: 1; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #F8FAFC;
+      color: #333;
+      line-height: 1.7;
+      overflow-x: hidden;
+      margin: 0;
     }
     
     .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
@@ -110,12 +106,12 @@
   </style>
 
   <script>
+    // ★ 수정: 인위적인 지연 효과를 지우고 순정 상태로 복구 ★
     function handleNavigation(element) {
       var url = element.getAttribute('data-href');
       var target = element.getAttribute('data-target');
       
       if (url && url !== '#') {
-        // ★ 현재 접속 중인 파일명과 이동하려는 파일명이 같으면 새로고침 방지 ★
         var currentPath = window.location.pathname.split('/').pop() || 'index.html';
         var targetPath = url.split('/').pop();
         
@@ -127,7 +123,7 @@
         if (target === '_blank') { 
           window.open(url, '_blank'); 
         } else { 
-          window.location.href = url; 
+          window.location.href = url; // 즉시 이동
         }
       }
     }
