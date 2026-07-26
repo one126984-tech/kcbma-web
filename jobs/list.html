@@ -34,6 +34,7 @@
     /* GNB 메뉴 호버 및 드롭다운 CSS */
     .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
     .menu-item:hover { color: #008f8c; } 
+    /* ★ 현재 메뉴 색상을 원래의 파란색(청록색)으로 복구 ★ */
     .menu-item.active { color: #2BA8A0; font-weight: 900; }
     
     .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
@@ -46,28 +47,6 @@
     /* ★ 히어로 영역 (법규·정책 페이지와 완벽하게 동일한 여백 및 높이 적용) ★ */
     .page-hero { background-color: #12387a; color: white; padding: 25px 20px 30px; }
     .breadcrumb { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px; display: flex; gap: 8px; align-items: center; }
-
-    .hero-title {
-      position: relative;
-      display: inline-block;
-      padding-bottom: 4px;
-    }
-    .hero-title::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 3px;
-      bottom: 0;
-      left: 0;
-      background-color: #2BA8A0;
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .group:hover .hero-title::after,
-    .hero-title.active::after {
-      transform: scaleX(1);
-    }
 
     /* 모달 디자인 필수 스타일 */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
@@ -129,18 +108,12 @@
       }
     }
 
-    function getScrollbarWidth() {
-      return window.innerWidth - document.documentElement.clientWidth;
-    }
-
+    // ★ 팝업 및 모바일 메뉴 시 화면 들썩임(paddingRight) 완벽 제거 ★
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.add('is-open');
-        if (document.body.scrollHeight > window.innerHeight) {
-          document.body.style.paddingRight = getScrollbarWidth() + 'px';
-        }
         document.body.style.overflow = 'hidden'; 
       }
     }
@@ -150,7 +123,6 @@
       if (modal) {
         modal.classList.remove('is-open');
         document.body.style.overflow = ''; 
-        document.body.style.paddingRight = ''; 
       }
     }
 
@@ -165,19 +137,15 @@
       closeCustomModal(modalId);
     }
     
-    // ★ 모바일 메뉴 동작을 다른 페이지(정책신문고, 토론방 등)와 완벽히 통일 ★
+    // ★ 팝업 및 모바일 메뉴 시 화면 들썩임(paddingRight) 완벽 제거 ★
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu.style.display === 'block' || menu.classList.contains('hidden') === false) {
         if(menu.classList.contains('hidden') === false) menu.classList.add('hidden');
         menu.style.display = 'none';
         document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
       } else {
         menu.style.display = 'block';
-        if (document.body.scrollHeight > window.innerHeight) {
-          document.body.style.paddingRight = getScrollbarWidth() + 'px';
-        }
         document.body.style.overflow = 'hidden';
       }
     }
@@ -332,7 +300,7 @@
     </div>
   </div>
 
-  <!-- ★ 페이지 히어로 (법규·정책과 완벽 동일한 구조로 변경) ★ -->
+  <!-- ★ 페이지 히어로 (법규·정책과 완벽 동일한 구조로 변경 + 밑줄 제거) ★ -->
   <section class="page-hero">
     <div class="max-w-7xl mx-auto px-4 md:px-8 text-center md:text-left">
       <nav class="breadcrumb justify-center md:justify-start" aria-label="breadcrumb">
