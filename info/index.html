@@ -16,67 +16,62 @@
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
     }
-    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; line-height: 1.7; overflow-y: scroll; overflow-x: hidden; }
+
+    /* ★ 1. 다른 페이지와 배경색 및 스크롤 고정 표준 완벽 동기화 ★ */
+    html { 
+      overflow-y: scroll !important; 
+      background-color: #F8FAFC; 
+    }
+    body { 
+      font-family: 'Noto Sans KR', sans-serif; 
+      background-color: #F8FAFC; 
+      color: #333; 
+      line-height: 1.7; 
+      overflow-x: hidden;
+      margin: 0;
+    }
     
     a, [data-href] { cursor: pointer; }
     
-    /* GNB 메뉴 호버 효과: 글자색 고정, 아래 직선 나타남 */
-    .menu-item { 
-      color: #333333; 
-      font-weight: 700; 
-      position: relative;
-      padding-bottom: 6px;
-    }
-    .menu-item.active { color: var(--teal); } 
+    /* ★ 2. GNB 메뉴 호버 및 드롭다운 CSS (높이 점프 원인 제거) ★ */
+    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
+    .menu-item:hover { color: #008f8c; } 
+    .menu-item.active { color: #000000; font-weight: 900; }
     
-    .menu-item::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 2px;
-      background-color: #333333;
-      transition: width 0.3s ease-in-out;
-    }
-    .menu-item.active::after {
-      background-color: var(--teal);
-      width: 100%;
-    }
-    .menu-item:hover::after {
-      width: 100%;
-    }
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
 
-    /* 페이지 상단 히어로 영역 (높이 및 여백 축소) */
+    /* ★ 3. 히어로 영역 및 밑줄 애니메이션 표준 동기화 (기존 6px 패딩을 4px로 통일) ★ */
     .page-hero { background-color: #12387a; color: white; padding: 25px 20px 30px; }
-    .breadcrumb { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px; display: flex; gap: 8px; }
+    .breadcrumb { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px; display: flex; gap: 8px; align-items: center; }
 
-    /* 히어로 영역 제목 호버 밑줄 효과 */
     .hero-title {
       position: relative;
       display: inline-block;
-      padding-bottom: 6px;
+      padding-bottom: 4px;
     }
     .hero-title::after {
       content: '';
       position: absolute;
-      left: 0;
+      width: 100%;
+      height: 3px;
       bottom: 0;
-      width: 0;
-      height: 2px;
-      background-color: #FFFFFF; 
-      transition: width 0.3s ease-in-out;
+      left: 0;
+      background-color: #2BA8A0;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .group:hover .hero-title::after {
-      width: 100%;
-    }
-    /* 활성화된 히어로 제목 */
-    .hero-title-active::after {
-      background-color: #4FD1C5; 
-      width: 100%;
+    .group:hover .hero-title::after,
+    .hero-title.active::after {
+      transform: scaleX(1);
     }
 
-    /* ★ 표준 모달 스타일 (독립 안정 구동) ★ */
+    /* 모달 스타일 (기존과 동일) */
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
     .modal-backdrop.is-open { display: flex !important; }
     .modal-dialog { background: white; padding: 40px 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
@@ -111,21 +106,31 @@
   </style>
 
   <script>
+    // ★ 들썩임 없이 바로 이동하도록 표준 함수 적용 ★
     function handleNavigation(element) {
       const url = element.getAttribute('data-href');
       const target = element.getAttribute('data-target');
       if (url && url !== '#') {
-        if (target === '_blank') { window.open(url, '_blank'); } 
-        else { window.location.href = url; }
+        var currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        var targetPath = url.split('/').pop();
+        
+        if (currentPath === targetPath && target !== '_blank') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        if (target === '_blank') { 
+          window.open(url, '_blank'); 
+        } else { 
+          window.location.href = url; // 즉각 이동
+        }
       }
     }
 
-    // 스크롤바 너비 계산 함수 (모바일 메뉴 흔들림 방지용)
     function getScrollbarWidth() {
       return window.innerWidth - document.documentElement.clientWidth;
     }
 
-    // 모달 제어 함수
     function openCustomModal(id) {
       document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
       const modal = document.getElementById('modal-' + id);
@@ -158,23 +163,22 @@
       if(modalId) closeCustomModal(modalId);
     }
 
-    // 모바일 햄버거 메뉴 제어
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
-      if (menu.classList.contains('hidden')) {
-        menu.classList.remove('hidden');
+      if (menu.style.display === 'block' || menu.classList.contains('hidden') === false) {
+        if(menu.classList.contains('hidden') === false) menu.classList.add('hidden');
+        menu.style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      } else {
+        menu.style.display = 'block';
         if (document.body.scrollHeight > window.innerHeight) {
           document.body.style.paddingRight = getScrollbarWidth() + 'px';
         }
         document.body.style.overflow = 'hidden';
-      } else {
-        menu.classList.add('hidden');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
       }
     }
 
-    // 전역 로그인 상태 관리 함수
     function updateAuthUI() {
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       const username = localStorage.getItem('username') || '회원';
@@ -193,7 +197,6 @@
       }
     }
 
-    // 로그아웃 실행 함수
     function handleLogout() {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('username');
@@ -239,12 +242,24 @@
         <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
       </div>
       
+      <!-- ★ 헤더 네비게이션 구조 완벽 동기화 ★ -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
-        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">협회소개</div>
-        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active py-1 cursor-pointer">정보교류</div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책토론</div>
-        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item py-1 cursor-pointer">정책신문고</div>
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
+        
+        <div class="relative gnb-dropdown-wrap cursor-pointer">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active">정보교류</div>
+          <div class="gnb-dropdown-menu">
+            <div class="dropdown-box">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
+              <div data-href="videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
+              <div data-href="columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-href="forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
 
       <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
@@ -257,7 +272,7 @@
     </header>
   </div>
 
-  <div id="mobile-menu" class="hidden fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+  <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
     <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
       <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
         <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
@@ -266,10 +281,20 @@
       
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
-        <div data-href="../info/index.html" onclick="handleNavigation(this)" class="cursor-pointer text-[#2BA8A0]">정보교류</div>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
+        <details class="group" open>
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            <span class="text-[#2BA8A0]">정보교류</span>
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="videos.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="columns.html" onclick="event.stopPropagation(); handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
+        <div data-href="forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
-        <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
       </div>
 
       <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
@@ -295,12 +320,12 @@
           <p class="text-[14px] text-gray-300 leading-relaxed group-hover:text-white transition-colors">집합건물 관리인이 꼭 알아야 할 법규와<br>정책 변경사항을 안내합니다.</p>
         </div>
 
-        <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+        <div data-href="videos.html" onclick="handleNavigation(this)" class="cursor-pointer group">
           <div class="mb-3"><h2 class="hero-title text-3xl font-extrabold text-white transition-colors">영상 자료실</h2></div>
           <p class="text-[14px] text-gray-300 leading-relaxed group-hover:text-white transition-colors">집합건물 관리 실무에 도움이 되는<br>영상을 모아드립니다.</p>
         </div>
 
-        <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer group">
+        <div data-href="columns.html" onclick="handleNavigation(this)" class="cursor-pointer group">
           <div class="mb-3"><h2 class="hero-title text-3xl font-extrabold text-white transition-colors">시설업체 칼럼</h2></div>
           <p class="text-[14px] text-gray-300 leading-relaxed group-hover:text-white transition-colors">등록 파트너사가 직접 작성한<br>실무 정보 칼럼입니다.</p>
         </div>
@@ -309,6 +334,7 @@
     </div>
   </section>
 
+  <!-- 메인 콘텐츠 (카드 3개 원본 유지) -->
   <main class="page-main flex-1 mb-16 py-10 md:py-14 max-w-7xl mx-auto px-4 sm:px-6 w-full">
     <div class="info-hub-grid grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
       
@@ -340,17 +366,17 @@
             <span class="text-2xl md:text-3xl">🎬</span>
             <h2 class="text-xl md:text-2xl font-bold text-gray-800">영상 자료실</h2>
           </div>
-          <span data-href="../info/videos.html" onclick="handleNavigation(this)" class="bg-[#0B2A5B] hover:bg-[#081f44] text-white hover:text-[#4FD1C5] px-4 py-1.5 rounded md:rounded-md text-[13px] md:text-[14px] font-bold cursor-pointer transition-colors">전체보기 →</span>
+          <span data-href="videos.html" onclick="handleNavigation(this)" class="bg-[#0B2A5B] hover:bg-[#081f44] text-white hover:text-[#4FD1C5] px-4 py-1.5 rounded md:rounded-md text-[13px] md:text-[14px] font-bold cursor-pointer transition-colors">전체보기 →</span>
         </div>
         <p class="text-[14.5px] text-gray-600 mb-6 leading-relaxed">집합건물 관리 실무에 도움이 되는 법령, 판례, 교육 영상을 모아드립니다.</p>
         <ul class="text-[15px] space-y-0 mt-auto">
-          <li data-href="../info/videos.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
+          <li data-href="videos.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
             • 집합건물법 핵심 정리 2025
           </li>
-          <li data-href="../info/videos.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
+          <li data-href="videos.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
             • 관리비 분쟁 사례 5선
           </li>
-          <li data-href="../info/videos.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
+          <li data-href="videos.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
             • 소방안전관리자 실무특강
           </li>
         </ul>
@@ -362,17 +388,17 @@
             <span class="text-2xl md:text-3xl">🏢</span>
             <h2 class="text-xl md:text-2xl font-bold text-gray-800">시설업체 칼럼</h2>
           </div>
-          <span data-href="../info/columns.html" onclick="handleNavigation(this)" class="bg-[#0B2A5B] hover:bg-[#081f44] text-white hover:text-[#4FD1C5] px-4 py-1.5 rounded md:rounded-md text-[13px] md:text-[14px] font-bold cursor-pointer transition-colors">전체보기 →</span>
+          <span data-href="columns.html" onclick="handleNavigation(this)" class="bg-[#0B2A5B] hover:bg-[#081f44] text-white hover:text-[#4FD1C5] px-4 py-1.5 rounded md:rounded-md text-[13px] md:text-[14px] font-bold cursor-pointer transition-colors">전체보기 →</span>
         </div>
         <p class="text-[14.5px] text-gray-600 mb-6 leading-relaxed">등록 파트너사가 직접 작성한 소방·청소·승강기 등 시설관리 실무 정보 칼럼입니다.</p>
         <ul class="text-[15px] space-y-0 mt-auto">
-          <li data-href="../info/columns.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
+          <li data-href="columns.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
             • 소방시설 점검 주기 가이드
           </li>
-          <li data-href="../info/columns.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
+          <li data-href="columns.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
             • 겨울철 공용부 청소 팁
           </li>
-          <li data-href="../info/columns.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
+          <li data-href="columns.html" onclick="handleNavigation(this)" class="hover:text-[#2BA8A0] cursor-pointer font-medium py-3.5 border-b border-dashed border-gray-300">
             • 승강기 정기검사 질문 5가지
           </li>
         </ul>
