@@ -17,9 +17,9 @@
       --navy: #0B2A5B; --teal: #2BA8A0; --white: #FFFFFF;
       --bg: #F8FAFC; --trans: .22s ease;
     }
-    body { font-family: 'Noto Sans KR', sans-serif; background: #F8FAFC; color: #333; line-height: 1.7; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #F8FAFC; color: #333; line-height: 1.7; margin: 0; }
     
-    a, [data-href] { cursor: pointer; }
+    a, [data-href] { cursor: pointer; text-decoration: none; }
     
     .menu-item { color: #333333; font-weight: 700; transition: color var(--trans); }
     .menu-item:hover, .menu-item.active { color: var(--teal); } 
@@ -32,19 +32,28 @@
     .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
     .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
 
-    /* ★ 신문고 표준 모달 필수 스타일 ★ */
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    /* ★ 2번 이미지 규격: 모달 위치 및 내부 스크롤바 최적화 ★ */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
     .modal-backdrop.is-open { display: flex !important; }
-    .modal-dialog { background: white; padding: 35px 30px; border-radius: 12px; width: 90%; max-width: 420px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; }
-    .modal-brand { text-align: center; margin-bottom: 20px; }
-    .modal-title { font-size: 1.5rem; font-weight: 800; color: #0e2b61; margin-bottom: 5px; }
-    .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; margin-bottom: 12px; outline: none; }
-    .modal-input:focus { border-color: #0e2b61; }
-    .btn-primary-full { width: 100%; padding: 14px; background: var(--navy); color: #fff; font-weight: 700; border-radius: 10px; cursor: pointer; border: none; transition: background 0.2s; }
-    .btn-primary-full:hover { background: #153b80; }
-    .modal-switch { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #64748b; }
-    .modal-switch a { color: #0e2b61; font-weight: bold; cursor: pointer; text-decoration: none; }
+    .modal-dialog { 
+      background: white; padding: 40px 30px; border-radius: 12px; width: 100%; max-width: 400px; position: relative; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+      max-height: 85vh; /* 화면 높이의 85% 이내로 고정 */
+      overflow-y: auto; /* 내용 초과 시 내부 스크롤바 자동 생성 */
+    }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; transition: color 0.2s; }
+    .modal-close:hover { color: #333; }
+    .modal-brand { text-align: center; margin-bottom: 25px; }
+    .modal-title { font-size: 1.6rem; font-weight: 900; color: #0B2A5B; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .modal-subtitle { color: #64748b; font-size: 0.9rem; font-weight: 500; }
+    .modal-input { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 12px; font-size: 0.95rem; outline: none; transition: border 0.2s; color: #333; }
+    .modal-input::placeholder { color: #94A3B8; }
+    .modal-input:focus { border-color: #0B2A5B; }
+    .btn-primary-full { width: 100%; padding: 15px; background: #0B2A5B; color: #fff; font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; transition: background 0.2s; margin-top: 5px; }
+    .btn-primary-full:hover { background: #082046; }
+    .modal-switch { text-align: center; margin-top: 25px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0B2A5B; font-weight: 700; cursor: pointer; text-decoration: none; margin-left: 4px; }
+    .modal-switch a:hover { text-decoration: underline; }
 
     /* 모달 하단 로그인 유지 및 아이디/비밀번호 찾기 가로 정렬 */
     .modal-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.85rem; color: #475569; }
@@ -85,13 +94,16 @@
       const modal = document.getElementById('modal-' + id);
       if (modal) {
         modal.classList.remove('is-open');
-        document.body.style.overflow = ''; 
-        document.body.style.paddingRight = ''; // 여백 초기화
+        if (!document.querySelector('.modal-backdrop.is-open')) {
+          document.body.style.overflow = ''; 
+          document.body.style.paddingRight = ''; // 여백 초기화
+        }
       }
     }
 
     function switchCustomModal(closeId, openId) {
-      closeCustomModal(closeId);
+      const closeModal = document.getElementById('modal-' + closeId);
+      if (closeModal) closeModal.classList.remove('is-open');
       setTimeout(() => openCustomModal(openId), 100); 
     }
 
@@ -147,7 +159,6 @@
 
   <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm relative">
     
-    <!-- 상단 띠 배너 -->
     <div class="w-full bg-[#0a1931] py-2.5">
       <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
         <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
@@ -161,14 +172,12 @@
       </div>
     </div>
     
-    <!-- 메인 헤더 -->
     <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
       <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
-        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto">
-        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.onerror=null; this.src='../assets/img/방패로고-removebg-preview.png';">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
       </div>
       
-      <!-- 수정된 PC용 메뉴 -->
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item active text-[#2BA8A0] cursor-pointer">협회소개</div>
         
@@ -197,7 +206,6 @@
       </button>
     </header>
 
-    <!-- 모바일 드롭다운 메뉴 컨테이너 -->
     <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-white shadow-md border-t border-gray-200 md:hidden z-[950] flex-col">
       <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="px-6 py-4 border-b border-gray-100 font-bold text-[#2BA8A0] cursor-pointer">협회소개</div>
       <div data-href="../info/index.html" onclick="handleNavigation(this)" class="px-6 py-4 border-b border-gray-100 font-bold text-gray-800 hover:text-[#2BA8A0] cursor-pointer">정보교류</div>
@@ -207,11 +215,9 @@
     </div>
   </div>
 
-  <!-- 본문 컨텐츠 시작 -->
   <section class="pt-8 md:pt-12 pb-24">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row gap-10 lg:gap-16 w-full">
 
-      <!-- 왼쪽 사이드 메뉴 -->
       <aside class="w-full md:w-40 flex-shrink-0 hidden md:block mt-2">
         <h2 class="text-[26px] font-black text-gray-900 mb-8 tracking-tight">협회소개</h2>
         <nav class="sticky top-36 flex flex-col space-y-6 text-[15px] font-medium">
@@ -397,19 +403,10 @@
     </div>
   </section>
 
- 
-<!-- 지워진 푸터 자리에 아래와 같이 id를 부여한 빈 div를 넣습니다. -->
-<div id="footer-container"></div>
-
-
-  
-  
-<!-- 푸터 컨테이너 -->
   <div id="footer-container"></div>
   <script src="../assets/js/footer.js"></script>
 
-<!-- 기존 모달 HTML 뭉치를 싹 지우고 이 한 줄만 삽입합니다 -->
-<script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/auth.js"></script>
 
 </body>
 </html>

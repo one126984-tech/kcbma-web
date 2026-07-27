@@ -166,9 +166,9 @@
       <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
         
-        <!-- 정보교류 드롭다운 적용 영역 -->
+        <!-- ★ 정보교류 드롭다운 적용 영역 (active 클래스 추가) ★ -->
         <div class="relative gnb-dropdown-wrap cursor-pointer">
-          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active">정보교류</div>
           <div class="gnb-dropdown-menu">
             <div class="dropdown-box">
               <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
@@ -178,7 +178,8 @@
           </div>
         </div>
 
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item active text-[#2BA8A0] cursor-pointer">정책토론</div>
+        <!-- ★ 정책토론 (active 등 색상 클래스 제거) ★ -->
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
@@ -204,7 +205,8 @@
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
         <details class="group">
-          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+          <!-- ★ 정보교류 (고정 활성화 색상 적용) ★ -->
+          <summary class="cursor-pointer text-[#2BA8A0] list-none flex justify-between items-center outline-none">
             정보교류
             <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
           </summary>
@@ -214,7 +216,8 @@
             <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
           </div>
         </details>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0] text-[#2BA8A0]">정책토론</div>
+        <!-- ★ 정책토론 (기본 색상으로 변경, 호버 시에만 색상 변경) ★ -->
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
         <div data-href="../info/sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
       </div>

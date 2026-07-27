@@ -218,7 +218,8 @@
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
         
         <div class="relative gnb-dropdown-wrap cursor-pointer">
-          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <!-- ★ 수정: 정보교류에 active 클래스 추가 ★ -->
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item active">정보교류</div>
           <div class="gnb-dropdown-menu">
             <div class="dropdown-box">
               <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
@@ -228,7 +229,8 @@
           </div>
         </div>
 
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item active cursor-pointer">정책토론</div>
+        <!-- ★ 수정: 정책토론에서 active 클래스 제거 ★ -->
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
         <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책신문고</div>
       </nav>
@@ -253,7 +255,8 @@
       <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
         <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
         <details class="group">
-          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+          <!-- ★ 모바일 수정: 정보교류 색상을 고정(active 효과) ★ -->
+          <summary class="cursor-pointer text-[#2BA8A0] list-none flex justify-between items-center outline-none">
             정보교류
             <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
           </summary>
@@ -263,7 +266,8 @@
             <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
           </div>
         </details>
-        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer text-[#2BA8A0]">정책토론</div>
+        <!-- ★ 모바일 수정: 정책토론 색상을 기본(hover 시에만 변경)으로 변경 ★ -->
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
         <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
         <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책신문고</div>
       </div>
