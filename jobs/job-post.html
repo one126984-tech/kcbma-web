@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>구인 공고 등록</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .form-wrapper { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-wrapper h2 { margin: 0; }
+        .submit-btn-top { padding: 12px 24px; background-color: #004080; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .submit-btn-top:hover, .submit-btn:hover { background-color: #003366; }
+
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .form-group label { font-weight: bold; margin-bottom: 5px; color: #333; font-size: 14px; }
+        
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-family: inherit; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .submit-btn { width: 100%; padding: 15px; background-color: #004080; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        
+        textarea { line-height: 1.6; }
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row select, .flex-row input { flex: 1; }
+        
+        .sub-label { font-size: 14px; color: #555; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+    <form id="jobPostForm">
+        <div class="header-wrapper">
+            <h2>구인 공고 등록</h2>
+            <button type="submit" class="submit-btn-top">공고 등록하기</button>
+        </div>
+
+        <input type="hidden" id="board_type" value="JOB"> 
+        
+        <div class="form-group">
+            <label>공고 제목</label>
+            <input type="text" id="title" required placeholder="예 : 현대 오피스텔 시설기사 급구">
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group"><label>건물명</label><input type="text" id="custom_building_name" required></div>
+            <div class="form-group"><label>근무 지역 (시/군/구)</label><input type="text" id="custom_address_short" required placeholder="예: 김포, 일산, 파주"></div>
+            
+            <div class="form-group">
+                <label>건물 규모 (층수, 세대수, 건물종류)</label>
+                <input type="text" id="custom_building_scale" placeholder="예 : 20층, 350세대, 오피스텔">
+            </div>
+
+            <div class="form-group">
+                <label>관리 형태</label>
+                <select id="custom_management_type">
+                    <option value="위탁관리">위탁관리</option>
+                    <option value="자치관리">자치관리</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>모집 직종</label>
+                <select id="custom_job_category">
+                    <option value="시설기사">시설기사</option>
+                    <option value="관리소장">관리소장</option>
+                    <option value="경리">경리</option>
+                    <option value="보안/경비">보안/경비</option>
+                    <option value="미화">미화</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>고용 형태</label>
+                <select id="custom_employment_type">
+                    <option value="정규직">정규직</option>
+                    <option value="계약직" selected>계약직</option>
+                </select>
+            </div>
+            <div class="form-group"><label>모집 인원</label><input type="text" id="custom_headcount" placeholder="예: 1명"></div>
+            <div class="form-group"><label>급여 조건</label><input type="text" id="custom_salary" required placeholder="예: 월 300만원"></div>
+            <div class="form-group"><label>학력 조건</label><input type="text" id="custom_education" value="학력무관"></div>
+            
+            <div class="form-group"><label>경력 조건</label><input type="text" id="custom_experience" placeholder="예 : 2년 이상"></div>
+            
+            <div class="form-group"><label>필수 자격증</label><input type="text" id="custom_certification" placeholder="예: 전기기사, 소방안전관리자 1급"></div>
+            <div class="form-group"><label>우대 사항</label><input type="text" id="custom_preferred_qualifications"></div>
+            
+            <div class="form-group"><label>접수 시작일</label><input type="date" id="custom_start_date" required></div>
+            <div class="form-group"><label>접수 마감일</label><input type="date" id="custom_end_date" required></div>
+            
+            <div class="form-group"><label>근무 시간 (주N일, N시간)</label><input type="text" id="custom_work_hours" placeholder="예: 주5일, 주40시간"></div>
+            
+            <div class="form-group">
+                <label>근무 형태 (교대주기)</label>
+                <div class="flex-row">
+                    <select id="custom_shift_type_select" onchange="toggleShiftInput()">
+                        <option value="일근직">일근직</option>
+                        <option value="격일제">격일제</option>
+                        <option value="주당비">주당비</option>
+                        <option value="직접작성">직접 작성</option>
+                    </select>
+                    <input type="text" id="custom_shift_type_input" style="display: none;" placeholder="예: 야간 격일제">
+                </div>
+            </div>
+            
+            <div class="form-group"><label>제출 서류</label><input type="text" id="custom_required_documents" placeholder="예 : 이력서, 자기소개서"></div>
+            <div class="form-group"><label>담당자 이메일</label><input type="email" id="custom_contact_email"></div>
+            
+            <div class="form-group"><label>지원 문의</label><input type="text" id="custom_inquiries" placeholder="예 : 전화번호기입 또는 전화문의 사절"></div>
+            <div class="form-group"><label>복리후생</label><input type="text" id="custom_benefits" placeholder="예: 식대 제공, 4대보험"></div>
+        </div>
+
+        <div class="form-group">
+            <label>상세 모집 요강</label>
+            <div class="sub-label">상세근무시간, 휴게시간, 업무내용, 기타사항을 적어주세요.</div>
+            <textarea id="content" rows="7" required></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">공고 등록하기</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function toggleShiftInput() {
+    const selectBox = document.getElementById('custom_shift_type_select');
+    const inputBox = document.getElementById('custom_shift_type_input');
+    
+    if (selectBox.value === '직접작성') {
+        inputBox.style.display = 'block';
+        inputBox.required = true;
+    } else {
+        inputBox.style.display = 'none';
+        inputBox.required = false;
+        inputBox.value = ''; 
+    }
+}
+
+const contentArea = document.getElementById('content');
+const exampleText = "[작성 예시]\n근무시간 : 오전 9:00 ~ 오후 6:00\n휴게시간 : 12:00 ~ 13:00\n업무내용 : 시설물 유지보수 및 민원처리\n기타사항 : 지원시 경력사항과 전 근무지 기재 필수";
+const templateText = "근무시간 : \n휴게시간 : \n업무내용 : \n기타사항 : ";
+
+contentArea.value = exampleText;
+
+contentArea.addEventListener('focus', function() {
+    if (this.value === exampleText) {
+        this.value = templateText;
+    }
+});
+
+contentArea.addEventListener('blur', function() {
+    if (this.value === templateText || this.value.trim() === '') {
+        this.value = exampleText;
+    }
+});
+
+document.getElementById('jobPostForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (contentArea.value === exampleText || contentArea.value === templateText) {
+        alert("상세 모집 요강 내용을 직접 작성해 주세요.");
+        contentArea.focus();
+        return;
+    }
+    
+    let finalShiftType = document.getElementById('custom_shift_type_select').value;
+    if (finalShiftType === '직접작성') {
+        finalShiftType = document.getElementById('custom_shift_type_input').value;
+    }
+
+    const customDataObj = {
+        building_name: document.getElementById('custom_building_name').value,
+        address_short: document.getElementById('custom_address_short').value,
+        building_scale: document.getElementById('custom_building_scale').value,
+        management_type: document.getElementById('custom_management_type').value,
+        job_category: document.getElementById('custom_job_category').value,
+        employment_type: document.getElementById('custom_employment_type').value,
+        headcount: document.getElementById('custom_headcount').value,
+        salary: document.getElementById('custom_salary').value,
+        education: document.getElementById('custom_education').value,
+        experience: document.getElementById('custom_experience').value,
+        certification: document.getElementById('custom_certification').value,
+        preferred_qualifications: document.getElementById('custom_preferred_qualifications').value,
+        start_date: document.getElementById('custom_start_date').value,
+        end_date: document.getElementById('custom_end_date').value,
+        work_hours: document.getElementById('custom_work_hours').value,
+        shift_type: finalShiftType,
+        required_documents: document.getElementById('custom_required_documents').value,
+        contact_email: document.getElementById('custom_contact_email').value,
+        inquiries: document.getElementById('custom_inquiries').value,
+        benefits: document.getElementById('custom_benefits').value
+    };
+
+    const mainTitle = document.getElementById('title').value.trim();
+
+    const postData = {
+        board_type: document.getElementById('board_type').value, 
+        title: mainTitle, // 💡 중복되던 [지역명] 조립 코드를 소거했습니다.
+        content: document.getElementById('content').value,
+        custom_data: JSON.stringify(customDataObj),
+        status: 'OPEN'
+    };
+
+    try {
+        const { data, error } = await supabaseClient.from('master_board').insert([postData]);
+        if (error) {
+            console.error("에러 발생:", error);
+            alert("공고 등록 중 문제가 발생했습니다.");
+        } else {
+            alert("🎉 공고가 성공적으로 등록되었습니다!");
+            window.location.href = "job-list.html"; 
+        }
+    } catch (err) {
+        console.error("서버 통신 에러:", err);
+    }
+});
+</script>
+</body>
+</html>
