@@ -27,7 +27,7 @@
         .btn-delete { border-color: #dc3545; color: #dc3545; }
         .btn-delete:hover { background: #dc3545; color: white; }
 
-        /* 💡 하단 버튼 영역 정렬 (완벽한 중앙 정렬을 위해 클래스 독립) */
+        /* 하단 버튼 영역 정렬 (완벽한 중앙 정렬을 위해 클래스 독립) */
         .bottom-btn-area { display: flex; justify-content: center; gap: 10px; margin-top: 30px; width: 100%; }
         
         /* 전체 정보 그리드 레이아웃 (2열 그리드) */
@@ -91,13 +91,13 @@
         </div>
 
         <div class="action-btns">
-            <!-- 상단 3개 버튼 (보기 모드) -->
+            <!-- 💡 버튼 변경: '목록으로 돌아가기' 버튼은 수정 모드/보기 모드 상관없이 항상 보이도록 view-only 제거 -->
             <button class="btn-action btn-delete view-only" onclick="deletePost()">삭제하기</button>
             <button class="btn-action view-only" onclick="toggleEdit(true)">수정하기</button>
-            <button class="btn-action view-only" onclick="window.location.href='job-list.html'">목록으로 돌아가기</button>
+            <button class="btn-action" onclick="window.location.href='job-list.html'">목록으로 돌아가기</button>
             
             <!-- 수정 모드 버튼 -->
-            <button class="btn-action edit-only" onclick="toggleEdit(false)">취소하기</button>
+            <button class="btn-action edit-only" onclick="toggleEdit(false)">수정 취소</button>
             <button class="btn-action btn-save edit-only" onclick="saveChanges()">저장하기</button>
         </div>
     </div>
@@ -239,21 +239,22 @@
     <div class="content-section view-only" id="view_content">내용을 불러오는 중입니다...</div>
     <textarea id="edit_content" class="edit-input edit-only" style="margin-top:20px;" placeholder="상세 내용을 입력하세요."></textarea>
 
-    <!-- 💡 수정된 하단 영역 버튼 세트 -->
+    <!-- 하단 영역 버튼 세트 -->
     <div class="bottom-btn-area">
-        <!-- 하단 3개 버튼 (보기 모드) -->
+        <!-- 💡 버튼 변경: '목록으로 돌아가기' 버튼은 수정 모드/보기 모드 상관없이 항상 보이도록 view-only 제거 -->
         <button class="btn-action btn-delete view-only" onclick="deletePost()">삭제하기</button>
         <button class="btn-action view-only" onclick="toggleEdit(true)">수정하기</button>
-        <button class="btn-action view-only" onclick="window.location.href='job-list.html'">목록으로 돌아가기</button>
+        <button class="btn-action" onclick="window.location.href='job-list.html'">목록으로 돌아가기</button>
         
         <!-- 하단 수정 모드 버튼 -->
-        <button class="btn-action edit-only" onclick="toggleEdit(false)">취소하기</button>
+        <button class="btn-action edit-only" onclick="toggleEdit(false)">수정 취소</button>
         <button class="btn-action btn-save edit-only" onclick="saveChanges()">저장하기</button>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// Supabase 설정
 const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
 
@@ -399,6 +400,7 @@ async function saveChanges() {
         
         alert("성공적으로 저장되었습니다.");
         
+        // 💡 수정 완료 후 목록으로 이동
         window.location.href = 'job-list.html';
 
     } catch (error) {
@@ -421,6 +423,8 @@ async function deletePost() {
         if (error) throw error;
         
         alert("공고가 성공적으로 삭제되었습니다.");
+        
+        // 💡 삭제 완료 후 목록으로 이동
         window.location.href = 'job-list.html';
 
     } catch (error) {

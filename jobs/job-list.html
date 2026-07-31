@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase 라이브러리 추가 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -33,18 +34,16 @@
         .text-red { color: #dc2626; font-weight: bold; }
 
         /* 필터 테이블 스타일 */
-        /* 💡 마진 제거: 테이블 하단 여백을 없애서 검색 영역과 자연스럽게 이어지도록 변경 */
-        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; }
-        /* 💡 너비 축소: '지역, 직종, 기타'가 차지하는 제목 칸 너비를 최소화 (80px) */
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
         .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; line-height: 2.2; padding: 20px 5px; vertical-align: middle; }
         .filter-table td { padding: 20px 30px; border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
         .filter-table tr:last-child th, .filter-table tr:last-child td { border-bottom: none; }
 
-        /* 데이터 리스트 테이블 스타일 */
-        .data-table-wrapper { background: #fff; }
-        .data-table { width: 100%; text-align: center; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
+        /* 데이터 리스트 테이블 wrapper */
+        .data-table-wrapper { background: #fff; overflow-x: auto; overflow-y: visible; border-top: none; margin-top: 0; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; }
         
-        /* 테이블 헤더 파란색 두꺼운 윗선 설정 (box-shadow) */
         .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
         @media (min-width: 768px) {
             .data-table th { position: sticky; top: 56px; z-index: 50; }
@@ -94,7 +93,7 @@
                 공고 대상
             </div>
             <div class="bg-white border border-gray-200 border-t-0 rounded-b shadow-sm mb-6">
-                <div class="side-menu-item">
+                <div class="side-menu-item side-menu-active">
                     <div class="flex items-center w-[130px]">
                         <div class="w-5 h-5 flex items-center justify-center mr-3 text-pink-500">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path></svg>
@@ -159,7 +158,7 @@
                 </ul>
             </div>
 
-            <!-- 검색 필터 테이블 (마진 제거) -->
+            <!-- 검색 필터 테이블 -->
             <table class="filter-table shadow-sm">
                 <tbody>
                     <tr>
@@ -188,10 +187,10 @@
                                 <label class="custom-checkbox"><input type="checkbox"> <span>경비</span></label>
                                 <label class="custom-checkbox"><input type="checkbox"> <span>경리(회계)</span></label>
                                 <label class="custom-checkbox"><input type="checkbox"> <span>청소</span></label>
+                                <label class="custom-checkbox"><input type="checkbox"> <span>기타</span></label>
                             </div>
                         </td>
                     </tr>
-                    <!-- 💡 기타 1줄 배치 (flex-nowrap 강제 적용) -->
                     <tr>
                         <th class="hidden sm:table-cell text-blue-600 font-black tracking-widest text-[16px]">기<br>타</th>
                         <td class="block sm:table-cell w-full overflow-hidden">
@@ -233,44 +232,46 @@
                 </tbody>
             </table>
 
-            <!-- 💡 추가됨: '검색하는 단어 / 제외하는 단어'를 표 밖으로 완전히 빼내고 수평 배치 -->
-            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-4 gap-y-3 bg-white py-4 mb-6 border-b border-gray-200 shadow-sm px-4">
-                <span class="font-bold text-[15px] text-blue-700 whitespace-nowrap">검색하는 단어</span>
-                <input type="text" class="flex-1 min-w-[200px] max-w-[280px] border border-gray-300 rounded px-3 py-1.5 text-sm outline-none text-gray-700 placeholder-gray-300" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+            <!-- 검색 박스 -->
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-4 gap-y-2 bg-white py-2.5 px-4 mb-3 border border-gray-200 shadow-sm">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">검색하는 단어</span>
+                <input type="text" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-sm outline-none text-gray-700 placeholder-gray-300" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
                 
-                <span class="font-bold text-[15px] text-blue-700 whitespace-nowrap lg:ml-4">제외하는 단어</span>
-                <input type="text" class="flex-1 min-w-[200px] max-w-[280px] border border-gray-300 rounded px-3 py-1.5 text-sm outline-none text-gray-700 placeholder-gray-300" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-4">제외하는 단어</span>
+                <input type="text" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-sm outline-none text-gray-700 placeholder-gray-300" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
                 
-                <button class="bg-[#008000] hover:bg-green-800 text-white px-8 py-2 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검색</button>
+                <button class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검&nbsp;&nbsp;색</button>
             </div>
 
-            <!-- 💡 수정됨: 하단 마진 및 패딩 완전 제거 (mb-0, pb-0) -->
-            <div class="flex justify-between items-end mb-0 pb-0">
-                <div class="text-[13px] text-gray-700 pb-1.5">
-                    총 <span class="text-red-600 font-bold">555</span>건의 글이 있습니다. (1/28 페이지)
+            <!-- 데이터 테이블 헤더부 (글 개수, 정렬, 공고등록) -->
+            <div class="flex flex-wrap sm:flex-nowrap justify-between items-center bg-[#f8fafc] border border-gray-200 px-4 py-2 mb-0">
+                <div class="text-[13px] text-gray-700">
+                    <!-- 💡 총 게시글 수를 동적으로 렌더링하기 위해 id="total-count" 추가 -->
+                    총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 글이 있습니다. 
                 </div>
                 
-                <div class="flex items-center gap-3 pb-1.5">
-                    <select class="border border-gray-300 rounded px-2 py-1 text-xs outline-none text-gray-700">
+                <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                    <select class="border border-gray-300 rounded px-2 py-1.5 text-xs outline-none text-gray-700 bg-white">
                         <option>20개씩보기</option>
                         <option>50개씩보기</option>
                     </select>
                     
-                    <div class="flex border border-gray-400 rounded overflow-hidden text-xs">
-                        <button class="bg-[#555] text-white px-3 py-1">최신순</button>
-                        <button class="bg-white text-gray-600 hover:bg-gray-50 px-3 py-1 border-l border-gray-300">추천순</button>
-                        <button class="bg-white text-gray-600 hover:bg-gray-50 px-3 py-1 border-l border-gray-300">조회순</button>
-                        <button class="bg-white text-gray-600 hover:bg-gray-50 px-3 py-1 border-l border-gray-300">연봉순</button>
+                    <div class="flex border border-gray-400 rounded overflow-hidden text-xs bg-white">
+                        <button class="bg-[#555] text-white px-3 py-1.5">최신순</button>
+                        <button class="text-gray-600 hover:bg-gray-50 px-3 py-1.5 border-l border-gray-300">추천순</button>
+                        <button class="text-gray-600 hover:bg-gray-50 px-3 py-1.5 border-l border-gray-300">조회순</button>
+                        <button class="text-gray-600 hover:bg-gray-50 px-3 py-1.5 border-l border-gray-300">연봉순</button>
                     </div>
                     
-                    <button onclick="window.location.href='job-post.html'" class="bg-[#facc15] hover:bg-[#eab308] text-gray-900 font-bold py-1.5 px-4 rounded text-sm transition-colors ml-2">
+                    <!-- 💡 공고 등록 버튼 (job-post.html 연동) -->
+                    <button onclick="window.location.href='job-post.html'" class="bg-[#facc15] hover:bg-[#eab308] text-gray-900 font-bold py-1.5 px-5 rounded text-[13px] transition-colors shadow-sm ml-1">
                         공고 등록하기
                     </button>
                 </div>
             </div>
 
             <!-- 데이터 리스트 테이블 -->
-            <div class="data-table-wrapper overflow-x-auto">
+            <div class="data-table-wrapper">
                 <table class="data-table">
                     <colgroup>
                         <col style="width: 80px;">  
@@ -296,67 +297,16 @@
                             <th>마감일</th>
                         </tr>
                     </thead>
+                    <!-- 💡 자바스크립트가 데이터를 삽입할 공간 -->
                     <tbody id="job-list-body">
                         <tr>
-                            <td><span class="badge-open">채용중</span></td>
-                            <td class="text-left pl-4 font-bold text-[#0B2A5B] cursor-pointer hover:underline">성실한 시설기사 모집합니다</td>
-                            <td>신유 비야체 오피스텔</td>
-                            <td>김포</td>
-                            <td>시설기사</td>
-                            <td>격일제, 40시간</td>
-                            <td>격일제</td>
-                            <td class="font-bold">월 280만원</td>
-                            <td>2026-08-08</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge-open">채용중</span></td>
-                            <td class="text-left pl-4 font-bold text-[#0B2A5B] cursor-pointer hover:underline">롯데 프라자 관리소장 모집합니다</td>
-                            <td>롯데 프라자</td>
-                            <td>부평</td>
-                            <td>관리소장</td>
-                            <td>주5일, 40시간</td>
-                            <td>일근직</td>
-                            <td class="font-bold">월 300만원</td>
-                            <td>2026-07-31</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge-closed">마 감</span></td>
-                            <td class="text-left pl-4 font-bold text-gray-500 cursor-pointer hover:underline">한국오피스텔 미화원 모집</td>
-                            <td>한국 오피스텔</td>
-                            <td>고양시</td>
-                            <td>미화</td>
-                            <td>주6일, 40시간</td>
-                            <td>일근직</td>
-                            <td class="font-bold">월 180만원</td>
-                            <td>2026-07-21</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge-open">채용중</span></td>
-                            <td class="text-left pl-4 font-bold text-[#0B2A5B] cursor-pointer hover:underline">대우 프라자 시설관리원 모집</td>
-                            <td>대우 프라자</td>
-                            <td>김포시</td>
-                            <td>시설기사</td>
-                            <td>주4일,40시간</td>
-                            <td>격일제</td>
-                            <td class="font-bold">월 270만원</td>
-                            <td>2026-08-13</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge-open">채용중</span></td>
-                            <td class="text-left pl-4 font-bold text-[#0B2A5B] cursor-pointer hover:underline">관리소장을 모집합니다</td>
-                            <td>신운정프라자</td>
-                            <td>파주시</td>
-                            <td>관리소장</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td class="font-bold">월 290만원</td>
-                            <td>2026-08-08</td>
+                            <td colspan="9" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- 하단 페이징 -->
+            <!-- 하단 페이징 (퍼블리싱용 유지) -->
             <div class="flex justify-center items-center gap-1 mt-8 mb-10">
                 <button class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>
                 <button class="w-8 h-8 flex items-center justify-center border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs">1</button>
@@ -368,7 +318,7 @@
     </main>
 
     <script>
-        // 1. 공통 헤더를 불러오는 스크립트
+        // 1. 공통 헤더를 불러오는 스크립트 (기존 유지)
         fetch('../header.html')
             .then(response => {
                 if (!response.ok) throw new Error('헤더 파일을 찾을 수 없습니다.');
@@ -393,12 +343,10 @@
                 }
             }, 300);
         }
-
         window.addEventListener('resize', calculateStickyPosition);
 
-        // 2. 지역 버튼 동작 스크립트
+        // 2. 지역 버튼 동작 스크립트 (기존 유지)
         const regions = ['서울', '부산', '인천', '대구', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
-        
         const subRegionData = {
             '서울': ['서울전체', '강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
             '부산': ['부산전체', '강서구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구', '금정구', '기장군', '남구', '동구', '동래구', '부산진구', '북구', '사상구'],
@@ -419,7 +367,7 @@
             '제주': ['제주전체', '서귀포시', '제주시']
         };
 
-        let currentRegion = '충남'; 
+        let currentRegion = '경기'; 
 
         const topRegionContainer = document.getElementById('top-region-buttons');
         regions.forEach(region => {
@@ -448,8 +396,87 @@
                 `<label class="custom-checkbox"><input type="checkbox"> <span>${sr}</span></label>`
             ).join('');
         }
-
         selectRegion(currentRegion);
+
+
+        // 💡 3. [핵심] Supabase에서 데이터를 가져와서 리스트에 그려주는 스크립트 추가
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function fetchJobs() {
+            const tbody = document.getElementById('job-list-body');
+            
+            try {
+                // master_board 테이블에서 board_type이 'JOB'인 데이터를 최신순으로 가져옴
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('board_type', 'JOB')
+                    .order('created_at', { ascending: false }); // 등록일 역순(최신순) 정렬
+
+                if (error) throw error;
+
+                renderJobs(data);
+            } catch (error) {
+                console.error("데이터 불러오기 실패:", error);
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            }
+        }
+
+        function renderJobs(jobs) {
+            const tbody = document.getElementById('job-list-body');
+            tbody.innerHTML = ''; // 기존(또는 로딩) 텍스트 초기화
+
+            // 총 글 개수 업데이트
+            const totalCountSpan = document.getElementById('total-count');
+            if(totalCountSpan) {
+                totalCountSpan.innerText = jobs ? jobs.length : 0;
+            }
+
+            if (!jobs || jobs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 font-bold text-gray-500">등록된 공고가 없습니다.</td></tr>';
+                return;
+            }
+
+            // 가져온 데이터를 순회하며 <tr> 생성
+            jobs.forEach(job => {
+                // custom_data 파싱 (문자열인 경우 객체로 변환)
+                const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                
+                // 상태(OPEN/CLOSED)에 따른 뱃지 및 제목 색상 변경
+                const isOpen = job.status === 'OPEN' || !job.status;
+                const statusBadge = isOpen
+                    ? '<span class="badge-open">채용중</span>' 
+                    : '<span class="badge-closed">마 감</span>';
+                
+                const titleClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
+
+                // shift_type과 work_hours를 조합해서 근로시간 칸에 표시
+                const shiftText = cData.shift_type && cData.shift_type !== '직접작성' ? cData.shift_type + ', ' : '';
+                const workTimeStr = `${shiftText}${cData.work_hours || ''}`.trim() || '-';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${statusBadge}</td>
+                    <!-- 💡 글 제목 클릭 시 job-detail.html?id=해당글번호 로 이동하게 연결 -->
+                    <td class="text-left pl-4 font-bold ${titleClass} cursor-pointer hover:underline" onclick="window.location.href='job-detail.html?id=${job.id}'">
+                        ${job.title || '-'}
+                    </td>
+                    <td>${cData.building_name || '-'}</td>
+                    <td>${cData.address_short || '-'}</td>
+                    <td>${cData.job_category || '-'}</td>
+                    <td>${workTimeStr}</td>
+                    <td>${cData.employment_type || '-'}</td>
+                    <td class="font-bold">${cData.salary || '-'}</td>
+                    <td>${cData.end_date || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 창이 로드될 때 바로 데이터 불러오기 실행
+        window.addEventListener('DOMContentLoaded', fetchJobs);
     </script>
 </body>
 </html>

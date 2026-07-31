@@ -9,6 +9,11 @@
         
         .header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header-wrapper h2 { margin: 0; }
+        .header-buttons { display: flex; gap: 10px; }
+        
+        .btn-secondary { padding: 12px 24px; background-color: #6b7280; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-secondary:hover { background-color: #4b5563; }
+        
         .submit-btn-top { padding: 12px 24px; background-color: #004080; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .submit-btn-top:hover, .submit-btn:hover { background-color: #003366; }
 
@@ -33,7 +38,11 @@
     <form id="jobPostForm">
         <div class="header-wrapper">
             <h2>구인 공고 등록</h2>
-            <button type="submit" class="submit-btn-top">공고 등록하기</button>
+            <div class="header-buttons">
+                <!-- 💡 추가됨: 목록으로 돌아가는 버튼 -->
+                <button type="button" class="btn-secondary" onclick="window.location.href='job-list.html'">목록으로</button>
+                <button type="submit" class="submit-btn-top">공고 등록하기</button>
+            </div>
         </div>
 
         <input type="hidden" id="board_type" value="JOB"> 
@@ -122,6 +131,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// Supabase 설정 부분 (실제 서비스 배포 시 키 관리에 유의하세요)
 const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
 
@@ -200,7 +210,7 @@ document.getElementById('jobPostForm').addEventListener('submit', async function
 
     const postData = {
         board_type: document.getElementById('board_type').value, 
-        title: mainTitle, // 💡 중복되던 [지역명] 조립 코드를 소거했습니다.
+        title: mainTitle,
         content: document.getElementById('content').value,
         custom_data: JSON.stringify(customDataObj),
         status: 'OPEN'
@@ -213,6 +223,7 @@ document.getElementById('jobPostForm').addEventListener('submit', async function
             alert("공고 등록 중 문제가 발생했습니다.");
         } else {
             alert("🎉 공고가 성공적으로 등록되었습니다!");
+            // 💡 이 부분이 리스트로 돌아가게 해주는 핵심입니다!
             window.location.href = "job-list.html"; 
         }
     } catch (err) {
