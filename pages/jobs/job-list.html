@@ -44,16 +44,13 @@
         .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
         .board-toolbar-wrap > * { margin: 0 !important; }
 
-        .data-table-wrapper { background: #fff; overflow-x: auto; overflow-y: hidden; border-top: none; margin-top: 0 !important; }
-        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
-        .data-table thead { display: table-header-group; }
-        .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
-        .data-table td { padding: 14px 10px; font-size: 13.5px; color: #4b5563; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .data-table-wrapper { background: #fff; border-top: none; margin-top: 0 !important; }
+        .data-table { width: 100%; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 900px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; border-top: 2px solid #333; border-bottom: 1px solid #333; }
+        .data-table th { padding: 14px 10px; font-size: 14px; font-weight: bold; color: #333; background: #fff; vertical-align: middle; }
+        .data-table td { padding: 18px 10px; font-size: 14.5px; color: #333; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
         .data-table tr:hover td { background-color: #f8fafc; }
         
-        .badge-open { display: inline-block; width: 48px; padding: 3px 0; background-color: #22c55e; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
-        .badge-closed { display: inline-block; width: 48px; padding: 3px 0; background-color: #6b7280; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
-
         .custom-checkbox { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; word-break: keep-all; white-space: nowrap; line-height: 1.3; }
         .custom-checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
         .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; }
@@ -65,7 +62,6 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- 1. 헤더 (로고 이미지 오류 방지용 백업 포함) -->
     <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
         <div class="max-w-[1400px] mx-auto px-4 h-[70px] flex items-center justify-between">
             <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='../index.html'">
@@ -84,7 +80,6 @@
         </div>
     </header>
     
-    <!-- 2. 지역 탭 -->
     <div id="sticky-top-bar" class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
         <div class="w-full bg-[#12387a] h-[56px] flex items-center">
             <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center">
@@ -102,7 +97,6 @@
 
     <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
         
-        <!-- 좌측 사이드바 -->
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
             <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
                 <div class="side-menu-active-wrapper border-b border-gray-100">
@@ -123,7 +117,6 @@
                 </div>
             </div>
 
-            <!-- 조회기간 -->
             <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
                 <div class="flex justify-between items-center mb-3">
                     <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
@@ -153,7 +146,6 @@
             </div>
         </aside>
 
-        <!-- 우측 메인 콘텐츠 -->
         <section class="flex-1 overflow-hidden min-w-0">
             
             <div class="notice-box flex-col sm:flex-row mb-6">
@@ -170,7 +162,6 @@
                 </div>
             </div>
 
-            <!-- 검색 필터 테이블 -->
             <table class="filter-table shadow-sm">
                 <tbody>
                     <tr>
@@ -178,7 +169,6 @@
                         <td class="block sm:table-cell w-full">
                             <div class="font-bold sm:hidden mb-3 text-[#1e3a8a]">지역</div>
                             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full" id="sub-region-container">
-                                <!-- JS에서 채워집니다. -->
                             </div>
                         </td>
                     </tr>
@@ -243,15 +233,19 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="flex items-center shrink-0">
                                     <span class="font-bold text-[14px] text-[#333]">근무일/주</span>
                                     <span class="text-gray-200 mx-1 lg:mx-2">|</span>
                                     <div class="relative">
                                         <select id="work-days-select" class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[90px] text-gray-700 bg-white" onchange="toggleDirectInput('work-days')">
                                             <option value="">선택</option>
-                                            <option value="일근직">일근직</option>
-                                            <option value="격일제">격일제</option>
-                                            <option value="주당비">주당비</option>
+                                            <option value="주5일">주5일</option>
+                                            <option value="주6일">주6일</option>
+                                            <option value="주7일">주7일</option>
+                                            <option value="주4일">주4일</option>
+                                            <option value="주3일">주3일</option>
+                                            <option value="주2일">주2일</option>
                                             <option value="기타">기타</option>
                                         </select>
                                         <div id="work-days-direct-container" class="hidden absolute top-full left-0 mt-1 z-50 bg-white border border-gray-300 rounded p-1.5 shadow-lg flex-col gap-1 w-[140px]">
@@ -278,7 +272,6 @@
                 </tbody>
             </table>
 
-            <!-- 검색 박스 -->
             <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-3 border border-gray-200 shadow-sm">
                 <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
                 
@@ -294,7 +287,6 @@
             </div>
 
             <div class="board-toolbar-wrap">
-                <!-- 리스트 상단 컨트롤 영역 -->
                 <div class="flex flex-wrap sm:flex-nowrap justify-between items-end bg-transparent px-2 pt-2 pb-0">
                     
                     <div class="text-[13px] text-gray-700 pb-2 pl-1">
@@ -308,51 +300,37 @@
                         </select>
                         
                         <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0">
-                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors">최신순</button>
-                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors">조회순</button>
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors cursor-pointer">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors cursor-pointer">조회순</button>
                         </div>
                         
-                        <!-- ★ 핵심: 공고 등록하기 버튼을 <a> 태그로 적용하여 즉시 이동하도록 최적화 -->
                         <a href="job-write.html" class="bg-[#facc15] hover:bg-[#eab308] text-gray-900 font-bold px-5 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center cursor-pointer">
                             공고 등록하기
                         </a>
                     </div>
                 </div>
 
-                <!-- 데이터 테이블 -->
                 <div class="data-table-wrapper">
                     <table class="data-table">
                         <colgroup>
-                            <col style="width: 60px;">
+                            <col style="width: 70px;">
                             <col style="width: auto;">
-                            <col style="width: 140px;">
-                            <col style="width: 70px;">
-                            <col style="width: 70px;">
-                            <col style="width: 80px;">
-                            <col style="width: 80px;">
-                            <col style="width: 130px;">
-                            <col style="width: 65px;">
-                            <col style="width: 65px;">
-                            <col style="width: 70px;">
+                            <col style="width: 38%;">
+                            <col style="width: 150px;">
+                            <col style="width: 90px;">
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>상태</th>
-                                <th class="text-left pl-4">채용 제목</th>
-                                <th>건물명</th>
-                                <th>직종</th>
-                                <th>근무지역</th>
-                                <th>근무형태</th>
-                                <th>근무일/주</th>
-                                <th>급여조건</th>
-                                <th>등록일</th>
-                                <th>마감일</th>
-                                <th>조회수</th>
+                                <th class="text-center text-[14.5px]">번호</th>
+                                <th class="text-left pl-2 text-[14.5px]">회사명 / 채용공고명 / 상태 / 조회수 / 지역</th>
+                                <th class="text-center text-[14.5px]">지원자격 / 근무조건</th>
+                                <th class="text-center text-[14.5px]">마감 / 등록일</th>
+                                <th class="text-center text-[14.5px]">잔여일</th>
                             </tr>
                         </thead>
                         <tbody id="job-list-body">
                             <tr>
-                                <td colspan="11" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
+                                <td colspan="5" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -364,19 +342,13 @@
     </main>
 
     <script>
-        // -------------------------------------------------------------
-        // ★ 뒤로가기(BFCache) 캐시 버그 완벽 차단 코드
-        // 사용자가 X버튼을 눌러 돌아왔을 때 화면이 하얗게 깨지면 자동으로 새로고침합니다.
-        // -------------------------------------------------------------
+        // BFCache 대비 새로고침
         window.addEventListener('pageshow', function (event) {
             if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
                 window.location.reload();
             }
         });
 
-        // -------------------------------------------------------------
-        // 지역 데이터 하드코딩 (오류 없이 무조건 노출되도록 보강)
-        // -------------------------------------------------------------
         const regions = ['서울', '부산', '인천', '대구', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
         
         const subRegionData = {
@@ -401,14 +373,12 @@
 
         let currentRegion = '경기'; 
 
-        // 시스템 시작 함수
         function initApp() {
             renderTopRegions();
             selectRegion(currentRegion);
             fetchJobs();
         }
 
-        // 기간 필터 조작
         function setPeriod(period, btnElement) {
             document.querySelectorAll('.period-btn').forEach(btn => {
                 btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
@@ -461,13 +431,13 @@
             const btnViews = document.getElementById('btn-sort-views');
 
             if(sortType === 'latest') {
-                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors";
-                btnViews.className = "text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors cursor-pointer";
+                btnViews.className = "text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors cursor-pointer";
             } else {
-                btnViews.className = "bg-[#333] text-white px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
-                btnLatest.className = "text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full transition-colors";
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors cursor-pointer";
+                btnLatest.className = "text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full transition-colors cursor-pointer";
             }
-            applyFilters(); 
+            applyFilters();
         }
 
         function setPerPage(element) {
@@ -512,15 +482,6 @@
             container.classList.remove('flex');
             input.value = '';
         }
-
-        const formatMonthDay = (dateString) => {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            if (isNaN(date)) return '-';
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${month}-${day}`;
-        };
 
         function renderTopRegions() {
             const topRegionContainer = document.getElementById('top-region-buttons');
@@ -585,14 +546,6 @@
             }).join('');
         }
 
-        function removeTag(value) {
-            const checkbox = document.querySelector(`input[type="checkbox"][value="${value}"]`);
-            if (checkbox) {
-                checkbox.checked = false;
-                updateSelectedTags();
-            }
-        }
-
         const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -616,7 +569,7 @@
                 applyFilters(); 
             } catch (error) {
                 console.error("데이터 불러오기 실패:", error);
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
             }
         }
 
@@ -675,7 +628,6 @@
                         const matchSub = currentSubRegionsList.some(sr => sr !== '전체' && !sr.includes('전체') && isMatch(address, sr));
                         return matchSub || address.includes(currentRegion) || address.includes(currentRegion.substring(0,2));
                     }
-                    
                     return checkedSubRegions.some(sr => isMatch(address, sr));
                 });
             } else {
@@ -729,54 +681,136 @@
             const endIndex = startIndex + itemsPerPage;
             const paginatedJobs = filteredJobs.slice(startIndex, endIndex);
 
-            renderJobs(paginatedJobs);
+            renderJobs(paginatedJobs, filteredJobs.length, startIndex);
             renderPagination(filteredJobs.length);
         }
 
-        function renderJobs(jobs) {
+        function renderJobs(jobs, totalCount, startIndex) {
             const tbody = document.getElementById('job-list-body');
             tbody.innerHTML = ''; 
 
             if (!jobs || jobs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-20 font-bold text-gray-500">조건에 맞는 결과가 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-20 font-bold text-gray-500">조건에 맞는 결과가 없습니다.</td></tr>';
                 return;
             }
 
             jobs.forEach((job, index) => {
+                const rowNum = totalCount - startIndex - index;
+                
                 const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
                 
                 const isOpen = job.status === 'OPEN' || !job.status;
                 const statusBadge = isOpen
-                    ? '<span class="badge-open">채용중</span>' 
-                    : '<span class="badge-closed">마 감</span>';
+                    ? '<span class="bg-[#22c55e] text-white text-[11px] font-bold px-1.5 py-0.5 rounded">채용중</span>' 
+                    : '<span class="bg-gray-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded">마감</span>';
                 
                 const titleClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
                 
-                const workFormStr = cData.shift_type || '-';
-                const workDaysStr = cData.employment_type || '-';
+                const companyName = cData.company_name || cData.building_name || '회사명 표기안됨';
+                const salary = cData.salary || '회사내규에 따름';
+                const experience = cData.experience || '경력무관';
+                const education = cData.education || '학력무관';
                 
-                const salaryStr = cData.salary || '-';
+                const shiftType = cData.shift_type || '형태미상';
+                const empType = cData.employment_type || '요일협의';
+                const workHours = cData.work_hours || '시간협의';
+                
+                const certs = cData.certifications || '자격조건 제한없음';
                 const viewsStr = job.views || 0; 
                 
-                const regDateStr = formatMonthDay(job.created_at);
-                const endDateStr = formatMonthDay(cData.end_date);
+                let dDayStr = '-';
+                if (cData.end_date) {
+                    const endDate = new Date(cData.end_date);
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    endDate.setHours(0,0,0,0);
+                    
+                    const diffTime = endDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays > 0) dDayStr = `D-${diffDays}`;
+                    else if (diffDays === 0) dDayStr = `D-Day`;
+                    else dDayStr = `마감`;
+                }
+
+                const regDateStrFull = job.created_at ? job.created_at.split('T')[0] : '-';
+                const endDateStrFull = cData.end_date ? cData.end_date.split('T')[0] : '-';
+
+                // ★ 제목 앞에 시/군/구 지역 태그 추가 및 중복 방지 로직
+                let displayTitle = job.title || '-';
+                if (cData.address_short && displayTitle !== '-') {
+                    const locParts = cData.address_short.trim().split(/\s+/);
+                    let sido = locParts[0];
+                    
+                    const sidoMap = {
+                        '서울특별시': '서울', '부산광역시': '부산', '대구광역시': '대구', '인천광역시': '인천', '광주광역시': '광주', '대전광역시': '대전', '울산광역시': '울산', '세종특별자치시': '세종',
+                        '경기도': '경기', '강원도': '강원', '강원특별자치도': '강원', '충청북도': '충북', '충청남도': '충남', '전라북도': '전북', '전북특별자치도': '전북', '전라남도': '전남', '경상북도': '경북', '경상남도': '경남', '제주특별자치도': '제주'
+                    };
+                    if (sidoMap[sido]) sido = sidoMap[sido];
+                    
+                    let shortLoc = sido;
+                    if (locParts.length > 1) {
+                        shortLoc = `${sido} ${locParts[1]}`; // 예: '경기 고양시', '서울 강남구'
+                    }
+                    
+                    // 해당 지역(시군구 포함)이 제목에 없다면 추가
+                    if (!displayTitle.includes(`[${shortLoc}]`)) {
+                        // 제목 맨 앞에 [경기] 등 도/시 단위만 등록된 경우 제거 후 시/군/구로 덮어쓰기
+                        const regex = new RegExp(`^\\[${sido}\\]\\s*`);
+                        displayTitle = displayTitle.replace(regex, ''); 
+                        
+                        displayTitle = `[${shortLoc}] ${displayTitle}`;
+                    }
+                }
 
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 cursor-pointer transition-colors";
+                tr.onclick = () => incrementViewAndGo(job.id, viewsStr);
                 
                 tr.innerHTML = `
-                    <td>${statusBadge}</td>
-                    <td class="text-left pl-4 font-bold ${titleClass} cursor-pointer hover:underline" onclick="incrementViewAndGo('${job.id}', ${viewsStr})">
-                        ${job.title || '-'}
+                    <td class="text-center font-bold text-[16px] text-gray-700">
+                        ${rowNum}
                     </td>
-                    <td>${cData.building_name || '-'}</td>
-                    <td>${cData.job_category || '-'}</td>
-                    <td>${cData.address_short || '-'}</td>
-                    <td class="text-gray-600">${workFormStr}</td>
-                    <td class="text-gray-600">${workDaysStr}</td>
-                    <td class="font-bold text-[13px] tracking-tight">${salaryStr}</td>
-                    <td class="text-gray-500">${regDateStr}</td>
-                    <td class="text-gray-500">${endDateStr}</td>
-                    <td class="text-gray-400">${viewsStr}</td>
+
+                    <td class="text-left pl-2">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-4 h-4 border border-gray-400 rounded-sm bg-white shrink-0"></div>
+                            <span class="font-bold text-gray-700 text-[14px] truncate max-w-[200px] block">${companyName}</span>
+                            ${statusBadge}
+                            <span class="text-[13px] text-gray-400 ml-1">조회수 : ${viewsStr}</span>
+                        </div>
+                        <div class="font-bold text-[16px] ${titleClass} leading-tight truncate">
+                            ${displayTitle}
+                        </div>
+                    </td>
+                    
+                    <td class="text-center text-[14px] text-gray-700 leading-relaxed">
+                        <div class="mb-1.5 flex items-center justify-center gap-2">
+                            <span class="font-bold">월급 ${salary}</span>
+                            <span class="text-gray-300">|</span> 
+                            <span>${experience}</span>
+                            <span class="text-gray-300">|</span> 
+                            <span>${education}</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-2 text-[13.5px] text-gray-500">
+                            <span>${shiftType}</span> 
+                            <span class="text-gray-300">|</span> 
+                            <span>${empType}</span> 
+                            <span class="text-gray-300">|</span> 
+                            <span>${workHours}</span> 
+                            <span class="text-gray-300">|</span> 
+                            <span>${certs}</span>
+                        </div>
+                    </td>
+                    
+                    <td class="text-center text-[13.5px] text-gray-500">
+                        <div class="mb-1.5">마감일 : ${endDateStrFull}</div>
+                        <div>등록일 : ${regDateStrFull}</div>
+                    </td>
+
+                    <td class="text-center">
+                        <div class="font-bold text-[#c92a2a] text-[18px] tracking-wide">${dDayStr}</div>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -820,7 +854,6 @@
             window.location.href = `job-detail.html?id=${jobId}`;
         }
 
-        // 전체 초기화 실행
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
