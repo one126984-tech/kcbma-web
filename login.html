@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>로그인 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 디자인(Tailwind CSS) 적용 스크립트 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .divider { display: flex; align-items: center; text-align: center; font-weight: bold; margin: 24px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e5e7eb; }
+        .divider:not(:empty)::before { margin-right: .8em; }
+        .divider:not(:empty)::after { margin-left: .8em; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 메인 헤더 (공통 - 하늘색 hover 및 확대 로고 적용) -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            
+            <!-- 1. 로고 영역 -->
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='./index.html'">
+                <img src="./assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-[55px] object-contain">
+                <img src="./assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-[45px] object-contain">
+            </div>
+            
+            <!-- 2. 메인 메뉴 -->
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[18px] text-gray-800 tracking-tight">
+                <a onclick="window.location.href='./pages/about/greeting.html'" class="cursor-pointer text-[#12387a] font-black hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">협회소개</a>
+                <a onclick="window.location.href='./pages/info/notice.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">정보교류</a>
+                <a onclick="window.location.href='./pages/policy/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">정책실현</a>
+                <a onclick="window.location.href='./pages/job/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">구인구직</a>
+                <a onclick="window.location.href='./pages/bid/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">입찰정보</a>
+                <a onclick="window.location.href='./pages/edu/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">교육훈련</a>
+                <a onclick="window.location.href='./pages/tech/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">기술문의</a>
+                <a onclick="window.location.href='./pages/community/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">커뮤니티</a>
+            </nav>
+
+            <!-- 3. 우측 상단 로그인/회원가입 -->
+            <div class="hidden lg:flex items-center gap-4 font-bold text-[14px] text-gray-600">
+                <a onclick="window.location.href='./login.html'" class="cursor-pointer text-[#00a8ff] transition-colors">로그인</a>
+                <span class="text-gray-300">|</span>
+                <a onclick="window.location.href='./signup.html'" class="cursor-pointer hover:text-[#00a8ff] transition-colors">회원가입</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 (로그인 폼) -->
+    <main class="flex-1 flex items-center justify-center p-4">
+        <!-- relative 클래스를 추가하여 X 버튼이 폼 우측 상단에 위치하도록 함 -->
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm w-full max-w-[400px] p-8 relative">
+            
+            <!-- 우측 상단 X (닫기) 버튼 -->
+            <button onclick="window.location.href='./index.html'" class="absolute top-4 right-5 text-gray-400 hover:text-gray-800 text-[22px] transition-colors" title="메인으로 돌아가기">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- 간편 로그인 타이틀 -->
+            <div class="divider text-[20px] text-gray-800 mt-2">간편 로그인</div>
+
+            <!-- 간편 로그인 버튼 모음 -->
+            <div class="flex flex-col gap-3">
+                <!-- 구글 로그인 버튼 (파란색 바탕, 흰색 글씨로 변경) -->
+                <button class="w-full bg-blue-600 text-white rounded py-3 flex items-center justify-center font-bold text-[15px] relative hover:bg-blue-700 transition-colors">
+                    <i class="fab fa-google absolute left-5 text-lg"></i>
+                    구글계정으로 로그인
+                </button>
+                <button class="w-full bg-[#03c75a] text-white rounded py-3 flex items-center justify-center font-bold text-[15px] relative hover:bg-[#02b351] transition-colors">
+                    <span class="absolute left-5 font-black text-lg">N</span>
+                    네이버계정으로 로그인
+                </button>
+                <button class="w-full bg-[#FEE500] text-[#000000] rounded py-3 flex items-center justify-center font-bold text-[15px] relative hover:bg-[#f4dc00] transition-colors">
+                    <i class="fas fa-comment absolute left-5 text-lg"></i>
+                    카카오계정으로 로그인
+                </button>
+            </div>
+
+            <!-- 다른 선택 -->
+            <div class="divider text-[13px] text-gray-400 mt-8 mb-6">다른 선택</div>
+
+            <!-- 이메일 로그인 폼 -->
+            <form onsubmit="event.preventDefault();" class="flex flex-col gap-3">
+                <input type="email" placeholder="가입하신 이메일 입력" class="w-full border border-gray-300 rounded px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] transition-colors">
+                <input type="password" placeholder="비밀번호" class="w-full border border-gray-300 rounded px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] transition-colors">
+                
+                <button type="submit" class="w-full bg-[#0B2A5B] hover:bg-[#082046] text-white font-bold py-3.5 rounded text-[15px] mt-2 transition-colors">
+                    이메일 로그인
+                </button>
+            </form>
+
+            <div class="text-center mt-6 text-[14px] text-gray-600">
+                아직 회원이 아니신가요? <a onclick="window.location.href='./signup.html'" class="cursor-pointer font-bold text-[#0B2A5B] hover:underline ml-1">회원가입</a>
+            </div>
+
+            <!-- 아이디/비밀번호 찾기 영역 -->
+            <div class="flex justify-center items-center gap-10 mt-6 pt-2 font-bold text-[14.5px] text-black">
+                <span class="cursor-pointer hover:text-[#12387a] transition-colors" onclick="openModal('findIdModal')">아이디 찾기</span>
+                <span class="cursor-pointer hover:text-[#12387a] transition-colors" onclick="openModal('findPwModal')">비밀번호 찾기</span>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 아이디 찾기 모달 팝업 -->
+    <div id="findIdModal" class="fixed inset-0 bg-[#000000] bg-opacity-70 z-[2000] hidden items-center justify-center transition-opacity" onclick="if(event.target === this) closeModal('findIdModal')">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-[360px] p-8 relative mx-4">
+            <button onclick="closeModal('findIdModal')" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-[22px] transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="text-center mb-6 mt-2">
+                <h2 class="text-[20px] font-black text-[#0B2A5B] mb-2 tracking-tight">아이디(이메일) 찾기</h2>
+                <p class="text-[13px] text-gray-500">가입 시 등록하신 성함을 입력해 주세요.</p>
+            </div>
+            
+            <input type="text" placeholder="이름" class="w-full border border-gray-300 rounded-lg px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] transition-colors mb-4">
+            
+            <button class="w-full bg-[#0B2A5B] hover:bg-[#082046] text-white font-bold py-3.5 rounded-lg text-[15px] transition-colors mb-5">
+                아이디 찾기
+            </button>
+            
+            <div class="text-center">
+                <button onclick="closeModal('findIdModal')" class="text-[13px] font-bold text-gray-600 hover:text-black transition-colors">로그인으로 돌아가기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 비밀번호 찾기 모달 팝업 -->
+    <div id="findPwModal" class="fixed inset-0 bg-[#000000] bg-opacity-70 z-[2000] hidden items-center justify-center transition-opacity" onclick="if(event.target === this) closeModal('findPwModal')">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-[360px] p-8 relative mx-4">
+            <button onclick="closeModal('findPwModal')" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-[22px] transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="text-center mb-6 mt-2">
+                <h2 class="text-[20px] font-black text-[#0B2A5B] mb-2 tracking-tight">비밀번호 찾기</h2>
+                <p class="text-[13px] text-gray-500">가입 시 등록하신 이메일을 입력해 주세요.</p>
+            </div>
+            
+            <input type="email" placeholder="이메일 주소" class="w-full border border-gray-300 rounded-lg px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] transition-colors mb-4">
+            
+            <button class="w-full bg-[#0B2A5B] hover:bg-[#082046] text-white font-bold py-3.5 rounded-lg text-[15px] transition-colors mb-5">
+                임시 비밀번호 발송
+            </button>
+            
+            <div class="text-center">
+                <button onclick="closeModal('findPwModal')" class="text-[13px] font-bold text-gray-600 hover:text-black transition-colors">로그인으로 돌아가기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달 제어 스크립트 -->
+    <script>
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
+</body>
+</html>

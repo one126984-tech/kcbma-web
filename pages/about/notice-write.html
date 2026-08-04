@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>공지사항 작성 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+
+        .form-row { display: flex; border-bottom: 1px solid #e5e7eb; }
+        .form-label { width: 120px; background-color: #f9fafb; font-weight: bold; color: #374151; padding: 15px; display: flex; align-items: center; border-right: 1px solid #e5e7eb; flex-shrink: 0; font-size: 14px; }
+        .form-input-area { flex: 1; padding: 15px; background-color: #fff; }
+        .form-input { w-full; border: 1px solid #d1d5db; border-radius: 4px; padding: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .form-input:focus { border-color: #3b82f6; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 헤더부 (동일) -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='../../index.html'">
+                <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-10 object-contain">
+                <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-8 object-contain">
+            </div>
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[15.5px] text-gray-700">
+                <a href="../about/greeting.html" class="hover:text-[#12387a] transition-colors">협회소개</a>
+                <a href="notice.html" class="text-[#12387a] border-b-[3px] border-[#12387a] pb-1">정보교류</a>
+                <a href="../policy/index.html" class="hover:text-[#12387a] transition-colors">정책실현</a>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    정보교류
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm" onclick="window.location.href='notice.html'">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-pen text-[15px]"></i>
+                        </div>
+                        공지사항 작성
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="flex-1 overflow-hidden min-w-0">
+            <div class="mb-4">
+                <h2 class="text-2xl font-bold text-gray-900">공지사항 작성</h2>
+            </div>
+
+            <div class="bg-white shadow-sm border-t-2 border-[#0B2A5B]">
+                <div class="form-row">
+                    <div class="form-label">제목 <span class="text-red-500 ml-1">*</span></div>
+                    <div class="form-input-area">
+                        <input type="text" id="titleInput" class="form-input w-full" placeholder="공지사항 제목을 입력하세요 (최대 100자)" maxlength="100">
+                    </div>
+                </div>
+                <div class="form-row border-b-0">
+                    <div class="form-label">내용 <span class="text-red-500 ml-1">*</span></div>
+                    <div class="form-input-area">
+                        <textarea id="contentInput" class="form-input w-full h-[400px] resize-y" placeholder="내용을 입력하세요..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="flex justify-center items-center gap-3 mt-8">
+                <button onclick="window.history.back()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold px-8 py-2.5 rounded text-[15px] transition-colors">취소</button>
+                <button onclick="saveNotice()" class="bg-[#12387a] hover:bg-[#0B2A5B] text-white font-bold px-8 py-2.5 rounded text-[15px] transition-colors">등록하기</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function saveNotice() {
+            const title = document.getElementById('titleInput').value.trim();
+            const content = document.getElementById('contentInput').value.trim();
+
+            if (!title) {
+                alert("제목을 입력해주세요.");
+                document.getElementById('titleInput').focus();
+                return;
+            }
+            if (!content) {
+                alert("내용을 입력해주세요.");
+                document.getElementById('contentInput').focus();
+                return;
+            }
+
+            try {
+                // board_type을 'NOTICE'로 강제 지정하여 등록
+                const { error } = await supabaseClient
+                    .from('master_board')
+                    .insert([
+                        { 
+                            board_type: 'NOTICE', 
+                            title: title, 
+                            content: content, 
+                            views: 0 
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert("공지사항이 성공적으로 등록되었습니다.");
+                window.location.href = 'notice.html';
+
+            } catch (error) {
+                console.error("등록 실패:", error);
+                alert("등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+            }
+        }
+    </script>
+</body>
+</html>

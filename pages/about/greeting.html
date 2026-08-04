@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>인사말 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #12387a; }
+        
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 메인 헤더 -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='../../index.html'">
+                <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-10 object-contain">
+                <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-8 object-contain">
+            </div>
+            
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[15.5px] text-gray-700">
+                <a href="greeting.html" class="text-[#12387a] border-b-[3px] border-[#12387a] pb-1">협회소개</a>
+                <a href="../info/notice.html" class="hover:text-[#12387a] transition-colors">정보교류</a>
+                <a href="../policy/index.html" class="hover:text-[#12387a] transition-colors">정책실현</a>
+                <a href="../job/index.html" class="hover:text-[#12387a] transition-colors">구인구직</a>
+                <a href="../bid/index.html" class="hover:text-[#12387a] transition-colors">입찰정보</a>
+                <a href="../edu/index.html" class="hover:text-[#12387a] transition-colors">교육훈련</a>
+                <a href="../tech/index.html" class="hover:text-[#12387a] transition-colors">기술문의</a>
+                <a href="../community/index.html" class="hover:text-[#12387a] transition-colors">커뮤니티</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 서브 헤더 -->
+    <div class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    협회소개
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-handshake text-[15px]"></i>
+                        </div>
+                        인사말
+                    </div>
+                </div>
+                <div class="side-menu-item mx-4 border-b border-gray-100" onclick="window.location.href='history.html'">
+                    협회연혁
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 콘텐츠 영역 -->
+        <section class="flex-1 overflow-hidden min-w-0">
+            <div class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm">
+                
+                <div class="border-b-2 border-gray-800 pb-4 mb-10">
+                    <h2 class="text-2xl font-bold text-gray-900">인사말</h2>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-10 items-center lg:items-start">
+                    
+                    <!-- 텍스트 영역 -->
+                    <div class="flex-1 flex flex-col gap-6 text-[15.5px] leading-relaxed text-gray-700">
+                        <h3 class="text-xl font-bold text-[#12387a] mb-2">"투명하고 효율적인 집합건물 관리문화 정착에 앞장서겠습니다."</h3>
+                        
+                        <p>안녕하십니까, 대한집합건물관리협회 홈페이지를 방문해 주신 여러분을 진심으로 환영합니다.</p>
+                        
+                        <p>현대 사회에서 집합건물은 우리 삶의 필수적인 주거 및 상업 공간으로 자리 잡았습니다. 하지만 건물이 대형화되고 복잡해짐에 따라, 시설의 안전한 유지보수와 투명한 관리 운영의 중요성은 그 어느 때보다 커지고 있습니다.</p>
+                        
+                        <p>우리 협회는 현장에서 땀 흘리시는 관리소장님들과 다양한 설비 전문가들의 권익을 보호하고, 상호 간의 기술 및 정보 교류를 촉진하기 위해 설립되었습니다. 현장의 실무 역량을 강화할 수 있는 양질의 교육과 세미나를 제공하며, 합리적인 정책 제안을 통해 관리 제도의 선진화를 이끌어가고자 합니다.</p>
+                        
+                        <p>앞으로도 회원 여러분과 적극적으로 소통하며, 모두가 신뢰할 수 있는 쾌적한 건물 환경을 만드는 데 최선을 다하겠습니다.<br>여러분의 지속적인 관심과 성원을 부탁드립니다.</p>
+
+                        <!-- 서명란 수정: 이미지에 맞게 중앙 정렬 적용 -->
+                        <div class="mt-10 text-center font-bold text-[17px] text-gray-900">
+                            대한집합건물관리협회 <span class="ml-2 tracking-wide">임원진 일동</span>
+                        </div>
+                    </div>
+
+                    <!-- 이미지 영역 수정: 회색 박스 제거 및 깔끔한 배치 -->
+                    <div class="w-full lg:w-[320px] shrink-0 bg-white flex flex-col items-center justify-center p-4 gap-4">
+                        <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="w-32 object-contain">
+                        <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="w-48 object-contain">
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

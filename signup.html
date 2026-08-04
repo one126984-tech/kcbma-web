@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>회원가입 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 디자인(Tailwind CSS) 적용 스크립트 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 메인 헤더 (공통) -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            
+            <!-- 1. 로고 영역 -->
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='./index.html'">
+                <img src="./assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-[55px] object-contain">
+                <img src="./assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-[45px] object-contain">
+            </div>
+            
+            <!-- 2. 메인 메뉴 -->
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[18px] text-gray-800 tracking-tight">
+                <a onclick="window.location.href='./pages/about/greeting.html'" class="cursor-pointer text-[#12387a] font-black hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">협회소개</a>
+                <a onclick="window.location.href='./pages/info/notice.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">정보교류</a>
+                <a onclick="window.location.href='./pages/policy/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">정책실현</a>
+                <a onclick="window.location.href='./pages/job/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">구인구직</a>
+                <a onclick="window.location.href='./pages/bid/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">입찰정보</a>
+                <a onclick="window.location.href='./pages/edu/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">교육훈련</a>
+                <a onclick="window.location.href='./pages/tech/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">기술문의</a>
+                <a onclick="window.location.href='./pages/community/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">커뮤니티</a>
+            </nav>
+
+            <!-- 3. 우측 상단 로그인/회원가입 -->
+            <div class="hidden lg:flex items-center gap-4 font-bold text-[14px] text-gray-600">
+                <a onclick="window.location.href='./login.html'" class="cursor-pointer hover:text-[#00a8ff] transition-colors">로그인</a>
+                <span class="text-gray-300">|</span>
+                <a onclick="window.location.href='./signup.html'" class="cursor-pointer text-[#00a8ff] transition-colors">회원가입</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 (회원가입 폼) -->
+    <main class="flex-1 flex items-center justify-center p-4 py-12">
+        <!-- 배경색을 연한 하늘색(bg-sky-50)으로 변경하여 안쪽의 흰색 박스들이 돋보이게 함 -->
+        <div class="bg-sky-50 border border-sky-100 rounded-2xl shadow-md w-full max-w-[420px] p-8 sm:p-10 relative">
+            
+            <!-- 우측 상단 X (닫기) 버튼: 클릭 시 login.html로 이동 -->
+            <button onclick="window.location.href='./login.html'" class="absolute top-4 right-5 text-gray-400 hover:text-gray-800 text-[22px] transition-colors" title="로그인으로 돌아가기">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- 회원가입 타이틀 -->
+            <div class="text-center mb-8 mt-2">
+                <h2 class="text-[24px] font-black text-[#0B2A5B] tracking-tight">회원가입</h2>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <form onsubmit="event.preventDefault();" class="flex flex-col gap-4">
+                
+                <!-- 입력창: 순백색(bg-white)과 약간의 그림자(shadow-sm)를 주어 배경 위로 도드라지게 표현 -->
+                <input type="text" placeholder="이름(닉네임)" class="w-full bg-white shadow-sm border border-gray-300 rounded-lg px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] focus:ring-1 focus:ring-[#12387a] transition-all">
+                
+                <input type="email" placeholder="이메일 주소 (로그인 시 사용됩니다)" class="w-full bg-white shadow-sm border border-gray-300 rounded-lg px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] focus:ring-1 focus:ring-[#12387a] transition-all">
+                
+                <input type="password" placeholder="비밀번호 서식 (8자 이상)" class="w-full bg-white shadow-sm border border-gray-300 rounded-lg px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] focus:ring-1 focus:ring-[#12387a] transition-all">
+                
+                <input type="password" placeholder="비밀번호 확인" class="w-full bg-white shadow-sm border border-gray-300 rounded-lg px-4 py-3.5 text-[14px] outline-none focus:border-[#12387a] focus:ring-1 focus:ring-[#12387a] transition-all">
+                
+                <!-- 약관 동의 영역: 입력창과 동일하게 순백색(bg-white) 적용 -->
+                <div class="w-full bg-white shadow-sm border border-gray-300 rounded-lg p-4 mt-2 flex flex-col gap-3">
+                    <label class="flex items-center gap-2.5 text-[13.5px] text-gray-700 cursor-pointer hover:text-black">
+                        <input type="checkbox" class="w-4 h-4 accent-[#0B2A5B] cursor-pointer">
+                        <span><strong class="text-red-500 font-bold mr-1">[필수]</strong> 이용약관에 동의합니다</span>
+                    </label>
+                    <label class="flex items-center gap-2.5 text-[13.5px] text-gray-700 cursor-pointer hover:text-black">
+                        <input type="checkbox" class="w-4 h-4 accent-[#0B2A5B] cursor-pointer">
+                        <span><strong class="text-red-500 font-bold mr-1">[필수]</strong> 개인정보 처리방침에 동의합니다</span>
+                    </label>
+                </div>
+                
+                <!-- 가입 버튼 -->
+                <button type="submit" class="w-full bg-[#0B2A5B] hover:bg-[#082046] text-white font-bold py-3.5 rounded-lg text-[15.5px] mt-4 transition-colors">
+                    회원가입 완료
+                </button>
+            </form>
+
+            <div class="text-center mt-6 text-[14px] text-gray-600">
+                이미 계정이 있으신가요? <a onclick="window.location.href='./login.html'" class="cursor-pointer font-bold text-[#0B2A5B] hover:underline ml-1">로그인</a>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

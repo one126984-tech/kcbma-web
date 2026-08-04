@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>공지사항 상세 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #12387a; }
+        
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+
+        .board-header { border-top: 2px solid #0B2A5B; border-bottom: 1px solid #e5e7eb; padding: 20px 15px; background-color: #fff; }
+        .board-title { font-size: 20px; font-weight: bold; color: #111; margin-bottom: 12px; }
+        .board-info { display: flex; gap: 20px; font-size: 13.5px; color: #6b7280; }
+        .board-content { min-height: 300px; padding: 40px 15px; background-color: #fff; border-bottom: 1px solid #e5e7eb; font-size: 15.5px; line-height: 1.8; color: #374151; white-space: pre-wrap; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 헤더 -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='../../index.html'">
+                <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-10 object-contain">
+                <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-8 object-contain">
+            </div>
+            
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[15.5px] text-gray-700">
+                <a href="../about/greeting.html" class="hover:text-[#12387a] transition-colors">협회소개</a>
+                <a href="notice.html" class="text-[#12387a] border-b-[3px] border-[#12387a] pb-1">정보교류</a>
+                <a href="../policy/index.html" class="hover:text-[#12387a] transition-colors">정책실현</a>
+                <a href="../job/index.html" class="hover:text-[#12387a] transition-colors">구인구직</a>
+                <a href="../bid/index.html" class="hover:text-[#12387a] transition-colors">입찰정보</a>
+                <a href="../edu/index.html" class="hover:text-[#12387a] transition-colors">교육훈련</a>
+                <a href="../tech/index.html" class="hover:text-[#12387a] transition-colors">기술문의</a>
+                <a href="../community/index.html" class="hover:text-[#12387a] transition-colors">커뮤니티</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 서브 헤더 -->
+    <div class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    정보교류
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm" onclick="window.location.href='notice.html'">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-bullhorn text-[15px]"></i>
+                        </div>
+                        공지사항
+                    </div>
+                </div>
+                <div class="side-menu-item mx-4 border-b border-gray-100">관련 뉴스</div>
+                <div class="side-menu-item mx-4">자료실</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 overflow-hidden min-w-0">
+            <div class="mb-4">
+                <h2 class="text-2xl font-bold text-gray-900">공지사항</h2>
+            </div>
+
+            <div class="shadow-sm">
+                <!-- 게시글 헤더 -->
+                <div class="board-header">
+                    <div id="detail-title" class="board-title">로딩중...</div>
+                    <div class="board-info">
+                        <span><i class="far fa-user mr-1"></i> 관리자</span>
+                        <span><i class="far fa-clock mr-1"></i> <span id="detail-date">-</span></span>
+                        <span><i class="far fa-eye mr-1"></i> <span id="detail-views">0</span></span>
+                    </div>
+                </div>
+                
+                <!-- 게시글 본문 -->
+                <div id="detail-content" class="board-content">
+                    데이터를 불러오는 중입니다. 잠시만 기다려주세요.
+                </div>
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="flex justify-between items-center mt-6">
+                <div>
+                    <!-- 관리자용 삭제 버튼 (임시 구현) -->
+                    <button onclick="deleteNotice()" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold px-4 py-2 rounded text-[14px] transition-colors">삭제</button>
+                </div>
+                <button onclick="window.location.href='notice.html'" class="bg-[#333] hover:bg-black text-white font-bold px-6 py-2 rounded text-[14px] transition-colors">목록으로</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const boardId = urlParams.get('id');
+
+        const formatDate = (dateString) => {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}.${month}.${day} ${hours}:${minutes}`;
+        };
+
+        async function fetchNoticeDetail() {
+            if (!boardId) {
+                alert("잘못된 접근입니다.");
+                window.location.href = 'notice.html';
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('id', boardId)
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById('detail-title').innerText = data.title;
+                document.getElementById('detail-content').innerText = data.content || '내용이 없습니다.';
+                document.getElementById('detail-date').innerText = formatDate(data.created_at);
+                document.getElementById('detail-views').innerText = data.views || 0;
+
+            } catch (error) {
+                console.error("게시글 불러오기 실패:", error);
+                document.getElementById('detail-content').innerText = "데이터를 불러오는 중 오류가 발생했습니다.";
+            }
+        }
+
+        async function deleteNotice() {
+            if(!confirm("정말 이 공지사항을 삭제하시겠습니까?")) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('master_board')
+                    .delete()
+                    .eq('id', boardId);
+                
+                if (error) throw error;
+                alert("삭제되었습니다.");
+                window.location.href = 'notice.html';
+            } catch (error) {
+                console.error("삭제 실패:", error);
+                alert("삭제 중 오류가 발생했습니다.");
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchNoticeDetail);
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>협회연혁 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #12387a; }
+        
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 메인 헤더 -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='../../index.html'">
+                <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-10 object-contain">
+                <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-8 object-contain">
+            </div>
+            
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[15.5px] text-gray-700">
+                <a href="greeting.html" class="text-[#12387a] border-b-[3px] border-[#12387a] pb-1">협회소개</a>
+                <a href="../info/notice.html" class="hover:text-[#12387a] transition-colors">정보교류</a>
+                <a href="../policy/index.html" class="hover:text-[#12387a] transition-colors">정책실현</a>
+                <a href="../job/index.html" class="hover:text-[#12387a] transition-colors">구인구직</a>
+                <a href="../bid/index.html" class="hover:text-[#12387a] transition-colors">입찰정보</a>
+                <a href="../edu/index.html" class="hover:text-[#12387a] transition-colors">교육훈련</a>
+                <a href="../tech/index.html" class="hover:text-[#12387a] transition-colors">기술문의</a>
+                <a href="../community/index.html" class="hover:text-[#12387a] transition-colors">커뮤니티</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 서브 헤더 -->
+    <div class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    협회소개
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-item mx-4 border-b border-gray-100" onclick="window.location.href='greeting.html'">
+                    인사말
+                </div>
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-history text-[15px]"></i>
+                        </div>
+                        협회연혁
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 콘텐츠 영역 -->
+        <section class="flex-1 overflow-hidden min-w-0">
+            <div class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm min-h-[600px]">
+                
+                <div class="pb-6 mb-8 border-b border-gray-100">
+                    <h2 class="text-3xl font-black text-[#0B2A5B] tracking-tight">연혁</h2>
+                </div>
+
+                <!-- 타임라인 컨테이너 (좌측 회색 실선) -->
+                <div class="border-l-[3px] border-gray-200 ml-[18px] mt-6 flex flex-col gap-10 py-2">
+                    
+                    <!-- 2026.05 (1) -->
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.05</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">발기인 임시모임 개최</div>
+                    </div>
+
+                    <!-- 2026.05 (2) -->
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.05</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">네이버 공식카페 개설</div>
+                    </div>
+
+                    <!-- 2026.08 -->
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.08</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">발기인 정식모임 개최</div>
+                    </div>
+
+                    <!-- 2026.09 -->
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.09</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">네이버 공식 홈페이지 개설</div>
+                    </div>
+
+                    <!-- 2026.10 -->
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.10</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">창립총회</div>
+                    </div>
+
+                    <!-- 2026.12 -->
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.12</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">제1차 정기총회</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

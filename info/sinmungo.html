@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>정책신문고 | 대한집합건물관리협회</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  
+  <style>
+    /* ★ 배경색 및 스크롤 고정 (흔들림/깜빡임 방지 표준) ★ */
+    html { 
+      overflow-y: scroll !important; 
+      background-color: #F8FAFC; 
+    }
+    body { 
+      font-family: 'Noto Sans KR', sans-serif; 
+      background-color: #F8FAFC; 
+      color: #333; 
+      line-height: 1.7; 
+      overflow-x: hidden;
+      margin: 0;
+    }
+    
+    a, [data-href] { cursor: pointer; }
+    
+    /* GNB 메뉴 호버 및 드롭다운 CSS (높이 점프 원인 제거) */
+    .menu-item { color: #333333; font-weight: 700; transition: color 0.2s ease-in-out; }
+    .menu-item:hover { color: #008f8c; } 
+    .menu-item.active { color: #2BA8A0; font-weight: 900; }
+    
+    .gnb-dropdown-wrap { position: relative; display: flex; align-items: center; height: 100%; padding: 10px 0; }
+    .gnb-dropdown-menu { display: none; position: absolute; top: 100%; left: -20px; width: 140px; padding-top: 10px; z-index: 999; }
+    .gnb-dropdown-wrap:hover .gnb-dropdown-menu { display: block !important; }
+    .dropdown-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+    .dropdown-box div { display: block; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #475569; border-bottom: 1px solid #f8fafc; text-align: left; cursor: pointer; transition: background 0.2s; }
+    .dropdown-box div:hover { background: #f1f5f9; color: #2BA8A0; }
+
+    /* ★ 히어로 영역 (법규·정책 페이지와 완벽하게 동일한 여백 및 높이 적용) ★ */
+    .page-hero { background-color: #12387a; color: white; padding: 25px 20px 30px; }
+    .breadcrumb { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px; display: flex; gap: 8px; align-items: center; }
+
+    /* 모달 스타일 */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-backdrop.is-open { display: flex !important; }
+    .modal-dialog { background: white; padding: 40px 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; background: none; border: none; padding: 5px; color: #94A3B8; transition: color 0.2s; }
+    .modal-close:hover { color: #333; }
+    .modal-brand { text-align: center; margin-bottom: 25px; }
+    .modal-title { font-size: 1.6rem; font-weight: 900; color: #0B2A5B; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .modal-subtitle { color: #64748b; font-size: 0.9rem; font-weight: 500; }
+    .modal-input { width: 100%; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 12px; font-size: 0.95rem; outline: none; transition: border 0.2s; color: #333; }
+    .modal-input::placeholder { color: #94A3B8; }
+    .modal-input:focus { border-color: #0B2A5B; }
+    .btn-primary-full { width: 100%; padding: 15px; background: #0B2A5B; color: #fff; font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; transition: background 0.2s; margin-top: 5px; }
+    .btn-primary-full:hover { background: #082046; }
+    .modal-switch { text-align: center; margin-top: 25px; font-size: 0.9rem; color: #64748b; }
+    .modal-switch a { color: #0B2A5B; font-weight: 700; cursor: pointer; text-decoration: none; margin-left: 4px; }
+    .modal-switch a:hover { text-decoration: underline; }
+    .modal-divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; }
+    .modal-divider::before, .modal-divider::after { content: ''; flex: 1; border-bottom: 1px solid #E2E8F0; }
+    .modal-divider::before { margin-right: 15px; }
+    .modal-divider::after { margin-left: 15px; }
+    .btn-social { display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; transition: opacity 0.2s; position: relative; }
+    .btn-social:hover { opacity: 0.9; }
+    .btn-social svg { position: absolute; left: 20px; width: 20px; height: 20px; }
+    .btn-google { background: #F4F6F8; color: #1E293B; border-color: #C3D4E6; }
+    .btn-naver { background: #03C75A; color: #FFFFFF; }
+    .btn-kakao { background: #FEE500; color: #371D1E; }
+    .terms-box { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 8px; padding: 16px; margin-bottom: 15px; margin-top: 5px; }
+    .terms-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.9rem; color: #475569; cursor: pointer; }
+    .terms-row:last-child { margin-bottom: 0; }
+    .terms-row input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; accent-color: #0B2A5B; cursor: pointer; }
+    .text-red { color: #E11D48; font-weight: 700; margin-right: 5px; }
+  </style>
+  
+  <script>
+    // ★ 들썩임 없이 바로 이동하도록 표준 함수 적용 ★
+    function handleNavigation(element) {
+      const url = element.getAttribute('data-href');
+      const target = element.getAttribute('data-target');
+      if (url && url !== '#') {
+        var currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        var targetPath = url.split('/').pop();
+        
+        if (currentPath === targetPath && target !== '_blank') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        if (target === '_blank') { 
+          window.open(url, '_blank'); 
+        } else { 
+          window.location.href = url; // 즉각 이동
+        }
+      }
+    }
+
+    // ★ 팝업 및 모바일 메뉴 시 화면 들썩임(paddingRight) 완벽 제거 ★
+    function openCustomModal(id) {
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('is-open'));
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden'; 
+      }
+    }
+
+    function closeCustomModal(id) {
+      const modal = document.getElementById('modal-' + id);
+      if (modal) {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = ''; 
+      }
+    }
+
+    function switchCustomModal(closeId, openId) {
+      closeCustomModal(closeId);
+      setTimeout(() => openCustomModal(openId), 100); 
+    }
+
+    function handleFormSubmit(event, modalId, message) {
+      event.preventDefault(); 
+      alert(message);
+      if(modalId) closeCustomModal(modalId);
+    }
+
+    // 신문고 제보 등록 스크립트
+    function handleSinmungoSubmit(event) {
+      event.preventDefault(); 
+      
+      const form = event.target;
+      const title = form.title.value.trim(); 
+      const content = form.content.value.trim();
+      
+      if (!title) {
+        alert('제목을 입력해 주세요.');
+        form.title.focus(); 
+        return;
+      }
+      
+      if (!content) {
+        alert('내용을 입력해 주세요.');
+        form.content.focus(); 
+        return;
+      }
+      
+      alert('제보가 성공적으로 등록되었습니다.'); 
+      form.reset(); 
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu.style.display === 'block' || menu.classList.contains('hidden') === false) {
+        if(menu.classList.contains('hidden') === false) menu.classList.add('hidden');
+        menu.style.display = 'none';
+        document.body.style.overflow = '';
+      } else {
+        menu.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#F8FAFC]">
+
+  <!-- 통합 표준 헤더 -->
+  <div class="sticky top-0 z-[900] w-full flex flex-col bg-white border-b border-gray-300 shadow-sm">
+    <div class="w-full bg-[#0a1931] py-2.5">
+      <div class="max-w-7xl mx-auto px-2 md:px-8 flex flex-wrap justify-center sm:justify-end items-center gap-1.5 md:gap-3 text-white text-[11px] sm:text-[13px] font-bold">
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="bg-[#03c75a] hover:bg-[#02a64b] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">네이버카페</div>
+        <div onclick="openCustomModal('login')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">로그인</div>
+        <div onclick="openCustomModal('signup')" class="bg-[#1f3b73] hover:bg-[#152a55] px-2.5 py-1.5 md:px-4 md:py-1.5 rounded cursor-pointer">회원가입</div>
+        <div class="flex items-center cursor-pointer bg-[#0a1931] px-1 md:ml-2">
+          <span onclick="openCustomModal('find-id')" class="hover:text-gray-300 p-1.5">아이디찾기</span>
+          <span class="text-gray-400 font-normal">|</span>
+          <span onclick="openCustomModal('find-pw')" class="hover:text-gray-300 p-1.5">비밀번호찾기</span>
+        </div>
+      </div>
+    </div>
+    
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto w-full">
+      <div data-href="../index.html" onclick="handleNavigation(this)" class="flex items-center h-[40px] md:h-[48px] cursor-pointer">
+        <img src="../방패로고.jpg" alt="방패로고" class="h-full w-auto" onerror="this.onerror=null; this.src='../assets/img/방패로고-removebg-preview.png';">
+        <img src="../로고_글자.png" alt="글자로고" class="h-[36px] md:h-[44px] w-auto ml-2 mt-1" onerror="this.onerror=null; this.src='../assets/img/로고_글자-removebg-preview.png';">
+      </div>
+      
+      <!-- PC용 메뉴 -->
+      <nav class="hidden md:flex space-x-12 font-bold text-[17px] items-center">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">협회소개</div>
+        
+        <!-- 정보교류 드롭다운 -->
+        <div class="relative gnb-dropdown-wrap cursor-pointer">
+          <div data-href="../info/index.html" onclick="handleNavigation(this)" class="menu-item">정보교류</div>
+          <div class="gnb-dropdown-menu">
+            <div class="dropdown-box">
+              <div data-href="../policy/law.html" onclick="event.stopPropagation(); handleNavigation(this)">법규·정책</div>
+              <div data-href="../info/videos.html" onclick="event.stopPropagation(); handleNavigation(this)">영상 자료실</div>
+              <div data-href="../info/columns.html" onclick="event.stopPropagation(); handleNavigation(this)">시설업체 칼럼</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="menu-item cursor-pointer">구인구직</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="menu-item active cursor-pointer">정책신문고</div>
+      </nav>
+
+      <button class="md:hidden p-2 text-[#0a1931]" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+  </div>
+
+  <!-- 모바일 사이드 메뉴 -->
+  <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1000] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+    <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+      <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+        <img src="../대한집합건물관리협회-removebg-preview.png" alt="대한집합건물관리협회 로고" class="h-[30px] w-auto object-contain" onerror="this.src='../방패로고.jpg'">
+        <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-bold text-[17px]">
+        <div data-href="../about/intro.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">협회소개</div>
+        <details class="group">
+          <summary class="cursor-pointer hover:text-[#2BA8A0] list-none flex justify-between items-center outline-none">
+            정보교류
+            <span class="text-xl group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="mt-3 ml-4 space-y-3 text-[15px] font-normal text-gray-300">
+            <div data-href="../policy/law.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">법규·정책</div>
+            <div data-href="../info/videos.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">영상 자료실</div>
+            <div data-href="../info/columns.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-white">시설업체 칼럼</div>
+          </div>
+        </details>
+        <div data-href="../info/forum.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">정책토론</div>
+        <div data-href="../jobs/list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#2BA8A0]">구인구직</div>
+        <div data-href="sinmungo.html" onclick="handleNavigation(this)" class="cursor-pointer text-[#2BA8A0]">정책신문고</div>
+      </div>
+
+      <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-bold text-center">
+        <div data-href="../partners/apply.html" onclick="handleNavigation(this)" class="w-full py-3 bg-white text-[#0a1931] rounded-lg cursor-pointer">광고 문의</div>
+        <div data-href="https://cafe.naver.com/kcbma114" data-target="_blank" onclick="handleNavigation(this)" class="w-full py-3 bg-[#03c75a] text-white rounded-lg cursor-pointer">네이버카페 바로가기</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ★ 페이지 히어로 (법규·정책과 완벽 동일한 구조로 변경) ★ -->
+  <section class="page-hero">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 text-center md:text-left">
+      <nav class="breadcrumb justify-center md:justify-start" aria-label="breadcrumb">
+        <span data-href="../index.html" onclick="handleNavigation(this)" class="hover:underline cursor-pointer">홈</span>
+        <span>›</span>
+        <span>정책신문고</span>
+      </nav>
+      
+      <div class="mt-2 text-center">
+        <div class="mb-3"><h2 class="text-3xl font-extrabold text-white">정책신문고</h2></div>
+        <p class="text-[14px] text-gray-300 leading-relaxed max-w-2xl mx-auto">
+          부당한 갑질, 불합리한 제도 등 현장의 목소리를 자유롭게 남겨주세요.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="flex-1 py-8 md:py-12 px-4 sm:px-6 w-full">
+    <div class="max-w-5xl mx-auto">
+      
+      <!-- 신문고 제보 작성 폼 -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-10 shadow-sm mb-10">
+        <div class="flex items-center gap-2 mb-6">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[#2BA8A0]"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+          <h2 class="text-xl md:text-2xl font-black text-gray-900">현장 고발 / 자유신문고 등록</h2>
+        </div>
+        
+        <form name="sinmungo" method="POST" data-netlify="true" onsubmit="handleSinmungoSubmit(event)">
+          <div class="mb-5">
+            <label class="block text-sm font-bold text-gray-700 mb-2">분류</label>
+            <select name="category" class="w-full bg-gray-50 border border-gray-300 p-3.5 rounded-lg text-[15px] outline-none focus:border-[#0B2A5B] transition-colors cursor-pointer">
+              <option value="갑질·폭언 고발">갑질·폭언 고발</option>
+              <option value="부당 해고·계약 위반">부당 해고·계약 위반</option>
+              <option value="제도 개선 건의">제도 개선 건의</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div class="mb-5">
+            <label class="block text-sm font-bold text-gray-700 mb-2">제목</label>
+            <input name="title" class="w-full bg-gray-50 border border-gray-300 p-3.5 rounded-lg text-[15px] outline-none focus:border-[#0B2A5B] transition-colors" type="text" placeholder="제목을 입력하세요" />
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-2">내용</label>
+            <textarea name="content" class="w-full bg-gray-50 border border-gray-300 p-4 rounded-lg text-[15px] outline-none focus:border-[#0B2A5B] transition-colors resize-y min-h-[160px]" placeholder="제보하실 내용을 상세히 적어주세요. (개인정보 보호를 위해 특정인이나 단체의 실명 거론은 주의해 주세요.)"></textarea>
+          </div>
+          <button type="submit" class="w-full md:w-auto bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 px-10 rounded-xl transition-colors shadow-sm text-[15px] cursor-pointer">제보 등록하기</button>
+        </form>
+      </div>
+
+      <!-- 게시글 목록 -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        
+        <div data-href="sinmungo-detail.html" onclick="handleNavigation(this)" class="p-5 md:p-6 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+          <div class="flex items-start md:items-center gap-3 md:w-full">
+            <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-1 rounded whitespace-nowrap mt-0.5 md:mt-0">갑질·폭언</span>
+            <p class="text-[15px] md:text-base font-bold text-gray-800 line-clamp-1 flex-1 break-keep">[갑질·폭언] 새벽 2시에 입주민이 관리실 문 두드리며 욕설</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-gray-400 mt-2 md:mt-0 md:flex-shrink-0">
+            <span>익명</span>
+            <span>|</span>
+            <span>2026.05.24</span>
+          </div>
+        </div>
+        
+        <div data-href="sinmungo-detail.html" onclick="handleNavigation(this)" class="p-5 md:p-6 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+          <div class="flex items-start md:items-center gap-3 md:w-full">
+            <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2 py-1 rounded whitespace-nowrap mt-0.5 md:mt-0">제도 개선</span>
+            <p class="text-[15px] md:text-base font-bold text-gray-800 line-clamp-1 flex-1 break-keep">소규모 집합건물 관리인 선임 절차가 너무 복잡합니다.</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-gray-400 mt-2 md:mt-0 md:flex-shrink-0">
+            <span>익명</span>
+            <span>|</span>
+            <span>2026.05.21</span>
+          </div>
+        </div>
+
+        <div data-href="sinmungo-detail.html" onclick="handleNavigation(this)" class="p-5 md:p-6 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+          <div class="flex items-start md:items-center gap-3 md:w-full">
+            <span class="bg-purple-100 text-purple-700 text-[11px] font-bold px-2 py-1 rounded whitespace-nowrap mt-0.5 md:mt-0">부당 계약</span>
+            <p class="text-[15px] md:text-base font-bold text-gray-800 line-clamp-1 flex-1 break-keep">위탁관리업체 변경 시 고용승계 거부 사례 고발</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-gray-400 mt-2 md:mt-0 md:flex-shrink-0">
+            <span>익명</span>
+            <span>|</span>
+            <span>2026.05.18</span>
+          </div>
+        </div>
+
+      </div>
+      
+      <!-- 페이지네이션 -->
+      <nav class="flex justify-center items-center space-x-2 my-8" aria-label="페이지 이동">
+        <span class="w-8 h-8 flex items-center justify-center bg-[#0B2A5B] text-white font-bold rounded-md">1</span>
+        <span onclick="window.location.href='#'" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 font-bold rounded-md cursor-pointer transition-colors">2</span>
+        <span onclick="window.location.href='#'" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 font-bold rounded-md cursor-pointer transition-colors">3</span>
+      </nav>
+
+    </div>
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- ★ 로그인, 회원가입, 아이디/비밀번호 찾기 모달 HTML ★ -->
+  <!-- ========================================== -->
+  
+  <!-- 1. 로그인 모달 -->
+  <div id="modal-login" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('login')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('login')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      
+      <div class="modal-brand">
+        <div class="modal-title">로그인</div>
+        <div class="modal-subtitle">대한집합건물관리협회에 오신 것을 환영합니다</div>
+      </div>
+      
+      <div class="modal-divider">간편 로그인</div>
+      <button type="button" class="btn-social btn-google" onclick="alert('구글 로그인 준비중')">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        구글 로그인
+      </button>
+      <button type="button" class="btn-social btn-naver" onclick="alert('네이버 로그인 준비중')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/></svg>
+        네이버 로그인
+      </button>
+      <button type="button" class="btn-social btn-kakao" onclick="alert('카카오 로그인 준비중')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c-5.523 0-10 3.538-10 7.9 0 2.825 1.83 5.305 4.621 6.745-.3 1.11-1.077 3.966-1.113 4.103-.046.167.06.257.195.168.103-.067 4.398-2.923 5.127-3.414.757.11 1.54.168 2.34.168 5.523 0 10-3.538 10-7.9S17.523 3 12 3z"/></svg>
+        카카오 로그인
+      </button>
+
+      <div class="modal-divider">다른 선택</div>
+      <form onsubmit="handleFormSubmit(event, 'login', '로그인 기능이 준비 중입니다.')">
+        <input type="email" class="modal-input" placeholder="가입하신 이메일 입력" required>
+        <input type="password" class="modal-input" placeholder="비밀번호" required>
+        <button type="submit" class="btn-primary-full">이메일 로그인</button>
+      </form>
+      
+      <div class="modal-switch">아직 회원이 아니신가요? <a onclick="switchCustomModal('login', 'signup')">회원가입</a></div>
+    </div>
+  </div>
+
+  <!-- 2. 회원가입 모달 -->
+  <div id="modal-signup" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('signup')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('signup')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      
+      <div class="modal-brand">
+        <div class="modal-title">회원가입</div>
+        <div class="modal-subtitle">통합 회원이 되어 실무 권익 인프라를 누리세요</div>
+      </div>
+      
+      <form onsubmit="handleFormSubmit(event, 'signup', '회원가입 기능이 준비 중입니다.')">
+        <input type="text" class="modal-input" placeholder="이름(닉네임)" required>
+        <input type="email" class="modal-input" placeholder="이메일 주소 (로그인 시 사용됩니다)" required>
+        <input type="password" class="modal-input" placeholder="비밀번호 서식 (8자 이상)" required minlength="8">
+        <input type="password" class="modal-input" placeholder="비밀번호 확인" required minlength="8">
+        
+        <div class="terms-box">
+          <label class="terms-row">
+            <input type="checkbox" required>
+            <span class="text-red">[필수]</span> 이용약관에 동의합니다
+          </label>
+          <label class="terms-row">
+            <input type="checkbox" required>
+            <span class="text-red">[필수]</span> 개인정보 처리방침에 동의합니다
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary-full">가입 신청 완료</button>
+      </form>
+      <div class="modal-switch">이미 계정이 있으신가요? <a onclick="switchCustomModal('signup', 'login')">로그인</a></div>
+    </div>
+  </div>
+
+  <!-- 3. 아이디 찾기 모달 -->
+  <div id="modal-find-id" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('find-id')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-id')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <div class="modal-brand"><div class="modal-title">아이디 찾기</div><div class="modal-subtitle">가입 시 등록한 이름과 이메일을 입력해주세요.</div></div>
+      <form onsubmit="handleFormSubmit(event, 'find-id', '아이디 찾기 기능이 준비 중입니다.')">
+        <input type="text" class="modal-input" placeholder="이름" required>
+        <input type="email" class="modal-input" placeholder="이메일" required>
+        <button type="submit" class="btn-primary-full" style="margin-top:10px;">아이디 찾기</button>
+      </form>
+      <div class="modal-switch"><a onclick="switchCustomModal('find-id', 'login')">로그인 화면으로 돌아가기</a></div>
+    </div>
+  </div>
+
+  <!-- 4. 비밀번호 찾기 모달 -->
+  <div id="modal-find-pw" class="modal-backdrop" onclick="if(event.target===this) closeCustomModal('find-pw')">
+    <div class="modal-dialog">
+      <button class="modal-close" onclick="closeCustomModal('find-pw')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <div class="modal-brand"><div class="modal-title">비밀번호 찾기</div><div class="modal-subtitle">가입 시 등록한 아이디와 이메일을 입력해주세요.</div></div>
+      <form onsubmit="handleFormSubmit(event, 'find-pw', '비밀번호 찾기 기능이 준비 중입니다.')">
+        <input type="text" class="modal-input" placeholder="아이디" required>
+        <input type="email" class="modal-input" placeholder="이메일" required>
+        <button type="submit" class="btn-primary-full" style="margin-top:10px;">임시 비밀번호 발송</button>
+      </form>
+      <div class="modal-switch"><a onclick="switchCustomModal('find-pw', 'login')">로그인 화면으로 돌아가기</a></div>
+    </div>
+  </div>
+
+  <!-- 푸터 영역 컨테이너 -->
+  <div id="footer-container"></div>
+
+  <!-- 푸터 스크립트 -->
+  <script src="../assets/js/footer.js"></script>
+
+</body>
+</html>

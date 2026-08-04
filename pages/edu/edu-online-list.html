@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>원격교육 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        /* 좌측 사이드바 메뉴 스타일 */
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        
+        /* 활성화된 메뉴 파란색 박스 디자인 */
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+
+        /* 공지사항 박스 스타일 (원격교육 안내) */
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .notice-content { flex: 1; }
+        .notice-title { font-size: 16px; font-weight: 700; color: #12387a; margin-bottom: 12px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+        .notice-list li:last-child { margin-bottom: 0; }
+        .text-highlight { color: #dc2626; font-weight: bold; }
+
+        /* 필터 테이블 스타일 */
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; line-height: 2.2; padding: 20px 5px; vertical-align: middle; }
+        .filter-table td { padding: 20px 30px; border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .filter-table tr:last-child th, .filter-table tr:last-child td { border-bottom: none; }
+
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
+
+        /* 데이터 리스트 테이블 wrapper */
+        .data-table-wrapper { background: #fff; overflow-x: auto; overflow-y: hidden; border-top: none; margin-top: 0 !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; }
+        
+        .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
+        .data-table td { padding: 14px 10px; font-size: 13.5px; color: #4b5563; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+        
+        /* 교육 접수 상태 뱃지 */
+        .badge-open { display: inline-block; width: 54px; padding: 3px 0; background-color: #3b82f6; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; } 
+        .badge-closed { display: inline-block; width: 54px; padding: 3px 0; background-color: #6b7280; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+
+        .custom-checkbox { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; word-break: keep-all; white-space: nowrap; line-height: 1.3; }
+        .custom-checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+        .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; font-weight: 500; }
+        .custom-radio input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 1. 메인 헤더 -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[70px] flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='../index.html'">
+                <img src="../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-12 object-contain">
+                <img src="../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-10 object-contain">
+            </div>
+            
+            <nav class="hidden md:flex items-center gap-10 font-bold text-[17px] text-gray-700">
+                <a href="about.html" class="hover:text-[#0088cc] transition-colors">협회소개</a>
+                <a href="info-list.html" class="hover:text-[#0088cc] transition-colors">정보교류</a>
+                <a href="bid-list.html" class="hover:text-[#0088cc] transition-colors">입찰공고</a>
+                <a href="job-list.html" class="hover:text-[#0088cc] transition-colors">구인구직</a>
+                <!-- 교육/실습 메뉴 활성화 -->
+                <a href="edu-list.html" class="text-[#0088cc] border-b-[3px] border-[#0088cc] pb-1">교육/실습</a>
+                <a href="community.html" class="hover:text-[#0088cc] transition-colors">커뮤니티</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 2. 파란색 서브 헤더 -->
+    <div id="sticky-top-bar" class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    교육 <span class="text-gray-400 font-light mx-2">/</span> 실습
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바 (원격교육 활성화) -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <!-- 활성화 메뉴 (원격교육) -->
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-laptop-house text-[15px]"></i>
+                        </div>
+                        원격 교육
+                    </div>
+                </div>
+                <!-- 비활성화 메뉴 (현장교육) -->
+                <div class="side-menu-item mx-4 border-b border-gray-100" onclick="window.location.href='edu-list.html'">
+                    <div class="flex items-center justify-center w-full text-gray-700">
+                        <div class="w-4 h-4 flex items-center justify-center mr-2 text-indigo-500">
+                            <i class="fas fa-hard-hat text-[15px]"></i>
+                        </div>
+                        현장 교육
+                    </div>
+                </div>
+                <!-- 비활성화 메뉴 (세미나 안내) -->
+                <div class="side-menu-item mx-4" onclick="window.location.href='edu-seminar-list.html'">
+                    <div class="flex items-center justify-center w-full text-gray-700">
+                        <div class="w-4 h-4 flex items-center justify-center mr-2 text-emerald-600">
+                            <i class="fas fa-bullhorn text-[15px]"></i>
+                        </div>
+                        세미나 안내
+                    </div>
+                </div>
+            </div>
+
+            <!-- 조회기간 -->
+            <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 py-1.5 text-xs rounded font-bold col-span-2" onclick="setPeriod('all', this)">기간 전체</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('1w', this)">1주</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('1m', this)">1달</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('2m', this)">2달</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('6m', this)">6개월</button>
+                </div>
+                <div class="flex items-stretch gap-2">
+                    <div class="flex flex-col gap-2 flex-1">
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                            <span class="text-xs text-gray-600 font-bold w-6">부터</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                            <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                        </div>
+                    </div>
+                    <button onclick="applyFilters()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        검<br>색
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 -->
+        <section class="flex-1 overflow-hidden min-w-0">
+            
+            <!-- 공지사항 박스 (원격교육 안내로 변경) -->
+            <div class="notice-box flex-col sm:flex-row mb-6">
+                <div class="notice-icon-wrapper self-start">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="notice-content">
+                    <div class="notice-title">온라인 강의 및 실시간 원격 교육 안내</div>
+                    <ul class="notice-list">
+                        <li><strong>다양한 학습 방식:</strong> 시간에 구애받지 않고 시청하는 <span class="text-highlight">동영상(VOD) 강의</span>와 Zoom 등을 통해 강사와 소통하는 <span class="text-highlight">실시간 화상 강의</span>가 제공됩니다.</li>
+                        <li><strong>학습 능력 점검(테스트):</strong> 단순 시청을 넘어 단원별 퀴즈 및 수료 테스트를 통해 교육 내용을 점검하고 실무 적용 능력을 확실하게 강화합니다.</li>
+                        <li><strong>수료 기준:</strong> 지정된 진도율(수강률)을 달성하고 온라인 평가 시험에서 기준 점수 이상을 획득하시면 자동으로 교육 이수증이 발급됩니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 검색 필터 테이블 -->
+            <table class="filter-table shadow-sm">
+                <tbody>
+                    <!-- 교육 방식 선택 라디오 -->
+                    <tr>
+                        <th class="hidden sm:table-cell" style="background-color: #e0e7ff; color: #1e3a8a;">방<br>식</th>
+                        <td class="block sm:table-cell w-full" style="background-color: #f8fafc; border-bottom: 2px solid #e5e7eb;">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a]">교육 방식</div>
+                            <div class="flex items-center gap-6 w-full">
+                                <label class="custom-radio text-[#12387a]"><input type="radio" name="edu_method" value="ALL" checked onchange="applyFilters()"> 전체보기</label>
+                                <label class="custom-radio text-[#12387a]"><input type="radio" name="edu_method" value="VOD" onchange="applyFilters()"> 동영상(VOD)</label>
+                                <label class="custom-radio text-[#12387a]"><input type="radio" name="edu_method" value="LIVE" onchange="applyFilters()"> 실시간 화상(Zoom)</label>
+                                <label class="custom-radio text-[#12387a]"><input type="radio" name="edu_method" value="MIX" onchange="applyFilters()"> 혼합형 (VOD+LIVE)</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell">교<br>육<br>분<br>류</th>
+                        <td class="block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a] mt-2">교육분류</div>
+                            <!-- 전기, 소방, 건축기사 등 자격/실무에 맞춘 교육 카테고리 -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full">
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="소방안전실무"> <span>소방안전실무</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="전기설비실무"> <span>전기설비실무</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="기계설비실무"> <span>기계설비실무</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="건축/영선실무"> <span>건축/영선실무</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="관리소장직무"> <span>관리소장직무</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="회계/행정"> <span>회계/행정</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="법정의무교육"> <span>법정의무교육</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="edu-category-chk" value="기타교육"> <span>기타교육</span></label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell" style="color: #1e3a8a; font-size: 15px; font-weight: bold; padding-top: 10px; padding-bottom: 10px;">상<br>태</th>
+                        <td class="block sm:table-cell w-full overflow-visible" style="padding-top: 10px; padding-bottom: 10px;">
+                            <div class="font-bold sm:hidden mb-2 text-[#1e3a8a] text-[15px]">접수 상태</div>
+                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2">
+                                <div class="flex items-center shrink-0 mt-1">
+                                    <div class="flex items-center gap-4">
+                                        <label class="custom-radio"><input type="radio" name="status" value="ALL" checked onchange="applyFilters()"> 전체보기</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="OPEN" onchange="applyFilters()"> 접수(수강)중</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="CLOSED" onchange="applyFilters()"> 마감</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 검색 박스 및 태그 -->
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-3 border border-gray-200 shadow-sm">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+                
+                <div class="flex-1 min-w-[200px] border border-gray-300 rounded flex flex-wrap items-center bg-white px-2 py-1 gap-1 focus-within:border-blue-500 transition-colors">
+                    <div id="selected-tags-container" class="flex flex-wrap gap-1" style="display: none;"></div>
+                    <input type="text" id="search-include" class="flex-1 min-w-[120px] outline-none text-[13px] text-gray-700 placeholder-gray-400 bg-transparent py-0.5" placeholder="교육명을 검색하세요">
+                </div>
+                
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                <input type="text" id="search-exclude" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400" placeholder="제외할 단어 (쉼표로 구분)">
+                
+                <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검&nbsp;&nbsp;색</button>
+            </div>
+
+            <div class="board-toolbar-wrap">
+                <!-- 데이터 테이블 헤더부 상단 컨트롤 영역 -->
+                <div class="flex flex-wrap sm:flex-nowrap justify-between items-end bg-transparent px-2 pt-2 pb-0">
+                    
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 교육 과정이 있습니다. 
+                    </div>
+
+                    <div class="flex items-end gap-2">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors">조회순</button>
+                        </div>
+                        
+                        <!-- 교육 등록하기 버튼 -->
+                        <button onclick="window.location.href='edu-write.html'" class="bg-[#facc15] hover:bg-[#eab308] text-gray-900 font-bold px-5 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center">
+                            교육 등록하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 데이터 리스트 테이블 (원격교육 맞춤 열 구성) -->
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 70px;">  <!-- 상태 -->
+                            <col style="width: auto;">  <!-- 교육 제목 -->
+                            <col style="width: 120px;"> <!-- 교육 방식 -->
+                            <col style="width: 110px;"> <!-- 교육 분류 -->
+                            <col style="width: 180px;"> <!-- 수강 기간 -->
+                            <col style="width: 90px;">  <!-- 접수 마감일 -->
+                            <col style="width: 60px;">  <!-- 조회수 -->
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>상태</th>
+                                <th class="text-left pl-4">원격교육명</th>
+                                <th>교육 방식</th>
+                                <th>교육 분류</th>
+                                <th>수강(학습) 기간</th>
+                                <th>접수 마감일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="edu-list-body">
+                            <tr>
+                                <td colspan="7" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 하단 페이징 -->
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10">
+                <!-- JS에서 동적 생성됩니다 -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 기간 설정 버튼 로직
+        function setPeriod(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+            
+            if (btnElement) {
+                btnElement.classList.remove('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+                btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            }
+
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+            
+            if (period === 'all') {
+                startInput.value = '';
+                endInput.value = '';
+            } else {
+                const end = new Date();
+                const start = new Date();
+                
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+        }
+
+        document.getElementById('start-date').addEventListener('change', clearPeriodButtons);
+        document.getElementById('end-date').addEventListener('change', clearPeriodButtons);
+
+        function clearPeriodButtons() {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+        }
+
+        let currentSort = 'latest';  
+        let itemsPerPage = 20;       
+        let currentPage = 1;         
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors";
+                btnViews.className = "text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+            } else {
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+                btnLatest.className = "text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full transition-colors";
+            }
+            applyFilters(); 
+        }
+
+        function setPerPage(element) {
+            itemsPerPage = parseInt(element.value);
+            currentPage = 1; 
+            updateDisplay(); 
+        }
+
+        const formatMonthDay = (dateString) => {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date)) return '-';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${month}-${day}`;
+        };
+
+        // 태그 업데이트 로직 (카테고리 선택 시 반영)
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('edu-category-chk')) {
+                updateSelectedTags();
+            }
+        });
+
+        function updateSelectedTags() {
+            const container = document.getElementById('selected-tags-container');
+            if (!container) return;
+
+            const tags = [];
+            document.querySelectorAll('.edu-category-chk:checked').forEach(cb => tags.push(cb.value)); 
+
+            if (tags.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.innerHTML = tags.map((tag) => {
+                return `
+                    <span class="bg-[#e0e7ff] text-[#3730a3] px-2 py-0.5 rounded text-xs flex items-center gap-1 cursor-pointer hover:bg-[#c7d2fe] transition-colors" onclick="removeTag('${tag}')">
+                        ${tag} <span class="font-bold text-gray-500 mb-[1px]">×</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function removeTag(value) {
+            const checkbox = document.querySelector(`input[type="checkbox"][value="${value}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                updateSelectedTags();
+            }
+        }
+
+        // --- Supabase 연동 및 데이터 처리 ---
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allEdu = [];       
+        let filteredEdu = [];  
+
+        async function fetchEduData() {
+            const tbody = document.getElementById('edu-list-body');
+            
+            try {
+                // 교육 데이터 호출 (게시판 타입 'EDU'로 가정)
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('board_type', 'EDU') 
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allEdu = data || []; 
+                applyFilters(); 
+            } catch (error) {
+                console.error("데이터 불러오기 실패:", error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            }
+        }
+
+        function applyFilters() {
+            filteredEdu = [...allEdu]; 
+
+            // ★ 원격교육 필터 고정 (custom_data.edu_group 에 '원격교육' 저장 시 반영)
+            filteredEdu = filteredEdu.filter(item => {
+                const cData = typeof item.custom_data === 'string' ? JSON.parse(item.custom_data) : (item.custom_data || {});
+                return cData.edu_group === '원격교육' || !cData.edu_group; 
+            });
+
+            // 교육 방식 필터링 (VOD, LIVE, MIX)
+            const methodRadios = document.getElementsByName('edu_method');
+            let selectedMethod = 'ALL';
+            for (const radio of methodRadios) {
+                if (radio.checked) selectedMethod = radio.value;
+            }
+
+            if (selectedMethod !== 'ALL') {
+                filteredEdu = filteredEdu.filter(item => {
+                    const cData = typeof item.custom_data === 'string' ? JSON.parse(item.custom_data) : (item.custom_data || {});
+                    return cData.edu_method === selectedMethod;
+                });
+            }
+
+            // 날짜 필터링
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+
+            if (startDateStr) {
+                const startDate = new Date(startDateStr);
+                startDate.setHours(0, 0, 0, 0);
+                filteredEdu = filteredEdu.filter(item => item.created_at && new Date(item.created_at) >= startDate);
+            }
+            if (endDateStr) {
+                const endDate = new Date(endDateStr);
+                endDate.setHours(23, 59, 59, 999);
+                filteredEdu = filteredEdu.filter(item => item.created_at && new Date(item.created_at) <= endDate);
+            }
+
+            // 상태 필터링 (접수중/마감)
+            const statusRadios = document.getElementsByName('status');
+            let selectedStatus = 'ALL';
+            for (const radio of statusRadios) {
+                if (radio.checked) selectedStatus = radio.value;
+            }
+            
+            if (selectedStatus === 'OPEN') {
+                filteredEdu = filteredEdu.filter(item => item.status === 'OPEN' || !item.status);
+            } else if (selectedStatus === 'CLOSED') {
+                filteredEdu = filteredEdu.filter(item => item.status === 'CLOSED');
+            }
+
+            // 교육 분류 필터링
+            const checkedCategories = Array.from(document.querySelectorAll('.edu-category-chk:checked')).map(cb => cb.value);
+            if (checkedCategories.length > 0) {
+                filteredEdu = filteredEdu.filter(item => {
+                    const cData = typeof item.custom_data === 'string' ? JSON.parse(item.custom_data) : (item.custom_data || {});
+                    return checkedCategories.includes(cData.edu_category);
+                });
+            }
+
+            // 검색어 필터링
+            const includeInput = document.getElementById('search-include').value.trim();
+            const excludeInput = document.getElementById('search-exclude').value.trim();
+
+            if (includeInput) {
+                const includeKeywords = includeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredEdu = filteredEdu.filter(item => {
+                    const targetText = `${item.title || ''}`.toLowerCase();
+                    return includeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            if (excludeInput) {
+                const excludeKeywords = excludeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredEdu = filteredEdu.filter(item => {
+                    const targetText = `${item.title || ''}`.toLowerCase();
+                    return !excludeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            // 정렬
+            if (currentSort === 'latest') {
+                filteredEdu.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (currentSort === 'views') {
+                filteredEdu.sort((a, b) => (b.views || 0) - (a.views || 0));
+            }
+
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const totalCountSpan = document.getElementById('total-count');
+            if(totalCountSpan) {
+                totalCountSpan.innerText = filteredEdu.length;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedEdu = filteredEdu.slice(startIndex, endIndex);
+
+            renderEdu(paginatedEdu);
+            renderPagination(filteredEdu.length);
+        }
+
+        function renderEdu(eduDataList) {
+            const tbody = document.getElementById('edu-list-body');
+            tbody.innerHTML = ''; 
+
+            if (!eduDataList || eduDataList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-20 font-bold text-gray-500">조건에 맞는 결과가 없습니다.</td></tr>';
+                return;
+            }
+
+            eduDataList.forEach((item, index) => {
+                const cData = typeof item.custom_data === 'string' ? JSON.parse(item.custom_data) : (item.custom_data || {});
+                
+                const isOpen = item.status === 'OPEN' || !item.status;
+                const statusBadge = isOpen
+                    ? '<span class="badge-open">접수중</span>' 
+                    : '<span class="badge-closed">마감</span>';
+                
+                const titleClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
+                
+                const eduCategoryStr = cData.edu_category || '-'; 
+                
+                // 교육 방식 텍스트 치환 (VOD / LIVE / MIX)
+                let methodText = '-';
+                if(cData.edu_method === 'VOD') methodText = '동영상(VOD)';
+                else if(cData.edu_method === 'LIVE') methodText = '<span class="text-indigo-600 font-bold">실시간(Zoom)</span>';
+                else if(cData.edu_method === 'MIX') methodText = '혼합형';
+
+                // 원격 교육 수강 기간 (예: 2026.08.01 ~ 2026.08.31)
+                const eduPeriodStr = cData.edu_period || '상시 수강';
+                
+                const viewsStr = item.views || 0; 
+                const endDateStr = formatMonthDay(cData.end_date); 
+
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${statusBadge}</td>
+                    <td class="text-left pl-4 font-bold ${titleClass} cursor-pointer hover:underline" onclick="incrementViewAndGo('${item.id}', ${viewsStr})">
+                        ${item.title || '-'}
+                    </td>
+                    <td class="text-gray-700">${methodText}</td>
+                    <td class="text-gray-600">${eduCategoryStr}</td>
+                    <td class="text-[#0B2A5B] font-bold text-[13px] tracking-tight">${eduPeriodStr}</td>
+                    <td class="text-red-500 font-bold">${endDateStr}</td>
+                    <td class="text-gray-400">${viewsStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const paginationContainer = document.getElementById('pagination-container');
+            if (!paginationContainer) return;
+
+            let html = '';
+            
+            html += `<button onclick="changePage(${currentPage > 1 ? currentPage - 1 : 1})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&lt;</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs transition-colors">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded text-xs transition-colors">${i}</button>`;
+                }
+            }
+
+            html += `<button onclick="changePage(${currentPage < totalPages ? currentPage + 1 : totalPages})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&gt;</button>`;
+
+            paginationContainer.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            updateDisplay(); 
+        }
+
+        function incrementViewAndGo(itemId, currentViews) {
+            supabaseClient
+                .from('master_board')
+                .update({ views: currentViews + 1 })
+                .eq('id', itemId)
+                .then(() => console.log('조회수 업데이트 성공'))
+                .catch(e => console.error('조회수 업데이트 실패:', e));
+
+            window.location.href = `edu-online-detail.html?id=${itemId}`; 
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchEduData);
+    </script>
+</body>
+</html>

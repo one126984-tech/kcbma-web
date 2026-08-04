@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>기본 레이아웃 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 디자인(Tailwind CSS) 적용 스크립트 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #12387a; }
+        
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 메인 헤더 (공통) -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[80px] flex items-center justify-between">
+            
+            <!-- 1. 로고 영역 (크기 확대 유지) -->
+            <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="window.location.href='./index.html'">
+                <img src="./assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-[55px] object-contain">
+                <img src="./assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-[45px] object-contain">
+            </div>
+            
+            <!-- 2. 메인 메뉴 (hover 시 선명한 하늘색 #00a8ff 적용) -->
+            <nav class="hidden lg:flex items-center gap-6 xl:gap-8 font-bold text-[18px] text-gray-800 tracking-tight">
+                <a onclick="window.location.href='./pages/about/greeting.html'" class="cursor-pointer text-[#12387a] font-black hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">협회소개</a>
+                <a onclick="window.location.href='./pages/info/notice.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">정보교류</a>
+                <a onclick="window.location.href='./pages/policy/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">정책실현</a>
+                <a onclick="window.location.href='./pages/job/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">구인구직</a>
+                <a onclick="window.location.href='./pages/bid/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">입찰정보</a>
+                <a onclick="window.location.href='./pages/edu/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">교육훈련</a>
+                <a onclick="window.location.href='./pages/tech/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">기술문의</a>
+                <a onclick="window.location.href='./pages/community/index.html'" class="cursor-pointer hover:text-[#00a8ff] hover:scale-105 transition-all duration-200">커뮤니티</a>
+            </nav>
+
+            <!-- 3. 우측 상단 로그인/회원가입 -->
+            <div class="hidden lg:flex items-center gap-4 font-bold text-[14px] text-gray-600">
+                <a onclick="window.location.href='./login.html'" class="cursor-pointer hover:text-[#00a8ff] transition-colors">로그인</a>
+                <span class="text-gray-300">|</span>
+                <a onclick="window.location.href='./signup.html'" class="cursor-pointer hover:text-[#00a8ff] transition-colors">회원가입</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 서브 헤더 (대분류명) -->
+    <div class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    대분류명
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바 메뉴 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <!-- 활성화된 메뉴 -->
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-check-circle text-[15px]"></i>
+                        </div>
+                        활성화 메뉴
+                    </div>
+                </div>
+                <!-- 비활성화 메뉴 1 -->
+                <div class="side-menu-item mx-4 border-b border-gray-100">
+                    비활성화 메뉴 1
+                </div>
+                <!-- 비활성화 메뉴 2 -->
+                <div class="side-menu-item mx-4">
+                    비활성화 메뉴 2
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 영역 -->
+        <section class="flex-1 overflow-hidden min-w-0 flex flex-col gap-6">
+            
+            <!-- 페이지 안내 타이틀 박스 -->
+            <div class="bg-[#f8fafc] border-l-4 border-[#12387a] border-y border-r border-gray-200 rounded-r p-6 flex items-start gap-4 shadow-sm">
+                <div class="w-8 h-8 rounded-full bg-[#e0e7ff] text-[#12387a] flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-info text-[14px]"></i>
+                </div>
+                <div>
+                    <h3 class="text-[18px] font-bold text-[#111827] mb-1">페이지 안내 타이틀</h3>
+                    <p class="text-[14.5px] text-gray-600">여기에 페이지의 성격이나 이용 방법을 안내하는 텍스트가 들어갑니다.</p>
+                </div>
+            </div>
+
+            <!-- 실제 콘텐츠가 들어갈 빈 영역 -->
+            <div class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm min-h-[400px] flex items-center justify-center">
+                <p class="text-gray-400 font-bold text-lg">콘텐츠 영역</p>
+            </div>
+
+        </section>
+    </main>
+
+</body>
+</html>

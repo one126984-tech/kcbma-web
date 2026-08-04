@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>시설공사 입찰 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <!-- 방패 아이콘을 위한 폰트어썸 라이브러리 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* 스크롤바 생성에 따른 화면 밀림(흔들림) 방지 */
+        html, body {
+            overflow-y: scroll;
+        }
+
+        /* 기본 설정 */
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        /* 좌측 사이드바 메뉴 스타일 */
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        
+        /* 활성화된 메뉴 파란색 박스 디자인 */
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+
+        /* 공지사항 박스 스타일 */
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .notice-content { flex: 1; }
+        .notice-title { font-size: 16px; font-weight: 700; color: #12387a; margin-bottom: 12px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+        .notice-list li:last-child { margin-bottom: 0; }
+        .text-highlight { color: #dc2626; font-weight: bold; }
+
+        /* 필터 테이블 스타일 */
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; line-height: 2.2; padding: 20px 5px; vertical-align: middle; }
+        .filter-table td { padding: 20px 30px; border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .filter-table tr:last-child th, .filter-table tr:last-child td { border-bottom: none; }
+
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
+
+        /* 데이터 리스트 테이블 wrapper */
+        .data-table-wrapper { background: #fff; overflow-x: auto; overflow-y: hidden; border-top: none; margin-top: 0 !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; }
+        
+        .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
+        
+        .data-table td { padding: 14px 10px; font-size: 13.5px; color: #4b5563; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+        
+        .badge-open { display: inline-block; width: 48px; padding: 3px 0; background-color: #3b82f6; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; } 
+        .badge-closed { display: inline-block; width: 48px; padding: 3px 0; background-color: #6b7280; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+
+        /* 커스텀 체크박스 & 라디오 */
+        .custom-checkbox { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; word-break: keep-all; white-space: nowrap; line-height: 1.3; }
+        .custom-checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+        .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; font-weight: 500; }
+        .custom-radio input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 1. 메인 헤더 -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[70px] flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='../index.html'">
+                <img src="../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-12 object-contain">
+                <img src="../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-10 object-contain">
+            </div>
+            
+            <nav class="hidden md:flex items-center gap-10 font-bold text-[17px] text-gray-700">
+                <a href="about.html" class="hover:text-[#0088cc] transition-colors">협회소개</a>
+                <a href="info-list.html" class="hover:text-[#0088cc] transition-colors">정보교류</a>
+                <!-- 입찰공고 메뉴 활성화 -->
+                <a href="bid-list.html" class="text-[#0088cc] border-b-[3px] border-[#0088cc] pb-1">입찰공고</a>
+                <a href="job-list.html" class="hover:text-[#0088cc] transition-colors">구인구직</a>
+                <a href="edu-list.html" class="hover:text-[#0088cc] transition-colors">교육/실습</a>
+                <a href="community.html" class="hover:text-[#0088cc] transition-colors">커뮤니티</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 2. 파란색 서브 헤더 (타이틀 텍스트도 변경됨) -->
+    <div id="sticky-top-bar" class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center">
+                <div class="md:w-[260px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    시설공사 <span class="text-gray-400 font-light mx-2">/</span> 업체선정
+                </div>
+                <div class="flex-1 w-full overflow-x-auto no-scrollbar">
+                    <div class="flex flex-nowrap w-full justify-between gap-1 min-w-[800px]" id="top-region-buttons">
+                        <!-- JS 렌더링 (region-data.js 연동) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바 (구인/구직 스타일로 변경) -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <!-- 활성화 메뉴 (시설공사 입찰) -->
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <i class="fas fa-tools text-[15px]"></i>
+                        </div>
+                        시설공사 입찰
+                    </div>
+                </div>
+                <!-- 비활성화 메뉴 (업체선정 입찰) -> 클릭 시 bid-company-list.html로 이동하도록 셋팅 -->
+                <div class="side-menu-item mx-4" onclick="window.location.href='bid-company-list.html'">
+                    <div class="flex items-center justify-center w-full text-gray-700">
+                        <div class="w-4 h-4 flex items-center justify-center mr-2 text-purple-600">
+                            <i class="fas fa-handshake text-[15px]"></i>
+                        </div>
+                        업체선정 입찰
+                    </div>
+                </div>
+            </div>
+
+            <!-- 조회기간 -->
+            <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 py-1.5 text-xs rounded font-bold col-span-2" onclick="setPeriod('all', this)">기간 전체</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('1w', this)">1주</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('1m', this)">1달</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('2m', this)">2달</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('6m', this)">6개월</button>
+                </div>
+                <div class="flex items-stretch gap-2">
+                    <div class="flex flex-col gap-2 flex-1">
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                            <span class="text-xs text-gray-600 font-bold w-6">부터</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                            <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                        </div>
+                    </div>
+                    <button onclick="applyFilters()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        검<br>색
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 -->
+        <section class="flex-1 overflow-hidden min-w-0">
+            
+           <!-- 입찰공고 공지사항 박스 -->
+<div class="notice-box flex-col sm:flex-row mb-6">
+    <div class="notice-icon-wrapper self-start">
+        <!-- 기존 방패 아이콘 유지 또는 법원/망치 아이콘(fa-gavel) 사용 -->
+        <i class="fas fa-shield-alt"></i> 
+    </div>
+    <div class="notice-content">
+        <div class="notice-title">투명하고 공정한 입찰 문화를 위한 협회 준수 사항</div>
+        <ul class="notice-list">
+            <li><strong>관련 법령 준수:</strong> 집합건물법 등 관련 법령 및 규정을 준수하여 공고를 작성해야 합니다. 법령 위반 소지가 있거나 불명확한 공고는 관리자에 의해 <span class="text-highlight">사전 예고 없이 삭제</span>될 수 있습니다.</li>
+            <li><strong>명확한 정보 제공:</strong> 입찰 참가 자격, 제출 서류, 공사 및 용역의 범위, 마감 기한 등을 상세히 기재하여 추후 분쟁이 발생하지 않도록 각별히 유의해 주시기 바랍니다.</li>
+            <li><strong>불공정 행위 제재:</strong> 특정 업체 밀어주기를 위한 과도한 제한, 허위 사실 기재, 담합 유도 공고 등록 시 즉각적인 삭제 조치 및 향후 사이트 이용이 영구 제한됩니다.</li>
+        </ul>
+    </div>
+</div>
+            <!-- 검색 필터 테이블 (본 페이지는 시설공사 전용이므로 구분 라디오 버튼 제거) -->
+            <table class="filter-table shadow-sm">
+                <tbody>
+                    <tr>
+                        <th class="hidden sm:table-cell">지<br>역</th>
+                        <td class="block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a]">지역</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full" id="sub-region-container">
+                                <!-- JS에서 채워집니다. -->
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell">상<br>세<br>분<br>류</th>
+                        <td class="block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a] mt-2">상세분류</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full">
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="공사(건축)"> <span>공사(건축)</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="전기/설비"> <span>전기/설비</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="소방시설"> <span>소방시설</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="승강기유지"> <span>승강기공사</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="도장/방수"> <span>도장/방수</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="조경공사"> <span>조경공사</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="bid-category-chk" value="기타공사"> <span>기타공사</span></label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell" style="color: #1e3a8a; font-size: 15px; font-weight: bold; padding-top: 10px; padding-bottom: 10px;">상<br>태</th>
+                        <td class="block sm:table-cell w-full overflow-visible" style="padding-top: 10px; padding-bottom: 10px;">
+                            <div class="font-bold sm:hidden mb-2 text-[#1e3a8a] text-[15px]">상태</div>
+                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2">
+                                <div class="flex items-center shrink-0 mt-1">
+                                    <div class="flex items-center gap-4">
+                                        <label class="custom-radio"><input type="radio" name="status" value="ALL" checked onchange="applyFilters()"> 전체보기</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="OPEN" onchange="applyFilters()"> 진행중</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="CLOSED" onchange="applyFilters()"> 마감</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 검색 박스 및 태그 -->
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-3 border border-gray-200 shadow-sm">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+                
+                <div class="flex-1 min-w-[200px] border border-gray-300 rounded flex flex-wrap items-center bg-white px-2 py-1 gap-1 focus-within:border-blue-500 transition-colors">
+                    <div id="selected-tags-container" class="flex flex-wrap gap-1" style="display: none;"></div>
+                    <input type="text" id="search-include" class="flex-1 min-w-[120px] outline-none text-[13px] text-gray-700 placeholder-gray-400 bg-transparent py-0.5" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+                </div>
+                
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                <input type="text" id="search-exclude" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+                
+                <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검&nbsp;&nbsp;색</button>
+            </div>
+
+            <div class="board-toolbar-wrap">
+                <!-- 데이터 테이블 헤더부 상단 컨트롤 영역 -->
+                <div class="flex flex-wrap sm:flex-nowrap justify-between items-end bg-transparent px-2 pt-2 pb-0">
+                    
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 시설공사 공고가 있습니다. 
+                    </div>
+
+                    <div class="flex items-end gap-2">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors">조회순</button>
+                        </div>
+                        
+                        <!-- 공고 등록하기 버튼 -->
+                        <button onclick="window.location.href='bid-write.html'" class="bg-[#facc15] hover:bg-[#eab308] text-gray-900 font-bold px-5 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center">
+                            공고 등록하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 데이터 리스트 테이블 (구분 열 삭제됨) -->
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 60px;">  <!-- 상태 -->
+                            <col style="width: auto;">  <!-- 공고 제목 -->
+                            <col style="width: 150px;"> <!-- 건물/단지명 -->
+                            <col style="width: 90px;">  <!-- 상세분류 -->
+                            <col style="width: 80px;">  <!-- 지역 -->
+                            <col style="width: 80px;">  <!-- 등록일 -->
+                            <col style="width: 80px;">  <!-- 마감일 -->
+                            <col style="width: 60px;">  <!-- 조회수 -->
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>상태</th>
+                                <th class="text-left pl-4">공고 제목</th>
+                                <th>건물/단지명</th>
+                                <th>분류</th>
+                                <th>지역</th>
+                                <th>등록일</th>
+                                <th>마감일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bid-list-body">
+                            <tr>
+                                <td colspan="8" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 하단 페이징 -->
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10">
+                <!-- JS에서 동적 생성됩니다 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 외부 지역 데이터 파일 연동 -->
+    <script src="../assets/js/region-data.js"></script>
+
+    <script>
+        // 기간 설정 버튼 로직
+        function setPeriod(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+            
+            if (btnElement) {
+                btnElement.classList.remove('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+                btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            }
+
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+            
+            if (period === 'all') {
+                startInput.value = '';
+                endInput.value = '';
+            } else {
+                const end = new Date();
+                const start = new Date();
+                
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+        }
+
+        document.getElementById('start-date').addEventListener('change', clearPeriodButtons);
+        document.getElementById('end-date').addEventListener('change', clearPeriodButtons);
+
+        function clearPeriodButtons() {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+        }
+
+        let currentSort = 'latest';  
+        let itemsPerPage = 20;       
+        let currentPage = 1;         
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors";
+                btnViews.className = "text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+            } else {
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+                btnLatest.className = "text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full transition-colors";
+            }
+            applyFilters(); 
+        }
+
+        function setPerPage(element) {
+            itemsPerPage = parseInt(element.value);
+            currentPage = 1; 
+            updateDisplay(); 
+        }
+
+        const formatMonthDay = (dateString) => {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date)) return '-';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${month}-${day}`;
+        };
+
+        // --- 지역 선택 로직 ---
+        let currentRegion = '경기'; 
+        const topRegionContainer = document.getElementById('top-region-buttons');
+
+        if(typeof regions !== 'undefined') {
+            regions.forEach(region => {
+                const btn = document.createElement('button');
+                btn.innerText = region;
+                btn.className = `region-btn flex-1 text-center py-1.5 text-[13px] border rounded transition-colors ${region === currentRegion ? 'bg-white text-[#12387a] font-bold border-white' : 'text-gray-200 border-gray-400/50 hover:bg-white/10'}`;
+                btn.onclick = () => selectRegion(region);
+                topRegionContainer.appendChild(btn);
+            });
+            selectRegion(currentRegion);
+        } else {
+            console.error("region-data.js 파일이 정상적으로 로드되지 않았습니다. 파일 경로를 확인해주세요.");
+        }
+
+        function selectRegion(region) {
+            currentRegion = region;
+            
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                if (btn.innerText === region) {
+                    btn.className = 'region-btn flex-1 text-center py-1.5 text-[13px] border rounded transition-colors bg-white text-[#12387a] font-bold border-white';
+                } else {
+                    btn.className = 'region-btn flex-1 text-center py-1.5 text-[13px] border rounded transition-colors text-gray-200 border-gray-400/50 hover:bg-white/10';
+                }
+            });
+
+            if(typeof subRegionData !== 'undefined') {
+                const subContainer = document.getElementById('sub-region-container');
+                const subRegionsList = subRegionData[region] || ['전체'];
+                
+                subContainer.innerHTML = subRegionsList.map(sr => 
+                    `<label class="custom-checkbox"><input type="checkbox" class="sub-region-chk" value="${sr}"> <span>${sr}</span></label>`
+                ).join('');
+                
+                updateSelectedTags();
+            }
+        }
+
+        // 태그 업데이트 로직
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('sub-region-chk') || e.target.classList.contains('bid-category-chk')) {
+                updateSelectedTags();
+            }
+        });
+
+        function updateSelectedTags() {
+            const container = document.getElementById('selected-tags-container');
+            if (!container) return;
+
+            const tags = [];
+            document.querySelectorAll('.sub-region-chk:checked').forEach(cb => tags.push(cb.value));
+            document.querySelectorAll('.bid-category-chk:checked').forEach(cb => tags.push(cb.value)); 
+
+            if (tags.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.innerHTML = tags.map((tag) => {
+                return `
+                    <span class="bg-[#e0e7ff] text-[#3730a3] px-2 py-0.5 rounded text-xs flex items-center gap-1 cursor-pointer hover:bg-[#c7d2fe] transition-colors" onclick="removeTag('${tag}')">
+                        ${tag} <span class="font-bold text-gray-500 mb-[1px]">×</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function removeTag(value) {
+            const checkbox = document.querySelector(`input[type="checkbox"][value="${value}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                updateSelectedTags();
+            }
+        }
+
+        // --- Supabase 연동 및 데이터 처리 ---
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allBids = [];       
+        let filteredBids = [];  
+
+        async function fetchBids() {
+            const tbody = document.getElementById('bid-list-body');
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('board_type', 'BID') 
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allBids = data || []; 
+                applyFilters(); 
+            } catch (error) {
+                console.error("데이터 불러오기 실패:", error);
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            }
+        }
+
+        function applyFilters() {
+            filteredBids = [...allBids]; 
+
+            // ★ 본 페이지는 '시설공사 입찰' 전용 페이지이므로 JS에서 필터링을 강제로 적용합니다. 
+            // (데이터 등록 시 custom_data 내에 bid_group 항목이 '시설공사'로 들어갔다고 가정)
+            // 비어있는 데이터도 테스트 화면에 나오게 하려면 '|| !cData.bid_group' 를 유지하시면 됩니다.
+            filteredBids = filteredBids.filter(bid => {
+                const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                return cData.bid_group === '시설공사' || !cData.bid_group; 
+            });
+
+            // 1. 날짜 필터링
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+
+            if (startDateStr) {
+                const startDate = new Date(startDateStr);
+                startDate.setHours(0, 0, 0, 0);
+                filteredBids = filteredBids.filter(bid => bid.created_at && new Date(bid.created_at) >= startDate);
+            }
+            if (endDateStr) {
+                const endDate = new Date(endDateStr);
+                endDate.setHours(23, 59, 59, 999);
+                filteredBids = filteredBids.filter(bid => bid.created_at && new Date(bid.created_at) <= endDate);
+            }
+
+            // 2. 상태 필터링 (진행중/마감)
+            const statusRadios = document.getElementsByName('status');
+            let selectedStatus = 'ALL';
+            for (const radio of statusRadios) {
+                if (radio.checked) selectedStatus = radio.value;
+            }
+            
+            if (selectedStatus === 'OPEN') {
+                filteredBids = filteredBids.filter(bid => bid.status === 'OPEN' || !bid.status);
+            } else if (selectedStatus === 'CLOSED') {
+                filteredBids = filteredBids.filter(bid => bid.status === 'CLOSED');
+            }
+
+            // 3. 상세 분류 필터링
+            const checkedCategories = Array.from(document.querySelectorAll('.bid-category-chk:checked')).map(cb => cb.value);
+            if (checkedCategories.length > 0) {
+                filteredBids = filteredBids.filter(bid => {
+                    const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                    return checkedCategories.includes(cData.bid_category);
+                });
+            }
+
+            // 4. 지역 필터링
+            if(typeof subRegionData !== 'undefined') {
+                const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-chk:checked')).map(cb => cb.value);
+                const currentSubRegionsList = subRegionData[currentRegion] || [];
+
+                const isMatch = (address, searchTarget) => {
+                    if(!address) return false;
+                    const cleanTarget = searchTarget.replace(/(시|군|구)$/, '');
+                    return address.includes(cleanTarget) || cleanTarget.includes(address);
+                };
+
+                if (checkedSubRegions.length > 0) {
+                    filteredBids = filteredBids.filter(bid => {
+                        const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                        const address = cData.address_short || '';
+                        
+                        if (checkedSubRegions.some(sr => sr.includes('전체'))) {
+                            const matchSub = currentSubRegionsList.some(sr => sr !== '전체' && !sr.includes('전체') && isMatch(address, sr));
+                            return matchSub || address.includes(currentRegion) || address.includes(currentRegion.substring(0,2));
+                        }
+                        
+                        return checkedSubRegions.some(sr => isMatch(address, sr));
+                    });
+                } else {
+                    filteredBids = filteredBids.filter(bid => {
+                        const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                        const address = cData.address_short || '';
+                        
+                        const matchSub = currentSubRegionsList.some(sr => sr !== '전체' && !sr.includes('전체') && isMatch(address, sr));
+                        return matchSub || address.includes(currentRegion) || address.includes(currentRegion.substring(0,2));
+                    });
+                }
+            }
+
+            // 5. 검색어 필터링
+            const includeInput = document.getElementById('search-include').value.trim();
+            const excludeInput = document.getElementById('search-exclude').value.trim();
+
+            if (includeInput) {
+                const includeKeywords = includeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredBids = filteredBids.filter(bid => {
+                    const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                    const targetText = `${bid.title || ''} ${cData.building_name || ''} ${cData.address_short || ''}`.toLowerCase();
+                    return includeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            if (excludeInput) {
+                const excludeKeywords = excludeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredBids = filteredBids.filter(bid => {
+                    const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                    const targetText = `${bid.title || ''} ${cData.building_name || ''} ${cData.address_short || ''}`.toLowerCase();
+                    return !excludeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            // 정렬
+            if (currentSort === 'latest') {
+                filteredBids.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (currentSort === 'views') {
+                filteredBids.sort((a, b) => (b.views || 0) - (a.views || 0));
+            }
+
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const totalCountSpan = document.getElementById('total-count');
+            if(totalCountSpan) {
+                totalCountSpan.innerText = filteredBids.length;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedBids = filteredBids.slice(startIndex, endIndex);
+
+            renderBids(paginatedBids);
+            renderPagination(filteredBids.length);
+        }
+
+        function renderBids(bids) {
+            const tbody = document.getElementById('bid-list-body');
+            tbody.innerHTML = ''; 
+
+            if (!bids || bids.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 font-bold text-gray-500">조건에 맞는 결과가 없습니다.</td></tr>';
+                return;
+            }
+
+            bids.forEach((bid, index) => {
+                const cData = typeof bid.custom_data === 'string' ? JSON.parse(bid.custom_data) : (bid.custom_data || {});
+                
+                const isOpen = bid.status === 'OPEN' || !bid.status;
+                const statusBadge = isOpen
+                    ? '<span class="badge-open">진행중</span>' 
+                    : '<span class="badge-closed">마 감</span>';
+                
+                const titleClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
+                
+                const bidCategoryStr = cData.bid_category || '-'; // 상세분류
+                const buildingNameStr = cData.building_name || '-';
+                const addressStr = cData.address_short || '-';
+                
+                const viewsStr = bid.views || 0; 
+                const regDateStr = formatMonthDay(bid.created_at);
+                const endDateStr = formatMonthDay(cData.end_date);
+
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${statusBadge}</td>
+                    <td class="text-left pl-4 font-bold ${titleClass} cursor-pointer hover:underline" onclick="incrementViewAndGo('${bid.id}', ${viewsStr})">
+                        ${bid.title || '-'}
+                    </td>
+                    <td class="text-gray-700">${buildingNameStr}</td>
+                    <td class="text-gray-600">${bidCategoryStr}</td>
+                    <td class="text-gray-600">${addressStr}</td>
+                    <td class="text-gray-500">${regDateStr}</td>
+                    <td class="text-red-500 font-bold">${endDateStr}</td>
+                    <td class="text-gray-400">${viewsStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const paginationContainer = document.getElementById('pagination-container');
+            if (!paginationContainer) return;
+
+            let html = '';
+            
+            html += `<button onclick="changePage(${currentPage > 1 ? currentPage - 1 : 1})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&lt;</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs transition-colors">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded text-xs transition-colors">${i}</button>`;
+                }
+            }
+
+            html += `<button onclick="changePage(${currentPage < totalPages ? currentPage + 1 : totalPages})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&gt;</button>`;
+
+            paginationContainer.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            updateDisplay(); 
+        }
+
+        function incrementViewAndGo(bidId, currentViews) {
+            supabaseClient
+                .from('master_board')
+                .update({ views: currentViews + 1 })
+                .eq('id', bidId)
+                .then(() => console.log('조회수 업데이트 성공'))
+                .catch(e => console.error('조회수 업데이트 실패:', e));
+
+            window.location.href = `bid-detail.html?id=${bidId}`; 
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchBids);
+    </script>
+</body>
+</html>

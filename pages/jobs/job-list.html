@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>구인구직 | 대한집합건물관리협회</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 서버 환경에서 화면 딜레이를 없애주는 미리불러오기 -->
+    <link rel="prefetch" href="job-write.html">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        
+        .side-menu-active-wrapper { padding: 10px; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; }
+
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .notice-content { flex: 1; }
+        .notice-title { font-size: 16px; font-weight: 700; color: #12387a; margin-bottom: 12px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+        .notice-list li:last-child { margin-bottom: 0; }
+        .text-highlight { color: #dc2626; font-weight: bold; }
+
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; line-height: 2.2; padding: 20px 5px; vertical-align: middle; }
+        .filter-table td { padding: 20px 30px; border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .filter-table tr:last-child th, .filter-table tr:last-child td { border-bottom: none; }
+
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
+
+        .data-table-wrapper { background: #fff; overflow-x: auto; overflow-y: hidden; border-top: none; margin-top: 0 !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; }
+        .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
+        .data-table td { padding: 14px 10px; font-size: 13.5px; color: #4b5563; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+        
+        .badge-open { display: inline-block; width: 48px; padding: 3px 0; background-color: #22c55e; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+        .badge-closed { display: inline-block; width: 48px; padding: 3px 0; background-color: #6b7280; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+
+        .custom-checkbox { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; word-break: keep-all; white-space: nowrap; line-height: 1.3; }
+        .custom-checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+        .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; }
+        .custom-radio input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 1. 헤더 (로고 이미지 오류 방지용 백업 포함) -->
+    <header class="w-full bg-white shadow-sm border-b border-gray-200 z-[1000] relative">
+        <div class="max-w-[1400px] mx-auto px-4 h-[70px] flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='../index.html'">
+                <img src="../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="h-12 object-contain" onerror="this.src='https://via.placeholder.com/50x50.png?text=Logo'">
+                <img src="../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="h-10 object-contain" onerror="this.src='https://via.placeholder.com/150x40.png?text=KCBMA'">
+            </div>
+            
+            <nav class="hidden md:flex items-center gap-10 font-bold text-[17px] text-gray-700">
+                <a href="#" class="hover:text-[#0088cc] transition-colors">협회소개</a>
+                <a href="#" class="hover:text-[#0088cc] transition-colors">정보교류</a>
+                <a href="#" class="hover:text-[#0088cc] transition-colors">입찰공고</a>
+                <a href="#" class="text-[#0088cc] border-b-[3px] border-[#0088cc] pb-1">구인구직</a>
+                <a href="#" class="hover:text-[#0088cc] transition-colors">교육/실습</a>
+                <a href="#" class="hover:text-[#0088cc] transition-colors">커뮤니티</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 2. 지역 탭 -->
+    <div id="sticky-top-bar" class="sticky top-0 z-[900] w-full flex flex-col bg-white shadow-md relative">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
+                </div>
+                <div class="flex-1 w-full overflow-x-auto no-scrollbar">
+                    <div class="flex flex-nowrap w-full justify-between gap-1 min-w-[800px]" id="top-region-buttons">
+                        <!-- JS 렌더링 영역 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-[1400px] mx-auto w-full px-4 py-8 flex flex-col md:flex-row gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-active-wrapper border-b border-gray-100">
+                    <div class="side-menu-active cursor-pointer shadow-sm">
+                        <div class="w-5 h-5 flex items-center justify-center mr-2 text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        구인 (채용)
+                    </div>
+                </div>
+                <div class="side-menu-item mx-4" onclick="window.location.href='resume-list.html'">
+                    <div class="flex items-center justify-center w-full text-gray-700">
+                        <div class="w-4 h-4 flex items-center justify-center mr-2 text-purple-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        구직 (인재)
+                    </div>
+                </div>
+            </div>
+
+            <!-- 조회기간 -->
+            <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 py-1.5 text-xs rounded font-bold col-span-2" onclick="setPeriod('all', this)">기간 전체</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('1w', this)">1주</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('1m', this)">1달</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('2m', this)">2달</button>
+                    <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1.5 text-xs rounded" onclick="setPeriod('6m', this)">6개월</button>
+                </div>
+                <div class="flex items-stretch gap-2">
+                    <div class="flex flex-col gap-2 flex-1">
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                            <span class="text-xs text-gray-600 font-bold w-6">부터</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                            <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                        </div>
+                    </div>
+                    <button onclick="applyFilters()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        검<br>색
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 -->
+        <section class="flex-1 overflow-hidden min-w-0">
+            
+            <div class="notice-box flex-col sm:flex-row mb-6">
+                <div class="notice-icon-wrapper self-start">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="notice-content">
+                    <div class="notice-title">건전한 채용 문화를 위한 협회 준수 사항</div>
+                    <ul class="notice-list">
+                        <li><strong>차별 없는 채용:</strong> 고용상 성별, 연령, 신체적 조건 등을 이유로 한 불합리한 차별을 엄격히 금지합니다. 관련 법령 위반 소지가 있는 공고는 관리자에 의해 <span class="text-highlight">사전 예고 없이 삭제</span>될 수 있습니다.</li>
+                        <li><strong>개인정보 수집 최소화:</strong> 채용과 무관한 과도한 개인정보(주민등록번호 13자리, 가족의 직업 등) 요구는 개인정보보호법에 따라 엄격히 금지되어 있으니 각별히 유의해 주시기 바랍니다.</li>
+                        <li><strong>허위 공고 제재:</strong> 다단계 영업, 거짓 채용 정보, 최저임금법 위반 공고 등록 시 즉각적인 삭제 조치 및 향후 사이트 이용이 영구 제한됩니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 검색 필터 테이블 -->
+            <table class="filter-table shadow-sm">
+                <tbody>
+                    <tr>
+                        <th class="hidden sm:table-cell">지<br>역</th>
+                        <td class="block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a]">지역</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full" id="sub-region-container">
+                                <!-- JS에서 채워집니다. -->
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell">직<br>종</th>
+                        <td class="block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a] mt-2">직종</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full">
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리소장"> <span>관리소장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기과장"> <span>전기과장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기기사"> <span>전기기사</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기전직"> <span>기전직</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설 반장"> <span>시설 반장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설기사"> <span>시설기사</span></label>
+                                
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리직"> <span>관리직</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="설비직(영선)"> <span>설비직(영선)</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경비"> <span>경비</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경리(회계)"> <span>경리(회계)</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="청소"> <span>청소</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기타"> <span>기타</span></label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell" style="color: #1e3a8a; font-size: 15px; font-weight: bold; padding-top: 10px; padding-bottom: 10px;">기<br>타</th>
+                        <td class="block sm:table-cell w-full overflow-visible" style="padding-top: 10px; padding-bottom: 10px;">
+                            <div class="font-bold sm:hidden mb-2 text-[#1e3a8a] text-[15px]">기타</div>
+                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2">
+                                
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">급여</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="flex items-center gap-1">
+                                        <input type="text" class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[110px] text-gray-700 placeholder-gray-400" placeholder="예)월280만원">
+                                        <select class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[70px] text-gray-700 bg-white">
+                                            <option value="">선택</option>
+                                            <option value="고정">고정</option>
+                                            <option value="이상">이상</option>
+                                            <option value="이하">이하</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">근무형태</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="relative">
+                                        <select id="work-form-select" class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[90px] text-gray-700 bg-white" onchange="toggleDirectInput('work-form')">
+                                            <option value="">선택</option>
+                                            <option value="일근직">일근직</option>
+                                            <option value="격일제">격일제</option>
+                                            <option value="주당비">주당비</option>
+                                            <option value="기타">기타</option>
+                                        </select>
+                                        <div id="work-form-direct-container" class="hidden absolute top-full left-0 mt-1 z-50 bg-white border border-gray-300 rounded p-1.5 shadow-lg flex-col gap-1 w-[140px]">
+                                            <span class="text-[11px] text-gray-500 font-bold mb-1">직접 작성해주세요</span>
+                                            <div class="flex items-center">
+                                                <input type="text" id="work-form-direct" class="border border-gray-300 rounded-l px-2 py-1 text-xs outline-none w-full text-gray-700 border-r-0" placeholder="입력">
+                                                <button onclick="confirmDirectInput('work-form')" class="bg-gray-200 text-gray-700 hover:bg-gray-300 border border-gray-300 border-l-0 rounded-r px-2 py-1 text-[12px] font-bold transition-colors whitespace-nowrap">완료</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">근무일/주</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="relative">
+                                        <select id="work-days-select" class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[90px] text-gray-700 bg-white" onchange="toggleDirectInput('work-days')">
+                                            <option value="">선택</option>
+                                            <option value="일근직">일근직</option>
+                                            <option value="격일제">격일제</option>
+                                            <option value="주당비">주당비</option>
+                                            <option value="기타">기타</option>
+                                        </select>
+                                        <div id="work-days-direct-container" class="hidden absolute top-full left-0 mt-1 z-50 bg-white border border-gray-300 rounded p-1.5 shadow-lg flex-col gap-1 w-[140px]">
+                                            <span class="text-[11px] text-gray-500 font-bold mb-1">직접 작성해주세요</span>
+                                            <div class="flex items-center">
+                                                <input type="text" id="work-days-direct" class="border border-gray-300 rounded-l px-2 py-1 text-xs outline-none w-full text-gray-700 border-r-0" placeholder="입력">
+                                                <button onclick="confirmDirectInput('work-days')" class="bg-gray-200 text-gray-700 hover:bg-gray-300 border border-gray-300 border-l-0 rounded-r px-2 py-1 text-[12px] font-bold transition-colors whitespace-nowrap">완료</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">상태</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="flex items-center gap-2">
+                                        <label class="custom-radio"><input type="radio" name="status" value="ALL" checked> 전체</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="OPEN"> 채용중</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="CLOSED"> 마감</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 검색 박스 -->
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-3 border border-gray-200 shadow-sm">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+                
+                <div class="flex-1 min-w-[200px] border border-gray-300 rounded flex flex-wrap items-center bg-white px-2 py-1 gap-1 focus-within:border-blue-500 transition-colors">
+                    <div id="selected-tags-container" class="flex flex-wrap gap-1" style="display: none;"></div>
+                    <input type="text" id="search-include" class="flex-1 min-w-[120px] outline-none text-[13px] text-gray-700 placeholder-gray-400 bg-transparent py-0.5" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+                </div>
+                
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                <input type="text" id="search-exclude" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+                
+                <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검&nbsp;&nbsp;색</button>
+            </div>
+
+            <div class="board-toolbar-wrap">
+                <!-- 리스트 상단 컨트롤 영역 -->
+                <div class="flex flex-wrap sm:flex-nowrap justify-between items-end bg-transparent px-2 pt-2 pb-0">
+                    
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 글이 있습니다. 
+                    </div>
+
+                    <div class="flex items-end gap-2">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors">조회순</button>
+                        </div>
+                        
+                        <!-- ★ 핵심: 공고 등록하기 버튼을 <a> 태그로 적용하여 즉시 이동하도록 최적화 -->
+                        <a href="job-write.html" class="bg-[#facc15] hover:bg-[#eab308] text-gray-900 font-bold px-5 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center cursor-pointer">
+                            공고 등록하기
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 데이터 테이블 -->
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 60px;">
+                            <col style="width: auto;">
+                            <col style="width: 140px;">
+                            <col style="width: 70px;">
+                            <col style="width: 70px;">
+                            <col style="width: 80px;">
+                            <col style="width: 80px;">
+                            <col style="width: 130px;">
+                            <col style="width: 65px;">
+                            <col style="width: 65px;">
+                            <col style="width: 70px;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>상태</th>
+                                <th class="text-left pl-4">채용 제목</th>
+                                <th>건물명</th>
+                                <th>직종</th>
+                                <th>근무지역</th>
+                                <th>근무형태</th>
+                                <th>근무일/주</th>
+                                <th>급여조건</th>
+                                <th>등록일</th>
+                                <th>마감일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="job-list-body">
+                            <tr>
+                                <td colspan="11" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
+        </section>
+    </main>
+
+    <script>
+        // -------------------------------------------------------------
+        // ★ 뒤로가기(BFCache) 캐시 버그 완벽 차단 코드
+        // 사용자가 X버튼을 눌러 돌아왔을 때 화면이 하얗게 깨지면 자동으로 새로고침합니다.
+        // -------------------------------------------------------------
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                window.location.reload();
+            }
+        });
+
+        // -------------------------------------------------------------
+        // 지역 데이터 하드코딩 (오류 없이 무조건 노출되도록 보강)
+        // -------------------------------------------------------------
+        const regions = ['서울', '부산', '인천', '대구', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+        
+        const subRegionData = {
+            '서울': ['서울전체', '강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+            '경기': ['경기전체', '가평군', '고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시', '성남시', '성남시 분당구', '성남시 수정구', '성남시 중원구', '수원시', '시흥시', '안산시', '안성시', '안양시', '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시', '화성시'],
+            '인천': ['인천전체', '강화군', '계양구', '남동구', '동구', '미추홀구', '부평구', '서구', '연수구', '옹진군', '중구'],
+            '부산': ['부산전체', '강서구', '금정구', '기장군', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구'],
+            '대구': ['대구전체', '남구', '달서구', '달성군', '동구', '북구', '서구', '수성구', '중구'],
+            '광주': ['광주전체', '광산구', '남구', '동구', '북구', '서구'],
+            '대전': ['대전전체', '대덕구', '동구', '서구', '유성구', '중구'],
+            '울산': ['울산전체', '남구', '동구', '북구', '울주군', '중구'],
+            '세종': ['세종전체'],
+            '강원': ['강원전체', '강릉시', '고성군', '동해시', '삼척시', '속초시', '양구군', '양양군', '영월군', '원주시', '인제군', '정선군', '철원군', '춘천시', '태백시', '평창군', '홍천군', '화천군', '횡성군'],
+            '충북': ['충북전체', '괴산군', '단양군', '보은군', '영동군', '옥천군', '음성군', '제천시', '증평군', '진천군', '청주시', '충주시'],
+            '충남': ['충남전체', '계룡시', '공주시', '금산군', '논산시', '당진시', '보령시', '부여군', '서산시', '서천군', '아산시', '예산군', '천안시', '청양군', '태안군', '홍성군'],
+            '전북': ['전북전체', '고창군', '군산시', '김제시', '남원시', '무주군', '부안군', '순창군', '완주군', '익산시', '임실군', '장수군', '전주시', '정읍시', '진안군'],
+            '전남': ['전남전체', '강진군', '고흥군', '곡성군', '광양시', '구례군', '나주시', '담양군', '목포시', '무안군', '보성군', '순천시', '신안군', '여수시', '영광군', '영암군', '완도군', '장성군', '장흥군', '진도군', '함평군', '해남군', '화순군'],
+            '경북': ['경북전체', '경산시', '경주시', '고령군', '구미시', '군위군', '김천시', '문경시', '봉화군', '상주시', '성주군', '안동시', '영덕군', '영양군', '영주시', '영천시', '예천군', '울릉군', '울진군', '의성군', '청도군', '청송군', '칠곡군', '포항시'],
+            '경남': ['경남전체', '거제시', '거창군', '고성군', '김해시', '남해군', '밀양시', '사천시', '산청군', '양산시', '의령군', '진주시', '창녕군', '창원시', '통영시', '하동군', '함안군', '함양군', '합천군'],
+            '제주': ['제주전체', '서귀포시', '제주시']
+        };
+
+        let currentRegion = '경기'; 
+
+        // 시스템 시작 함수
+        function initApp() {
+            renderTopRegions();
+            selectRegion(currentRegion);
+            fetchJobs();
+        }
+
+        // 기간 필터 조작
+        function setPeriod(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+            
+            if (btnElement) {
+                btnElement.classList.remove('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+                btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            }
+
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+            
+            if (period === 'all') {
+                startInput.value = '';
+                endInput.value = '';
+            } else {
+                const end = new Date();
+                const start = new Date();
+                
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+        }
+
+        document.getElementById('start-date').addEventListener('change', clearPeriodButtons);
+        document.getElementById('end-date').addEventListener('change', clearPeriodButtons);
+
+        function clearPeriodButtons() {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+        }
+
+        let currentSort = 'latest';  
+        let itemsPerPage = 20;       
+        let currentPage = 1;         
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors";
+                btnViews.className = "text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+            } else {
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+                btnLatest.className = "text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full transition-colors";
+            }
+            applyFilters(); 
+        }
+
+        function setPerPage(element) {
+            itemsPerPage = parseInt(element.value);
+            currentPage = 1; 
+            updateDisplay(); 
+        }
+
+        function toggleDirectInput(type) {
+            const select = document.getElementById(`${type}-select`);
+            const container = document.getElementById(`${type}-direct-container`);
+            const input = document.getElementById(`${type}-direct`);
+            
+            if (select.value === '기타') {
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+                input.focus();
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                input.value = ''; 
+            }
+        }
+
+        function confirmDirectInput(type) {
+            const select = document.getElementById(`${type}-select`);
+            const container = document.getElementById(`${type}-direct-container`);
+            const input = document.getElementById(`${type}-direct`);
+            const val = input.value.trim();
+
+            if (val) {
+                const newOption = document.createElement('option');
+                newOption.value = val;
+                newOption.text = val;
+                select.add(newOption, select.options[select.options.length - 1]); 
+                select.value = val;
+            } else {
+                select.value = '';
+            }
+            
+            container.classList.add('hidden');
+            container.classList.remove('flex');
+            input.value = '';
+        }
+
+        const formatMonthDay = (dateString) => {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date)) return '-';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${month}-${day}`;
+        };
+
+        function renderTopRegions() {
+            const topRegionContainer = document.getElementById('top-region-buttons');
+            topRegionContainer.innerHTML = '';
+            regions.forEach(region => {
+                const btn = document.createElement('button');
+                btn.innerText = region;
+                btn.className = `region-btn flex-1 text-center py-1.5 text-[13px] border rounded transition-colors text-gray-200 border-gray-400/50 hover:bg-white/10`;
+                btn.onclick = () => selectRegion(region);
+                topRegionContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(region) {
+            currentRegion = region;
+            
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                if (btn.innerText === region) {
+                    btn.className = 'region-btn flex-1 text-center py-1.5 text-[13px] border rounded transition-colors bg-white text-[#12387a] font-bold border-white';
+                } else {
+                    btn.className = 'region-btn flex-1 text-center py-1.5 text-[13px] border rounded transition-colors text-gray-200 border-gray-400/50 hover:bg-white/10';
+                }
+            });
+
+            const subContainer = document.getElementById('sub-region-container');
+            const subRegionsList = subRegionData[region] || ['전체'];
+            
+            subContainer.innerHTML = subRegionsList.map(sr => 
+                `<label class="custom-checkbox"><input type="checkbox" class="sub-region-chk" value="${sr}"> <span>${sr}</span></label>`
+            ).join('');
+            
+            updateSelectedTags();
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('sub-region-chk') || e.target.classList.contains('job-category-chk')) {
+                updateSelectedTags();
+            }
+        });
+
+        function updateSelectedTags() {
+            const container = document.getElementById('selected-tags-container');
+            if (!container) return;
+
+            const tags = [];
+            document.querySelectorAll('.sub-region-chk:checked').forEach(cb => tags.push(cb.value));
+            document.querySelectorAll('.job-category-chk:checked').forEach(cb => tags.push(cb.value));
+
+            if (tags.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.innerHTML = tags.map((tag) => {
+                return `
+                    <span class="bg-[#e0e7ff] text-[#3730a3] px-2 py-0.5 rounded text-xs flex items-center gap-1 cursor-pointer hover:bg-[#c7d2fe] transition-colors" onclick="removeTag('${tag}')">
+                        ${tag} <span class="font-bold text-gray-500 mb-[1px]">×</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function removeTag(value) {
+            const checkbox = document.querySelector(`input[type="checkbox"][value="${value}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                updateSelectedTags();
+            }
+        }
+
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allJobs = [];       
+        let filteredJobs = [];  
+
+        async function fetchJobs() {
+            const tbody = document.getElementById('job-list-body');
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('board_type', 'JOB')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allJobs = data || []; 
+                applyFilters(); 
+            } catch (error) {
+                console.error("데이터 불러오기 실패:", error);
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            }
+        }
+
+        function applyFilters() {
+            filteredJobs = [...allJobs]; 
+
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+
+            if (startDateStr) {
+                const startDate = new Date(startDateStr);
+                startDate.setHours(0, 0, 0, 0);
+                filteredJobs = filteredJobs.filter(job => job.created_at && new Date(job.created_at) >= startDate);
+            }
+            if (endDateStr) {
+                const endDate = new Date(endDateStr);
+                endDate.setHours(23, 59, 59, 999);
+                filteredJobs = filteredJobs.filter(job => job.created_at && new Date(job.created_at) <= endDate);
+            }
+
+            const statusRadios = document.getElementsByName('status');
+            let selectedStatus = 'ALL';
+            for (const radio of statusRadios) {
+                if (radio.checked) selectedStatus = radio.value;
+            }
+            
+            if (selectedStatus === 'OPEN') {
+                filteredJobs = filteredJobs.filter(job => job.status === 'OPEN' || !job.status);
+            } else if (selectedStatus === 'CLOSED') {
+                filteredJobs = filteredJobs.filter(job => job.status === 'CLOSED');
+            }
+
+            const checkedJobs = Array.from(document.querySelectorAll('.job-category-chk:checked')).map(cb => cb.value);
+            if (checkedJobs.length > 0) {
+                filteredJobs = filteredJobs.filter(job => {
+                    const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                    return checkedJobs.includes(cData.job_category);
+                });
+            }
+
+            const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-chk:checked')).map(cb => cb.value);
+            const currentSubRegionsList = subRegionData[currentRegion] || [];
+
+            const isMatch = (address, searchTarget) => {
+                if(!address) return false;
+                const cleanTarget = searchTarget.replace(/(시|군|구)$/, '');
+                return address.includes(cleanTarget) || cleanTarget.includes(address);
+            };
+
+            if (checkedSubRegions.length > 0) {
+                filteredJobs = filteredJobs.filter(job => {
+                    const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                    const address = cData.address_short || '';
+                    
+                    if (checkedSubRegions.some(sr => sr.includes('전체'))) {
+                        const matchSub = currentSubRegionsList.some(sr => sr !== '전체' && !sr.includes('전체') && isMatch(address, sr));
+                        return matchSub || address.includes(currentRegion) || address.includes(currentRegion.substring(0,2));
+                    }
+                    
+                    return checkedSubRegions.some(sr => isMatch(address, sr));
+                });
+            } else {
+                filteredJobs = filteredJobs.filter(job => {
+                    const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                    const address = cData.address_short || '';
+                    
+                    const matchSub = currentSubRegionsList.some(sr => sr !== '전체' && !sr.includes('전체') && isMatch(address, sr));
+                    return matchSub || address.includes(currentRegion) || address.includes(currentRegion.substring(0,2));
+                });
+            }
+
+            const includeInput = document.getElementById('search-include').value.trim();
+            const excludeInput = document.getElementById('search-exclude').value.trim();
+
+            if (includeInput) {
+                const includeKeywords = includeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredJobs = filteredJobs.filter(job => {
+                    const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                    const targetText = `${job.title || ''} ${cData.building_name || ''} ${cData.address_short || ''}`.toLowerCase();
+                    return includeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            if (excludeInput) {
+                const excludeKeywords = excludeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredJobs = filteredJobs.filter(job => {
+                    const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                    const targetText = `${job.title || ''} ${cData.building_name || ''} ${cData.address_short || ''}`.toLowerCase();
+                    return !excludeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            if (currentSort === 'latest') {
+                filteredJobs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (currentSort === 'views') {
+                filteredJobs.sort((a, b) => (b.views || 0) - (a.views || 0));
+            }
+
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const totalCountSpan = document.getElementById('total-count');
+            if(totalCountSpan) {
+                totalCountSpan.innerText = filteredJobs.length;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedJobs = filteredJobs.slice(startIndex, endIndex);
+
+            renderJobs(paginatedJobs);
+            renderPagination(filteredJobs.length);
+        }
+
+        function renderJobs(jobs) {
+            const tbody = document.getElementById('job-list-body');
+            tbody.innerHTML = ''; 
+
+            if (!jobs || jobs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-20 font-bold text-gray-500">조건에 맞는 결과가 없습니다.</td></tr>';
+                return;
+            }
+
+            jobs.forEach((job, index) => {
+                const cData = typeof job.custom_data === 'string' ? JSON.parse(job.custom_data) : (job.custom_data || {});
+                
+                const isOpen = job.status === 'OPEN' || !job.status;
+                const statusBadge = isOpen
+                    ? '<span class="badge-open">채용중</span>' 
+                    : '<span class="badge-closed">마 감</span>';
+                
+                const titleClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
+                
+                const workFormStr = cData.shift_type || '-';
+                const workDaysStr = cData.employment_type || '-';
+                
+                const salaryStr = cData.salary || '-';
+                const viewsStr = job.views || 0; 
+                
+                const regDateStr = formatMonthDay(job.created_at);
+                const endDateStr = formatMonthDay(cData.end_date);
+
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${statusBadge}</td>
+                    <td class="text-left pl-4 font-bold ${titleClass} cursor-pointer hover:underline" onclick="incrementViewAndGo('${job.id}', ${viewsStr})">
+                        ${job.title || '-'}
+                    </td>
+                    <td>${cData.building_name || '-'}</td>
+                    <td>${cData.job_category || '-'}</td>
+                    <td>${cData.address_short || '-'}</td>
+                    <td class="text-gray-600">${workFormStr}</td>
+                    <td class="text-gray-600">${workDaysStr}</td>
+                    <td class="font-bold text-[13px] tracking-tight">${salaryStr}</td>
+                    <td class="text-gray-500">${regDateStr}</td>
+                    <td class="text-gray-500">${endDateStr}</td>
+                    <td class="text-gray-400">${viewsStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const paginationContainer = document.getElementById('pagination-container');
+            if (!paginationContainer) return;
+
+            let html = '';
+            
+            html += `<button onclick="changePage(${currentPage > 1 ? currentPage - 1 : 1})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&lt;</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs transition-colors">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded text-xs transition-colors">${i}</button>`;
+                }
+            }
+
+            html += `<button onclick="changePage(${currentPage < totalPages ? currentPage + 1 : totalPages})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&gt;</button>`;
+
+            paginationContainer.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            updateDisplay(); 
+        }
+
+        function incrementViewAndGo(jobId, currentViews) {
+            supabaseClient
+                .from('master_board')
+                .update({ views: currentViews + 1 })
+                .eq('id', jobId)
+                .then(() => console.log('조회수 업데이트 성공'))
+                .catch(e => console.error('조회수 업데이트 실패:', e));
+
+            window.location.href = `job-detail.html?id=${jobId}`;
+        }
+
+        // 전체 초기화 실행
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
