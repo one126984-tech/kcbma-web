@@ -1,0 +1,288 @@
+<!-- 파일명: free-board.html -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>자유게시판 | 대한집합건물관리협회 커뮤니티</title>
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* ★ (1) 전체 화면 고정 (body 스크롤 방지) */
+        html, body { overflow: hidden; height: 100%; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        /* ★ (2) 좌측 메뉴 독립 스크롤 및 스크롤바 왼쪽 배치 */
+        .left-scroll-area {
+            direction: rtl; /* 스크롤바를 왼쪽으로 이동 */
+            overflow-y: auto;
+            height: 100%; /* 부모 컨테이너 높이에 맞춤 */
+            padding-bottom: 2rem;
+        }
+        .left-scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .left-scroll-area::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        .left-scroll-area::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+        .left-scroll-content {
+            direction: ltr; /* 내부 콘텐츠 방향은 원래대로(좌->우) 복구 */
+            padding-left: 12px; /* 왼쪽 스크롤바와 콘텐츠 사이 여백 */
+        }
+
+        /* ★ (1) 우측 본문 영역 독립 스크롤 */
+        .main-scroll-area {
+            overflow-y: auto;
+            height: 100%;
+            padding-right: 6px;
+        }
+        .main-scroll-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .main-scroll-area::-webkit-scrollbar-thumb {
+            background-color: #94a3b8;
+            border-radius: 4px;
+        }
+        .main-scroll-area::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        /* 좌측 메뉴 스타일 */
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: default; }
+
+        /* -------------------------------------
+           공통 헤더 관련 스타일
+           ------------------------------------- */
+        .sos-btn {
+            background-color: transparent;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+            padding: 5px 8px;
+            margin-left: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s;
+        }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background-color 0.15s;
+        }
+        .login-btn:hover { background-color: #1a252f; }
+
+        .mypage-btn-mobile {
+            background-color: #0088cc;
+            color: #ffffff;
+            transition: background-color 0.15s;
+        }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+</head>
+
+<!-- ★ page-community 클래스 추가 -->
+<body class="flex flex-col h-screen overflow-hidden page-community">
+
+    <!-- ----------------------------------------------------
+         시작: 공통 헤더 (경로는 ../../)
+         ---------------------------------------------------- -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+            
+            <!-- 1) 좌측 로고 -->
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/관리협회.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            </div>
+            
+            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div onclick="location.href='../../pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div onclick="location.href='../../pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div onclick="location.href='../../pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div onclick="location.href='../../pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div onclick="location.href='../../pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자료 / 커뮤니티</div>
+        
+            <!-- 긴급SOS 문의 -->
+            <div onclick="location.href='../../pages/sos/sos-request.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급SOS 문의</span>
+            </div>
+            </nav>
+        
+            <!-- 3) 우측 유틸리티 영역 -->
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+            <div class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
+            </div>
+            <div onclick="location.href='../../pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+            <div onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+            </div>
+            
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>
+    </div>
+    
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/관리협회.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="location.href='../../pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="location.href='../../pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="location.href='../../pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="location.href='../../pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="location.href='../../pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">자료 / 커뮤니티</div>
+            
+            <!-- 모바일 긴급SOS 문의 -->
+            <div onclick="location.href='../../pages/sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급SOS 문의</span>
+            </div>
+            </div>
+            
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                <i class="fa-regular fa-bell mr-1"></i> 알림
+                <span class="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">2</span>
+                </div>
+                <div onclick="location.href='../../pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+                document.body.style.overflow = '';
+            } else {
+                menu.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+                const updateHeaderHeightVar = () => {
+                    const h = headerEl.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+                };
+                updateHeaderHeightVar();
+                const ro = new ResizeObserver(updateHeaderHeightVar);
+                ro.observe(headerEl);
+            }
+        });
+    </script>
+    <!-- ----------------------------------------------------
+         끝: 공통 헤더
+         ---------------------------------------------------- -->
+
+    <!-- 파란색 서브 헤더 (고정) -->
+    <div class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
+        <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center h-full">
+            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
+                커뮤니티
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 레이아웃 (남은 화면 높이 가득 채움) -->
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 pt-8 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
+        
+        <!-- ★ (2) 좌측 사이드바 (LNB) - 독립 스크롤, 스크롤바 왼쪽 -->
+        <aside class="w-full md:w-[220px] shrink-0 h-full left-scroll-area z-40">
+            <div class="left-scroll-content">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                    <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='notice.html'">공지사항</div>
+                    <div class="side-menu-active shadow-sm z-10 relative">자유게시판</div>
+                    <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='field-experience.html'">현장경험 나누어요</div>
+                    <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='work-qna.html'">업무 Q&A</div>
+                    <div class="side-menu-item mx-4" onclick="location.href='data-room.html'">서식/자료실</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ★ (1) 우측 전체를 감싸는 스크롤 영역 (본문 영역만 위아래로 움직임) -->
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
+            
+            <section class="flex-1 shrink-0 pb-8">
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm w-full h-[500px] flex flex-col items-center justify-center text-gray-500">
+                    <i class="fas fa-tools text-5xl mb-4 text-gray-300"></i>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">페이지 기획 및 준비 중입니다.</h2>
+                    <p class="text-sm">현재 자유게시판 페이지 준비를 위한 임시 구도입니다.</p>
+                </div>
+            </section>
+
+            <!-- ★ 푸터를 오른쪽 본문 스크롤 내부에 위치시킴 -->
+            <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+            <script src="../../assets/js/footer.js?v=1.3"></script>
+
+        </div>
+    </main>
+
+    <!-- 화면 깜빡임 방지 및 로딩 처리 스크립트 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const showBody = () => document.body.classList.add('loaded');
+            // 헤더 로딩 후 화면 표시
+            const headerContainer = document.getElementById('header-container');
+            if (headerContainer && headerContainer.innerHTML.trim() !== '') {
+                showBody();
+            } else if (headerContainer) {
+                const observer = new MutationObserver((mutations, obs) => {
+                    if (headerContainer.innerHTML.trim() !== '') {
+                        showBody();
+                        obs.disconnect();
+                    }
+                });
+                observer.observe(headerContainer, { childList: true, subtree: true });
+                setTimeout(showBody, 1000);
+            } else {
+                showBody();
+            }
+        });
+    </script>
+</body>
+</html>

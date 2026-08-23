@@ -1,0 +1,426 @@
+<!-- 파일명: bid-detail.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>입찰공고 상세 | 대한집합건물관리협회</title>
+    
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        @view-transition {
+            navigation: auto;
+        }
+        #main-header {
+            view-transition-name: site-header;
+        }
+        #page-content {
+            view-transition-name: page-content;
+        }
+        @keyframes page-content-out {
+            to { opacity: 0; }
+        }
+        @keyframes page-content-in {
+            from { opacity: 0; }
+        }
+        ::view-transition-old(page-content) {
+            animation: 150ms ease-in both page-content-out;
+        }
+        ::view-transition-new(page-content) {
+            animation: 200ms ease-out both page-content-in;
+        }
+        ::view-transition-group(page-content) {
+            animation: none;
+            width: 100%;
+            height: 100%;
+        }
+        ::view-transition-group(site-header) {
+            animation: none;
+        }
+        ::view-transition-old(site-header),
+        ::view-transition-new(site-header) {
+            animation: none;
+        }
+        html.no-page-transition #page-content,
+        html.no-page-transition ::view-transition-group(page-content),
+        html.no-page-transition ::view-transition-old(page-content),
+        html.no-page-transition ::view-transition-new(page-content) {
+            animation: none !important;
+            transform: none !important;
+        }
+
+        html, body { overflow-y: scroll; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        
+        /* 좌측 사이드바 스타일 */
+        .side-menu-tab { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold; font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s; }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+        /* 상세 페이지 전용 스타일 */
+        .detail-header { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .detail-title { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 10px; line-height: 1.4; }
+        .detail-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: #666; }
+        
+        .info-table { width: 100%; border-top: 2px solid #12387a; border-collapse: collapse; margin-bottom: 30px; background: #fff; }
+        .info-table th { width: 150px; background: #f8fafc; color: #333; font-weight: bold; text-align: left; padding: 15px 20px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 14px; }
+        .info-table td { padding: 15px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; }
+        
+        .content-area { min-height: 300px; padding: 30px 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 30px; }
+        
+        .badge-open { display: inline-block; padding: 4px 10px; background-color: #3b82f6; color: white; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; margin-right: 10px; vertical-align: middle; } 
+        .badge-closed { display: inline-block; padding: 4px 10px; background-color: #6b7280; color: white; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; margin-right: 10px; vertical-align: middle; }
+
+        .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
+        .btn-list { padding: 10px 30px; background: #fff; border: 1px solid #cbd5e1; color: #333; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-list:hover { background: #f8fafc; border-color: #94a3b8; }
+        .btn-edit { padding: 10px 20px; background: #0B2A5B; border: 1px solid #0B2A5B; color: #fff; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-edit:hover { background: #12387a; }
+
+        /* -------------------------------------
+           공통 헤더 관련 스타일
+           ------------------------------------- */
+        .sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+        .login-btn { background-color: #2c3e50; color: #ffffff; font-weight: 700; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; }
+        .login-btn:hover { background-color: #1a252f; }
+        .mypage-btn-mobile { background-color: #0088cc; color: #ffffff; transition: background-color 0.15s; }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- ----------------------------------------------------
+         시작: 공통 헤더 (경로는 ../../)
+         ---------------------------------------------------- -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+            
+            <!-- 1) 좌측 로고 -->
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/관리협회.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            </div>
+            
+            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div onclick="location.href='../../pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div onclick="location.href='../../pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div onclick="location.href='../../pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div onclick="location.href='../../pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div onclick="location.href='../../pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자료 / 커뮤니티</div>
+        
+            <!-- 긴급SOS 문의 -->
+            <div onclick="location.href='../../pages/sos/sos-request.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급SOS 문의</span>
+            </div>
+            </nav>
+        
+            <!-- 3) 우측 유틸리티 영역 -->
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+            <div class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
+            </div>
+            <div onclick="location.href='../../pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+            <div onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+            </div>
+            
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>
+    </div>
+    
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/관리협회.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="location.href='../../pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="location.href='../../pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="location.href='../../pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="location.href='../../pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="location.href='../../pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">자료 / 커뮤니티</div>
+            
+            <!-- 모바일 긴급SOS 문의 -->
+            <div onclick="location.href='../../pages/sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급SOS 문의</span>
+            </div>
+            </div>
+            
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                <i class="fa-regular fa-bell mr-1"></i> 알림
+                <span class="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">2</span>
+                </div>
+                <div onclick="location.href='../../pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+            const updateHeaderHeightVar = () => {
+                const h = headerEl.getBoundingClientRect().height;
+                document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+            };
+            updateHeaderHeightVar();
+            const ro = new ResizeObserver(updateHeaderHeightVar);
+            ro.observe(headerEl);
+            }
+        });
+    </script>
+    <!-- ----------------------------------------------------
+         끝: 공통 헤더
+         ---------------------------------------------------- -->
+
+    <div id="page-content" class="flex-1 flex flex-col">
+
+    <!-- 파란색 서브 헤더 -->
+    <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
+                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full">
+                    입찰공고 (B2B)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
+        
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-tab" onclick="location.href='company-ads.html'"><span>업체별 광고</span></div>
+                <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                <div class="side-menu-tab-active"><span>견적·입찰정보</span></div>
+            </div>
+        </aside>
+
+        <!-- 우측 상세 콘텐츠 -->
+        <section class="flex-1 min-w-0 bg-white p-6 border border-gray-200 rounded shadow-sm">
+            
+            <div id="loading-spinner" class="text-center py-20 text-gray-500 font-bold">
+                데이터를 불러오는 중입니다...
+            </div>
+
+            <div id="detail-container" style="display: none;">
+                <!-- 제목 및 메타 정보 -->
+                <div class="detail-header">
+                    <div class="flex items-center mb-2">
+                        <span id="bid-status-badge"></span>
+                        <span id="bid-category" class="text-[13px] text-gray-500 font-bold ml-2"></span>
+                    </div>
+                    <h1 id="bid-title" class="detail-title"></h1>
+                    <div class="detail-meta">
+                        <div>
+                            <span class="mr-4"><i class="far fa-building mr-1"></i> <span id="bid-company"></span></span>
+                            <span><i class="far fa-user mr-1"></i> <span id="bid-author">관리자</span></span>
+                        </div>
+                        <div>
+                            <span class="mr-4"><i class="far fa-clock mr-1"></i> <span id="bid-date"></span></span>
+                            <span><i class="far fa-eye mr-1"></i> 조회수 <span id="bid-views"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 요약 정보 테이블 -->
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th>발주업체명</th>
+                            <td id="info-company"></td>
+                            <th>지역 / 현장위치</th>
+                            <td id="info-location"></td>
+                        </tr>
+                        <tr>
+                            <th>공고일</th>
+                            <td id="info-start-date"></td>
+                            <th>마감일</th>
+                            <td id="info-end-date" class="font-bold text-red-600"></td>
+                        </tr>
+                        <tr>
+                            <th>분류</th>
+                            <td colspan="3" id="info-category"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- 상세 내용 -->
+                <div class="text-[16px] font-bold text-gray-800 mb-3 ml-1">상세 공고 내용</div>
+                <div id="bid-content" class="content-area"></div>
+
+                <!-- 하단 버튼 -->
+                <div class="btn-wrap">
+                    <button class="btn-list" onclick="location.href='bid-list.html'">목록으로</button>
+                    <!-- <button class="btn-edit" onclick="editBid()">수정/삭제</button> -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <div id="footer-container"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchBidDetail();
+        });
+
+        // Supabase 초기화
+        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+
+        // DB 테이블명 (현재 임시로 jobs 사용)
+        const DB_TABLE_NAME = 'jobs'; 
+
+        async function fetchBidDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bidId = urlParams.get('id');
+
+            if (!bidId) {
+                alert('잘못된 접근입니다. (공고 ID가 없습니다)');
+                location.href = 'bid-list.html';
+                return;
+            }
+
+            if(!supabaseClient) return;
+
+            try {
+                const { data, error } = await supabaseClient.from(DB_TABLE_NAME).select('*').eq('id', bidId).single();
+                
+                if (error) throw error;
+                if (!data) {
+                    alert('존재하지 않거나 삭제된 공고입니다.');
+                    location.href = 'bid-list.html';
+                    return;
+                }
+
+                renderBidDetail(data);
+
+            } catch (error) {
+                document.getElementById('loading-spinner').innerHTML = '<span class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</span>';
+                console.error('Fetch error:', error);
+            }
+        }
+
+        function renderBidDetail(bid) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('detail-container').style.display = 'block';
+
+            const today = new Date(); 
+            today.setHours(0,0,0,0);
+            
+            let isOpen = true; 
+            if (bid.end_date) {
+                const endDate = new Date(bid.end_date); endDate.setHours(0,0,0,0);
+                if (endDate < today) isOpen = false;
+            }
+
+            // 상태 배지
+            const badgeEl = document.getElementById('bid-status-badge');
+            if (isOpen) {
+                badgeEl.className = 'badge-open';
+                badgeEl.innerText = '진행중';
+            } else {
+                badgeEl.className = 'badge-closed';
+                badgeEl.innerText = '마감';
+            }
+
+            // 날짜 포맷 함수
+            const formatDate = (dateStr) => {
+                if(!dateStr) return '미지정';
+                const d = new Date(dateStr);
+                return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+            };
+
+            // 필드 매핑 (입찰공고 스키마에 맞게)
+            const title = bid.title || '제목 없음';
+            const category = bid.category || bid.type || '분류 미지정';
+            const company = bid.company_name || '업체명 미기재';
+            const location = `${bid.region || ''} ${bid.address || bid.location || ''}`.trim() || '위치 미기재';
+            const startDate = formatDate(bid.start_date || bid.created_at);
+            const endDate = formatDate(bid.end_date);
+            const views = bid.views || 0;
+
+            // DOM 텍스트 삽입
+            document.getElementById('bid-title').innerText = title;
+            document.getElementById('bid-category').innerText = `[${category}]`;
+            document.getElementById('bid-company').innerText = company;
+            document.getElementById('bid-date').innerText = startDate;
+            document.getElementById('bid-views').innerText = views;
+
+            document.getElementById('info-company').innerText = company;
+            document.getElementById('info-location').innerText = location;
+            document.getElementById('info-start-date').innerText = startDate;
+            document.getElementById('info-end-date').innerText = endDate;
+            document.getElementById('info-category').innerText = category;
+
+            // 상세 내용 처리 (줄바꿈 반영)
+            let contentStr = bid.description || '상세 내용이 없습니다.';
+            
+            // JSON 형태일 경우 방어코드 (구인구직 테이블의 데이터를 불러올 때 깨지지 않게)
+            try {
+                const parsed = JSON.parse(contentStr);
+                if(parsed && parsed.intro) contentStr = parsed.intro;
+            } catch(e) {
+                // JSON이 아닌 일반 텍스트일 경우 그대로 사용
+            }
+            
+            // 줄바꿈을 <br>로 변환하여 출력
+            contentStr = contentStr.replace(/\n/g, '<br>');
+            document.getElementById('bid-content').innerHTML = contentStr;
+        }
+
+        // 수정 기능 (추후 권한 부여 및 개발용)
+        function editBid() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bidId = urlParams.get('id');
+            // location.href = `bid-write.html?id=${bidId}`;
+            alert('수정 기능은 준비 중입니다.');
+        }
+    </script>
+</body>
+</html>

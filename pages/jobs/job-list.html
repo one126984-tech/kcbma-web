@@ -1,0 +1,867 @@
+<!-- 파일명: job-list.html -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>구인구직 | 대한집합건물관리협회</title>
+    
+    <link rel="icon" href="data:,">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* -------------------------------------
+           페이지 전환(View Transitions) 설정
+           - 예전에는 body opacity 0→1 페이드와 네이티브 전환이 겹쳐(이중 페이드)
+             흰 화면이 보였음. 그 opacity 페이드를 제거하고 아래 방식으로 통일함.
+           - 헤더(#main-header)는 절대 건드리지 않고 그대로 고정.
+           - 헤더 아래 전체(#page-content)만 위/아래로 슬라이드되며 전환됨.
+           - 크롬/엣지 등 Chromium 계열에서 지원되며, 사파리/파이어폭스는
+             이 규칙을 무시하고 기존처럼 즉시 이동합니다(정상 폴백).
+           - 모든 페이지에서 아래 블록을 동일하게 유지해야 합니다.
+           ------------------------------------- */
+        @view-transition {
+            navigation: auto;
+        }
+        #main-header {
+            view-transition-name: site-header;
+        }
+        #page-content {
+            view-transition-name: page-content;
+        }
+        @keyframes page-content-out {
+            to { opacity: 0; }
+        }
+        @keyframes page-content-in {
+            from { opacity: 0; }
+        }
+        ::view-transition-old(page-content) {
+            animation: 150ms ease-in both page-content-out;
+        }
+        ::view-transition-new(page-content) {
+            animation: 200ms ease-out both page-content-in;
+        }
+        /* 핵심: 박스 크기/위치를 이전↔새 페이지 사이에서 자동으로
+           보간(모핑)하는 기본 동작을 꺼서 "들썩임"을 없앰 */
+        ::view-transition-group(page-content) {
+            animation: none;
+            width: 100%;
+            height: 100%;
+        }
+        ::view-transition-group(site-header) {
+            animation: none;
+        }
+        ::view-transition-old(site-header),
+        ::view-transition-new(site-header) {
+            animation: none;
+        }
+        /* 안전장치: 같은 페이지 안에서 탭(구인/구직)만 바뀔 때는
+           슬라이드 애니메이션이 절대 걸리지 않도록 강제로 끔 */
+        html.no-page-transition #page-content,
+        html.no-page-transition ::view-transition-group(page-content),
+        html.no-page-transition ::view-transition-old(page-content),
+        html.no-page-transition ::view-transition-new(page-content) {
+            animation: none !important;
+            transform: none !important;
+        }
+
+        /* 스크롤 버그 수정: 불필요한 overflow-y, overscroll-behavior 제거 */
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #sticky-top-bar, aside, #minor-region-container, #major-region-container,
+        #include-word-container, .data-table-wrapper, #job-list-body {
+            overflow-anchor: none;
+        }
+
+        /* ★ 상단 하얀색 여백 완벽 제거를 위해 헤더 높이 강제 고정 */
+        #main-header { height: 70px !important; }
+
+        :root { --header-actual-height: 70px; }
+        #sticky-top-bar {
+            /* 수정됨: 여백의 원인이었던 top 속성 제거 */
+        }
+        @media (min-width: 768px) {
+            aside {
+                top: calc(var(--header-actual-height) + 56px) !important;
+            }
+            section.content-area {
+                min-height: calc(100vh - 88px);
+            }
+        }
+
+        /* ★ 좌측 탭 메뉴 */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .notice-content { flex: 1; }
+        .notice-title { font-size: 16px; font-weight: 700; color: #12387a; margin-bottom: 12px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+        .text-highlight { color: #dc2626; font-weight: bold; }
+        
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; padding: 14px 5px; vertical-align: middle; }
+        .filter-table td { padding: 14px 20px; border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .filter-table tr:last-child th, .filter-table tr:last-child td { border-bottom: none; }
+        
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
+        .data-table-wrapper { background: #fff; border-top: none; margin-top: 0 !important; }
+        .data-table { width: 100%; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 900px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; border-top: 2px solid #333; border-bottom: 1px solid #ccc; }
+        .data-table th { padding: 14px 10px; font-size: 14px; font-weight: bold; color: #333; background: #fafafa; vertical-align: middle; border-bottom: 1px solid #ccc;}
+        .data-table td { padding: 16px 10px; font-size: 14px; color: #333; vertical-align: middle; border-bottom: 1px solid #e5e7eb; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+        
+        .custom-checkbox { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; word-break: keep-all; white-space: nowrap; line-height: 1.3; }
+        .custom-checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+        .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; }
+        .custom-radio input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
+        
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 38px; padding: 4px 8px; cursor: text; }
+        .tag-input-container input { border: none; outline: none; flex: 1; min-width: 120px; font-size: 13px; background: transparent; }
+        .tag-chip { display: inline-flex; align-items: center; gap: 4px; background-color: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .tag-remove { color: #6b7280; cursor: pointer; font-size: 11px; font-weight: bold; padding: 2px; display: flex; align-items: center; justify-content: center; }
+        .tag-remove:hover { color: #ef4444; }
+
+        /* 커스텀 스크롤바 (좌/우 동일하게 적용됨) */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 스크롤바 숨김 유틸리티 */
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* -------------------------------------
+           공통 헤더 관련 스타일
+           ------------------------------------- */
+        .sos-btn {
+            background-color: transparent;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+            padding: 5px 8px;
+            margin-left: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s;
+        }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background-color 0.15s;
+        }
+        .login-btn:hover { background-color: #1a252f; }
+
+        .mypage-btn-mobile {
+            background-color: #0088cc;
+            color: #ffffff;
+            transition: background-color 0.15s;
+        }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+</head>
+
+<!-- 전체 창 스크롤 방지, 레이아웃 꽉 차게 고정. 그리고 page-jobs 클래스 추가! -->
+<body class="flex flex-col h-screen overflow-hidden page-jobs">
+
+    <div class="hidden grid grid-cols-3 gap-y-2 gap-x-2 text-blue-600 text-[12px] mb-1.5 last:mb-0"></div>
+
+    <!-- ----------------------------------------------------
+         시작: 공통 헤더 (경로는 ../../)
+         ---------------------------------------------------- -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+            
+            <!-- 1) 좌측 로고 -->
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/관리협회.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            </div>
+            
+            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div onclick="location.href='../../pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div onclick="location.href='../../pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div onclick="location.href='../../pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div onclick="location.href='../../pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div onclick="location.href='../../pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자료 / 커뮤니티</div>
+        
+            <!-- 긴급SOS 문의 -->
+            <div onclick="location.href='../../pages/sos/sos.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급SOS 문의</span>
+            </div>
+            </nav>
+        
+            <!-- 3) 우측 유틸리티 영역 -->
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+            <div class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
+            </div>
+            <div onclick="location.href='../../pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+            <div onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+            </div>
+            
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>
+    </div>
+    
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/관리협회.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="location.href='../../pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="location.href='../../pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="location.href='../../pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="location.href='../../pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="location.href='../../pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">자료 / 커뮤니티</div>
+            
+            <!-- 모바일 긴급SOS 문의 -->
+            <div onclick="location.href='../../pages/sos/sos.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급SOS 문의</span>
+            </div>
+            </div>
+            
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                <i class="fa-regular fa-bell mr-1"></i> 알림
+                <span class="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">2</span>
+                </div>
+                <div onclick="location.href='../../pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 모바일 메뉴 열기/닫기 스크립트
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+    
+        // 헤더 높이 계산 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+            const updateHeaderHeightVar = () => {
+                const h = headerEl.getBoundingClientRect().height;
+                document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+            };
+            updateHeaderHeightVar();
+            const ro = new ResizeObserver(updateHeaderHeightVar);
+            ro.observe(headerEl);
+            }
+        });
+    </script>
+    <!-- ----------------------------------------------------
+         끝: 공통 헤더
+         ---------------------------------------------------- -->
+    
+    <!-- ----------------------------------------------------
+         핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
+         페이지 이동 시 이 영역 전체가 슬라이드 전환됨
+         ---------------------------------------------------- -->
+    <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+    <!-- 기존 서브 헤더 -->
+    <div id="sticky-top-bar" class="w-full flex flex-col relative z-[900] shrink-0 bg-transparent">
+        <div class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
+            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center h-full">
+                    구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 하단 레이아웃 분할 -->
+    <main class="flex-1 overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
+        
+        <!-- 좌측 사이드바: overflow-hidden 적용으로 위아래 이동(스크롤) 완전 고정, rtl 삭제 -->
+        <aside class="w-full md:w-[220px] shrink-0 h-full overflow-hidden hide-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <!-- ★ AJAX 탭 전환 -->
+                <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <div class="side-menu-tab-active" data-menu-url="job-list.html" onclick="loadContent('job-list.html', this)">
+                        <i class="fas fa-search"></i>
+                        <span>구인 (채용)</span>
+                    </div>
+                    <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                    <div class="side-menu-tab" data-menu-url="resume-list.html" onclick="loadContent('resume-list.html', this)">
+                        <i class="fas fa-edit"></i>
+                        <span>구직 (인재)</span>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
+                        <!-- '기간 전체' 버튼을 조회기간 텍스트 옆으로 이동 및 크기 축소 -->
+                        <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 px-2 py-1 text-[11px] rounded font-bold" onclick="setPeriod('all', this)">기간 전체</button>
+                    </div>
+                    <!-- 기간 선택 버튼들 크기 및 여백 축소 -->
+                    <div class="grid grid-cols-2 gap-1.5 mb-4">
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1w', this)">1주</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1m', this)">1달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('2m', this)">2달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('6m', this)">6개월</button>
+                    </div>
+                    <div class="flex items-stretch gap-2">
+                        <div class="flex flex-col gap-2 flex-1">
+                            <div class="flex items-center gap-2"><input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500"><span class="text-xs text-gray-600 font-bold w-6">부터</span></div>
+                            <div class="flex items-center gap-2"><input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500"><span class="text-xs text-gray-600 font-bold w-6">까지</span></div>
+                        </div>
+                        <button onclick="applyFilters()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">검<br>색</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 (개별 스크롤 허용) -->
+        <section id="main-content" class="content-area flex-1 min-w-0 h-full overflow-y-auto custom-scroll pr-2 pb-10">
+            <div class="notice-box flex-col sm:flex-row mb-6">
+                <div class="notice-icon-wrapper self-start"><i class="fas fa-shield-alt"></i></div>
+                <div class="notice-content">
+                    <div class="notice-title">건전한 채용 문화를 위한 협회 준수 사항</div>
+                    <ul class="notice-list">
+                        <li><strong>차별 없는 채용:</strong> 불합리한 차별을 엄격히 금지합니다. 위반 공고는 <span class="text-highlight">사전 예고 없이 삭제</span>될 수 있습니다.</li>
+                        <li><strong>개인정보 수집 최소화:</strong> 과도한 개인정보 요구는 엄격히 금지됩니다.</li>
+                        <li><strong>허위 공고 제재:</strong> 허위 공고 등록 시 즉각 삭제 조치 및 영구 제한됩니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <table class="filter-table shadow-sm">
+                <tbody>
+                    <tr>
+                        <th class="hidden sm:table-cell">지<br>역</th>
+                        <td class="block sm:table-cell w-full p-4">
+                            <div class="flex flex-col gap-3 w-full">
+                                <div class="border border-gray-300 bg-white rounded p-3 w-full">
+                                    <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-100 pb-2">
+                                        대분류 <span class="text-gray-400 font-normal ml-1">(다중 선택 가능)</span>
+                                    </div>
+                                    <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-9 gap-y-2 gap-x-2" id="major-region-container"></div>
+                                </div>
+                                
+                                <div class="border border-gray-300 bg-blue-50/30 rounded p-3 w-full min-h-[80px]">
+                                    <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-200 pb-2">
+                                        소분류 <span class="text-gray-400 font-normal ml-1">(대분류 선택 시 하위 지역이 나타납니다)</span>
+                                    </div>
+                                    <div class="flex flex-col gap-3" id="minor-region-container">
+                                        <div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell">직<br>종</th>
+                        <td class="block sm:table-cell w-full p-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full">
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리소장"> <span>관리소장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기과장"> <span>전기과장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기기사"> <span>전기기사</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기전직"> <span>기전직</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설 반장"> <span>시설 반장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설기사"> <span>시설기사</span></label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell" style="color: #1e3a8a; font-size: 15px; font-weight: bold; padding-top: 10px; padding-bottom: 10px;">상<br>태</th>
+                        <td class="block sm:table-cell w-full overflow-visible p-4" style="padding-top: 10px; padding-bottom: 10px;">
+                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2 mt-2">
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">채용상태</span><span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="flex items-center gap-2">
+                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="ALL" checked> 전체</label>
+                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="OPEN"> 채용중</label>
+                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="CLOSED"> 마감</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-4 border border-gray-200 shadow-sm rounded">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+                <div id="include-word-container" class="flex-1 min-w-[200px] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-blue-500">
+                    <input type="text" id="manual-word-input" placeholder="업체명, 지역, 키워드 (엔터 추가)">
+                </div>
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                <input type="text" id="search-exclude" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-blue-500 transition-colors" placeholder="제외할 단어 (쉼표 구분)">
+                <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검&nbsp;&nbsp;색</button>
+            </div>
+
+            <div class="board-toolbar-wrap relative z-10">
+                <div class="flex flex-wrap sm:flex-nowrap justify-between items-end bg-transparent px-2 pt-2 pb-0 mb-0">
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 글이 있습니다. </div>
+                    
+                    <div class="flex items-end gap-2 -mb-[2px] relative z-0">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 border-b-0 rounded-t-md px-2 h-[34px] text-xs outline-none text-gray-700 bg-white cursor-pointer shadow-sm">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        
+                        <div class="flex border border-gray-400 border-b-0 rounded-t-md text-xs bg-white h-[34px] shadow-sm overflow-hidden">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-4 flex items-center justify-center h-full transition-colors cursor-pointer font-bold">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="bg-white text-gray-600 hover:bg-gray-50 px-4 border-l border-gray-300 flex items-center justify-center h-full transition-colors cursor-pointer">조회순</button>
+                        </div>
+                        
+                        <a href="job-write.html" class="bg-[#ffc107] hover:bg-[#ffb300] text-gray-900 font-bold px-5 h-[34px] rounded-t-md border border-[#ffc107] border-b-0 text-[13px] transition-colors ml-1 flex items-center justify-center cursor-pointer shadow-sm">공고 등록하기</a>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper relative z-20 shadow-sm border border-gray-200 border-t-0 rounded-b">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 80px;"><col style="width: auto;"><col style="width: 35%;">
+                            <col style="width: 130px;"><col style="width: 70px;"><col style="width: 70px;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="text-center text-[14px]">번호</th>
+                                <th class="text-center text-[14px]">채용제목</th>
+                                <th class="text-center text-[14px]">지원자격 / 근무조건 / 지역</th>
+                                <th class="text-center text-[14px]">마감 / 등록일</th>
+                                <th class="text-center text-[14px]">조회수</th>
+                                <th class="text-center text-[14px]">관심</th>
+                            </tr>
+                        </thead>
+                        <tbody id="job-list-body" style="min-height: 400px;">
+                            <tr><td colspan="6" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
+            
+            <!-- 푸터를 스크롤 영역 가장 하단에 배치 -->
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <script src="../../assets/js/region-data.js"></script>
+    <!-- ★ 외부 푸터 JS 연결 -->
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+
+    <!-- ★ 로딩 처리 스크립트 수정: 헤더를 js로 부르지 않으므로 문서가 로드되면 바로 body 표시 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(() => {
+                document.body.classList.add('loaded');
+            });
+        });
+    </script>
+
+    <!-- ★★★ 공통 탭 전환 부트스트랩 -->
+    <script>
+    if (!window.__tabSwitcherInit) {
+        window.__tabSwitcherInit = true;
+        window.mainContent = document.getElementById('main-content');
+
+        (function wrapOwnContent() {
+            const ownPanel = document.createElement('div');
+            ownPanel.className = 'tab-panel';
+            ownPanel.dataset.tabUrl = 'job-list.html';
+            while (window.mainContent.firstChild) {
+                ownPanel.appendChild(window.mainContent.firstChild);
+            }
+            window.mainContent.appendChild(ownPanel);
+        })();
+
+        window.loadContent = function(url, element) {
+            if (element && element.classList.contains('side-menu-tab-active')) return;
+
+            // 안전장치: 이 탭 전환은 같은 페이지 안에서의 콘텐츠 교체이므로
+            // 슬라이드 전환 애니메이션이 절대 걸리지 않도록 미리 차단
+            document.documentElement.classList.add('no-page-transition');
+            if (document.activeViewTransition) {
+                document.activeViewTransition.skipTransition();
+            }
+
+            window.scrollTo(0, 0);
+
+            const activateMenu = () => {
+                const menuContainer = document.getElementById('side-menu-container');
+                if (menuContainer) {
+                    menuContainer.querySelectorAll('[data-menu-url]').forEach(item => {
+                        item.className = (item.getAttribute('data-menu-url') === url) ? 'side-menu-tab-active' : 'side-menu-tab';
+                    });
+                }
+                window.history.pushState({ path: url }, '', url);
+            };
+
+            const existingPanel = window.mainContent.querySelector(`[data-tab-url="${url}"]`);
+            if (existingPanel) {
+                window.mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+                existingPanel.style.display = '';
+                activateMenu();
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    document.documentElement.classList.remove('no-page-transition');
+                }));
+                return;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('main-content');
+                    if (!newContent) { location.href = url; return; }
+
+                    window.mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+
+                    const newPanel = document.createElement('div');
+                    newPanel.className = 'tab-panel';
+                    newPanel.dataset.tabUrl = url;
+                    newPanel.innerHTML = newContent.innerHTML;
+                    window.mainContent.appendChild(newPanel);
+
+                    activateMenu();
+
+                    const SHARED_SCRIPT_PATTERN = /header\.js|footer\.js|region\.js|region-data\.js|tailwindcss\.com|supabase-js/;
+                    const alreadyLoadedSrcs = Array.from(document.scripts).map(s => s.src).filter(Boolean);
+                    doc.querySelectorAll('script').forEach(oldScript => {
+                        if (oldScript.src) {
+                            const resolvedSrc = new URL(oldScript.getAttribute('src'), document.baseURI).href;
+                            if (alreadyLoadedSrcs.includes(resolvedSrc)) return;
+                            if (SHARED_SCRIPT_PATTERN.test(resolvedSrc)) return;
+                            const s = document.createElement('script');
+                            s.src = resolvedSrc;
+                            document.body.appendChild(s);
+                        } else {
+                            try {
+                                const s = document.createElement('script');
+                                s.textContent = oldScript.textContent;
+                                document.body.appendChild(s);
+                                s.remove();
+                            } catch (err) {
+                                console.error('탭 스크립트 실행 오류:', err);
+                            }
+                        }
+                    });
+
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        document.documentElement.classList.remove('no-page-transition');
+                    }));
+                })
+                .catch(error => {
+                    console.error('페이지 데이터를 불러오는데 실패했습니다:', error);
+                    location.href = url;
+                });
+        };
+
+        window.addEventListener('popstate', function() {
+            location.reload();
+        });
+    }
+    </script>
+
+    <!-- ★ 이 페이지(job-list.html) 전용 로직 -->
+    <script>
+    (function() {
+        let tags = [];
+        const includeContainer = document.getElementById('include-word-container');
+        const manualInput = document.getElementById('manual-word-input');
+        const majorContainer = document.getElementById('major-region-container');
+        const minorContainer = document.getElementById('minor-region-container');
+        let selectedMajors = [];
+
+        const rData = typeof regionData !== 'undefined' ? regionData : (typeof subRegionData !== 'undefined' ? subRegionData : {});
+
+        function renderTags() {
+            includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
+            tags.forEach(word => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                includeContainer.insertBefore(chip, manualInput);
+            });
+            manualInput.placeholder = tags.length > 0 ? "" : "업체명, 지역, 키워드 (엔터 추가)";
+        }
+
+        function addTag(word) {
+            const trimmed = word.trim();
+            if (trimmed && !tags.includes(trimmed)) {
+                tags.push(trimmed);
+                renderTags();
+                applyFilters(); 
+            }
+        }
+
+        function removeTag(word) {
+            tags = tags.filter(t => t !== word);
+            const checkboxes = document.querySelectorAll(`input[type="checkbox"][value="${word}"]`);
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                if(cb.classList.contains('major-checkbox')) {
+                    selectedMajors = selectedMajors.filter(val => val !== word);
+                    if (rData[word]) {
+                        rData[word].forEach(minor => {
+                            tags = tags.filter(t => t !== minor);
+                            const minorCb = document.querySelector(`input.sub-region-chk[value="${minor}"]`);
+                            if(minorCb) minorCb.checked = false;
+                        });
+                    }
+                    tags = tags.filter(t => t !== `${word} 전체`);
+                    renderMinorRegions();
+                }
+            });
+            renderTags();
+            applyFilters();
+        }
+
+        includeContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.tag-remove')) {
+                const word = e.target.closest('.tag-remove').dataset.word;
+                removeTag(word);
+            } else {
+                manualInput.focus();
+            }
+        });
+
+        manualInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const words = manualInput.value.split(',');
+                words.forEach(w => addTag(w));
+                manualInput.value = '';
+            } else if (e.key === 'Backspace' && manualInput.value === '' && tags.length > 0) {
+                removeTag(tags[tags.length - 1]);
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            const target = e.target;
+            // .major-checkbox를 조건에서 제외하여 대분류는 태그에 추가되지 않게 유지
+            if (target.matches('.job-category-chk, .sub-region-chk')) {
+                if (target.checked) addTag(target.value);
+                else removeTag(target.value);
+            }
+            if (target.matches('.status-radio')) {
+                applyFilters();
+            }
+        });
+
+        function initRegionFilters() {
+            function createMajorCheckbox(value) {
+                const label = document.createElement('label');
+                label.className = 'custom-checkbox';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = value;
+                checkbox.className = 'major-checkbox';
+                const textNode = document.createTextNode(' ' + value);
+                
+                label.appendChild(checkbox);
+                label.appendChild(textNode);
+                majorContainer.appendChild(label);
+
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedMajors.push(this.value);
+                    } else {
+                        selectedMajors = selectedMajors.filter(val => val !== this.value);
+                    }
+                    renderMinorRegions();
+                });
+            }
+
+            if (Object.keys(rData).length > 0) {
+                createMajorCheckbox('전국');
+                for (const major in rData) {
+                    if (major !== '전국') {
+                        createMajorCheckbox(major);
+                    }
+                }
+            }
+        }
+
+        function renderMinorRegions() {
+            minorContainer.innerHTML = '';
+            if (selectedMajors.length === 0) {
+                minorContainer.innerHTML = '<div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>';
+                return;
+            }
+
+            selectedMajors.forEach(major => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'mb-2 last:mb-0';
+                
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'text-[12px] font-bold text-gray-600 mb-1.5';
+                groupTitle.textContent = `[${major}]`;
+                groupDiv.appendChild(groupTitle);
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-y-2 gap-x-2';
+                
+                if (major === '전국') {
+                    const isChecked = tags.includes("전국 전체") ? "checked" : "";
+                    gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="전국 전체" class="font-bold text-blue-600 sub-region-chk" ${isChecked}> <span class="font-bold">전국 전체</span></label>`;
+                } else {
+                    const isCheckedMajor = tags.includes(`${major} 전체`) ? "checked" : "";
+                    gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="${major} 전체" class="font-bold text-blue-600 sub-region-chk" ${isCheckedMajor}> <span class="font-bold">${major} 전체</span></label>`;
+                    
+                    if (rData[major]) {
+                        rData[major].forEach(minor => {
+                            if (minor.replace(/\s+/g, '') !== `${major}전체`) {
+                                const isCheckedMinor = tags.includes(minor) ? "checked" : "";
+                                gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="${minor}" class="sub-region-chk" ${isCheckedMinor}> <span>${minor}</span></label>`;
+                            }
+                        });
+                    }
+                }
+                groupDiv.appendChild(gridDiv);
+                minorContainer.appendChild(groupDiv);
+            });
+        }
+
+        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+
+        let allJobs = [], filteredJobs = [];  
+        let currentSort = 'latest', itemsPerPage = 20, currentPage = 1;
+
+        function initApp() {
+            initRegionFilters(); 
+            fetchJobs();
+        }
+
+        window.setPeriod = function(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold'));
+            if (btnElement) btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            const startInput = document.getElementById('start-date'); const endInput = document.getElementById('end-date');
+            
+            if (period === 'all') { startInput.value = ''; endInput.value = ''; }
+            else {
+                const end = new Date(); const start = new Date();
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+            applyFilters();
+        };
+
+        window.setSort = function(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+            
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-4 flex items-center justify-center h-full transition-colors cursor-pointer font-bold";
+                btnViews.className = "bg-white text-gray-600 hover:bg-gray-50 px-4 border-l border-gray-300 flex items-center justify-center h-full transition-colors cursor-pointer";
+            } else {
+                btnViews.className = "bg-[#333] text-white px-4 flex items-center justify-center h-full transition-colors cursor-pointer font-bold border-l border-[#333]";
+                btnLatest.className = "bg-white text-gray-600 hover:bg-gray-50 px-4 flex items-center justify-center h-full transition-colors cursor-pointer";
+            }
+            applyFilters();
+        };
+
+        window.setPerPage = function(select) {
+            itemsPerPage = parseInt(select.value, 10);
+            currentPage = 1;
+            applyFilters();
+        };
+
+        window.applyFilters = function() {
+            const tbody = document.getElementById('job-list-body');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">필터 조건에 맞는 공고를 불러오는 중입니다...</td></tr>';
+            
+            setTimeout(() => {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">등록된 공고가 없습니다.</td></tr>';
+                document.getElementById('total-count').innerText = "0";
+            }, 500);
+        };
+
+        function fetchJobs() {
+            applyFilters();
+        }
+
+        initApp();
+    })();
+    </script>
+</body>
+</html>

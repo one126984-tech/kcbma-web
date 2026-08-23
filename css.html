@@ -1,0 +1,32 @@
+/* 기본 초기화 및 공통 컨테이너 설정 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+a { text-decoration: none; color: inherit; }
+.container { width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+/* 1. 최상단 유틸리티 바 (네이버카페, 로그인 등) */
+.top-bar { background-color: #0d2146; padding: 10px 0; }
+.top-bar-inner { display: flex; justify-content: flex-end; gap: 10px; }
+.btn { padding: 8px 15px; border-radius: 4px; font-size: 14px; color: #fff; }
+.btn-cafe { background-color: #00c73c; } /* 네이버 그린 */
+.btn-login, .btn-signup { background-color: #2b4570; border: 1px solid #3c5a8a; }
+
+/* 2. 메인 네비게이션 (로고 및 주요 메뉴) */
+.main-nav { background-color: #ffffff; border-bottom: 1px solid #e0e0e0; }
+.main-nav-inner { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+.nav-links { display: flex; gap: 40px; font-weight: bold; font-size: 18px; }
+/* 현재 선택된 메뉴(활성화) 스타일 */
+.nav-links a.active { color: #00a082; border-bottom: 3px solid #00a082; padding-bottom: 25px; }
+
+/* 3. 서브 네비게이션 (구인구직, 지역 선택) */
+.sub-nav { background-color: #123478; padding: 15px 0; color: #ffffff; }
+.sub-nav-inner { display: flex; align-items: center; gap: 50px; }
+.sub-title { font-size: 24px; font-weight: bold; }
+.region-links { display: flex; gap: 5px; flex-wrap: wrap; }
+.region-links a { 
+    border: 1px solid #3b5b9b; 
+    padding: 5px 15px; 
+    border-radius: 4px; 
+    font-size: 14px;
+}
+/* 현재 선택된 지역(활성화) 스타일 */
+.region-links a.active { background-color: #ffffff; color: #123478; font-weight: bold; }

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS 현장 사례 상세</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; }
+    .chat-bg { background-color: #bacee0; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center">
+
+  <!-- 중앙 컨테이너 (모바일 화면 비율 유지, PC에서는 적당한 너비) -->
+  <div class="w-full max-w-2xl bg-white min-h-screen shadow-lg relative flex flex-col">
+
+    <header class="bg-[#23344e] text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <button onclick="history.back()" class="hover:bg-white/20 p-2 rounded-full transition w-10 h-10 flex items-center justify-center">
+          <i class="fa-solid fa-arrow-left text-lg"></i>
+        </button>
+        <h1 class="text-lg font-bold tracking-wide">사례 상세 보기</h1>
+      </div>
+      <button class="hover:bg-white/20 p-2 rounded-full transition w-10 h-10 flex items-center justify-center" title="공유하기">
+        <i class="fa-solid fa-share-nodes"></i>
+      </button>
+    </header>
+
+    <!-- 본문 내용 영역 -->
+    <main class="flex-1 overflow-y-auto pb-20">
+      
+      <section class="p-5 md:p-8 border-b border-gray-200">
+        <div class="flex justify-between items-start mb-3">
+          <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full border border-blue-200">
+            💦 누수 / 배관
+          </span>
+          <span class="text-sm text-gray-500 font-medium">2026. 08. 20</span>
+        </div>
+        
+        <h2 class="text-2xl font-black text-gray-900 leading-snug mb-4">
+          지하 2층 주차장 천장 소방배관 조인트 누수 긴급 조치
+        </h2>
+
+        <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+          <div class="w-12 h-12 bg-[#23344e] rounded-full flex items-center justify-center text-white text-xl">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">담당 전문가</p>
+            <p class="font-bold text-gray-900">이배관 대표 <span class="text-sm font-normal text-gray-600">(제일설비)</span></p>
+            <div class="flex items-center text-yellow-400 text-xs mt-0.5">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+              <span class="text-gray-500 ml-1">5.0 (매우 만족)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="p-5 md:p-8">
+        <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span class="text-red-500"><i class="fa-solid fa-triangle-exclamation"></i></span> 발생 상황
+        </h3>
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
+          <p class="text-gray-700 leading-relaxed">
+            새벽 2시경, 지하 2층 주차장 B구역 천장 소방배관(스프링클러 가지배관) 조인트 부분에서 다량의 누수 발생. 주차된 차량 위로 물이 쏟아져 긴급 차단 및 조치가 필요한 상황이었음.
+          </p>
+        </div>
+      </section>
+
+      <section class="p-5 md:p-8 pt-0">
+        <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span class="text-green-600"><i class="fa-solid fa-wrench"></i></span> 전문가 조치 내용
+        </h3>
+        <div class="bg-blue-50 border border-blue-100 p-5 rounded-2xl shadow-sm">
+          <ol class="list-decimal list-inside space-y-3 text-gray-800 leading-relaxed font-medium">
+            <li><span class="font-bold text-blue-700">밸브 차단:</span> 해당 구역 스프링클러 알람밸브 2차측  OS&Y 밸브 긴급 차단 안내.</li>
+            <li><span class="font-bold text-blue-700">잔류수 배출:</span> 말단 시험밸브를 개방하여 배관 내 잔류수 신속 배출 유도.</li>
+            <li><span class="font-bold text-blue-700">전기 안전 확보:</span> 누수 부위 하단 주차장 조명 전원 일시 차단 지시.</li>
+            <li><span class="font-bold text-blue-700">후속 조치:</span> 익일 오전 현장 방문하여 조인트 패킹 교체 및 체결 불량 수리 완료.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="px-5 md:px-8 pb-8">
+        <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span class="text-[#3b82f6]"><i class="fa-regular fa-comments"></i></span> 당시 상담 내역 (일부)
+        </h3>
+        
+        <!-- 카카오톡 스타일 읽기 전용 대화창 -->
+        <div class="chat-bg rounded-2xl p-4 space-y-4 shadow-inner border border-gray-200">
+          
+          <!-- 소장님(나) 메시지 -->
+          <div class="flex w-full justify-end">
+            <div class="max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm text-[14px] leading-relaxed bg-[#fef01b] text-black rounded-tr-sm">
+              소장님: 지금 지하주차장 천장 배관에서 물이 비오듯 쏟아집니다!! 소방배관 같아요.
+            </div>
+          </div>
+          
+          <!-- 전문가 메시지 -->
+          <div class="flex w-full justify-start gap-2">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+              <i class="fa-solid fa-user-tie text-gray-400"></i>
+            </div>
+            <div class="max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm text-[14px] leading-relaxed bg-white text-black rounded-tl-sm border border-gray-200">
+              이배관 대표: 침착하시고요. 기계실 가셔서 알람밸브 2차측 노란색 큰 밸브(OS&Y)를 시계 방향으로 꽉 잠그세요. 잠그고 바로 사진 찍어서 보내주세요.
+            </div>
+          </div>
+
+          <!-- 소장님(나) 메시지 -->
+          <div class="flex w-full justify-end">
+            <div class="max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm text-[14px] leading-relaxed bg-[#fef01b] text-black rounded-tr-sm">
+              소장님: 잠갔습니다. 근데 아직도 물이 떨어져요!
+            </div>
+          </div>
+
+          <!-- 전문가 메시지 -->
+          <div class="flex w-full justify-start gap-2">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+              <i class="fa-solid fa-user-tie text-gray-400"></i>
+            </div>
+            <div class="max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm text-[14px] leading-relaxed bg-white text-black rounded-tl-sm border border-gray-200">
+              이배관 대표: 배관 안에 남은 물이 빠지는 겁니다. 끝에 있는 시험밸브함 열어서 물을 빼주시면 훨씬 빨리 멈춥니다. 내일 아침 첫 타임으로 방문해서 수리하겠습니다.
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+    </main>
+
+    <div class="p-4 bg-white border-t border-gray-200 sticky bottom-0 z-50">
+      <button onclick="history.back()" class="w-full bg-[#23344e] text-white font-bold text-lg py-3.5 rounded-xl shadow-md hover:bg-[#1a2639] transition active:scale-95">
+        목록으로 돌아가기
+      </button>
+    </div>
+
+  </div>
+
+</body>
+</html>
