@@ -1,0 +1,64 @@
+    <style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
+           _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+           ⚠ 여기에 opacity 0→1 페이드 같은 "로딩 후 서서히 나타내기" 트릭을
+              다시 넣지 말 것. resume-list.html 원본 주석에 남아있듯,
+              그런 트릭을 View Transition(아래 view-transition-css 파샬)과
+              같이 쓰면 "이중 페이드"로 오히려 흰 화면이 더 도드라져 보이는
+              버그가 실제로 있었음. 이 파일은 순수 배경색 즉시 고정 용도로만
+              쓸 것. */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 56px;
+            /* ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+               분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
+               형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
+               #main-header가 통째로 sticky라 자동으로 같이 고정됨.
+               (예전에 시도했던 position:sticky 오버라이드는 제거함) */
+        }
+
+        /* ★★★ 2026-08 추가 → 이후 되돌림: Tailwind CDN 스크립트가 렌더링을
+           막고있는 동안(로드 전) 페이지가 스타일 없이 날것으로 보이는 문제를
+           고치려고 script에 defer를 붙여봤었는데, 그러면 오른쪽 유틸리티
+           영역(알림·마이페이지·로그인)처럼 이 스킈레톤이 못 커버한 부분이
+           Tailwind 로드 전에 잠깐 글자가 겹쳐 보이는 "새로운" 버그가 생겨서
+           defer는 다시 뺐음 (지금은 원래대로 blocking script).
+           이 스킈레톤 CSS 자체는 혹시 CDN이 막히거나 느릴 때를 대비한
+           안전망으로 그냥 남겨둠 (blocking 상태에선 어차피 Tailwind와 거의
+           동시에 적용되니 해 될 거 없음).
+
+           ⚠ 진짜 근본 해결책은 여전히 Tailwind를 CDN 스크립트가 아니라
+           미리 빌드한 정적 CSS 파일로 self-host 하는 것 (Tailwind 공식문서도
+           CDN 스크립트는 프로덕션에 쓰지 말라고 명시함). 이 프로젝트 루트의
+           tailwind.config.js 파일 안 주석에 실행 방법 적어뒀음 — 인터넷 되는
+           PC에서 딱 한 번만 빌드하면 이 시리즈의 모든 "튀고 흔들리는" 문제가
+           구조적으로 끝남. */
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 1024px) {
+            #main-header nav { display: flex; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 1024px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+    </style>

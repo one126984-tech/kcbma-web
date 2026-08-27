@@ -1,0 +1,251 @@
+<!-- 파일명: field-experience-detail.src.html
+     ★ 원본은 사이트 헤더가 아예 없는 완전 별개 화면이었음. 표준 헤더/서브헤더/사이드바를 붙임. -->
+<!-- @var PAGE_CLASS: page-community -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>현장경험 상세 보기 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(현장경험 상세) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
+        <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center h-full">
+            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
+                커뮤니티
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 pt-8 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
+
+        <aside class="w-full md:w-[220px] shrink-0 h-full left-scroll-area z-40">
+            <div class="left-scroll-content">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                    <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='notice.html'">공지사항</div>
+                    <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='free-board.html'">자유게시판</div>
+                    <div class="side-menu-active shadow-sm z-10 relative">현장경험 나누어요</div>
+                    <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='work-qna.html'">업무 Q&A</div>
+                    <div class="side-menu-item mx-4" onclick="location.href='data-room.html'">서식/자료실</div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col pb-10">
+        <div class="max-w-4xl w-full">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+                <div class="p-6 md:p-8 border-b border-gray-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span id="post-category" class="px-3 py-1 bg-[#f0f4fb] text-[#12387a] font-bold text-sm rounded-md">분류</span>
+                    </div>
+                    <h2 id="post-title" class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 leading-snug">
+                        데이터를 불러오는 중...
+                    </h2>
+                    <div class="flex justify-between items-center text-sm text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">👤</span>
+                            <span id="post-author" class="font-medium text-gray-700">작성자</span>
+                        </div>
+                        <div id="post-date">0000.00.00</div>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-[#f97316] pl-3">발생 상황 및 대처 과정</h3>
+                    <div id="post-content" class="text-gray-700 leading-relaxed mb-10 whitespace-pre-wrap min-h-[150px]"></div>
+
+                    <h3 class="text-lg font-bold text-blue-900 mb-4 border-l-4 border-[#12387a] pl-3">💡 느끼고 터득한 점 (인사이트)</h3>
+                    <div class="bg-blue-50 rounded-lg p-5 border border-blue-100 text-blue-800 leading-relaxed whitespace-pre-wrap" id="post-lesson"></div>
+
+                    <div class="flex flex-col items-center justify-center mt-12 mb-4">
+                        <button id="like-btn" onclick="toggleLike()" class="flex items-center gap-3 px-8 py-3 bg-red-50 text-red-500 font-bold text-lg rounded-full border border-red-100 hover:bg-red-100 transition-colors shadow-sm">
+                            <i class="fas fa-heart text-2xl"></i>
+                            <span id="like-count-display">0</span>
+                        </button>
+                        <p class="text-xs text-gray-400 mt-3">※ 공감은 한 게시물당 한 번만 가능합니다.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 md:p-6 border-t border-gray-100 flex justify-between items-center">
+                    <button onclick="location.href='field-experience.html'" class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 font-bold rounded-md hover:bg-gray-100 transition-colors shadow-sm">
+                        목록으로
+                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="editPost()" class="px-5 py-2.5 bg-gray-600 text-white font-bold rounded-md hover:bg-gray-700 transition-colors shadow-sm">
+                            수정
+                        </button>
+                        <button onclick="deletePost()" class="px-5 py-2.5 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 transition-colors shadow-sm">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+            <div id="footer-container" class="w-full shrink-0 mt-8"></div>
+        </div>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentPostData = null;
+        let currentLikes = 0;
+        let hasLiked = false;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!postId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'field-experience.html';
+                return;
+            }
+            await fetchPostDetail();
+        });
+
+        async function fetchPostDetail() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('id', postId)
+                    .single();
+
+                if (error) throw error;
+                currentPostData = data;
+
+                currentLikes = data.likes_count || 0;
+                document.getElementById('like-count-display').textContent = currentLikes;
+
+                if (localStorage.getItem(`liked_${postId}`) === 'true') {
+                    hasLiked = true;
+                    const btn = document.getElementById('like-btn');
+                    btn.classList.replace('bg-red-50', 'bg-red-500');
+                    btn.classList.replace('text-red-500', 'text-white');
+                }
+
+                const d = new Date(data.created_at);
+                const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+
+                document.getElementById('post-category').textContent = data.category || '기타';
+                document.getElementById('post-title').textContent = data.title;
+                document.getElementById('post-author').textContent = data.author_name;
+                document.getElementById('post-date').textContent = dateStr;
+                document.getElementById('post-content').textContent = data.content;
+                document.getElementById('post-lesson').textContent = data.lesson_content || '작성된 내용이 없습니다.';
+
+            } catch (error) {
+                console.error('글 불러오기 에러:', error);
+                alert('글을 불러오지 못했습니다.');
+                location.href = 'field-experience.html';
+            }
+        }
+
+        async function toggleLike() {
+            if (hasLiked) {
+                alert('이미 공감하신 게시물입니다.');
+                return;
+            }
+
+            const newLikes = currentLikes + 1;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('master_board')
+                    .update({ likes_count: newLikes })
+                    .eq('id', postId);
+
+                if (error) throw error;
+
+                currentLikes = newLikes;
+                hasLiked = true;
+                localStorage.setItem(`liked_${postId}`, 'true');
+
+                document.getElementById('like-count-display').textContent = currentLikes;
+                const btn = document.getElementById('like-btn');
+                btn.classList.replace('bg-red-50', 'bg-red-500');
+                btn.classList.replace('text-red-500', 'text-white');
+
+            } catch (error) {
+                console.error('하트 업데이트 에러:', error);
+                alert('공감을 처리하는 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function deletePost() {
+            const inputPw = prompt('글을 삭제하려면 작성 시 입력한 비밀번호를 입력해주세요.');
+            if (inputPw === null || inputPw.trim() === '') return;
+
+            if (inputPw !== currentPostData.password) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('master_board')
+                        .delete()
+                        .eq('id', postId);
+
+                    if (error) throw error;
+
+                    alert('글이 성공적으로 삭제되었습니다.');
+                    location.href = 'field-experience.html';
+                } catch (error) {
+                    console.error('삭제 에러:', error);
+                    alert('삭제 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        function editPost() {
+            const inputPw = prompt('글을 수정하려면 작성 시 입력한 비밀번호를 입력해주세요.');
+            if (inputPw === null || inputPw.trim() === '') return;
+
+            if (inputPw !== currentPostData.password) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            location.href = `field-experience-edit.html?id=${postId}`;
+        }
+    </script>
+</body>
+</html>
