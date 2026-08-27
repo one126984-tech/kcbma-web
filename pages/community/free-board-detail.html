@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>상세보기 - 자유게시판 | 대한집합건물관리협회 커뮤니티</title>
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        html, body { overflow-x: hidden; height: 100%; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 56px; }
+
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+        
+        .left-scroll-area { direction: rtl; overflow-y: auto; height: 100%; padding-bottom: 2rem; }
+        .left-scroll-area::-webkit-scrollbar { width: 6px; }
+        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+        .main-scroll-area::-webkit-scrollbar { width: 8px; }
+        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+
+        .sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn { background-color: #2c3e50; color: #ffffff; font-weight: 700; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; }
+        .login-btn:hover { background-color: #1a252f; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden page-community">
+
+    <!-- 1. 상단 글로벌 헤더 -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/관리협회.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            </div>
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../pages/board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../pages/sos/sos-request.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i><span>긴급 SOS 호출</span>
+            </div>
+            </nav>
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+            <div class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
+            </div>
+            <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+            <div onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+            </div>
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>
+
+        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center h-full">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
+                    커뮤니티
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full"><img src="../../assets/img/관리협회.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" /></div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../pages/board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            </div>
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') { menu.style.display = 'none'; document.body.style.overflow = ''; } 
+            else { menu.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+        }
+    </script>
+
+    <!-- 2. 메인 컨텐츠 영역 -->
+    <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+        <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 pt-8 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
+
+            <!-- 좌측 사이드 메뉴 -->
+            <aside class="w-full md:w-[220px] shrink-0 h-full left-scroll-area z-40">
+                <div class="left-scroll-content">
+                    <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                        <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='notice.html'">공지사항</div>
+                        <div class="side-menu-active shadow-sm z-10 relative" onclick="location.href='free-board.html'">자유게시판</div>
+                        <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='field-experience.html'">현장경험 나누어요</div>
+                        <div class="side-menu-item mx-4 border-b border-gray-100" onclick="location.href='work-qna.html'">업무 Q&A</div>
+                        <div class="side-menu-item mx-4" onclick="location.href='data-room.html'">서식/자료실</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 우측 글 상세 보기 영역 -->
+            <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
+                <section class="flex-1 shrink-0 pb-8 flex flex-col">
+                    
+                    <div class="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">자유게시판</h2>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <!-- 글 헤더 -->
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 id="post-title" class="text-xl font-bold text-gray-900 mb-4">데이터를 불러오는 중입니다...</h3>
+                            
+                            <div class="flex flex-wrap items-center justify-between text-sm text-gray-500 gap-2">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fa-regular fa-user"></i>
+                                        <span id="post-author">-</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span id="post-date">-</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="fa-regular fa-eye"></i>
+                                    <span>조회 <span id="post-views" class="font-bold text-gray-700">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 글 본문 내용 -->
+                        <div class="p-6 min-h-[250px] text-gray-800 leading-relaxed whitespace-pre-wrap" id="post-content"></div>
+                        
+                        <!-- 댓글 영역 -->
+                        <div class="p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-lg">
+                            <h4 class="font-bold text-gray-800 mb-4 text-sm">댓글 <span id="comment-count" class="text-[#12387a]">0</span></h4>
+                            
+                            <div class="flex flex-col sm:flex-row gap-2 mb-6">
+                                <input type="text" id="comment-author" placeholder="작성자" class="w-full sm:w-28 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#12387a]">
+                                <input type="text" id="comment-content" placeholder="댓글을 남겨보세요." class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#12387a]" onkeypress="if(event.key==='Enter') submitComment()">
+                                <button onclick="submitComment()" class="w-full sm:w-auto bg-gray-800 text-white px-4 py-2 rounded text-sm font-bold hover:bg-gray-900 transition-colors shrink-0">등록</button>
+                            </div>
+
+                            <div id="comment-list" class="space-y-4">
+                                <div class="text-center text-gray-400 py-2 text-sm">댓글을 불러오는 중입니다...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ★ 하단 버튼 영역 (수정/삭제 버튼 추가) ★ -->
+                    <div class="flex justify-between items-center mt-6">
+                        <div class="flex gap-2">
+                            <!-- 수정 버튼 추가 -->
+                            <button id="edit-btn" class="hidden px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50 transition-colors">수정</button>
+                            <!-- 기존 삭제 버튼 -->
+                            <button id="delete-btn" class="hidden px-4 py-2 border border-red-300 text-red-600 rounded text-sm font-medium hover:bg-red-50 transition-colors">삭제</button>
+                        </div>
+                        <button onclick="location.href='free-board.html'" class="px-6 py-2.5 border border-[#1e293b] text-[#1e293b] rounded font-bold hover:bg-gray-50 transition-colors shadow-sm">목록으로</button>
+                    </div>
+
+                </section>
+                <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 3. Supabase 연동 로직 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL ='https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentPostId = null;
+        let postPassword = ''; // 불러온 글의 비밀번호를 담아둘 변수
+
+        async function fetchPostDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentPostId = urlParams.get('id');
+
+            if (!currentPostId) {
+                alert("잘못된 접근입니다.");
+                location.href = 'free-board.html';
+                return;
+            }
+
+            try {
+                const { data: post, error } = await supabaseClient.from('free_board').select('*').eq('id', currentPostId).single();
+                if (error) throw error;
+
+                // 비밀번호 저장해두기
+                postPassword = post.password || '';
+
+                const newViews = (post.views || 0) + 1;
+                await supabaseClient.from('free_board').update({ views: newViews }).eq('id', currentPostId);
+
+                document.getElementById('post-title').innerText = post.title;
+                document.getElementById('post-author').innerText = post.author || '회원';
+                document.getElementById('post-views').innerText = newViews;
+                document.getElementById('post-content').innerText = post.content;
+
+                const date = new Date(post.created_at);
+                document.getElementById('post-date').innerText = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+                // ★ 수정 버튼 로직
+                const editBtn = document.getElementById('edit-btn');
+                editBtn.classList.remove('hidden');
+                editBtn.onclick = () => {
+                    const inputPw = prompt("글 작성 시 입력한 비밀번호 4자리를 입력해 주세요.");
+                    if (inputPw === null) return; // 취소 누름
+                    if (inputPw === postPassword) {
+                        // 비밀번호 맞으면 수정 페이지로 이동
+                        location.href = `free-board-edit.html?id=${currentPostId}`;
+                    } else {
+                        alert("비밀번호가 일치하지 않습니다.");
+                    }
+                };
+
+                // ★ 삭제 버튼 로직
+                const deleteBtn = document.getElementById('delete-btn');
+                deleteBtn.classList.remove('hidden');
+                deleteBtn.onclick = async () => {
+                    const inputPw = prompt("정말 삭제하시겠습니까? 글 작성 시 입력한 비밀번호 4자리를 입력해 주세요.");
+                    if (inputPw === null) return; // 취소 누름
+                    if (inputPw === postPassword) {
+                        await supabaseClient.from('free_board').delete().eq('id', currentPostId);
+                        alert("삭제되었습니다.");
+                        location.href = 'free-board.html';
+                    } else {
+                        alert("비밀번호가 일치하지 않습니다.");
+                    }
+                };
+
+                fetchComments();
+
+            } catch (error) {
+                console.error("오류 발생:", error.message);
+                alert("게시글을 불러오는 중 오류가 발생했습니다.");
+                location.href = 'free-board.html';
+            }
+        }
+
+        async function fetchComments() {
+            try {
+                const { data: comments, error } = await supabaseClient
+                    .from('free_board_comments')
+                    .select('*')
+                    .eq('post_id', currentPostId)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                document.getElementById('comment-count').innerText = comments.length;
+                const commentList = document.getElementById('comment-list');
+                commentList.innerHTML = ''; 
+
+                if (comments.length === 0) {
+                    commentList.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm">등록된 댓글이 없습니다. 첫 댓글을 남겨보세요!</div>';
+                    return;
+                }
+
+                comments.forEach(comment => {
+                    const cDate = new Date(comment.created_at);
+                    const formattedDate = `${cDate.getFullYear()}.${String(cDate.getMonth() + 1).padStart(2, '0')}.${String(cDate.getDate()).padStart(2, '0')} ${String(cDate.getHours()).padStart(2, '0')}:${String(cDate.getMinutes()).padStart(2, '0')}`;
+
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'border-b border-gray-200 pb-3 last:border-0';
+                    commentDiv.innerHTML = `
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-gray-800 text-sm">${comment.author}</span>
+                            <span class="text-[11px] text-gray-400">${formattedDate}</span>
+                        </div>
+                        <div class="text-gray-700 text-sm break-all">${comment.content}</div>
+                    `;
+                    commentList.appendChild(commentDiv);
+                });
+            } catch (error) {
+                console.error("댓글 불러오기 오류:", error.message);
+            }
+        }
+
+        async function submitComment() {
+            const authorVal = document.getElementById('comment-author').value.trim();
+            const contentVal = document.getElementById('comment-content').value.trim();
+
+            if (!contentVal) {
+                alert("댓글 내용을 입력해 주세요.");
+                document.getElementById('comment-content').focus();
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('free_board_comments')
+                    .insert([{ post_id: currentPostId, author: authorVal || '회원', content: contentVal }]);
+
+                if (error) throw error;
+
+                document.getElementById('comment-author').value = '';
+                document.getElementById('comment-content').value = '';
+                fetchComments();
+
+            } catch (error) {
+                console.error("댓글 등록 오류:", error.message);
+                alert("댓글 등록에 실패했습니다.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchPostDetail);
+    </script>
+</body>
+</html>

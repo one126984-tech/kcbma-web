@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>공지사항 쓰기 | 대한집합건물관리협회 커뮤니티</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- 상단 헤더 영역 (간소화) -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 max-w-[1400px] mx-auto w-full h-[70px]">
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+                <span class="font-bold text-xl text-[#12387a]">대한집합건물관리협회</span>
+            </div>
+        </header>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
+            <div class="max-w-[1400px] mx-auto w-full px-4 flex gap-4 md:gap-8 items-center h-full">
+                <div class="shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
+                    공지사항 작성
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 본문 영역 -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div class="max-w-[1000px] mx-auto bg-white border border-gray-200 rounded-lg shadow-sm p-6 md:p-10">
+            
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">새 공지사항 등록</h2>
+
+            <!-- 입력 폼 -->
+            <div class="flex flex-col gap-5">
+                <!-- 상단 고정 체크박스 -->
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="pin-check" class="w-4 h-4 cursor-pointer accent-[#12387a]">
+                    <label for="pin-check" class="text-sm font-bold text-red-600 cursor-pointer">이 글을 상단에 고정 공지로 등록합니다.</label>
+                </div>
+
+                <!-- 제목 입력 -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">제목 <span class="text-red-500">*</span></label>
+                    <input type="text" id="title-input" placeholder="공지사항 제목을 입력하세요" class="w-full border border-gray-300 rounded-md px-4 py-2.5 focus:outline-none focus:border-[#12387a] focus:ring-1 focus:ring-[#12387a]">
+                </div>
+
+                <!-- 내용 입력 -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">내용 <span class="text-red-500">*</span></label>
+                    <textarea id="content-input" rows="15" placeholder="공지할 내용을 상세히 적어주세요." class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:border-[#12387a] focus:ring-1 focus:ring-[#12387a] resize-y"></textarea>
+                </div>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="flex justify-center gap-3 mt-8 pt-6 border-t">
+                <button onclick="location.href='notice.src.html'" class="px-6 py-2.5 rounded-md border border-gray-300 text-gray-700 font-bold hover:bg-gray-50 transition-colors">취소</button>
+                <button id="submit-btn" class="px-8 py-2.5 rounded-md bg-[#12387a] text-white font-bold hover:bg-[#0b224f] transition-colors">등록하기</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Supabase 연동 스크립트 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ★ 본인의 Supabase 정보로 변경하세요!
+        const SUPABASE_URL ='https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        
+        // 이름 충돌을 피하기 위해 supabaseClient 로 변경합니다.
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 등록 버튼 클릭 이벤트
+        document.getElementById('submit-btn').addEventListener('click', async () => {
+            const titleValue = document.getElementById('title-input').value.trim();
+            const contentValue = document.getElementById('content-input').value.trim();
+            const isPinned = document.getElementById('pin-check').checked;
+
+            if (!titleValue) {
+                alert("제목을 입력해 주세요.");
+                document.getElementById('title-input').focus();
+                return;
+            }
+            if (!contentValue) {
+                alert("내용을 입력해 주세요.");
+                document.getElementById('content-input').focus();
+                return;
+            }
+
+            try {
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.innerText = "등록 중...";
+
+                // supabase가 아닌 supabaseClient를 사용합니다.
+                const { error } = await supabaseClient
+                    .from('notices')
+                    .insert([
+                        { 
+                            title: titleValue, 
+                            content: contentValue,
+                            is_pinned: isPinned
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert("공지사항이 성공적으로 등록되었습니다.");
+                location.href = 'notice.src.html';
+
+            } catch (error) {
+                console.error("등록 실패:", error.message);
+                alert("등록 중 문제가 발생했습니다: " + error.message);
+                
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.innerText = "등록하기";
+            }
+        });
+    </script>
+</body>
+</html>
