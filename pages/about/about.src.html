@@ -1,0 +1,208 @@
+<!-- 파일명: about.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 about.html) -->
+<!-- @var PAGE_CLASS: page-about -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>협회소개 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(협회소개) 전용 CSS */
+
+        /* 이 페이지만의 스크롤바 디자인 (공통 .custom-scroll과 다름, 폭/색 다름) */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        .scroll-smooth { scroll-behavior: smooth; }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <!-- ----------------------------------------------------
+         핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
+         페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
+         ---------------------------------------------------- -->
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
+                    협회소개
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden relative items-start">
+
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 h-fit z-40">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="sidebar-menu">
+
+                    <!-- 인사말 메뉴 버튼 -->
+                    <div id="menu-greeting" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all bg-[#274bce] text-white shadow-sm rounded" onclick="scrollToSection('greeting')">
+                        <i class="fas fa-handshake"></i>
+                        <span>인사말</span>
+                    </div>
+
+                    <div class="h-px bg-gray-100 mx-2 my-1"></div>
+
+                    <!-- 협회연혁 메뉴 버튼 -->
+                    <div id="menu-history" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all text-[#4b5563] hover:bg-[#f8fafc] hover:text-[#12387a] rounded" onclick="scrollToSection('history')">
+                        <i class="fas fa-history"></i>
+                        <span>협회연혁</span>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 콘텐츠 및 푸터 통합 스크롤 영역 -->
+        <!-- 인사말 -> 연혁 -> 푸터 순서로 나열됨 -->
+        <div id="scroll-area" class="flex-1 h-full overflow-y-auto custom-scrollbar scroll-smooth flex flex-col pr-2 pb-6 min-w-0">
+
+            <!-- 1. 인사말 섹션 -->
+            <section id="greeting" class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm mb-8 shrink-0">
+                <div class="border-b-2 border-gray-800 pb-4 mb-10">
+                    <h2 class="text-2xl font-bold text-gray-900">인사말</h2>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-10 items-center lg:items-start">
+                    <!-- 텍스트 영역 -->
+                    <div class="flex-1 flex flex-col gap-6 text-[15.5px] leading-relaxed text-gray-700">
+                        <h3 class="text-xl font-bold text-[#12387a] mb-2">"투명하고 효율적인 집합건물 관리문화 정착에 앞장서겠습니다."</h3>
+                        <p>안녕하십니까, 대한집합건물관리협회 홈페이지를 방문해 주신 여러분을 진심으로 환영합니다.</p>
+                        <p>현대 사회에서 집합건물은 우리 삶의 필수적인 주거 및 상업 공간으로 자리 잡았습니다. 하지만 건물이 대형화되고 복잡해짐에 따라, 시설의 안전한 유지보수와 투명한 관리 운영의 중요성은 그 어느 때보다 커지고 있습니다.</p>
+                        <p>우리 협회는 현장에서 땀 흘리시는 관리소장님들과 다양한 설비 전문가들의 권익을 보호하고, 상호 간의 기술 및 정보 교류를 촉진하기 위해 설립되었습니다. 현장의 실무 역량을 강화할 수 있는 양질의 교육과 세미나를 제공하며, 합리적인 정책 제안을 통해 관리 제도의 선진화를 이끌어가고자 합니다.</p>
+                        <p>앞으로도 회원 여러분과 적극적으로 소통하며, 모두가 신뢰할 수 있는 쾌적한 건물 환경을 만드는 데 최선을 다하겠습니다.<br>여러분의 지속적인 관심과 성원을 부탁드립니다.</p>
+                        <!-- 서명란 -->
+                        <div class="mt-10 text-center font-bold text-[17px] text-gray-900">
+                            대한집합건물관리협회 <span class="ml-2 tracking-wide">임원진 일동</span>
+                        </div>
+                    </div>
+
+                    <!-- 이미지 영역 -->
+                    <div class="w-full lg:w-[320px] shrink-0 bg-white flex flex-col items-center justify-center p-4 gap-4">
+                        <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="w-32 object-contain">
+                        <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="w-48 object-contain">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 협회연혁 섹션 -->
+            <section id="history" class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm min-h-[600px] mb-8 shrink-0">
+                <div class="pb-6 mb-8 border-b border-gray-100">
+                    <h2 class="text-3xl font-black text-[#0B2A5B] tracking-tight">연혁</h2>
+                </div>
+
+                <!-- 타임라인 컨테이너 -->
+                <div class="border-l-[3px] border-gray-200 ml-[18px] mt-6 flex flex-col gap-10 py-2">
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.05</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">발기인 임시모임 개최</div>
+                    </div>
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.05</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">네이버 공식카페 개설</div>
+                    </div>
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.08</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">발기인 정식모임 개최</div>
+                    </div>
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.09</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">네이버 공식 홈페이지 개설</div>
+                    </div>
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.10</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">창립총회</div>
+                    </div>
+                    <div class="relative pl-10">
+                        <div class="absolute left-[-11px] top-[2px] w-5 h-5 rounded-full border-[4px] border-[#2aa096] bg-white"></div>
+                        <div class="text-[#2aa096] font-extrabold text-[19px] mb-1.5 leading-none tracking-wide">2026.12</div>
+                        <div class="text-[#0e1c36] font-bold text-[17px] tracking-tight">제1차 정기총회</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 푸터 영역 (연혁 바로 아래 위치) -->
+            <div id="footer-container" class="w-full shrink-0 mt-auto rounded overflow-hidden"></div>
+
+        </div>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <!-- 푸터 스크립트 -->
+    <script src="../../assets/js/footer.js"></script>
+
+    <!-- 섹션 이동 및 메뉴 스타일 변경 스크립트 -->
+    <script>
+        function scrollToSection(sectionId) {
+            // 1. 해당 섹션으로 부드럽게 스크롤
+            const targetElement = document.getElementById(sectionId);
+            if(targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // 2. 좌측 메뉴 스타일(활성화 상태) 업데이트
+            const menuGreeting = document.getElementById('menu-greeting');
+            const menuHistory = document.getElementById('menu-history');
+
+            // 기본 비활성 스타일 클래스
+            const inactiveClasses = "text-[#4b5563] hover:bg-[#f8fafc] hover:text-[#12387a]".split(" ");
+            // 활성 스타일 클래스
+            const activeClasses = "bg-[#274bce] text-white shadow-sm".split(" ");
+
+            if (sectionId === 'greeting') {
+                menuGreeting.classList.remove(...inactiveClasses);
+                menuGreeting.classList.add(...activeClasses);
+
+                menuHistory.classList.remove(...activeClasses);
+                menuHistory.classList.add(...inactiveClasses);
+            } else if (sectionId === 'history') {
+                menuHistory.classList.remove(...inactiveClasses);
+                menuHistory.classList.add(...activeClasses);
+
+                menuGreeting.classList.remove(...activeClasses);
+                menuGreeting.classList.add(...inactiveClasses);
+            }
+        }
+    </script>
+
+</body>
+</html>

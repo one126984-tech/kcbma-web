@@ -1,0 +1,938 @@
+<!-- 파일명: resume-list.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 resume-list.html) -->
+<!-- @var PAGE_CLASS: page-jobs -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>인재구직 | 대한집합건물관리협회</title>
+
+    <link rel="icon" href="data:,">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 외부 지역 데이터 JS 파일 연결 -->
+    <script src="../../assets/js/region.js"></script>
+
+<!-- @include critical-css -->
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(구직 인재 목록) 전용 CSS */
+        #minor-region-container, #major-region-container,
+        #selected-tags-container, .data-table-wrapper, #resume-list-body {
+            overflow-anchor: none;
+        }
+
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .notice-content { flex: 1; }
+        .notice-title { font-size: 16px; font-weight: 700; color: #12387a; margin-bottom: 12px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+        .notice-list li:last-child { margin-bottom: 0; }
+        .text-highlight { color: #dc2626; font-weight: bold; }
+
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; line-height: 2.2; padding: 20px 5px; vertical-align: middle; }
+        .filter-table td { padding: 20px 30px; border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .filter-table tr:last-child th, .filter-table tr:last-child td { border-bottom: none; }
+
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
+
+        .data-table-wrapper { background: #fff; overflow-x: auto; overflow-y: hidden; border-top: none; margin-top: 0 !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; }
+
+        .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
+
+        .data-table td { padding: 14px 10px; font-size: 13.5px; color: #4b5563; border-bottom: 1px solid #f3f4f6; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .data-table tr:hover td { background-color: #f8fafc; cursor: pointer; }
+
+        .badge-open { display: inline-block; width: 55px; padding: 3px 0; background-color: #2563eb; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+        .badge-closed { display: inline-block; width: 55px; padding: 3px 0; background-color: #6b7280; color: white; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+
+        .custom-checkbox { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; word-break: keep-all; white-space: nowrap; line-height: 1.3; }
+        .custom-checkbox input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+        .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; }
+        .custom-radio input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
+    </style>
+</head>
+
+<!-- 전체 창 스크롤 방지, 레이아웃 꽉 차게 고정. {{PAGE_CLASS}} 클래스 추가! -->
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+    <div class="hidden grid grid-cols-3 gap-y-2 gap-x-2 text-blue-600 text-[12px] mb-1.5 last:mb-0"></div>
+
+<!-- @include header -->
+
+    <!-- ----------------------------------------------------
+         핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
+         페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
+         ---------------------------------------------------- -->
+    <div id="sticky-top-bar" class="w-full flex flex-col bg-white shadow-md relative z-[900] shrink-0">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
+                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center h-full">
+                    구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+
+
+    <!-- 하단 레이아웃 분할 -->
+    <main class="flex-1 overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
+
+        <!-- 좌측 사이드바: overflow-hidden 적용으로 위아래 이동(스크롤) 완전 고정, rtl 삭제 -->
+        <aside class="w-full md:w-[220px] shrink-0 h-full overflow-hidden hide-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <!-- ★ AJAX 탭 전환: <a href> 대신 loadContent() 호출 -->
+                <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <div class="side-menu-tab" data-menu-url="job-list.html" onclick="loadContent('job-list.html', this)">
+                        <i class="fas fa-search"></i>
+                        <span>구인 (채용)</span>
+                    </div>
+                    <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                    <div class="side-menu-tab-active" data-menu-url="resume-list.html" onclick="loadContent('resume-list.html', this)">
+                        <i class="fas fa-edit"></i>
+                        <span>구직 (인재)</span>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
+                        <!-- '기간 전체' 버튼을 조회기간 텍스트 옆으로 이동 및 크기 축소 -->
+                        <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 px-2 py-1 text-[11px] rounded font-bold" onclick="setPeriod('all', this)">기간 전체</button>
+                    </div>
+                    <!-- 기간 선택 버튼들 크기 및 여백 축소 -->
+                    <div class="grid grid-cols-2 gap-1.5 mb-4">
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1w', this)">1주</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1m', this)">1달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('2m', this)">2달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('6m', this)">6개월</button>
+                    </div>
+                    <div class="flex items-stretch gap-2">
+                        <div class="flex flex-col gap-2 flex-1">
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">부터</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                            </div>
+                        </div>
+                        <button onclick="applyFilters()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">
+                            검<br>색
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 (개별 스크롤 허용) -->
+        <section id="main-content" class="content-area flex-1 min-w-0 h-full overflow-y-auto custom-scroll pr-2 pb-10">
+
+            <div class="notice-box flex-col sm:flex-row mb-6">
+                <div class="notice-icon-wrapper self-start">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="notice-content">
+                    <div class="notice-title">안전한 구직 활동 및 개인정보 보호 안내</div>
+                    <ul class="notice-list">
+                        <li><strong>개인정보 보호 유의:</strong> 이력서 등록 시 주민등록번호 전체, 정확한 자택 상세 주소 등 민감한 개인정보가 불필요하게 노출되지 않도록 각별히 주의하시기 바랍니다.</li>
+                        <li><strong>목적 외 사용 금지:</strong> 본 게시판의 인재 정보는 오직 <span class="text-highlight">'채용 목적'</span>으로만 열람 및 연락이 가능하며, 영업이나 광고 목적으로 악용 시 법적 제재를 받을 수 있습니다.</li>
+                        <li><strong>허위 이력 제재:</strong> 경력 및 보유 자격증 등을 허위로 기재할 경우, 관리자에 의해 임의 삭제 처리되며 향후 구직 활동에 불이익이 발생할 수 있습니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <table class="filter-table shadow-sm">
+                <tbody>
+                    <tr>
+                        <th class="hidden sm:table-cell">지<br>역</th>
+                        <td class="p-4 block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a]">지역</div>
+                            <div class="flex flex-col gap-3 w-full">
+                                <div class="border border-gray-300 bg-white rounded p-3 w-full">
+                                    <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-100 pb-2">
+                                        대분류 <span class="text-gray-400 font-normal ml-1">(다중 선택 가능)</span>
+                                    </div>
+                                    <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-9 gap-y-2 gap-x-2" id="major-region-container">
+                                        <label class="custom-checkbox"><input type="checkbox" value="전국" class="major-checkbox"> 전국</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="서울" class="major-checkbox"> 서울</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="경기" class="major-checkbox"> 경기</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="인천" class="major-checkbox"> 인천</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="부산" class="major-checkbox"> 부산</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="대구" class="major-checkbox"> 대구</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="광주" class="major-checkbox"> 광주</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="대전" class="major-checkbox"> 대전</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="울산" class="major-checkbox"> 울산</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="세종" class="major-checkbox"> 세종</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="강원" class="major-checkbox"> 강원</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="충북" class="major-checkbox"> 충북</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="충남" class="major-checkbox"> 충남</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="전북" class="major-checkbox"> 전북</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="전남" class="major-checkbox"> 전남</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="경북" class="major-checkbox"> 경북</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="경남" class="major-checkbox"> 경남</label>
+                                        <label class="custom-checkbox"><input type="checkbox" value="제주" class="major-checkbox"> 제주</label>
+                                    </div>
+                                </div>
+
+                                <div class="border border-gray-300 bg-blue-50/30 rounded p-3 w-full min-h-[80px] overflow-hidden" id="minor-region-box" style="transition: height 0.25s ease;">
+                                    <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-200 pb-2">
+                                        소분류 <span class="text-gray-400 font-normal ml-1">(대분류 선택 시 하위 지역이 나타납니다)</span>
+                                    </div>
+                                    <div class="flex flex-col gap-3" id="minor-region-container">
+                                        <div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell">직<br>종</th>
+                        <td class="block sm:table-cell w-full">
+                            <div class="font-bold sm:hidden mb-3 text-[#1e3a8a] mt-2">직종</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full">
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리소장"> <span>관리소장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기과장"> <span>전기과장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기기사"> <span>전기기사</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기전직"> <span>기전직</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설 반장"> <span>시설 반장</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설기사"> <span>시설기사</span></label>
+
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리직"> <span>관리직</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="설비직(영선)"> <span>설비직(영선)</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경비"> <span>경비</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경리(회계)"> <span>경리(회계)</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="청소"> <span>청소</span></label>
+                                <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기타"> <span>기타</span></label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="hidden sm:table-cell" style="color: #1e3a8a; font-size: 15px; font-weight: bold; padding-top: 10px; padding-bottom: 10px;">기<br>타</th>
+                        <td class="block sm:table-cell w-full overflow-visible" style="padding-top: 10px; padding-bottom: 10px;">
+                            <div class="font-bold sm:hidden mb-2 text-[#1e3a8a] text-[15px]">기타</div>
+                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2">
+
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">희망급여</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="flex items-center gap-1">
+                                        <input type="text" class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[110px] text-gray-700 placeholder-gray-400" placeholder="예)월280만원">
+                                        <select class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[70px] text-gray-700 bg-white">
+                                            <option value="">선택</option>
+                                            <option value="고정">고정</option>
+                                            <option value="이상">이상</option>
+                                            <option value="이하">이하</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">근무형태</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="relative">
+                                        <select id="work-form-select" class="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none w-[90px] text-gray-700 bg-white" onchange="toggleDirectInput('work-form')">
+                                            <option value="">선택</option>
+                                            <option value="일근직">일근직</option>
+                                            <option value="격일제">격일제</option>
+                                            <option value="주당비">주당비</option>
+                                            <option value="기타">기타</option>
+                                        </select>
+                                        <div id="work-form-direct-container" class="hidden absolute top-full left-0 mt-1 z-50 bg-white border border-gray-300 rounded p-1.5 shadow-lg flex-col gap-1 w-[140px]">
+                                            <span class="text-[11px] text-gray-500 font-bold mb-1">직접 작성해주세요</span>
+                                            <div class="flex items-center">
+                                                <input type="text" id="work-form-direct" class="border border-gray-300 rounded-l px-2 py-1 text-xs outline-none w-full text-gray-700 border-r-0" placeholder="입력">
+                                                <button onclick="confirmDirectInput('work-form')" class="bg-gray-200 text-gray-700 hover:bg-gray-300 border border-gray-300 border-l-0 rounded-r px-2 py-1 text-[12px] font-bold transition-colors whitespace-nowrap">완료</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center shrink-0">
+                                    <span class="font-bold text-[14px] text-[#333]">상태</span>
+                                    <span class="text-gray-200 mx-1 lg:mx-2">|</span>
+                                    <div class="flex items-center gap-2">
+                                        <label class="custom-radio"><input type="radio" name="status" value="ALL" checked> 전체</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="OPEN"> 구직중</label>
+                                        <label class="custom-radio"><input type="radio" name="status" value="CLOSED"> 취업완료</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-3 border border-gray-200 shadow-sm">
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+
+                <div class="flex-1 min-w-[200px] border border-gray-300 rounded flex flex-wrap items-center bg-white px-2 py-1 gap-1 focus-within:border-blue-500 transition-colors">
+                    <div id="selected-tags-container" class="flex flex-wrap gap-1" style="display: none;"></div>
+                    <input type="text" id="search-include" class="flex-1 min-w-[120px] outline-none text-[13px] text-gray-700 placeholder-gray-400 bg-transparent py-0.5" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+                </div>
+
+                <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                <input type="text" id="search-exclude" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400" placeholder="단어를 쉼표(,)로 구분해서 나열하세요">
+
+                <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] transition-colors rounded lg:ml-2 whitespace-nowrap">검&nbsp;&nbsp;색</button>
+            </div>
+
+            <div class="board-toolbar-wrap">
+                <div class="flex flex-wrap sm:flex-nowrap justify-between items-end bg-transparent px-2 pt-2 pb-0">
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 이력서가 있습니다. 
+                    </div>
+
+                    <div class="flex items-end gap-2">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors">조회순</button>
+                        </div>
+
+                        <button onclick="window.location.href='resume-write.html'" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-5 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center">
+                            이력서 등록하기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 70px;"><col style="width: auto;"><col style="width: 80px;">
+                            <col style="width: 80px;"><col style="width: 130px;"><col style="width: 90px;">
+                            <col style="width: 120px;"><col style="width: 80px;"><col style="width: 60px;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>상태</th>
+                                <th class="text-left pl-4">이력서 제목</th>
+                                <th>이름</th>
+                                <th>희망직종</th>
+                                <th>희망지역</th>
+                                <th>경력</th>
+                                <th>희망급여</th>
+                                <th>등록일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resume-list-body">
+                            <tr>
+                                <td colspan="9" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
+
+            <!-- ★ 푸터 컨테이너: 우측 스크롤 영역의 가장 하단에 배치됨 -->
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <!-- ★ 외부 푸터 연결 -->
+    <script src="../../assets/js/footer.js"></script>
+
+    <!-- ★★★ 공통 탭 전환 부트스트랩 -->
+    <script>
+    if (!window.__tabSwitcherInit) {
+        window.__tabSwitcherInit = true;
+        window.mainContent = document.getElementById('main-content');
+
+        (function wrapOwnContent() {
+            const ownPanel = document.createElement('div');
+            ownPanel.className = 'tab-panel';
+            ownPanel.dataset.tabUrl = 'resume-list.html';
+            while (window.mainContent.firstChild) {
+                ownPanel.appendChild(window.mainContent.firstChild);
+            }
+            window.mainContent.appendChild(ownPanel);
+        })();
+
+        window.loadContent = function(url, element) {
+            if (element && element.classList.contains('side-menu-tab-active')) return;
+
+            // 안전장치: 이 탭 전환은 같은 페이지 안에서의 콘텐츠 교체이므로
+            // 슬라이드 전환 애니메이션이 절대 걸리지 않도록 미리 차단
+            document.documentElement.classList.add('no-page-transition');
+            if (document.activeViewTransition) {
+                document.activeViewTransition.skipTransition();
+            }
+
+            window.scrollTo(0, 0);
+
+            const activateMenu = () => {
+                const menuContainer = document.getElementById('side-menu-container');
+                if (menuContainer) {
+                    menuContainer.querySelectorAll('[data-menu-url]').forEach(item => {
+                        item.className = (item.getAttribute('data-menu-url') === url) ? 'side-menu-tab-active' : 'side-menu-tab';
+                    });
+                }
+                window.history.pushState({ path: url }, '', url);
+            };
+
+            const existingPanel = window.mainContent.querySelector(`[data-tab-url="${url}"]`);
+            if (existingPanel) {
+                window.mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+                existingPanel.style.display = '';
+                activateMenu();
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    document.documentElement.classList.remove('no-page-transition');
+                }));
+                return;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('main-content');
+                    if (!newContent) { location.href = url; return; }
+
+                    window.mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+
+                    const newPanel = document.createElement('div');
+                    newPanel.className = 'tab-panel';
+                    newPanel.dataset.tabUrl = url;
+                    newPanel.innerHTML = newContent.innerHTML;
+                    window.mainContent.appendChild(newPanel);
+
+                    activateMenu();
+
+                    const SHARED_SCRIPT_PATTERN = /header\.js|footer\.js|region\.js|region-data\.js|tailwindcss\.com|supabase-js/;
+                    const alreadyLoadedSrcs = Array.from(document.scripts).map(s => s.src).filter(Boolean);
+                    doc.querySelectorAll('script').forEach(oldScript => {
+                        if (oldScript.src) {
+                            const resolvedSrc = new URL(oldScript.getAttribute('src'), document.baseURI).href;
+                            if (alreadyLoadedSrcs.includes(resolvedSrc)) return;
+                            if (SHARED_SCRIPT_PATTERN.test(resolvedSrc)) return;
+                            const s = document.createElement('script');
+                            s.src = resolvedSrc;
+                            document.body.appendChild(s);
+                        } else {
+                            try {
+                                const s = document.createElement('script');
+                                s.textContent = oldScript.textContent;
+                                document.body.appendChild(s);
+                                s.remove();
+                            } catch (err) {
+                                console.error('탭 스크립트 실행 오류:', err);
+                            }
+                        }
+                    });
+
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        document.documentElement.classList.remove('no-page-transition');
+                    }));
+                })
+                .catch(error => {
+                    console.error('페이지 데이터를 불러오는데 실패했습니다:', error);
+                    location.href = url;
+                });
+        };
+
+        window.addEventListener('popstate', function() {
+            location.reload();
+        });
+    }
+    </script>
+
+    <!-- ★ 이 페이지(resume-list.html) 전용 로직 -->
+    <script>
+    (function() {
+        function setPeriod(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+
+            if (btnElement) {
+                btnElement.classList.remove('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+                btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            }
+
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+
+            if (period === 'all') {
+                startInput.value = '';
+                endInput.value = '';
+            } else {
+                const end = new Date();
+                const start = new Date();
+
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+        }
+        window.setPeriod = setPeriod;
+
+        function clearPeriodButtons() {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600', 'hover:bg-gray-50');
+            });
+        }
+        document.getElementById('start-date').addEventListener('change', clearPeriodButtons);
+        document.getElementById('end-date').addEventListener('change', clearPeriodButtons);
+
+        let currentSort = 'latest';
+        let itemsPerPage = 20;
+        let currentPage = 1;
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full transition-colors";
+                btnViews.className = "text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+            } else {
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-gray-300 flex items-center justify-center h-full transition-colors";
+                btnLatest.className = "text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full transition-colors";
+            }
+            applyFilters();
+        }
+        window.setSort = setSort;
+
+        function setPerPage(element) {
+            itemsPerPage = parseInt(element.value);
+            currentPage = 1;
+            updateDisplay();
+        }
+        window.setPerPage = setPerPage;
+
+        function toggleDirectInput(type) {
+            const select = document.getElementById(`${type}-select`);
+            const container = document.getElementById(`${type}-direct-container`);
+            const input = document.getElementById(`${type}-direct`);
+
+            if (select.value === '기타') {
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+                input.focus();
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                input.value = '';
+            }
+        }
+        window.toggleDirectInput = toggleDirectInput;
+
+        function confirmDirectInput(type) {
+            const select = document.getElementById(`${type}-select`);
+            const container = document.getElementById(`${type}-direct-container`);
+            const input = document.getElementById(`${type}-direct`);
+            const val = input.value.trim();
+
+            if (val) {
+                const newOption = document.createElement('option');
+                newOption.value = val;
+                newOption.text = val;
+                select.add(newOption, select.options[select.options.length - 1]);
+                select.value = val;
+            } else {
+                select.value = '';
+            }
+
+            container.classList.add('hidden');
+            container.classList.remove('flex');
+            input.value = '';
+        }
+        window.confirmDirectInput = confirmDirectInput;
+
+        const formatMonthDay = (dateString) => {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date)) return '-';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${month}-${day}`;
+        };
+
+        let selectedMajors = [];
+        const majorContainer = document.getElementById('major-region-container');
+        const minorContainer = document.getElementById('minor-region-container');
+        const minorBox = document.getElementById('minor-region-box');
+
+        function initRegionFilters() {
+            // ★ 대분류 체크박스는 이제 JS로 나중에 만들어 넣지 않고 build.js가
+            //   만든 정적 HTML에 이미 다 있음(입찰공고/구인구직 페이지와 동일한
+            //   방식). 여기서는 이미 있는 체크박스에 이벤트만 연결한다.
+            majorContainer.querySelectorAll('.major-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedMajors.push(this.value);
+                    } else {
+                        selectedMajors = selectedMajors.filter(val => val !== this.value);
+                    }
+                    renderMinorRegions();
+                    updateSelectedTags();
+                });
+            });
+        }
+
+        function renderMinorRegions() {
+            // 덜컹거림 방지: 현재 높이를 고정해두고, 내용을 새로 채운 뒤
+            // 실제 필요한 높이로 부드럽게 애니메이션.
+            const startHeight = minorBox.getBoundingClientRect().height;
+
+            minorContainer.innerHTML = '';
+
+            if (selectedMajors.length === 0) {
+                minorContainer.innerHTML = '<div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>';
+                animateMinorBoxHeight(startHeight);
+                return;
+            }
+
+            const currentTags = Array.from(document.querySelectorAll('#selected-tags-container span')).map(span => span.textContent.replace('×', '').trim());
+
+            selectedMajors.forEach(major => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'mb-2 last:mb-0';
+
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'text-[12px] font-bold text-gray-600 mb-1.5';
+                groupTitle.textContent = `[${major}]`;
+                groupDiv.appendChild(groupTitle);
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-y-2 gap-x-2';
+
+                if (major === '전국') {
+                    const isChecked = currentTags.includes('전국 전체') ? 'checked' : '';
+                    gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="전국 전체" class="font-bold text-blue-600 sub-region-chk" ${isChecked}> <span class="font-bold">전국 전체</span></label>`;
+                } else {
+                    const isCheckedMajor = currentTags.includes(`${major} 전체`) ? 'checked' : '';
+                    gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="${major} 전체" class="font-bold text-blue-600 sub-region-chk" ${isCheckedMajor}> <span class="font-bold">${major} 전체</span></label>`;
+
+                    if (typeof regionData !== 'undefined' && regionData[major]) {
+                        regionData[major].forEach(minor => {
+                            const isChecked = currentTags.includes(minor) ? 'checked' : '';
+                            gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="${minor}" class="sub-region-chk" ${isChecked}> <span>${minor}</span></label>`;
+                        });
+                    }
+                }
+
+                groupDiv.appendChild(gridDiv);
+                minorContainer.appendChild(groupDiv);
+            });
+            updateSelectedTags();
+            animateMinorBoxHeight(startHeight);
+        }
+
+        function animateMinorBoxHeight(startHeight) {
+            minorBox.style.height = startHeight + 'px';
+            minorBox.style.height = 'auto';
+            const endHeight = minorBox.getBoundingClientRect().height;
+            minorBox.style.height = startHeight + 'px';
+            void minorBox.offsetHeight;
+            requestAnimationFrame(() => { minorBox.style.height = endHeight + 'px'; });
+
+            const onEnd = (e) => {
+                if (e.propertyName !== 'height') return;
+                minorBox.style.height = 'auto';
+                minorBox.removeEventListener('transitionend', onEnd);
+            };
+            minorBox.addEventListener('transitionend', onEnd);
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('sub-region-chk') || e.target.classList.contains('job-category-chk')) {
+                updateSelectedTags();
+            }
+        });
+
+        function updateSelectedTags() {
+            const container = document.getElementById('selected-tags-container');
+            if (!container) return;
+
+            const tags = [];
+            document.querySelectorAll('.sub-region-chk:checked').forEach(cb => tags.push(cb.value));
+            document.querySelectorAll('.job-category-chk:checked').forEach(cb => tags.push(cb.value));
+
+            if (tags.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.innerHTML = tags.map((tag) => {
+                return `
+                    <span class="bg-[#e0e7ff] text-[#3730a3] px-2 py-0.5 rounded text-xs flex items-center gap-1 cursor-pointer hover:bg-[#c7d2fe] transition-colors" onclick="removeTag('${tag}')">
+                        ${tag} <span class="font-bold text-gray-500 mb-[1px]">×</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function removeTag(value) {
+            const checkbox = document.querySelector(`input[type="checkbox"][value="${value}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                updateSelectedTags();
+            }
+        }
+        window.removeTag = removeTag;
+
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allResumes = [];
+        let filteredResumes = [];
+
+        async function fetchResumes() {
+            const tbody = document.getElementById('resume-list-body');
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('board_type', 'RESUME')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allResumes = data || [];
+                applyFilters();
+            } catch (error) {
+                console.error("데이터 불러오기 실패:", error);
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            }
+        }
+
+        function applyFilters() {
+            filteredResumes = [...allResumes];
+
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+
+            if (startDateStr) {
+                const startDate = new Date(startDateStr);
+                startDate.setHours(0, 0, 0, 0);
+                filteredResumes = filteredResumes.filter(resume => resume.created_at && new Date(resume.created_at) >= startDate);
+            }
+            if (endDateStr) {
+                const endDate = new Date(endDateStr);
+                endDate.setHours(23, 59, 59, 999);
+                filteredResumes = filteredResumes.filter(resume => resume.created_at && new Date(resume.created_at) <= endDate);
+            }
+
+            const statusRadios = document.getElementsByName('status');
+            let selectedStatus = 'ALL';
+            for (const radio of statusRadios) {
+                if (radio.checked) selectedStatus = radio.value;
+            }
+
+            if (selectedStatus === 'OPEN') {
+                filteredResumes = filteredResumes.filter(resume => resume.status === 'OPEN' || !resume.status);
+            } else if (selectedStatus === 'CLOSED') {
+                filteredResumes = filteredResumes.filter(resume => resume.status === 'CLOSED');
+            }
+
+            const checkedCategories = Array.from(document.querySelectorAll('.job-category-chk:checked')).map(cb => cb.value);
+            if (checkedCategories.length > 0) {
+                filteredResumes = filteredResumes.filter(resume => {
+                    const cData = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {});
+                    return checkedCategories.includes(cData.job_category);
+                });
+            }
+
+            const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-chk:checked')).map(cb => cb.value);
+            if (checkedSubRegions.length > 0) {
+                filteredResumes = filteredResumes.filter(resume => {
+                    const cData = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {});
+                    const address = cData.address_short || '';
+
+                    return checkedSubRegions.some(sr => {
+                        if (sr === '전국 전체') return true;
+                        const cleanTarget = sr.replace(/(전체)$/, '').replace(/(시|군|구)$/, '').trim();
+                        return address.includes(cleanTarget);
+                    });
+                });
+            }
+
+            const includeInput = document.getElementById('search-include').value.trim();
+            const excludeInput = document.getElementById('search-exclude').value.trim();
+
+            if (includeInput) {
+                const includeKeywords = includeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredResumes = filteredResumes.filter(resume => {
+                    const cData = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {});
+                    const targetText = `${resume.title || ''} ${cData.name || ''} ${cData.address_short || ''}`.toLowerCase();
+                    return includeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            if (excludeInput) {
+                const excludeKeywords = excludeInput.split(',').map(k => k.trim()).filter(k => k);
+                filteredResumes = filteredResumes.filter(resume => {
+                    const cData = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {});
+                    const targetText = `${resume.title || ''} ${cData.name || ''} ${cData.address_short || ''}`.toLowerCase();
+                    return !excludeKeywords.some(keyword => targetText.includes(keyword.toLowerCase()));
+                });
+            }
+
+            if (currentSort === 'latest') {
+                filteredResumes.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (currentSort === 'views') {
+                filteredResumes.sort((a, b) => (b.views || 0) - (a.views || 0));
+            }
+
+            currentPage = 1;
+            updateDisplay();
+        }
+        window.applyFilters = applyFilters;
+
+        function updateDisplay() {
+            const totalCountSpan = document.getElementById('total-count');
+            if(totalCountSpan) {
+                totalCountSpan.innerText = filteredResumes.length;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedResumes = filteredResumes.slice(startIndex, endIndex);
+
+            renderResumes(paginatedResumes);
+            renderPagination(filteredResumes.length);
+        }
+
+        function renderResumes(resumes) {
+            const tbody = document.getElementById('resume-list-body');
+            tbody.innerHTML = '';
+
+            if (!resumes || resumes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-20 font-bold text-gray-500">조건에 맞는 결과가 없습니다.</td></tr>';
+                return;
+            }
+
+            resumes.forEach((resume) => {
+                const cData = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {});
+
+                const isOpen = resume.status === 'OPEN' || !resume.status;
+                const statusBadge = isOpen
+                    ? '<span class="badge-open">구직중</span>'
+                    : '<span class="badge-closed">취업완료</span>';
+
+                const titleClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
+
+                const nameStr = cData.name || '-';
+                const expStr = cData.experience || '-';
+                const salaryStr = cData.salary || '-';
+                const viewsStr = resume.views || 0;
+
+                const regDateStr = formatMonthDay(resume.created_at);
+
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${statusBadge}</td>
+                    <td class="text-left pl-4 font-bold ${titleClass} cursor-pointer hover:underline" onclick="incrementViewAndGo('${resume.id}', ${viewsStr})">
+                        ${resume.title || '-'}
+                    </td>
+                    <td class="text-gray-700 font-bold">${nameStr}</td>
+                    <td>${cData.job_category || '-'}</td>
+                    <td>${cData.address_short || '-'}</td>
+                    <td class="text-gray-600">${expStr}</td>
+                    <td class="font-bold text-[13px] tracking-tight">${salaryStr}</td>
+                    <td class="text-gray-500">${regDateStr}</td>
+                    <td class="text-gray-400">${viewsStr}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const paginationContainer = document.getElementById('pagination-container');
+            if (!paginationContainer) return;
+
+            let html = '';
+
+            html += `<button onclick="changePage(${currentPage > 1 ? currentPage - 1 : 1})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&lt;</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs transition-colors">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded text-xs transition-colors">${i}</button>`;
+                }
+            }
+
+            html += `<button onclick="changePage(${currentPage < totalPages ? currentPage + 1 : totalPages})" class="w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-500 bg-white rounded text-xs hover:bg-gray-50 transition-colors">&gt;</button>`;
+
+            paginationContainer.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            updateDisplay();
+        }
+        window.changePage = changePage;
+
+        function incrementViewAndGo(resumeId, currentViews) {
+            supabaseClient
+                .from('master_board')
+                .update({ views: currentViews + 1 })
+                .eq('id', resumeId)
+                .then(() => console.log('조회수 업데이트 성공'))
+                .catch(e => console.error('조회수 업데이트 실패:', e));
+
+            window.location.href = `resume-detail.html?id=${resumeId}`;
+        }
+        window.incrementViewAndGo = incrementViewAndGo;
+
+        initRegionFilters();
+        fetchResumes();
+    })();
+    </script>
+</body>
+</html>

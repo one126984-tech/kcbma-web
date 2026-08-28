@@ -1,0 +1,250 @@
+<!-- 파일명: field-experience-edit.src.html
+     ★ 원본은 사이트 헤더가 아예 없는 완전 별개 화면이었음. 표준 헤더/서브헤더/사이드바를 붙임. -->
+<!-- @var PAGE_CLASS: page-community -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>현장경험 수정하기 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(현장경험 수정) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
+        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
+            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
+                커뮤니티
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-8 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
+
+        <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
+            <div class="left-scroll-content">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <div class="side-menu-tab-active">현장경험 공유</div>
+                    <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
+                    <div class="side-menu-tab" onclick="location.href='free-board.html'">자유게시판</div>
+                    <div class="side-menu-tab" onclick="location.href='work-qna.html'">업무 Q&A</div>
+                    <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col pb-10">
+        <div class="max-w-4xl w-full">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-10">
+
+                <div class="mb-8 border-b pb-5">
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                        <span class="mr-2">📝</span> 현장경험 수정하기
+                    </h2>
+                    <p class="text-gray-500 mt-2 text-sm leading-relaxed">
+                        작성하셨던 글의 내용을 수정할 수 있습니다. <br class="md:hidden">
+                        수정을 완료하시려면 글 작성 시 설정했던 <strong class="text-red-500">비밀번호</strong>를 다시 입력해 주세요.
+                    </p>
+                </div>
+
+                <form id="editForm">
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">카테고리 <span class="text-red-500">*</span></label>
+                        <select id="category" class="w-full md:w-1/3 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                            <option value="">카테고리를 선택하세요</option>
+                            <option value="민원 대처">민원 대처</option>
+                            <option value="시설/안전 관리">시설/안전 관리</option>
+                            <option value="인사/노무">인사/노무</option>
+                            <option value="행정/법률">행정/법률</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">제목 <span class="text-red-500">*</span></label>
+                        <input type="text" id="title" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    </div>
+
+                    <div class="mb-6 border-b border-gray-100 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">작성자 정보</label>
+                            <div class="flex gap-2">
+                                <select id="building_type" class="w-1/3 border border-gray-300 rounded-md px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+                                    <option value="아파트">아파트</option>
+                                    <option value="주상복합">주상복합</option>
+                                    <option value="오피스텔">오피스텔</option>
+                                    <option value="일반상가">일반상가</option>
+                                    <option value="오피스빌딩">오피스빌딩</option>
+                                    <option value="지식산업센터">지식산업센터</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                                <input type="text" id="author_name" class="w-2/3 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">게시글 비밀번호 확인 <span class="text-red-500">*</span></label>
+                            <input type="password" id="post_password" placeholder="기존에 설정한 비밀번호 입력" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">발생 상황 및 대처 과정 <span class="text-red-500">*</span></label>
+                        <textarea id="main_content" rows="8" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-y" required></textarea>
+                    </div>
+
+                    <div class="mb-6 bg-blue-50 rounded-lg p-5 md:p-6 border border-blue-100">
+                        <label class="block text-base font-bold text-blue-900 mb-2 flex items-center">
+                            💡 느끼고 터득한 점 (인사이트)
+                        </label>
+                        <textarea id="lesson_content" rows="4" class="w-full border border-blue-200 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-y bg-white"></textarea>
+                    </div>
+
+                    <div class="flex justify-center gap-3 border-t border-gray-100 pt-8">
+                        <button type="button" onclick="history.back()" class="px-6 md:px-10 py-3 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition-colors text-sm md:text-base">
+                            취소
+                        </button>
+                        <button type="submit" class="px-6 md:px-10 py-3 bg-gray-600 text-white font-bold rounded-md hover:bg-gray-700 transition-colors text-sm md:text-base shadow-sm">
+                            수정 완료하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+            <div id="footer-container" class="w-full shrink-0 mt-8"></div>
+        </div>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        let originalPassword = '';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!postId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'field-experience.html';
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('master_board')
+                    .select('*')
+                    .eq('id', postId)
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById('category').value = data.category;
+                document.getElementById('title').value = data.title;
+                document.getElementById('main_content').value = data.content;
+                document.getElementById('lesson_content').value = data.lesson_content;
+                originalPassword = data.password;
+
+                const fullAuthorStr = data.author_name || '';
+                const match = fullAuthorStr.match(/^\[(.*?)\]\s*(.*)$/);
+
+                if (match) {
+                    document.getElementById('building_type').value = match[1];
+                    document.getElementById('author_name').value = match[2];
+                } else {
+                    document.getElementById('author_name').value = fullAuthorStr;
+                }
+
+            } catch (error) {
+                console.error('데이터 불러오기 실패:', error);
+                alert('글 정보를 불러오지 못했습니다.');
+                location.href = 'field-experience.html';
+            }
+        });
+
+        const form = document.getElementById('editForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const inputPw = document.getElementById('post_password').value;
+            if (inputPw !== originalPassword) {
+                alert('비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
+                return;
+            }
+
+            const category = document.getElementById('category').value;
+            const title = document.getElementById('title').value;
+            const mainContent = document.getElementById('main_content').value;
+            const lessonContent = document.getElementById('lesson_content').value;
+
+            const buildingType = document.getElementById('building_type').value;
+            const authorNameInput = document.getElementById('author_name').value;
+            const finalAuthorName = authorNameInput.trim() === ''
+                ? `[${buildingType}] 익명 관리인`
+                : `[${buildingType}] ${authorNameInput}`;
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '수정 중...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('master_board')
+                    .update({
+                        category: category,
+                        title: title,
+                        content: mainContent,
+                        lesson_content: lessonContent,
+                        author_name: finalAuthorName
+                    })
+                    .eq('id', postId);
+
+                if (error) throw error;
+
+                alert('게시글이 성공적으로 수정되었습니다.');
+
+                window.location.href = `field-experience-detail.html?id=${postId}`;
+
+            } catch (error) {
+                console.error('글 수정 실패:', error);
+                alert('수정 중 오류가 발생했습니다.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '수정 완료하기';
+            }
+        });
+    </script>
+</body>
+</html>
