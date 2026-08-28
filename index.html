@@ -1,11 +1,20 @@
-<!-- 파일명: field-experience-edit.src.html
-     ★ 원본은 사이트 헤더가 아예 없는 완전 별개 화면이었음. 표준 헤더/서브헤더/사이드바를 붙임. -->
+<!-- 파일명: index.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 index.html)
+     ★★★ 2026-08 발견/수정: 이 파일(홈 화면)이 지금까지 build.js 파이프라인에
+     전혀 편입되어 있지 않고, 아주 예전 버전의 헤더/CSS를 손으로 박아넣은
+     채로 방치되어 있었음 (view-transition이 아직 켜져있고, Tailwind 스크립트에
+     defer도 없고, "관리단코너" 띄어쓰기도 안 된 옛날 헤더 그대로).
+     → 그래서 "홈 화면만 헤더 간격이 다르다"는 문제가 발생했던 것.
+     이번에 다른 43개 페이지와 동일하게 @include 파샬 시스템으로 편입시킴.
+     이 파일은 사이트 루트에 있어서 다른 페이지들과 경로 깊이가 다르므로
+     @var BASE 를 빈 값으로 선언해서 헤더 파샬의 가 '../../' 대신
+     아무것도 안 붙게(=루트 기준 상대경로) 만듦. -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>현장경험 수정하기 | 대한집합건물관리협회</title>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>대한집합건물관리협회</title>
 
     <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -97,8 +106,12 @@
 
 
     <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -283,11 +296,79 @@
 
 
     <style>
-        /* 이 페이지(현장경험 수정) 전용 CSS */
-        html, body { overflow: hidden; height: 100%; }
+        /* 이 페이지(홈) 전용 CSS */
+        html, body { height: 100%; margin: 0; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #23344e; /* 초기 배경 네이비 */
+            color: #333;
+            overflow-y: hidden;
+            overflow-x: hidden;
+        }
+
+        .hero-banner {
+            background-color: #23344e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            min-height: 100vh;
+            padding: 130px 20px 40px 20px;
+            box-sizing: border-box;
+        }
+
+        .welcome-badge {
+            display: inline-block;
+            border: 2px solid #00d233;
+            color: #ffffff;
+            padding: 8px 36px;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .hero-banner .subtitle-top {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-banner .title-main {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.05em;
+        }
+
+        .hero-banner .subtitle-bottom {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #e2e8f0;
+            letter-spacing: 0.5px;
+            word-break: keep-all;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-banner { padding-top: 110px; }
+            .hero-banner .title-main { font-size: 2.8rem; margin-bottom: 1rem; }
+            .hero-banner .subtitle-top { font-size: 1.1rem; margin-bottom: 1rem; }
+            .hero-banner .subtitle-bottom { font-size: 1.05rem; margin-bottom: 2.5rem;}
+            .welcome-badge { padding: 6px 24px; font-size: 1rem; margin-bottom: 1.5rem; }
+            .sos-main-btn { padding: 15px 25px; font-size: 1.25rem; }
+            .sos-main-btn i { font-size: 1.5rem; }
+            .sos-desc { font-size: 0.85rem; flex-direction: column; gap: 5px;}
+        }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden page-community">
+
+<body class="flex flex-col h-screen page-home">
 
     <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -301,21 +382,21 @@
         <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
 
             <!-- 1) 좌측 로고 -->
-            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
-            <img src="../../assets/img/관리협회.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='index.html'">
+            <img src="assets/img/관리협회.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='방패로고.jpg'">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
             <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
-            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
-            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
-            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
-            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../pages/board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
-            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='pages/board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
 
             <!-- 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../pages/sos/sos-request.html'" class="sos-btn nav-sos">
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='pages/sos/sos-request.html'" class="sos-btn nav-sos">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
                 <span>긴급 SOS 호출</span>
             </div>
@@ -327,8 +408,8 @@
                 <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
                 <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
             </div>
-            <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-            <div onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+            <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+            <div onclick="if(!location.pathname.endsWith('login.html')) location.href='login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -340,14 +421,6 @@
             </button>
         </header>
 
-
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
-            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
-                커뮤니티
-            </div>
-        </div>
-    </div>
     </div>
 
     <!-- 모바일 메뉴 -->
@@ -355,21 +428,21 @@
         <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
             <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
             <div class="flex items-center h-full">
-                <img src="../../assets/img/관리협회.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+                <img src="assets/img/관리협회.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
             </div>
             <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
-            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
-            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
-            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
-            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../pages/board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='pages/board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../pages/sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='pages/sos/sos-request.html'" class="sos-btn sos-btn-mobile">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
                 <span>긴급 SOS 호출</span>
             </div>
@@ -381,9 +454,9 @@
                 <i class="fa-regular fa-bell mr-1"></i> 알림
                 <span class="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">2</span>
                 </div>
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            <div onclick="location.href='login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
             </div>
         </div>
     </div>
@@ -425,213 +498,46 @@
     </script>
 
 
-<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <!-- ----------------------------------------------------
+         핑크박스: 헤더 아래 전체 영역
+         ---------------------------------------------------- -->
+    <div id="page-content" class="w-full flex flex-col relative min-h-0 flex-1">
 
-
-
-    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-8 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
-
-        <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
-            <div class="left-scroll-content">
-                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
-                    <div class="side-menu-tab" onclick="location.href='free-board.html'">자유게시판</div>
-                    <div class="side-menu-tab-active">현장경험 나누어요</div>
-                    <div class="side-menu-tab" onclick="location.href='work-qna.html'">업무 Q&A</div>
-                    <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
-                </div>
-            </div>
-        </aside>
-
-        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col pb-10">
-        <div class="max-w-4xl w-full">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-10">
-
-                <div class="mb-8 border-b pb-5">
-                    <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                        <span class="mr-2">📝</span> 현장경험 수정하기
-                    </h2>
-                    <p class="text-gray-500 mt-2 text-sm leading-relaxed">
-                        작성하셨던 글의 내용을 수정할 수 있습니다. <br class="md:hidden">
-                        수정을 완료하시려면 글 작성 시 설정했던 <strong class="text-red-500">비밀번호</strong>를 다시 입력해 주세요.
-                    </p>
-                </div>
-
-                <form id="editForm">
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">카테고리 <span class="text-red-500">*</span></label>
-                        <select id="category" class="w-full md:w-1/3 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                            <option value="">카테고리를 선택하세요</option>
-                            <option value="민원 대처">민원 대처</option>
-                            <option value="시설/안전 관리">시설/안전 관리</option>
-                            <option value="인사/노무">인사/노무</option>
-                            <option value="행정/법률">행정/법률</option>
-                            <option value="기타">기타</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">제목 <span class="text-red-500">*</span></label>
-                        <input type="text" id="title" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                    </div>
-
-                    <div class="mb-6 border-b border-gray-100 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">작성자 정보</label>
-                            <div class="flex gap-2">
-                                <select id="building_type" class="w-1/3 border border-gray-300 rounded-md px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
-                                    <option value="아파트">아파트</option>
-                                    <option value="주상복합">주상복합</option>
-                                    <option value="오피스텔">오피스텔</option>
-                                    <option value="일반상가">일반상가</option>
-                                    <option value="오피스빌딩">오피스빌딩</option>
-                                    <option value="지식산업센터">지식산업센터</option>
-                                    <option value="기타">기타</option>
-                                </select>
-                                <input type="text" id="author_name" class="w-2/3 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">게시글 비밀번호 확인 <span class="text-red-500">*</span></label>
-                            <input type="password" id="post_password" placeholder="기존에 설정한 비밀번호 입력" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">발생 상황 및 대처 과정 <span class="text-red-500">*</span></label>
-                        <textarea id="main_content" rows="8" class="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-y" required></textarea>
-                    </div>
-
-                    <div class="mb-6 bg-blue-50 rounded-lg p-5 md:p-6 border border-blue-100">
-                        <label class="block text-base font-bold text-blue-900 mb-2 flex items-center">
-                            💡 느끼고 터득한 점 (인사이트)
-                        </label>
-                        <textarea id="lesson_content" rows="4" class="w-full border border-blue-200 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-y bg-white"></textarea>
-                    </div>
-
-                    <div class="flex justify-center gap-3 border-t border-gray-100 pt-8">
-                        <button type="button" onclick="history.back()" class="px-6 md:px-10 py-3 bg-gray-100 text-gray-700 font-bold rounded-md hover:bg-gray-200 transition-colors text-sm md:text-base">
-                            취소
-                        </button>
-                        <button type="submit" class="px-6 md:px-10 py-3 bg-gray-600 text-white font-bold rounded-md hover:bg-gray-700 transition-colors text-sm md:text-base shadow-sm">
-                            수정 완료하기
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-            <div id="footer-container" class="w-full shrink-0 mt-8"></div>
-        </div>
-    </main>
+        <!-- 1. 메인 표지 (Hero Banner) -->
+        <main class="hero-banner flex-1">
+            <div class="welcome-badge">어서 오세요</div>
+            <p class="subtitle-top">집합건물관리의 든든한 울타리</p>
+            <h1 class="title-main">대한집합건물관리협회</h1>
+            <p class="subtitle-bottom">실무 중심의 역량강화를 통해 안전하고 효율적으로 건물 관리 합니다.</p>
+        </main>
 
     </div>
     <!-- 핑크박스 끝 -->
 
-    <script src="../../assets/js/footer.js?v=1.3"></script>
+    <!-- 🚨 긴급 SOS 우측 상단 배너 (PC 전용) -->
+    <a href="pages/sos/sos-request.html" class="fixed top-[120px] right-8 z-50 hidden md:flex items-center gap-4 group">
+        <div class="flex flex-col items-end opacity-90 group-hover:opacity-100 transition-opacity">
+            <p class="text-gray-300 text-[13px] mb-2 font-medium tracking-wider">
+                🔥 화재 • 💦 누수 • ⚡ 정전 발생 시 전문가 즉시 매칭
+            </p>
+            <div class="mr-2 mt-1">
+                <span class="font-black text-[17px] tracking-widest text-gray-300">
+                    <span class="text-pink-300">24시간</span> 긴급 SOS 호출
+                </span>
+            </div>
+        </div>
+        <div class="w-[90px] h-[90px] bg-red-600 rounded-full flex flex-col items-center justify-center text-white shadow-[0_0_25px_rgba(239,68,68,0.6)] border-[3px] border-red-400 group-hover:scale-110 group-hover:bg-red-500 transition-all duration-300">
+            <span class="text-3xl mb-1 group-hover:animate-bounce">🚨</span>
+            <span class="font-extrabold text-sm tracking-tight">SOS 호출</span>
+        </div>
+    </a>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <!-- 🚨 긴급 SOS 플로팅 버튼 (우측 하단 고정, 모바일 전용) -->
+    <a href="pages/sos/sos-request.html"
+       class="fixed bottom-6 right-6 md:hidden bg-red-600 text-white w-16 h-16 flex flex-col items-center justify-center rounded-full shadow-2xl hover:bg-red-700 hover:scale-110 active:scale-95 transition-all z-50 group border-4 border-white/20">
+        <span class="text-2xl mb-0.5 group-hover:animate-bounce">🚨</span>
+        <span class="absolute inset-0 w-full h-full rounded-full bg-red-500 opacity-40 animate-ping -z-10"></span>
+    </a>
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('id');
-
-        let originalPassword = '';
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!postId) {
-                alert('잘못된 접근입니다.');
-                location.href = 'field-experience.html';
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('master_board')
-                    .select('*')
-                    .eq('id', postId)
-                    .single();
-
-                if (error) throw error;
-
-                document.getElementById('category').value = data.category;
-                document.getElementById('title').value = data.title;
-                document.getElementById('main_content').value = data.content;
-                document.getElementById('lesson_content').value = data.lesson_content;
-                originalPassword = data.password;
-
-                const fullAuthorStr = data.author_name || '';
-                const match = fullAuthorStr.match(/^\[(.*?)\]\s*(.*)$/);
-
-                if (match) {
-                    document.getElementById('building_type').value = match[1];
-                    document.getElementById('author_name').value = match[2];
-                } else {
-                    document.getElementById('author_name').value = fullAuthorStr;
-                }
-
-            } catch (error) {
-                console.error('데이터 불러오기 실패:', error);
-                alert('글 정보를 불러오지 못했습니다.');
-                location.href = 'field-experience.html';
-            }
-        });
-
-        const form = document.getElementById('editForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const inputPw = document.getElementById('post_password').value;
-            if (inputPw !== originalPassword) {
-                alert('비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
-                return;
-            }
-
-            const category = document.getElementById('category').value;
-            const title = document.getElementById('title').value;
-            const mainContent = document.getElementById('main_content').value;
-            const lessonContent = document.getElementById('lesson_content').value;
-
-            const buildingType = document.getElementById('building_type').value;
-            const authorNameInput = document.getElementById('author_name').value;
-            const finalAuthorName = authorNameInput.trim() === ''
-                ? `[${buildingType}] 익명 관리인`
-                : `[${buildingType}] ${authorNameInput}`;
-
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '수정 중...';
-
-            try {
-                const { error } = await supabaseClient
-                    .from('master_board')
-                    .update({
-                        category: category,
-                        title: title,
-                        content: mainContent,
-                        lesson_content: lessonContent,
-                        author_name: finalAuthorName
-                    })
-                    .eq('id', postId);
-
-                if (error) throw error;
-
-                alert('게시글이 성공적으로 수정되었습니다.');
-
-                window.location.href = `field-experience-detail.html?id=${postId}`;
-
-            } catch (error) {
-                console.error('글 수정 실패:', error);
-                alert('수정 중 오류가 발생했습니다.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '수정 완료하기';
-            }
-        });
-    </script>
 </body>
 </html>
