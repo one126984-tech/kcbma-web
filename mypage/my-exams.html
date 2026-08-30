@@ -1,0 +1,691 @@
+<!-- 파일명: my-exams.src.html
+     ★ 이 페이지는 header.js 버그는 아니었지만, 다른 모든 페이지와 다른
+     구버전 하드코딩 헤더(정보교류/교육·실습 메뉴, 네이버카페 링크 등
+     현재 사이트 구조와 안 맞는 예전 GNB)를 쓰고 있었음. 표준 헤더로 교체. -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>시험 결과 | 대한집합건물관리협회</title>
+
+    <style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
+           _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+           ⚠ 여기에 opacity 0→1 페이드 같은 "로딩 후 서서히 나타내기" 트릭을
+              다시 넣지 말 것. resume-list.html 원본 주석에 남아있듯,
+              그런 트릭을 View Transition(아래 view-transition-css 파샬)과
+              같이 쓰면 "이중 페이드"로 오히려 흰 화면이 더 도드라져 보이는
+              버그가 실제로 있었음. 이 파일은 순수 배경색 즉시 고정 용도로만
+              쓸 것. */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 56px;
+            /* ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+               분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
+               형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
+               #main-header가 통째로 sticky라 자동으로 같이 고정됨.
+               (예전에 시도했던 position:sticky 오버라이드는 제거함) */
+        }
+
+        /* ★★★ 2026-08 추가 → 이후 되돌림: Tailwind CDN 스크립트가 렌더링을
+           막고있는 동안(로드 전) 페이지가 스타일 없이 날것으로 보이는 문제를
+           고치려고 script에 defer를 붙여봤었는데, 그러면 오른쪽 유틸리티
+           영역(알림·마이페이지·로그인)처럼 이 스킈레톤이 못 커버한 부분이
+           Tailwind 로드 전에 잠깐 글자가 겹쳐 보이는 "새로운" 버그가 생겨서
+           defer는 다시 뺐음 (지금은 원래대로 blocking script).
+
+           ★★★ 2026-08 추가 업데이트: 위 문제 자체가 이제 근본적으로 해결됨.
+           Tailwind CDN <script> 태그를 전부 걷어내고, 미리 빌드해둔 정적
+           파일(assets/css/tailwind.css)을 <link rel="stylesheet">로 불러오는
+           방식으로 교체함 (tailwind.config.js 참고). 이제 "CDN이 다운로드/
+           실행되길 기다리는 시간"이 아예 없어서 이 스킈레톤 CSS는 실질적으로
+           불필요해졌지만, 혹시 모를 안전망으로 그냥 남겨둠 (있어도 무해함 —
+           .css 파일과 값이 같아서 중복 적용일 뿐). */
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 1024px) {
+            #main-header nav { display: flex; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 1024px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+
+        /* ★ 2026-08 추가: 좌측 사이드 탭 메뉴(.side-menu-tab / .side-menu-tab-active)를
+           common-css.html이 아니라 여기(critical-css)에도 미리 정의해둠.
+           이 두 클래스는 원래 common-css.html에만 있었는데, common-css는 문서
+           순서상 Tailwind CDN <script> 태그보다 "뒤"에 온다. Tailwind CDN
+           스크립트는 렌더링을 막는(blocking) 스크립트라서, 그게 다운로드/실행
+           되는 동안에는 아직 뒤에 있는 common-css의 <style>이 파싱되기 전이라
+           활성 탭(파란 배경)이 잠깐 "흰색"으로 보였다가 그 직후 파란색으로
+           바뀌는 깜빡임이 있었음. Tailwind 스크립트보다 앞에 오는 이 파일에
+           동일한 규칙을 미리 넣어두면, 첫 렌더링부터 바로 파란색으로 나와서
+           깜빡임이 없어짐 (common-css.html 쪽 정의는 그대로 둬도 무해 — 값이
+           같아서 중복 적용일 뿐 충돌 없음). */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+    </style>
+
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../assets/js/supabase-config.js"></script>
+
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
+           _partials/view-transition-css.html 파일만 고치고 build.js를 다시
+           실행할 것. 절대 각 페이지에서 직접 고치지 말 것.
+
+           ★★★ 2026-08 기준 크로스 문서 View Transition 기능을 완전히 껐음.
+           이유: 헤더 안 움직임 → 서브헤더 흰 화면 → 본문 울렁임 → 헤더가
+           오른쪽으로 갔다 돌아옴 → 입찰공고/구인구직 등 여전히 덜컹거림,
+           이런 식으로 한 군데 고치면 다른 데서 새로운 미세한 어긋남이
+           계속 튀어나왔음. 이 기능은 브라우저가 이전 페이지와 새 페이지의
+           스크린샷을 직접 찍어서 애니메이션시키는 방식이라, 코드만 보고
+           고치는 방식으로는 실제 브라우저에서 어떻게 보일지 확인이 안 되고
+           끝없이 두더지잡기가 됨.
+
+           그래서 아래 @view-transition 자체를 꺼서 그냥 "즉시 전환"(깜빡임
+           없이 바로 바뀌는 일반적인 페이지 이동)으로 되돌림. 헤더/서브헤더가
+           흔들리거나 밀리거나 울렁이는 문제가 구조적으로 있을 수 없음
+           (애니메이션 자체가 없으니까). 아래의 view-transition-name /
+           키프레임 코드들은 그대로 남겨뒀지만 @view-transition이 꺼져있는
+           동안은 전부 아무 효과가 없음 — 나중에 다시 켜고 싶으면 아래
+           @view-transition 블록의 주석만 풀면 됨. */
+        /*
+        @view-transition {
+            navigation: auto;
+        }
+        */
+        #main-header {
+            view-transition-name: site-header;
+        }
+        #page-content {
+            view-transition-name: page-content;
+        }
+        @keyframes page-content-out {
+            to { opacity: 0; }
+        }
+        @keyframes page-content-in {
+            from { opacity: 0; }
+        }
+        ::view-transition-old(page-content) {
+            animation: 150ms ease-in both page-content-out;
+        }
+        ::view-transition-new(page-content) {
+            animation: 200ms ease-out both page-content-in;
+        }
+        /* 핵심: 박스 크기/위치를 이전↔새 페이지 사이에서 자동으로
+           보간(모핑)하는 기본 동작을 꺼서 "들썩임"을 없앰 */
+        ::view-transition-group(page-content) {
+            animation: none;
+            width: 100%;
+            height: 100%;
+        }
+        ::view-transition-group(site-header) {
+            animation: none;
+        }
+        ::view-transition-old(site-header),
+        ::view-transition-new(site-header) {
+            animation: none;
+        }
+        /* ★ 2026-08: #sub-header-bar가 이제 header.html/header-close.html
+           분할 구조 덕분에 #main-header의 "자식"으로 들어가 있음 (예전엔
+           #page-content 쪽의 형제 요소였음). 그래서 따로 view-transition-name을
+           줄 필요가 없어짐 — 부모인 site-header(#main-header)의 캡처 영역에
+           자동으로 같이 포함됨. (오히려 여기 따로 이름을 주면 "이름표 붙은
+           요소를 또 다른 이름표 붙은 요소 안에 중첩"시키는 예전에 버그났던
+           패턴이 재발하니 절대 다시 추가하지 말 것 — 본문이 울렁이던 그 버그.) */
+        /* 안전장치: 같은 페이지 안에서 사이드 탭(AJAX)만 바뀔 때는
+           슬라이드 애니메이션이 절대 걸리지 않도록 강제로 끔.
+           AJAX 탭 전환이 있는 페이지(job-list/resume-list/bid-list 등)의
+           탭 전환 스크립트에서 이 클래스를 잠깐 추가했다가 제거해야 함. */
+        html.no-page-transition #page-content,
+        html.no-page-transition ::view-transition-group(page-content),
+        html.no-page-transition ::view-transition-old(page-content),
+        html.no-page-transition ::view-transition-new(page-content) {
+            animation: none !important;
+            transform: none !important;
+        }
+    </style>
+
+
+    <style>
+        /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
+           _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
+
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 56px; }
+
+        /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+
+        /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
+           패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
+           (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+        .side-menu-active-wrapper { padding: 10px; }
+
+        /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
+        .left-scroll-area {
+            direction: rtl;
+            overflow-y: auto;
+            height: 100%;
+            padding-bottom: 2rem;
+        }
+        .left-scroll-area::-webkit-scrollbar { width: 6px; }
+        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+        .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+        /* ★ 우측 본문 영역 독립 스크롤 */
+        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+        .main-scroll-area::-webkit-scrollbar { width: 8px; }
+        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 커스텀 스크롤바 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 스크롤바 숨김 유틸리티 */
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* -------------------------------------
+           공통 헤더 관련 스타일
+           ------------------------------------- */
+        .sos-btn {
+            background-color: transparent;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+            padding: 5px 8px;
+            margin-left: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s;
+        }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background-color 0.15s;
+        }
+        .login-btn:hover { background-color: #1a252f; }
+
+        .mypage-btn-mobile {
+            background-color: #0088cc;
+            color: #ffffff;
+            transition: background-color 0.15s;
+        }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+
+
+    <style>
+        /* 이 페이지(시험 결과) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .exam-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 22px 24px; display: flex; align-items: center; gap: 20px; margin-bottom: 14px; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+        .modal-box { background: #fff; border-radius: 10px; max-width: 720px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 30px; }
+        .review-item { border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 12px; }
+        .review-item.correct { border-left: 5px solid #10b981; }
+        .review-item.incorrect { border-left: 5px solid #ef4444; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen page-mypage">
+
+    <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
+         _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+         이 버전은 여러 페이지에 흩어져 있던 기능을 하나로 합친 것:
+         - data-menu 속성 + 현재 페이지 메뉴 파란색 강조 (원래 bid-list.html에만 있던 기능)
+         - 같은 페이지 클릭 시 새로고침 방지 가드 (원래 job-list.html에만 있던 기능)
+         이제 모든 페이지에서 두 기능 다 적용됨. -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+
+            <!-- 1) 좌측 로고 -->
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            </div>
+
+            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../pages/board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+
+            <!-- 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../pages/sos/sos-request.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </nav>
+
+            <!-- 3) 우측 유틸리티 영역 -->
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+            <div class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
+            </div>
+            <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+            <div onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+            </div>
+
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>
+
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
+        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center">
+            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide">
+                마이페이지
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../pages/board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+
+            <!-- 모바일 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../pages/sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </div>
+
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                <i class="fa-regular fa-bell mr-1"></i> 알림
+                <span class="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">2</span>
+                </div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 메뉴 열기/닫기 스크립트
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // 현재 페이지에 해당하는 GNB 메뉴를 파란색으로 강조 + 헤더 높이 계산
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.gnb-item').forEach(item => {
+                const menuKey = item.getAttribute('data-menu');
+                if (menuKey && currentPath.includes('/' + menuKey + '/')) {
+                    item.classList.add('text-[#0088cc]');
+                }
+            });
+
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+                const updateHeaderHeightVar = () => {
+                    const h = headerEl.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+                };
+                updateHeaderHeightVar();
+                const ro = new ResizeObserver(updateHeaderHeightVar);
+                ro.observe(headerEl);
+            }
+        });
+    </script>
+
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab-active">시험 결과</div>
+                <div class="side-menu-tab">내 정보</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-tab="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-tab="PASS" onclick="setTab('PASS')">합격</div>
+                <div class="tab-item" data-tab="FAIL" onclick="setTab('FAIL')">불합격</div>
+            </div>
+
+            <div id="exam-list">
+                <div class="text-center py-20 text-gray-400 text-sm bg-white border border-gray-200 rounded">데이터를 불러오는 중입니다...</div>
+            </div>
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+                <div class="text-lg font-black text-[#0B2A5B]" id="modal-title">시험 결과 상세</div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+
+    <script>
+        const supabaseClient = window.sb;
+        let currentUser = null;
+        let allAttempts = [];
+        let currentTab = 'ALL';
+
+        const dummyAttempts = [
+            {
+                id: 'dummy-a1',
+                attempt_no: 1,
+                score: 85.0,
+                total_points: 100,
+                is_passed: true,
+                submitted_at: '2026-08-05T10:20:00Z',
+                answers: [
+                    { question_id: 1, selected_option: 3, is_correct: true },
+                    { question_id: 2, selected_option: 2, is_correct: false }
+                ],
+                cert_exams: {
+                    id: 'dummy-exam-1',
+                    title: '기전당직실무관리사 자격 평가',
+                    pass_score: 60,
+                    cert_courses: { id: 'dummy-1', title: '기전당직실무관리사 자격 취득 과정 (2026년 상반기)' }
+                }
+            },
+            {
+                id: 'dummy-a2',
+                attempt_no: 1,
+                score: 45.0,
+                total_points: 100,
+                is_passed: false,
+                submitted_at: '2026-07-28T14:10:00Z',
+                answers: [],
+                cert_exams: {
+                    id: 'dummy-exam-2',
+                    title: '기계설비유지관리사 자격 평가',
+                    pass_score: 60,
+                    cert_courses: { id: 'dummy-3', title: '기계설비유지관리사 이론 및 실무 종합과정' }
+                }
+            },
+            {
+                id: 'dummy-a3',
+                attempt_no: 2,
+                score: 72.5,
+                total_points: 100,
+                is_passed: true,
+                submitted_at: '2026-06-20T09:40:00Z',
+                answers: [],
+                cert_exams: {
+                    id: 'dummy-exam-3',
+                    title: '영선실무관리사 자격 평가',
+                    pass_score: 60,
+                    cert_courses: { id: 'dummy-4', title: '영선실무관리사 자격증 취득 과정' }
+                }
+            }
+        ];
+
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
+            }
+        }
+
+        function requireLogin() {
+            if (!currentUser) {
+                window.location.href = '../../login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function fetchAttempts() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('cert_exam_attempts')
+                    .select('*, cert_exams(id, title, pass_score, cert_courses(id, title))')
+                    .eq('user_id', currentUser.id)
+                    .order('submitted_at', { ascending: false });
+
+                if (error) throw error;
+                return (data && data.length > 0) ? data : dummyAttempts;
+            } catch (e) {
+                console.error('시험 응시 기록 조회 실패:', e);
+                return dummyAttempts;
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        function resultBadge(isPassed) {
+            return isPassed
+                ? '<span class="bg-green-600 text-white px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap"><i class="fas fa-circle-check mr-1"></i>합격</span>'
+                : '<span class="bg-red-500 text-white px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap"><i class="fas fa-circle-xmark mr-1"></i>불합격</span>';
+        }
+
+        function renderList() {
+            const container = document.getElementById('exam-list');
+            let filtered = allAttempts;
+            if (currentTab === 'PASS') filtered = allAttempts.filter(a => a.is_passed);
+            if (currentTab === 'FAIL') filtered = allAttempts.filter(a => !a.is_passed);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white border border-gray-200 rounded">
+                        <i class="fas fa-file-circle-question text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 font-medium">아직 응시한 시험이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const exam = a.cert_exams || {};
+                const course = exam.cert_courses || {};
+                const score = a.score !== null && a.score !== undefined ? a.score : '-';
+
+                return `
+                    <div class="exam-card">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-2">
+                                ${resultBadge(a.is_passed)}
+                                <span class="text-[12px] text-gray-500 font-medium">응시 ${a.attempt_no || 1}회차 · ${formatDate(a.submitted_at)}</span>
+                            </div>
+                            <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${course.title || '-'}</div>
+                            <div class="text-[13px] text-gray-500 truncate">${exam.title || '-'}</div>
+                        </div>
+                        <div class="shrink-0 text-center px-4">
+                            <div class="text-2xl font-black text-[#12387a]">${score}<span class="text-sm text-gray-400 font-bold">점</span></div>
+                            <div class="text-[11.5px] text-gray-400">합격기준 ${exam.pass_score ?? 60}점</div>
+                        </div>
+                        <button onclick='openDetail(${JSON.stringify(a).replace(/'/g, "&apos;")})' class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">상세 보기</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
+            });
+            renderList();
+        }
+
+        function openDetail(attempt) {
+            const exam = attempt.cert_exams || {};
+            const course = exam.cert_courses || {};
+            document.getElementById('modal-title').textContent = `${course.title || '시험 결과'} - 상세 결과`;
+
+            const answers = attempt.answers || [];
+            let bodyHtml = `
+                <div class="grid grid-cols-3 gap-3 mb-6 bg-gray-50 border border-gray-100 rounded-lg p-4 text-center">
+                    <div><div class="text-[12px] text-gray-500 mb-1">점수</div><div class="font-black text-lg text-[#12387a]">${attempt.score ?? '-'}점</div></div>
+                    <div><div class="text-[12px] text-gray-500 mb-1">합격 여부</div><div class="font-black text-lg">${attempt.is_passed ? '<span class=\\'text-green-600\\'>합격</span>' : '<span class=\\'text-red-500\\'>불합격</span>'}</div></div>
+                    <div><div class="text-[12px] text-gray-500 mb-1">응시일</div><div class="font-black text-lg text-[#0B2A5B]">${formatDate(attempt.submitted_at)}</div></div>
+                </div>
+            `;
+
+            if (answers.length > 0) {
+                bodyHtml += `<div class="text-sm font-bold text-gray-700 mb-3">문제별 정답/오답</div>`;
+                bodyHtml += answers.map((r, idx) => `
+                    <div class="review-item ${r.is_correct ? 'correct' : 'incorrect'}">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-gray-700 text-sm">문제 ${idx + 1}</span>
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${r.is_correct ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${r.is_correct ? '정답' : '오답'}</span>
+                        </div>
+                        <div class="text-[13px] text-gray-500 mt-1">선택: ${r.selected_option ?? '-'}번</div>
+                    </div>
+                `).join('');
+            } else {
+                bodyHtml += `<div class="text-center text-gray-400 text-sm py-8">문제별 상세 데이터가 없습니다.</div>`;
+            }
+
+            document.getElementById('modal-body').innerHTML = bodyHtml;
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        async function init() {
+            await fetchUser();
+            if (!requireLogin()) return;
+
+            allAttempts = await fetchAttempts();
+            renderList();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

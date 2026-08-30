@@ -1,0 +1,304 @@
+<!-- 파일명: joint-bid.src.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>우수업체 공동선정 | 대한집합건물관리협회</title>
+
+    <style>
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 56px;
+        }
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 1024px) {
+            #main-header nav { display: flex; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 1024px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+    </style>
+
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+
+    <style>
+        html, body { overflow-x: hidden; overflow-y: scroll; font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+        .sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+        .login-btn { background-color: #2c3e50; color: #ffffff; font-weight: 700; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; }
+        .login-btn:hover { background-color: #1a252f; }
+        .mypage-btn-mobile { background-color: #0088cc; color: #ffffff; transition: background-color 0.15s; }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen page-bid">
+
+    <!-- [COMMON-HEADER] -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+                <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            </div>
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+                <div data-menu="about" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+                <div data-menu="jobs" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+                <div data-menu="bid" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors text-[#0088cc]">입찰공고</div>
+                <div data-menu="cert" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+                <div data-menu="board" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+                <div data-menu="community" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+                <div class="sos-btn nav-sos">
+                    <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                    <span>긴급 SOS 호출</span>
+                </div>
+            </nav>
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+                <div class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                    <span class="absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
+                </div>
+                <div class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div class="login-btn">로그인</div>
+            </div>
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </header>
+
+        <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
+            <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
+                <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
+                    <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full">
+                        입찰공고
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+                <div class="flex items-center h-full">
+                    <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+                </div>
+                <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+                <div class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+                <div class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+                <div class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+                <div class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+                <div class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+                <div class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+                <div class="sos-btn sos-btn-mobile">
+                    <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                    <span>긴급 SOS 호출</span>
+                </div>
+            </div>
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+                <div class="flex gap-2 w-full">
+                    <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                        <i class="fa-regular fa-bell mr-1"></i> 알림
+                    </div>
+                    <div class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                </div>
+                <div class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+                document.body.style.overflow = '';
+            } else {
+                menu.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+    </script>
+    
+    <div id="page-content" class="flex-1 flex flex-col">
+        <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
+            
+            <!-- 좌측 사이드바 -->
+            <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="side-menu-container">
+                    <div class="side-menu-tab" onclick="location.href='bid-list.html'">견적 및 입찰 정보</div>
+                    <div class="side-menu-tab" onclick="location.href='company-ads.html'">협력업체 홍보관</div>
+                    <div class="side-menu-tab-active">우수업체 공동선정</div>
+                </div>
+
+                <div class="bg-[#f8fafc] border border-[#e2e8f0] rounded p-4 text-center mb-4">
+                    <i class="fas fa-hand-holding-heart text-2xl text-[#3b82f6] mb-2"></i>
+                    <h3 class="font-bold text-[14px] text-gray-800 mb-1">공동계약 문의</h3>
+                    <p class="text-[12px] text-gray-500 mb-3 leading-relaxed">협회 단체 계약을 통해<br>저렴하고 훌륭한 서비스를 만나보세요.</p>
+                    <button class="w-full py-2 bg-white border border-[#3b82f6] text-[#3b82f6] rounded font-bold text-[13px] hover:bg-blue-50 transition-colors" onclick="alert('상담 신청 폼으로 이동합니다.')">계약 상담 신청하기</button>
+                </div>
+
+                <!-- 🚀 공고 개설 버튼 (joint-bid-write.html 연결) -->
+                <button class="w-full py-3 bg-[#1e293b] text-white rounded font-bold text-[14px] hover:bg-gray-800 transition-colors shadow-sm" onclick="location.href='joint-bid-write.html'">
+                    <i class="fas fa-pen mr-1"></i> 공동선정 공고 개설 (관리자)
+                </button>
+            </aside>
+
+            <!-- 메인 콘텐츠 영역 -->
+            <section id="main-content" class="flex-1 min-w-0">
+
+                <!-- 1. 안내문 (Hero Section) - 최종 수정본 반영 -->
+                <div class="border border-gray-200 border-t-4 border-t-[#12387a] bg-white p-8 mb-10 rounded-lg shadow-sm">
+                    
+                    <!-- 상단: 아이콘 + 제목 (완벽한 수직 중앙 정렬) -->
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="w-[52px] h-[52px] bg-[#e0e7ff] text-[#1e3a8a] rounded-full flex items-center justify-center text-2xl mb-4">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h2 class="text-[22px] font-extrabold text-[#12387a]">우수업체 공동선정 및 위탁관리계약 안내</h2>
+                    </div>
+                    
+                    <!-- 텍스트 영역 (최대 너비를 제한하여 시선 분산 방지) -->
+                    <div class="max-w-[760px] mx-auto text-[15px] text-gray-700 leading-relaxed break-keep">
+                        
+                        <!-- 상단 설명 (가운데 정렬) -->
+                        <div class="text-center mb-6">
+                            <p class="mb-2">
+                                대한집합건물관리협회에서는 각 단지의 관리비 절감과 시설물 유지보수 품질 향상을 위해 <b>‘우수업체 공동선정 및 위탁관리계약 서비스’</b>를 시행합니다.
+                            </p>
+                            <p>
+                                본 서비스는 이름만 알려진 업체가 아닌, 현장에 있는 관리소장님들이 직접 겪어보고 검증한 진짜 우수업체를 발굴하기 위해 아래의 엄격한 3가지 기준을 통해 선정됩니다.
+                            </p>
+                        </div>
+                        
+                        <!-- 선정 기준 요약 박스 (좌측 정렬, 아이콘과 텍스트 수평 정렬 최적화) -->
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6 text-[14px] shadow-sm">
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-lg leading-none mt-0.5">🚨</span>
+                                    <span><b>긴급상황 대처 우수:</b> 야간 및 주말 긴급상황 발생 시, 실질적이고 정확한 조언으로 초기 대처에 큰 도움을 준 업체</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-lg leading-none mt-0.5">💬</span>
+                                    <span><b>소통 및 자문 우수:</b> 관리 현장의 다양한 일반 질문과 고민에 대해 전문적이고 성실하게 답변을 제공한 업체</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-lg leading-none mt-0.5">⭐</span>
+                                    <span><b>현장 검증 및 후기 우수:</b> 실제 계약을 맺고 공사나 점검을 진행한 단지의 만족도와 이용 후기가 압도적으로 좋은 업체</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 하단 설명 (가운데 정렬) -->
+                        <div class="text-center text-[14px] text-gray-600">
+                            <p class="mb-2">
+                                이렇게 철저하게 검증된 우수업체에 우리 협회 회원사들의 위탁관리계약을 집중시킴으로써 <b>‘규모의 경제’</b>를 실현합니다. 업체는 안정적인 다수의 계약을 확보하고, 우리 건물은 <b>기존보다 저렴한 단가로 최고 수준의 시설 관리 서비스</b>를 제공받는 상생 구조입니다.
+                            </p>
+                            <p>
+                                투명한 견적과 보장된 시공 품질을 통해 관리 업무의 부담을 덜고, 건물의 자산 가치를 높여보시기 바랍니다. 소장님들의 많은 관심과 참여를 부탁드립니다.
+                            </p>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- 2. 진행 중인 공동선정 공고 목록 -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-list-ul text-[#f59e0b]"></i> 진행 중인 공동선정 연합 공고
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        
+                        <!-- 공고 카드 1 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-1 rounded mb-2 inline-block">소방시설</span>
+                                    <h4 class="text-lg font-bold text-gray-900 break-keep">[일산/고양] 오피스텔 소방종합정밀점검 연합 입찰</h4>
+                                </div>
+                                <div class="flex flex-col gap-1 items-end shrink-0 ml-2">
+                                    <span class="text-[11px] font-bold text-white bg-red-500 px-2 py-1 rounded">마감 D-12</span>
+                                </div>
+                            </div>
+                            <p class="text-[13px] text-gray-600 mb-5 flex-1 bg-gray-50 p-3 rounded break-keep">
+                                "일산 및 고양시 지역 단지들을 모아 소방시설 점검 단가를 낮추기 위한 연합 입찰입니다. 현재 6개 단지 모집 완료!"
+                            </p>
+                            <!-- 🚀 상세 페이지 버튼 (joint-bid-detail.html 연결) -->
+                            <div class="flex gap-2 mt-auto">
+                                <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded text-[13px] transition-colors" onclick="location.href='joint-bid-detail.html'">상세 정보 보기</button>
+                                <button class="flex-1 bg-[#12387a] hover:bg-blue-800 text-white font-bold py-2.5 rounded text-[13px] transition-colors shadow-sm" onclick="location.href='joint-bid-detail.html'">참여 현황 보기</button>
+                            </div>
+                        </div>
+
+                        <!-- 공고 카드 2 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <span class="text-xs font-bold text-green-600 bg-green-50 border border-green-200 px-2 py-1 rounded mb-2 inline-block">승강기 유지보수</span>
+                                    <h4 class="text-lg font-bold text-gray-900 break-keep">[서울 전역] 상가 승강기 종합유지보수 연합 모집</h4>
+                                </div>
+                                <div class="flex flex-col gap-1 items-end shrink-0 ml-2">
+                                    <span class="text-[11px] font-bold text-white bg-blue-500 px-2 py-1 rounded">상시 모집</span>
+                                </div>
+                            </div>
+                            <p class="text-[13px] text-gray-600 mb-5 flex-1 bg-gray-50 p-3 rounded break-keep">
+                                "서울 지역 상가 승강기 유지보수 단가 절감을 위한 상시 모집 공고입니다. 협회 인증 우수업체 우선 매칭 지원."
+                            </p>
+                            <!-- 🚀 상세 페이지 버튼 (joint-bid-detail.html 연결) -->
+                            <div class="flex gap-2 mt-auto">
+                                <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded text-[13px] transition-colors" onclick="location.href='joint-bid-detail.html'">상세 정보 보기</button>
+                                <button class="flex-1 bg-[#12387a] hover:bg-blue-800 text-white font-bold py-2.5 rounded text-[13px] transition-colors shadow-sm" onclick="location.href='joint-bid-detail.html'">참여 현황 보기</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 스크립트 연결부 -->
+    <div id="footer-container"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+</body>
+</html>

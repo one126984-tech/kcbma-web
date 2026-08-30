@@ -1,0 +1,415 @@
+<!-- 파일명: board-corner.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 board-corner.html)
+     이 페이지는 헤더 GNB의 "관리단 코너" 메뉴가 가리키는 실제 페이지.
+     ★ 2026-08: Gemini와 함께 작업한 최종 버전으로 교체. Supabase 연동으로
+        실제 공고 목록을 불러오고(fetchBiddings), 포인트 차감 결제(payment-modal
+        → processPayment → RPC unlock_bidding_info)로 상세정보를 열람하면
+        detail-modal에서 담당자 연락처/상세내역을 보여주는 방식으로 전면 개편됨.
+        포인트가 부족하면 charge-modal에서 5,000P 충전 유도. "공고 등록" 버튼으로
+        board-write.html(공고 등록 폼, 3단계 정보노출 선택)로 이동.
+        헤더/서브헤더/푸터/모바일메뉴는 원래대로 파샬(@include)로 조립. -->
+<!-- @var PAGE_CLASS: page-board -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>관리단 코너 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* 이 페이지(관리단 코너) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 좌측 사이드 메뉴는 구인구직(job-list) 페이지와 동일한
+           .side-menu-tab / .side-menu-tab-active (common-css.html)를
+           그대로 사용하므로 이 페이지 전용 스타일은 더 이상 필요 없음. */
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <!-- ----------------------------------------------------
+         핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
+         페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
+         ---------------------------------------------------- -->
+    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-40 shrink-0 shadow-sm">
+        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
+            <div class="w-full md:w-[220px] shrink-0 flex items-center justify-center">
+                <div class="text-white font-bold text-xl md:text-2xl tracking-wide px-1">
+                    관리단 코너
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+    <!-- ★ 스크롤 영역 시작 -->
+    <div class="flex-1 custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+
+        <!-- 메인 콘텐츠 레이아웃 -->
+        <main class="max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col md:flex-row gap-8 flex-1 items-start">
+
+            <!-- 좌측 사이드바 (LNB 삼단 배너) -->
+            <aside class="w-full md:w-[220px] shrink-0 h-auto z-40 relative">
+                <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm p-3 flex flex-col gap-1 sticky top-0 mt-0">
+                        <div class="side-menu-tab-active" data-tab="management" onclick="switchTab('management', this)">
+                            <span>위탁관리사 선정</span>
+                        </div>
+                        <div class="side-menu-tab" onclick="location.href='fee-list.html'">
+                            <span>관리비 비교·평가</span>
+                        </div>
+                        <div class="side-menu-tab" data-tab="evote" onclick="switchTab('evote', this)">
+                            <span>전자투표·총회 대행</span>
+                        </div>
+                    </div>
+            </aside>
+
+            <!-- 우측 전체 콘텐츠 영역 -->
+            <div class="flex-1 min-w-0 h-auto relative flex flex-col mt-0">
+
+                <section class="flex-1 shrink-0 pb-8">
+                    <!-- 관리단 코너 종합 이용 안내 (탭과 무관하게 항상 표시) -->
+                    <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-8 flex gap-5 md:gap-6 items-start shadow-sm">
+                        <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">관리단 코너 종합 이용 안내</h3>
+                            <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>위탁관리사 선정:</b> 투명하고 공정한 공개경쟁 입찰을 통해 단지에 최적화된 위탁관리업체를 선정하실 수 있습니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>관리비 비교·평가:</b> 관리단 또는 입주민 그룹은 무료로 평가를 의뢰하고, 여러 전문 업체들의 객관적인 진단을 받아보세요!</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전자투표·총회 대행:</b> 법적 효력을 완벽히 갖춘 안전하고 편리한 전자투표 및 총회 진행을 지원합니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>유료 서비스 안내:</b> 파트너 업체의 상세정보 열람 및 매칭, 총회 대행 등 일부 기능은 <span class="text-red-600 font-bold">사전 안내 후 유료</span>로 진행됩니다.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 상단 타이틀 영역 -->
+                    <div id="main-title-box" class="flex justify-between items-end pb-3 mb-6 border-b-2 border-[#2f66e0]">
+                        <h3 id="content-title" class="text-[22px] font-bold text-[#2f66e0]">위탁관리사 모집공고 및 매칭</h3>
+                        <div class="flex items-center gap-4">
+                            <div class="text-[15px] text-gray-500 pb-1">
+                                총 <span id="content-count" class="font-bold text-gray-900">0</span>건<span id="content-count-suffix">이 등록된 현장</span>
+                            </div>
+                            <button id="register-btn" onclick="location.href='board-write.html'" class="px-4 py-2 bg-blue-600 text-white font-bold text-[14px] rounded hover:bg-blue-700 transition shadow-sm mb-1">
+                                <i class="fas fa-pen mr-1"></i> 공고 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 콘텐츠 리스트 영역 (Supabase에서 동적으로 채워짐) -->
+                    <div id="bidding-list" class="space-y-4"></div>
+                </section>
+            </div>
+        </main>
+
+        <!-- 푸터 영역 -->
+        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+        <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+    </div>
+    <!-- ★ 스크롤 영역 종료 -->
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <!-- ================= 결제 모달창 ================= -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 w-[500px] shadow-xl text-center">
+            <h2 class="text-xl font-bold mb-6 text-gray-800">상세정보 열람 수수료 결제</h2>
+            <div class="mb-8">
+                <p class="text-[15px] text-gray-700 whitespace-nowrap mb-4">담당자 연락처 및 상세 내역을 열람하시겠습니까?</p>
+                <div class="text-[16px] flex items-center justify-center gap-2">
+                    <span class="font-bold text-gray-800">열람 수수료 : </span>
+                    <span class="font-bold text-red-600"><span id="modal-fee-text">0</span> 포인트</span>
+                    <span id="modal-remaining-container">
+                        <!-- 포인트 상황에 따라 자동 교체됨 -->
+                    </span>
+                </div>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="closePaymentModal()" class="w-[140px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition text-center">취소</button>
+                <button id="payment-confirm-btn" onclick="processPayment()" class="w-[140px] py-2.5 bg-[#dbeafe] text-black font-bold rounded-md hover:bg-[#bfdbfe] transition text-center">결제 진행하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 포인트 충전 팝업 모달창 ================= -->
+    <div id="charge-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-[400px] shadow-xl text-center">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">포인트 충전</h2>
+            <div class="mb-6 text-gray-700 text-[15px]">
+                <p>포인트가 부족하여 열람할 수 없습니다.</p>
+                <p class="font-bold text-blue-600 mt-2">5,000 포인트를 충전하시겠습니까?</p>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">취소</button>
+                <button onclick="processCharge()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">충전하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 상세정보 팝업 모달창 ================= -->
+    <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-[500px] shadow-xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h2 class="text-[18px] font-bold text-[#12387a]">상세정보</h2>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-800 text-xl font-bold">&times;</button>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-md border border-blue-100">
+                    <p class="text-[13px] text-blue-600 font-bold mb-1">담당자 연락처</p>
+                    <p id="detail-contact" class="text-[16px] font-bold text-gray-900"></p>
+                </div>
+                <div>
+                    <p class="text-[14px] text-gray-500 font-bold mb-2">상세 내역</p>
+                    <div id="detail-proposal" class="bg-gray-50 p-4 rounded-md border border-gray-200 text-[14px] text-gray-700 min-h-[80px] leading-relaxed">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center pt-2 border-t border-gray-100">
+                <button onclick="closeDetailModal()" class="px-6 py-2.5 bg-gray-800 text-white font-bold rounded-md hover:bg-gray-900 transition w-full">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 -->
+    <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentTargetBtn = null;
+        let currentBiddingId = null;
+        let currentFee = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // fee-list.html 사이드바에서 "전자투표·총회 대행"을 클릭하면
+            // board-corner.html?tab=evote 로 넘어오므로 그 경우만 evote 탭을 열어줌.
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTab = urlParams.get('tab') === 'evote' ? 'evote' : 'management';
+            switchTab(initialTab);
+        });
+
+        async function fetchBiddings() {
+            const { data, error } = await supabaseClient
+                .from('management_biddings')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) return;
+
+            const listContainer = document.getElementById('bidding-list');
+            listContainer.innerHTML = ''; 
+            document.getElementById('content-count').innerText = data.length;
+
+            data.forEach(item => {
+                const fee = item.unlock_fee || 1000;
+
+                const cardHtml = `
+                    <div class="bg-white border border-gray-200 rounded-md p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-green-300 transition shadow-sm">
+                        <div>
+                            <span class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-sm mb-2.5 inline-block">${item.status}</span>
+                            <h4 class="text-[17px] font-bold text-gray-900 mb-1.5">${item.title}</h4>
+                            <p class="text-[14px] text-gray-500">${item.building_summary}</p>
+                        </div>
+                        <button onclick="openPaymentModal(this, ${item.id}, ${fee})" class="bg-[#dcfce7] hover:bg-[#bbf7d0] text-gray-900 text-[14px] font-bold px-5 py-3 rounded-md shrink-0 transition flex items-center gap-2">
+                            <i class="fas fa-lock"></i> 상세정보 열람
+                        </button>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // "관리비 비교·평가"는 별도 페이지(fee-list.html)로 분리됨 —
+        // 관련 조회 로직은 fee-list.src.html 참고.
+
+        // "전자투표·총회 대행" 탭: 아직 실제 데이터/기능 연동 전이라 준비중 안내만 표시.
+        function renderEvoteComingSoon() {
+            const listContainer = document.getElementById('bidding-list');
+            document.getElementById('content-count').innerText = 0;
+            listContainer.innerHTML = `<div class="text-center text-gray-400 py-16 bg-white border border-gray-200 rounded-md">전자투표·총회 대행 서비스는 준비 중입니다.</div>`;
+        }
+
+        async function openPaymentModal(btn, biddingId, fee) {
+            currentTargetBtn = btn;
+            currentBiddingId = biddingId;
+            currentFee = fee;
+
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const { data: profile } = await supabaseClient
+                .from('user_profiles')
+                .select('points')
+                .eq('id', authData.user.id)
+                .single();
+
+            const userPoints = profile ? profile.points : 0;
+            const remaining = userPoints - fee;
+
+            document.getElementById('modal-fee-text').innerText = fee.toLocaleString();
+            const remainingContainer = document.getElementById('modal-remaining-container');
+            const confirmBtn = document.getElementById('payment-confirm-btn');
+
+            if (remaining >= 0) {
+                remainingContainer.innerHTML = `<span class="text-blue-600 font-bold ml-1">(결제후 ${remaining.toLocaleString()}포인트 남음)</span>`;
+                confirmBtn.disabled = false;
+                confirmBtn.className = "w-[140px] py-2.5 bg-[#dbeafe] text-black font-bold rounded-md hover:bg-[#bfdbfe] transition text-center cursor-pointer";
+            } else {
+                remainingContainer.innerHTML = `<span class="text-blue-600 font-bold ml-2 cursor-pointer underline hover:text-blue-800 transition" onclick="openChargeModal()">포인트 충전하기</span>`;
+                confirmBtn.disabled = true;
+                confirmBtn.className = "w-[140px] py-2.5 bg-gray-300 text-gray-500 font-bold rounded-md cursor-not-allowed text-center";
+            }
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            currentTargetBtn = null;
+            currentBiddingId = null;
+        }
+
+        function openChargeModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('charge-modal').classList.remove('hidden');
+        }
+
+        function closeChargeModal() {
+            document.getElementById('charge-modal').classList.add('hidden');
+        }
+
+        async function processCharge() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if(!authData.user) return;
+
+            const { data: profile } = await supabaseClient.from('user_profiles').select('points').eq('id', authData.user.id).single();
+            const newPoints = (profile ? profile.points : 0) + 5000;
+
+            const { error } = await supabaseClient.from('user_profiles').update({ points: newPoints }).eq('id', authData.user.id);
+
+            if(error) {
+                alert('충전에 실패했습니다.');
+            } else {
+                alert('5,000 포인트 충전이 완료되었습니다.');
+                closeChargeModal();
+                openPaymentModal(currentTargetBtn, currentBiddingId, currentFee);
+            }
+        }
+
+        async function processPayment() {
+            const confirmBtn = document.getElementById('payment-confirm-btn');
+            const originalText = confirmBtn.innerText;
+            confirmBtn.innerText = '처리 중...';
+            confirmBtn.disabled = true;
+
+            const targetId = currentBiddingId;
+            const targetBtn = currentTargetBtn;
+
+            const { data, error } = await supabaseClient.rpc('unlock_bidding_info', {
+                target_bidding_id: targetId
+            });
+
+            confirmBtn.innerText = originalText;
+            confirmBtn.disabled = false;
+            closePaymentModal();
+
+            if (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+                return;
+            }
+
+            if (data.success) {
+                if (targetBtn) {
+                    targetBtn.className = 'bg-[#dcfce7] hover:bg-[#bbf7d0] text-blue-600 text-[14px] font-bold px-5 py-3 rounded-md shrink-0 transition flex items-center gap-2';
+                    targetBtn.innerHTML = `<i class="fas fa-check"></i> 정보열람 완료`;
+                    targetBtn.onclick = () => openDetailModal(targetId);
+                }
+                openDetailModal(targetId);
+            } else {
+                alert(data.message); 
+            }
+        }
+
+        async function openDetailModal(biddingId) {
+            const { data, error } = await supabaseClient
+                .from('management_biddings')
+                .select('contact_person, contact_phone, detailed_proposal')
+                .eq('id', biddingId)
+                .single();
+
+            if (error || !data) return;
+
+            document.getElementById('detail-contact').innerText = `${data.contact_person} (${data.contact_phone})`;
+
+            let formattedProposal = data.detailed_proposal.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            document.getElementById('detail-proposal').innerHTML = formattedProposal;
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        function switchTab(type, el) {
+            // 사이드바 탭 활성화 표시. 클릭이 아니라 URL의 ?tab= 값으로
+            // 초기 진입한 경우 el이 없으므로 data-tab 속성으로 해당 탭을 찾음.
+            document.querySelectorAll('#side-menu-container .side-menu-tab, #side-menu-container .side-menu-tab-active').forEach(item => {
+                item.className = 'side-menu-tab';
+            });
+            const targetEl = el || document.querySelector(`#side-menu-container [data-tab="${type}"]`);
+            if (targetEl) targetEl.className = 'side-menu-tab-active';
+
+            const titleEl = document.getElementById('content-title');
+            const countSuffixEl = document.getElementById('content-count-suffix');
+            const registerBtn = document.getElementById('register-btn');
+
+            if (type === 'management') {
+                titleEl.innerText = "위탁관리사 모집공고 및 매칭";
+                countSuffixEl.innerText = "이 등록된 현장";
+                registerBtn.style.display = '';
+                registerBtn.innerHTML = '<i class="fas fa-pen mr-1"></i> 공고 등록';
+                registerBtn.onclick = () => location.href = 'board-write.html';
+                fetchBiddings();
+            } else if (type === 'evote') {
+                titleEl.innerText = "전자투표 및 총회 개최 지원 서비스";
+                countSuffixEl.innerText = "";
+                registerBtn.style.display = 'none';
+                renderEvoteComingSoon();
+            }
+        }
+    </script>
+</body>
+</html>

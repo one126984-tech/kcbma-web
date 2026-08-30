@@ -1,0 +1,307 @@
+<!-- 파일명: work-qna.src.html
+     ★ "페이지 준비 중" 플레이스홀더를 실제 "닥터소장 Q&A" 콘텐츠로 교체.
+     원본은 완전히 독립된 HTML(자체 body 배경/폰트/컨테이너)이었음 —
+     표준 헤더/서브헤더/사이드바 셸에 통합하고, 현상금 걸기·블러 잠금
+     답변 UI 등 이 페이지만의 하이브리드 디자인은 개성으로 유지. -->
+<!-- @var PAGE_CLASS: page-community -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>업무 Q&A | 대한집합건물관리협회 커뮤니티</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(업무 Q&A / 닥터소장) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+
+        /* 닥터소장 Q&A 고유 스타일 */
+        #dr-qna-content { font-family: 'Malgun Gothic', sans-serif; color: #333; }
+
+        #dr-qna-content .dr-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid #2f66e0; padding-bottom: 14px; }
+        #dr-qna-content .dr-title h2 { margin: 0; color: #1a365d; font-size: 22px; }
+        #dr-qna-content .dr-title p { margin: 5px 0 0 0; color: #718096; font-size: 13.5px; }
+        #dr-qna-content .ask-btn { background-color: #e53e3e; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14.5px; }
+        #dr-qna-content .ask-btn:hover { background-color: #c53030; }
+
+        #dr-qna-content .filter-bar { background: #fff; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px; }
+        #dr-qna-content .tabs button { background: none; border: none; font-size: 14.5px; font-weight: bold; color: #718096; margin-right: 15px; cursor: pointer; padding-bottom: 5px; }
+        #dr-qna-content .tabs button.active { color: #2b6cb0; border-bottom: 2px solid #2b6cb0; }
+        #dr-qna-content .sort select { padding: 5px 10px; border: 1px solid #cbd5e0; border-radius: 4px; color: #4a5568; }
+
+        #dr-qna-content .write-form { background: #fff; padding: 22px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 26px; display: none; }
+        #dr-qna-content .write-form.active { display: block; }
+        #dr-qna-content .form-group { margin-bottom: 15px; }
+        #dr-qna-content .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        #dr-qna-content .form-row .form-group { flex: 1; margin-bottom: 0; min-width: 180px; }
+        #dr-qna-content .form-group label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 13.5px; }
+        #dr-qna-content .form-group input[type="text"], #dr-qna-content .form-group input[type="password"], #dr-qna-content .form-group textarea, #dr-qna-content .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        #dr-qna-content .form-group textarea { height: 120px; resize: none; }
+
+        #dr-qna-content .bounty-input-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        #dr-qna-content .bounty-input-wrap input { width: 130px; padding: 10px; text-align: right; border: 2px solid #e53e3e; border-radius: 4px; font-size: 15px; font-weight: bold; color: #e53e3e; }
+        #dr-qna-content .bounty-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        #dr-qna-content .bounty-btns button { background: #edf2f7; border: 1px solid #cbd5e0; padding: 6px 12px; border-radius: 4px; cursor: pointer; color: #4a5568; font-weight: bold; }
+        #dr-qna-content .bounty-btns button:hover { background: #e2e8f0; }
+        #dr-qna-content .bounty-notice { font-size: 12px; color: #718096; }
+
+        #dr-qna-content .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+        #dr-qna-content .cancel-btn { flex: 1; background: #a0aec0; color: white; border: none; padding: 12px; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        #dr-qna-content .submit-btn { flex: 2; background: #2b6cb0; color: white; border: none; padding: 12px; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; }
+
+        #dr-qna-content .qa-list { display: flex; flex-direction: column; gap: 15px; }
+        #dr-qna-content .qa-item { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; border-left: 4px solid transparent; }
+        #dr-qna-content .qa-item.premium { border-left-color: #e53e3e; }
+
+        #dr-qna-content .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        #dr-qna-content .badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        #dr-qna-content .badge.category { background: #edf2f7; color: #4a5568; }
+        #dr-qna-content .badge.bounty { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+        #dr-qna-content .badge.timer { background: #ebf8ff; color: #2b6cb0; }
+        #dr-qna-content .badge.resolved { background: #c6f6d5; color: #22543d; }
+
+        #dr-qna-content .qa-item h3 { margin: 0; font-size: 17px; cursor: pointer; color: #2d3748; }
+        #dr-qna-content .qa-item h3:hover { text-decoration: underline; color: #2b6cb0; }
+        #dr-qna-content .qa-meta { font-size: 12.5px; color: #a0aec0; display: flex; gap: 15px; flex-wrap: wrap; }
+
+        #dr-qna-content .answer-box { margin-top: 15px; padding: 20px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+        #dr-qna-content .answer-title { font-weight: bold; color: #2c5282; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+
+        #dr-qna-content .blur-content { filter: blur(5px); user-select: none; color: #4a5568; font-size: 13.5px; line-height: 1.6; }
+
+        #dr-qna-content .lock-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; text-align: center; padding: 0 16px; }
+        #dr-qna-content .lock-icon { font-size: 28px; margin-bottom: 10px; }
+        #dr-qna-content .lock-msg { font-weight: bold; color: #2d3748; font-size: 15px; margin-bottom: 5px; }
+        #dr-qna-content .lock-submsg { color: #718096; font-size: 12.5px; margin-bottom: 15px; }
+        #dr-qna-content .unlock-btn { background: #2b6cb0; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        #dr-qna-content .unlock-btn:hover { background: #2c5282; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
+        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
+            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
+                커뮤니티
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
+
+        <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
+            <div class="left-scroll-content">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <div class="side-menu-tab" onclick="location.href='field-experience.html'">현장경험 공유</div>
+                    <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
+                    <div class="side-menu-tab" onclick="location.href='free-board.html'">자유게시판</div>
+                    <div class="side-menu-tab-active">업무 Q&A</div>
+                    <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
+
+            <section class="flex-1 shrink-0 pb-8">
+                <!-- 활발하고 건전한 커뮤니티 활동을 위한 안내 (커뮤니티 전체 게시판 공통) -->
+                <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-8 flex gap-5 md:gap-6 items-start shadow-sm">
+                    <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">활발하고 건전한 커뮤니티 활동을 위한 안내</h3>
+                        <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>상호 존중 소통:</b> 타 회원의 의견을 존중하며 무분별한 비방이나 욕설은 엄격히 금지됩니다. 위반 게시물은 <span class="text-red-600 font-bold">사전 경고 없이 삭제</span>될 수 있습니다.</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>게시판 주제 준수:</b> 각 게시판의 목적과 성격에 맞는 내용을 게시하여 유익한 정보 공유를 지향해 주세요. (e.g., '현장경험 공유', '질의응답' 등)</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>개인 및 정보 보호:</b> 타인의 저작권이나 기관의 민감한 내부 정보를 무단 공유하지 않도록 유의해 주세요.</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>유료 콘텐츠 안내:</b> 전문가 답변 열람 등 일부 유료 콘텐츠는 <span class="text-red-600 font-bold">결제 안내 후</span> 이용하실 수 있습니다.</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="dr-qna-content">
+
+                    <div class="dr-header">
+                        <div class="dr-title">
+                            <h2>💡 닥터소장 Q&A</h2>
+                            <p>실무 노하우부터 법률 자문까지, 확실한 해결책을 거래하세요.</p>
+                        </div>
+                        <button class="ask-btn" onclick="toggleWriteForm()">질문 작성하기 ➔</button>
+                    </div>
+
+                    <div class="write-form" id="writeForm">
+                        <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">새 질문 등록</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>질문 분류</label>
+                                <select>
+                                    <option>행정/법률</option><option>회계/장충금</option><option>시설/공사</option><option>인사/노무</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>비밀번호 <span style="font-weight:normal; font-size:12px; color:#e53e3e;">(※ 글 수정/삭제 시 필요)</span></label>
+                                <input type="password" placeholder="숫자 4자리 이상 입력">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>질문 제목</label>
+                            <input type="text" placeholder="핵심 내용을 요약해서 적어주세요.">
+                        </div>
+                        <div class="form-group">
+                            <label>상세 내용</label>
+                            <textarea placeholder="현재 겪고 있는 문제 상황을 구체적으로 적어주실수록 정확한 답변을 받을 수 있습니다."></textarea>
+                        </div>
+
+                        <div class="form-group" style="background:#fff5f5; padding:15px; border-radius:6px; border:1px solid #feb2b2;">
+                            <label style="color:#c53030;">💰 닥터소장 쿠폰(현상금) 걸기 <span style="font-weight:normal; font-size:12px; color:#718096;">(선택)</span></label>
+                            <div class="bounty-input-wrap">
+                                <input type="number" id="bountyAmount" value="0" min="0" step="1" oninput="validateInput(this)"> 만원
+                                <div class="bounty-btns">
+                                    <button type="button" onclick="addBounty(1)">1만원 추가</button>
+                                    <button type="button" onclick="addBounty(-1)">1만원 삭감</button>
+                                    <button type="button" onclick="addBounty(5)">5만원 추가</button>
+                                    <button type="button" onclick="addBounty(-5)">5만원 삭감</button>
+                                    <button type="button" onclick="resetBounty()" style="background:#e2e8f0;">초기화</button>
+                                </div>
+                            </div>
+                            <p class="bounty-notice">※ 금액을 걸면 전문가 및 고수들의 답변을 우선적으로 받을 수 있습니다. (채택 시 수수료 차감 후 지급됨)</p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" onclick="toggleWriteForm()">뒤로가기 (취소)</button>
+                            <button type="button" class="submit-btn" onclick="submitForm()">결제 및 등록하기</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="tabs">
+                            <button class="active">전체 보기</button>
+                            <button>💰 프리미엄(유료) 질문</button>
+                            <button>일반 소통</button>
+                        </div>
+                        <div class="sort">
+                            <select>
+                                <option>최신순 정렬</option>
+                                <option>높은 금액순</option>
+                                <option>답변 적은 순</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="qa-list">
+
+                        <div class="qa-item premium">
+                            <div class="badges">
+                                <span class="badge category">법률/분쟁</span>
+                                <span class="badge bounty">💰 5만 원</span>
+                                <span class="badge resolved">채택 완료</span>
+                            </div>
+                            <h3 onclick="requireLogin()">장기수선충당금 용도 외 사용 관련 관할구청 시정명령 대처 및 소명자료 작성법</h3>
+                            <p style="font-size:14px; color:#4a5568; margin:5px 0;">구청에서 3년 전 집행한 옥상 방수 공사건에 대해 장기수선계획서 미조정 상태로 집행했다며 과태료 사전 통지가 날아왔습니다. 어떻게 소명해야 방어할 수 있을까요?</p>
+                            <div class="qa-meta">
+                                <span>작성자: 경기오피소장</span>
+                                <span>조회: 1,024</span>
+                                <span>2시간 전</span>
+                            </div>
+
+                            <div class="answer-box">
+                                <div class="answer-title">✅ 전문가 채택 답변 (노무법인 OOO)</div>
+                                <div class="blur-content">
+                                    소장님, 해당 건은 집합건물법과 공동주택관리법의 적용 예외 조항을 적극적으로 활용하셔야 합니다. 먼저 관할 구청에 제출하실 소명자료의 핵심은 '긴급한 누수'로 인한 불가피한 집행이었음을 증빙하는 것입니다. 당시 누수 사진과 입주민 민원 대장, 그리고 사후 추인 결의를 받은 의사록을 첨부하시고... (이하 생략)
+                                </div>
+                                <div class="lock-overlay">
+                                    <div class="lock-icon">🔒</div>
+                                    <div class="lock-msg">이 답변은 작성자 및 유료 회원만 열람할 수 있습니다.</div>
+                                    <div class="lock-submsg">전문가의 고급 노하우를 확인하고 과태료 리스크를 방어하세요.</div>
+                                    <button class="unlock-btn" onclick="requireLogin()">500원 결제하고 전체 보기 (로그인)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="qa-item">
+                            <div class="badges">
+                                <span class="badge category">시설/안전</span>
+                            </div>
+                            <h3>세대 화장실 환풍기 역류(담배 냄새) 방지 전동 댐퍼 설치 단가 공유 좀 부탁드립니다.</h3>
+                            <p style="font-size:14px; color:#4a5568; margin:5px 0;">이번에 민원이 너무 많아서 일괄 공사를 하려고 하는데, 보통 인건비 포함해서 단가를 얼마 정도로 잡아야 할까요?</p>
+                            <div class="qa-meta">
+                                <span>작성자: 초보소장님</span>
+                                <span>답변: 5개</span>
+                                <span>조회: 120</span>
+                                <span>어제</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+            <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+        </div>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <script>
+        function toggleWriteForm() {
+            const form = document.getElementById('writeForm');
+            form.classList.toggle('active');
+        }
+
+        function validateInput(element) {
+            if (element.value < 0 || isNaN(element.value)) {
+                element.value = 0;
+            }
+        }
+
+        function addBounty(amount) {
+            const input = document.getElementById('bountyAmount');
+            let currentValue = parseInt(input.value) || 0;
+            let newValue = currentValue + amount;
+            if (newValue < 0) newValue = 0;
+            input.value = newValue;
+        }
+
+        function resetBounty() {
+            document.getElementById('bountyAmount').value = 0;
+        }
+
+        function submitForm() {
+            alert("게시글이 등록되었습니다.");
+            toggleWriteForm();
+        }
+
+        function requireLogin() {
+            alert("현재 회원가입 및 로그인 시스템을 연동 중입니다.\n(추후 카카오톡 간편 로그인 및 결제 시스템 적용 예정)");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!-- 파일명: resume-detail.src.html
+     ★ 사용자가 원본 파일을 갖고 있지 않아 신규 작성함.
+     resume-list.html의 incrementViewAndGo()가 이동시키는 'resume-detail.html?id=...'
+     흐름과, resume-write.html에서 입력받는 필드(이름/연락처/희망직종/희망지역/
+     희망급여/근무형태/경력/학력/자격증/특기·자기소개)를 그대로 반영해서
+     job-detail.html / company-detail.html과 같은 사이트 표준 상세페이지
+     패턴(표준 헤더 + 서브헤더 + 사이드바 + 로딩스피너 + Supabase 조회 +
+     더미데이터 폴백)으로 구성했습니다. -->
+<!-- @var PAGE_CLASS: page-jobs -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>구직자 상세 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(구직자 상세) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .detail-header { border-bottom: 2px solid #12387a; padding-bottom: 20px; margin-bottom: 25px; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 12px; }
+        .status-badge.open { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .status-badge.closed { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
+        .detail-title { font-size: 24px; font-weight: 900; color: #111; margin-bottom: 12px; }
+
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #fff; border-top: 1px solid #e5e7eb; }
+        .info-table th { width: 140px; background: #f8fafc; color: #333; font-weight: bold; text-align: left; padding: 14px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        .info-table td { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; }
+
+        .content-area { min-height: 200px; padding: 30px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 40px; white-space: pre-wrap; }
+
+        .contact-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; text-align: center; margin-bottom: 30px; }
+        .btn-call-large { display: inline-block; background: #12387a; color: white; padding: 14px 36px; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(18, 56, 122, 0.2); transition: all 0.2s; }
+        .btn-call-large:hover { background: #0B2A5B; transform: translateY(-2px); }
+
+        .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
+        .btn-list { padding: 12px 40px; background: #fff; border: 1px solid #cbd5e1; color: #333; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-list:hover { background: #f8fafc; border-color: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
+                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full cursor-pointer" onclick="location.href='resume-list.html'">
+                    <i class="fas fa-chevron-left mr-3 text-lg opacity-80"></i> 구인 <span class="text-gray-300 font-light mx-2">/</span> 구직
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-tab" onclick="location.href='job-list.html'"><span>구인 (채용)</span></div>
+                <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                <div class="side-menu-tab-active" onclick="location.href='resume-list.html'"><span>구직 (인재)</span></div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 bg-white p-6 md:p-8 border border-gray-200 rounded shadow-sm">
+            <div id="loading-spinner" class="text-center py-20 text-gray-500 font-bold">
+                데이터를 불러오는 중입니다...
+            </div>
+
+            <div id="detail-container" style="display: none;">
+                <div class="detail-header">
+                    <span id="resume-status" class="status-badge open">구직중</span>
+                    <h1 class="detail-title">
+                        <span id="resume-title"></span>
+                    </h1>
+                    <div class="flex gap-3 text-sm text-gray-500 font-bold">
+                        <span id="resume-job-category" class="text-blue-700"></span>
+                        <span>|</span>
+                        <span id="resume-region"></span>
+                        <span>|</span>
+                        <span><i class="fas fa-eye mr-1"></i><span id="resume-views">0</span></span>
+                    </div>
+                </div>
+
+                <div class="contact-box">
+                    <p class="text-gray-500 text-sm font-bold mb-4">채용 관련 문의는 아래 연락처로 직접 연락해 주세요. (채용 목적 외 사용 시 법적 제재 대상)</p>
+                    <button class="btn-call-large" id="btn-call"><i class="fas fa-phone-alt mr-2"></i> <span id="resume-phone"></span></button>
+                </div>
+
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th>이름</th>
+                            <td id="info-name"></td>
+                            <th>이메일</th>
+                            <td id="info-email"></td>
+                        </tr>
+                        <tr>
+                            <th>현재 거주지</th>
+                            <td id="info-address"></td>
+                            <th>희망 근무 형태</th>
+                            <td id="info-employment-type"></td>
+                        </tr>
+                        <tr>
+                            <th>희망 급여</th>
+                            <td id="info-salary"></td>
+                            <th>총 경력</th>
+                            <td id="info-experience"></td>
+                        </tr>
+                        <tr>
+                            <th>최종 학력</th>
+                            <td id="info-education"></td>
+                            <th>보유 자격증</th>
+                            <td id="info-certification"></td>
+                        </tr>
+                        <tr>
+                            <th>기타 특기/우대사항</th>
+                            <td colspan="3" id="info-skills"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="text-[17px] font-bold text-gray-800 mb-3 ml-1">자기소개 및 상세 경력</h3>
+                <div id="resume-content" class="content-area"></div>
+
+                <div class="btn-wrap">
+                    <button class="btn-list" onclick="location.href='resume-list.html'">목록으로 돌아가기</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+        const DB_TABLE_NAME = 'master_board';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchResumeDetail();
+        });
+
+        async function fetchResumeDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const resumeId = urlParams.get('id');
+
+            if (!resumeId || !supabaseClient) {
+                renderMockData();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .select('*')
+                    .eq('id', resumeId)
+                    .eq('board_type', 'RESUME')
+                    .single();
+
+                if (error) throw error;
+                if (!data) throw new Error('Data not found');
+
+                renderResumeDetail(data);
+
+                supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .update({ views: (data.views || 0) + 1 })
+                    .eq('id', resumeId)
+                    .then(() => {})
+                    .catch(e => console.error('조회수 업데이트 실패:', e));
+
+            } catch (error) {
+                console.error(error);
+                renderMockData();
+            }
+        }
+
+        function renderResumeDetail(data) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('detail-container').style.display = 'block';
+
+            const cData = typeof data.custom_data === 'string' ? JSON.parse(data.custom_data) : (data.custom_data || {});
+            const isOpen = data.status === 'OPEN' || !data.status;
+
+            const statusEl = document.getElementById('resume-status');
+            statusEl.textContent = isOpen ? '구직중' : '취업완료';
+            statusEl.className = isOpen ? 'status-badge open' : 'status-badge closed';
+
+            document.getElementById('resume-title').innerText = data.title || '-';
+            document.getElementById('resume-job-category').innerText = cData.job_category || '-';
+            document.getElementById('resume-region').innerText = cData.address || cData.address_short || '-';
+            document.getElementById('resume-views').innerText = data.views || 0;
+
+            document.getElementById('resume-phone').innerText = cData.phone || '-';
+            document.getElementById('btn-call').onclick = () => window.location.href = `tel:${cData.phone || ''}`;
+
+            document.getElementById('info-name').innerText = cData.name || '-';
+            document.getElementById('info-email').innerText = cData.email || '-';
+            document.getElementById('info-address').innerText = cData.address || '-';
+            document.getElementById('info-employment-type').innerText = cData.employment_type || '무관';
+            document.getElementById('info-salary').innerText = cData.desired_salary || '-';
+            document.getElementById('info-experience').innerText = cData.experience || '-';
+            document.getElementById('info-education').innerText = cData.education || '-';
+            document.getElementById('info-certification').innerText = cData.certification || '-';
+            document.getElementById('info-skills').innerText = cData.skills || '-';
+
+            document.getElementById('resume-content').innerText = data.content || '작성된 내용이 없습니다.';
+        }
+
+        function renderMockData() {
+            const mockData = {
+                title: '10년 경력의 성실한 시설기사 구직합니다',
+                status: 'OPEN',
+                views: 42,
+                content: '■ 주요 경력 사항\n- OO오피스텔 시설관리 (2018.03 ~ 2023.10)\n- XX아파트 전기기사 (2015.01 ~ 2018.02)\n\n■ 주요 업무 내용\n- 공용부 시설물 유지보수 및 영선 업무\n- 전기/소방 설비 안전 점검\n- 세대 민원 처리\n\n■ 자기소개\n책임감이 강하고 성실하게 근무하는 편입니다. 입사하게 된다면 내 집처럼 생각하고 꼼꼼히 관리하겠습니다.',
+                custom_data: {
+                    name: '홍길동',
+                    phone: '010-0000-0000',
+                    email: 'abc@email.com',
+                    address: '경기 고양시 덕양구',
+                    job_category: '시설기사',
+                    desired_location: '고양, 파주, 김포 전지역',
+                    desired_salary: '월 300만원 (협의)',
+                    employment_type: '정규직',
+                    experience: '10년 이상',
+                    education: '고등학교 졸업',
+                    certification: '전기기사, 소방안전관리자 1급',
+                    skills: '1종 보통 운전면허 소지, 엑셀 활용 능숙'
+                }
+            };
+            renderResumeDetail(mockData);
+        }
+    </script>
+</body>
+</html>
