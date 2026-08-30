@@ -1,0 +1,97 @@
+<!-- 파일명: login.html (또는 간편 로그인 전용 페이지) -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>간편 로그인 - 대한집합건물관리협회</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+    <!-- 로그인 박스 -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-[420px] p-8 sm:p-10 relative">
+        <!-- 메인 화면으로 돌아가기 버튼 -->
+        <button type="button" onclick="location.href='index.html'" class="absolute top-4 right-5 text-gray-400 hover:text-gray-800 text-[24px] transition-colors" title="메인으로">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-[24px] font-black text-[#0B2A5B] tracking-tight">간편 로그인</h2>
+            <p class="text-[13px] text-gray-500 mt-2">소셜 계정으로 빠르고 안전하게 시작하세요.</p>
+        </div>
+        
+        <div class="flex flex-col gap-3.5">
+            <button onclick="signInWithProvider('google')" class="w-full bg-[#4285F4] text-white rounded-lg py-3.5 flex items-center justify-center font-bold text-[15px] relative hover:bg-[#3367D6] transition-colors shadow-sm cursor-pointer">
+                <i class="fab fa-google absolute left-5 text-lg"></i> 구글계정으로 시작하기
+            </button>
+            <button onclick="startNaverLogin()" class="w-full bg-[#03c75a] text-white rounded-lg py-3.5 flex items-center justify-center font-bold text-[15px] relative hover:bg-[#02b351] transition-colors shadow-sm cursor-pointer">
+                <span class="absolute left-5 font-black text-lg">N</span> 네이버계정으로 시작하기
+            </button>
+            <button onclick="signInWithProvider('kakao')" class="w-full bg-[#FEE500] text-[#000000] rounded-lg py-3.5 flex items-center justify-center font-bold text-[15px] relative hover:bg-[#f4dc00] transition-colors shadow-sm cursor-pointer">
+                <i class="fas fa-comment absolute left-5 text-lg"></i> 카카오계정으로 시작하기
+            </button>
+            <button onclick="signInWithProvider('apple')" class="w-full bg-black text-white rounded-lg py-3.5 flex items-center justify-center font-bold text-[15px] relative hover:bg-gray-800 transition-colors shadow-sm cursor-pointer">
+                <i class="fab fa-apple absolute left-5 text-xl mb-0.5"></i> Apple로 시작하기
+            </button>
+        </div>
+        
+        <div class="text-center mt-8 text-[14.5px] text-gray-500 leading-relaxed">
+            <span class="text-[#0B2A5B] font-bold">로그인</span> 하면<br>
+            <a href="#" class="font-bold text-[#12387a] underline hover:text-black">이용약관</a> 및 <a href="#" class="font-bold text-[#12387a] underline hover:text-black">개인정보처리방침</a>에<br>동의하게 됩니다.
+        </div>
+    </div>
+
+    <!-- Supabase 라이브러리 및 로그인 제어 스크립트 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // supabase-js 로드 실패(광고차단기/네트워크 문제 등) 여부부터 확인
+        if (!window.supabase) {
+            console.error("Supabase 라이브러리 로드 실패: CDN 스크립트가 차단되었거나 네트워크 문제가 있습니다.");
+        }
+
+        // 단 한 번만 선언되는 Supabase 초기화
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
+        // 소셜 간편 로그인 실행 함수
+        async function signInWithProvider(providerName) {
+            if (!supabase) {
+                alert("로그인 모듈을 불러오지 못했습니다. 광고 차단 확장 프로그램을 꺼보거나 새로고침 후 다시 시도해 주세요.");
+                return;
+            }
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: providerName,
+                options: {
+                    // 로그인 완료 후 메인 화면(index.html)으로 이동
+                    redirectTo: window.location.origin + '/index.html'
+                }
+            });
+            if (error) {
+                console.error("로그인 에러:", error);
+                alert("로그인 창을 여는 중 문제가 발생했습니다: " + error.message);
+            }
+        }
+
+        // 네이버 로그인 전용 함수
+        function startNaverLogin() {
+            localStorage.setItem('returnUrl', '/index.html');
+            const clientId = "QQt53ijWrcAksEFEIQcc"; 
+            const callbackUrl = encodeURIComponent("https://www.kcbma.org/callback.html"); 
+            const state = Math.random().toString(36).substr(2, 11);
+            window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${clientId}&redirect_uri=${callbackUrl}&state=${state}`;
+        }
+    </script>
+</body>
+</html>
