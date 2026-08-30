@@ -55,13 +55,22 @@
     <!-- Supabase 라이브러리 및 로그인 제어 스크립트 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // supabase-js 로드 실패(광고차단기/네트워크 문제 등) 여부부터 확인
+        if (!window.supabase) {
+            console.error("Supabase 라이브러리 로드 실패: CDN 스크립트가 차단되었거나 네트워크 문제가 있습니다.");
+        }
+
         // 단 한 번만 선언되는 Supabase 초기화
         const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
         // 소셜 간편 로그인 실행 함수
         async function signInWithProvider(providerName) {
+            if (!supabase) {
+                alert("로그인 모듈을 불러오지 못했습니다. 광고 차단 확장 프로그램을 꺼보거나 새로고침 후 다시 시도해 주세요.");
+                return;
+            }
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: providerName,
                 options: {
@@ -70,8 +79,8 @@
                 }
             });
             if (error) {
-                console.error("로그인 에러:", error.message);
-                alert("로그인 창을 여는 중 문제가 발생했습니다.");
+                console.error("로그인 에러:", error);
+                alert("로그인 창을 여는 중 문제가 발생했습니다: " + error.message);
             }
         }
 
