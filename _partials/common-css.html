@@ -1,0 +1,100 @@
+    <style>
+        /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
+           _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
+
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 56px; }
+
+        /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+
+        /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
+           패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
+           (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+        .side-menu-active-wrapper { padding: 10px; }
+
+        /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
+        .left-scroll-area {
+            direction: rtl;
+            overflow-y: auto;
+            height: 100%;
+            padding-bottom: 2rem;
+        }
+        .left-scroll-area::-webkit-scrollbar { width: 6px; }
+        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+        .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+        /* ★ 우측 본문 영역 독립 스크롤 */
+        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+        .main-scroll-area::-webkit-scrollbar { width: 8px; }
+        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 커스텀 스크롤바 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 스크롤바 숨김 유틸리티 */
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* -------------------------------------
+           공통 헤더 관련 스타일
+           ------------------------------------- */
+        .sos-btn {
+            background-color: transparent;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+            padding: 5px 8px;
+            margin-left: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s;
+        }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background-color 0.15s;
+        }
+        .login-btn:hover { background-color: #1a252f; }
+
+        .mypage-btn-mobile {
+            background-color: #0088cc;
+            color: #ffffff;
+            transition: background-color 0.15s;
+        }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>

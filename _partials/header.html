@@ -1,0 +1,63 @@
+<!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
+         _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+         이 버전은 여러 페이지에 흩어져 있던 기능을 하나로 합친 것:
+         - data-menu 속성 + 현재 페이지 메뉴 파란색 강조 (원래 bid-list.html에만 있던 기능)
+         - 같은 페이지 클릭 시 새로고침 방지 가드 (원래 job-list.html에만 있던 기능)
+         이제 모든 페이지에서 두 기능 다 적용됨. -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+
+            <!-- 1) 좌측 로고 -->
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='{{BASE}}index.html'">
+            <img src="{{BASE}}assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='{{BASE}}방패로고.jpg'">
+            </div>
+
+            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='{{BASE}}pages/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='{{BASE}}pages/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='{{BASE}}pages/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='{{BASE}}pages/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='{{BASE}}pages/board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='{{BASE}}pages/community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+
+            <!-- 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='{{BASE}}pages/sos/sos-request.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </nav>
+
+            <!-- 3) 우측 유틸리티 영역 -->
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+                <!-- 알림 종소리 및 드롭다운 컨테이너 -->
+                <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                    <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                    <!-- 알림 개수 뱃지 (초기 숨김) -->
+                    <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
+                        0
+                    </span>
+
+                    <!-- 알림 목록 드롭다운 창 (초기 숨김) -->
+                    <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
+                        <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
+                        <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default">
+                            <!-- JS를 통해 여기에 알림 내역이 들어갑니다 -->
+                        </ul>
+                    </div>
+                </div>
+
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='{{BASE}}pages/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('login.html')) location.href='{{BASE}}login.html'" class="login-btn">로그인</div>
+            </div>
+
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>

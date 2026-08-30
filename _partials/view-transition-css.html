@@ -1,0 +1,77 @@
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
+           _partials/view-transition-css.html 파일만 고치고 build.js를 다시
+           실행할 것. 절대 각 페이지에서 직접 고치지 말 것.
+
+           ★★★ 2026-08 기준 크로스 문서 View Transition 기능을 완전히 껐음.
+           이유: 헤더 안 움직임 → 서브헤더 흰 화면 → 본문 울렁임 → 헤더가
+           오른쪽으로 갔다 돌아옴 → 입찰공고/구인구직 등 여전히 덜컹거림,
+           이런 식으로 한 군데 고치면 다른 데서 새로운 미세한 어긋남이
+           계속 튀어나왔음. 이 기능은 브라우저가 이전 페이지와 새 페이지의
+           스크린샷을 직접 찍어서 애니메이션시키는 방식이라, 코드만 보고
+           고치는 방식으로는 실제 브라우저에서 어떻게 보일지 확인이 안 되고
+           끝없이 두더지잡기가 됨.
+
+           그래서 아래 @view-transition 자체를 꺼서 그냥 "즉시 전환"(깜빡임
+           없이 바로 바뀌는 일반적인 페이지 이동)으로 되돌림. 헤더/서브헤더가
+           흔들리거나 밀리거나 울렁이는 문제가 구조적으로 있을 수 없음
+           (애니메이션 자체가 없으니까). 아래의 view-transition-name /
+           키프레임 코드들은 그대로 남겨뒀지만 @view-transition이 꺼져있는
+           동안은 전부 아무 효과가 없음 — 나중에 다시 켜고 싶으면 아래
+           @view-transition 블록의 주석만 풀면 됨. */
+        /*
+        @view-transition {
+            navigation: auto;
+        }
+        */
+        #main-header {
+            view-transition-name: site-header;
+        }
+        #page-content {
+            view-transition-name: page-content;
+        }
+        @keyframes page-content-out {
+            to { opacity: 0; }
+        }
+        @keyframes page-content-in {
+            from { opacity: 0; }
+        }
+        ::view-transition-old(page-content) {
+            animation: 150ms ease-in both page-content-out;
+        }
+        ::view-transition-new(page-content) {
+            animation: 200ms ease-out both page-content-in;
+        }
+        /* 핵심: 박스 크기/위치를 이전↔새 페이지 사이에서 자동으로
+           보간(모핑)하는 기본 동작을 꺼서 "들썩임"을 없앰 */
+        ::view-transition-group(page-content) {
+            animation: none;
+            width: 100%;
+            height: 100%;
+        }
+        ::view-transition-group(site-header) {
+            animation: none;
+        }
+        ::view-transition-old(site-header),
+        ::view-transition-new(site-header) {
+            animation: none;
+        }
+        /* ★ 2026-08: #sub-header-bar가 이제 header.html/header-close.html
+           분할 구조 덕분에 #main-header의 "자식"으로 들어가 있음 (예전엔
+           #page-content 쪽의 형제 요소였음). 그래서 따로 view-transition-name을
+           줄 필요가 없어짐 — 부모인 site-header(#main-header)의 캡처 영역에
+           자동으로 같이 포함됨. (오히려 여기 따로 이름을 주면 "이름표 붙은
+           요소를 또 다른 이름표 붙은 요소 안에 중첩"시키는 예전에 버그났던
+           패턴이 재발하니 절대 다시 추가하지 말 것 — 본문이 울렁이던 그 버그.) */
+        /* 안전장치: 같은 페이지 안에서 사이드 탭(AJAX)만 바뀔 때는
+           슬라이드 애니메이션이 절대 걸리지 않도록 강제로 끔.
+           AJAX 탭 전환이 있는 페이지(job-list/resume-list/bid-list 등)의
+           탭 전환 스크립트에서 이 클래스를 잠깐 추가했다가 제거해야 함. */
+        html.no-page-transition #page-content,
+        html.no-page-transition ::view-transition-group(page-content),
+        html.no-page-transition ::view-transition-old(page-content),
+        html.no-page-transition ::view-transition-new(page-content) {
+            animation: none !important;
+            transform: none !important;
+        }
+    </style>

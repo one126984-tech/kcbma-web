@@ -1,0 +1,193 @@
+</div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="{{BASE}}assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='{{BASE}}pages/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='{{BASE}}pages/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='{{BASE}}pages/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='{{BASE}}pages/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='{{BASE}}pages/board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='{{BASE}}pages/community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+
+            <!-- 모바일 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='{{BASE}}pages/sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </div>
+
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <!-- 모바일 알림 버튼 -->
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                    <i class="fa-regular fa-bell mr-1"></i> 알림
+                    <!-- 모바일 알림 개수 뱃지 (초기 숨김) -->
+                    <span id="mobile-notification-badge" class="hidden absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">
+                        0
+                    </span>
+                </div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='{{BASE}}pages/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div onclick="location.href='{{BASE}}login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 메뉴 열기/닫기 스크립트
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
+        async function fetchUnreadCount() {
+            // supabase가 없으면 함수 종료 (에러 방지)
+            if (typeof supabase === 'undefined') {
+                console.log("Supabase 객체를 찾을 수 없습니다. (스크립트 로딩 순서 확인 필요)");
+                return;
+            }
+            
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                console.log("로그인된 사용자가 없습니다.");
+                return; 
+            }
+
+            const { count, error } = await supabase
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false);
+
+            if (error) {
+                console.error('알림 개수 로드 오류:', error);
+                return;
+            }
+
+            // ★ 원인 파악을 위한 디버깅 로그 추가 ★
+            console.log("알림 개수:", count, "로그인 유저:", user.id);
+
+            const pcBadge = document.getElementById('notification-badge');
+            const mobileBadge = document.getElementById('mobile-notification-badge');
+
+            if (count > 0) {
+                if (pcBadge) { pcBadge.innerText = count; pcBadge.classList.remove('hidden'); }
+                if (mobileBadge) { mobileBadge.innerText = count; mobileBadge.classList.remove('hidden'); }
+            } else {
+                if (pcBadge) pcBadge.classList.add('hidden');
+                if (mobileBadge) mobileBadge.classList.add('hidden');
+            }
+        }
+
+        async function loadNotifications() {
+            if (typeof supabase === 'undefined') return;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const listContainer = document.getElementById('notification-list');
+            if (!listContainer) return;
+
+            const { data, error } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            listContainer.innerHTML = ''; 
+
+            if (error) {
+                console.error('알림 로드 오류:', error);
+                return;
+            }
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<li class="px-4 py-3 text-sm text-gray-500">새로운 알림이 없습니다.</li>';
+                return;
+            }
+
+            data.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = `px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 ${notification.is_read ? 'text-gray-500' : 'text-black font-medium bg-blue-50'}`;
+                li.innerText = notification.message;
+                
+                li.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (!notification.is_read) {
+                        await supabase
+                            .from('notifications')
+                            .update({ is_read: true })
+                            .eq('id', notification.id);
+                    }
+                    if (notification.link_url) {
+                        window.location.href = notification.link_url;
+                    }
+                };
+                listContainer.appendChild(li);
+            });
+        }
+
+        // 현재 페이지에 해당하는 GNB 메뉴 파란색 강조 및 알림 이벤트 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.gnb-item').forEach(item => {
+                const menuKey = item.getAttribute('data-menu');
+                if (menuKey && currentPath.includes('/' + menuKey + '/')) {
+                    item.classList.add('text-[#0088cc]');
+                }
+            });
+
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+                const updateHeaderHeightVar = () => {
+                    const h = headerEl.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+                };
+                updateHeaderHeightVar();
+                const ro = new ResizeObserver(updateHeaderHeightVar);
+                ro.observe(headerEl);
+            }
+
+            // 알림 개수 불러오기 실행
+            fetchUnreadCount();
+
+            // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
+            const bellContainer = document.getElementById('bell-container');
+            const dropdown = document.getElementById('notification-dropdown');
+            
+            if (bellContainer && dropdown) {
+                bellContainer.addEventListener('click', (e) => {
+                    // 드롭다운 내부 클릭 시 닫히지 않도록 방지
+                    if(e.target.closest('#notification-dropdown')) return;
+                    
+                    dropdown.classList.toggle('hidden');
+                    if (!dropdown.classList.contains('hidden')) {
+                        loadNotifications();
+                    }
+                });
+
+                // 빈 화면 클릭 시 드롭다운 닫기
+                document.addEventListener('click', (e) => {
+                    if (!bellContainer.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
