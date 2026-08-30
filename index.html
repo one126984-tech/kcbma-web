@@ -229,22 +229,33 @@
 <!-- Supabase 라이브러리 및 로그인/로그아웃 완벽 제어 스크립트 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // supabase-js 로드 실패(광고차단기/네트워크 문제 등) 여부부터 확인
+    if (!window.supabase) {
+        console.error("Supabase 라이브러리 로드 실패: CDN 스크립트가 차단되었거나 네트워크 문제가 있습니다.");
+    }
+
     // 이름 충돌을 막기 위해 mySupabase로 이름 변경
     const mySupabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
     const mySupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-    const mySupabase = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+    const mySupabase = window.supabase ? window.supabase.createClient(mySupabaseUrl, mySupabaseKey) : null;
 
     // 소셜 간편 로그인 실행 함수
     async function signInWithProvider(providerName) {
+        if (!mySupabase) {
+            alert("로그인 모듈을 불러오지 못했습니다. 광고 차단 확장 프로그램을 꺼보거나 새로고침 후 다시 시도해 주세요.");
+            return;
+        }
+        // 항상 index.html로 돌아오도록 고정 → Supabase의 Redirect URLs 허용목록에
+        // 이 주소 하나만 등록하면 되고, 페이지별로 달라지는 문제를 막는다.
         const { data, error } = await mySupabase.auth.signInWithOAuth({
             provider: providerName,
             options: {
-                redirectTo: window.location.origin + window.location.pathname
+                redirectTo: window.location.origin + '/index.html'
             }
         });
         if (error) {
-            console.error("로그인 에러:", error.message);
-            alert("로그인 창을 여는 중 문제가 발생했습니다.");
+            console.error("로그인 에러:", error);
+            alert("로그인 창을 여는 중 문제가 발생했습니다: " + error.message);
         }
     }
 
@@ -269,7 +280,7 @@
     }
 
     // 로그인 상태 실시간 감지
-    mySupabase.auth.onAuthStateChange((event, session) => {
+    if (mySupabase) mySupabase.auth.onAuthStateChange((event, session) => {
         const loginBtn = document.querySelector('.login-btn');
         const mobileLoginBtn = document.querySelector('#mobile-menu .border-gray-600');
         
