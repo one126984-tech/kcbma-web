@@ -1,10 +1,24 @@
-<!-- 파일명: joint-bid-detail.src.html -->
+<!-- 파일명: fee-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 fee-detail.html)
+     board-corner.html "관리비 비교·평가" 탭의 "업체용 상세열람" 버튼이 가리키는 페이지.
+     URL의 ?id=값으로 fee_evaluations 테이블에서 의뢰 1건을 조회해 단지정보/의뢰목적/
+     고지서 첨부파일을 보여줌.
+     ★ 첨부파일: data.attachment_url을 실제 <a href>로 바인딩(클릭 시 Storage의
+        실제 고지서 파일이 새 탭에서 열림). URL이 없는 경우 "첨부파일 없음" 표시.
+     ★ 업체용 유료 열람 구조(향후 결제 연동 방향): 담당자 연락처/의뢰목적/첨부파일을
+        #locked-section으로 감싸 blur 처리해두고, "10,000원 결제 후 열람하기" 버튼을
+        누르면 unlockDetail()이 실행됨. 지금은 실제 결제 RPC가 아직 없어 confirm()
+        확인 후 바로 공개 처리하는 임시 동작이며, 실제 서비스에서는
+        board-corner.html의 위탁관리사 매칭 결제 흐름(payment-modal → RPC
+        unlock_bidding_info)과 동일한 패턴으로 unlock_fee_evaluation RPC를 새로
+        만들어 여기 연결하면 됨(구체적인 확장 방향은 unlockDetail() 함수 위 주석 참고).
+        헤더/서브헤더/푸터는 다른 페이지와 동일하게 파샬(@include)로 조립. -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
+<meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>우수업체 공동선정 상세 | 대한집합건물관리협회</title>
+    <title>관리비 비교·평가 상세정보 | 대한집합건물관리협회</title>
 
     <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -94,7 +108,9 @@
 
 
     <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -281,73 +297,36 @@
     </style>
 
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        /* 이 페이지(우수업체 공동선정 상세) 전용 CSS */
-        html, body { overflow-y: scroll; scroll-behavior: smooth; }
+        /* 이 페이지(관리비 비교·평가 상세) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
 
-        .detail-header { border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 20px; }
-        .j-badge { display: inline-flex; align-items: center; justify-content: center; padding: 5px 12px; border-radius: 4px; font-size: 13px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 12px; }
-        .j-badge.recruit { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-        .detail-title { font-size: 26px; font-weight: 900; color: #111; line-height: 1.4; word-break: keep-all; }
-
-        .tab-nav { display: flex; border-bottom: 1px solid #cbd5e1; margin-bottom: 30px; position: sticky; top: 90px; background: #F8FAFC; z-index: 30; }
-        .tab-btn { padding: 14px 24px; font-size: 16px; font-weight: bold; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; flex: 1; text-align: center; }
-        .tab-btn:hover { color: #1e293b; }
-        .tab-btn.active { color: #12387a; border-bottom-color: #12387a; }
-        .tab-content { display: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .tab-content.active { display: block; animation: fadeInTab 0.3s ease; }
-        @keyframes fadeInTab { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .content-section { margin-bottom: 40px; }
-        .content-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .content-title::before { content: ""; display: block; width: 4px; height: 18px; background: #3b82f6; }
-        .info-table { width: 100%; border-top: 2px solid #cbd5e1; border-collapse: collapse; font-size: 14px; }
-        .info-table th { background: #f8fafc; padding: 16px; font-weight: bold; color: #475569; text-align: left; border-bottom: 1px solid #e2e8f0; width: 140px; }
-        .info-table td { padding: 16px; color: #334155; border-bottom: 1px solid #e2e8f0; }
-
-        .participant-list { list-style: none; padding: 0; margin: 0; }
-        .participant-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px dashed #e2e8f0; }
-        .participant-item:last-child { border-bottom: none; }
-        .p-name { font-weight: bold; font-size: 15px; color: #1e293b; }
-        .p-spec { font-size: 13.5px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 4px; }
-
-        .sticky-panel { background: #fff; border: 2px solid #12387a; border-radius: 8px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(18, 56, 122, 0.15); position: sticky; top: 110px; }
-        .panel-price-title { font-size: 13px; font-weight: bold; color: #64748b; margin-bottom: 4px; }
-        .panel-price { font-size: 28px; font-weight: 900; color: #dc2626; margin-bottom: 20px; line-height: 1.1; }
-
-        .progress-box { background: #f8fafc; padding: 16px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        .progress-text { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #1e293b; }
-        .progress-bar-bg { width: 100%; height: 10px; background-color: #cbd5e1; border-radius: 99px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 99px; width: 60%; }
-
-        .btn-join { width: 100%; background: #12387a; color: white; border: none; padding: 16px; border-radius: 6px; font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(18, 56, 122, 0.3); }
-        .btn-join:hover { background: #0B2A5B; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18, 56, 122, 0.4); }
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: translateY(20px); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
-        .modal-overlay.active .modal-content { transform: translateY(0); }
-
-        .modal-header { padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #12387a; color: white; border-radius: 12px 12px 0 0; }
-        .modal-title { font-size: 18px; font-weight: 900; }
-        .modal-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; opacity: 0.8; }
-        .modal-close:hover { opacity: 1; }
-
-        .modal-body { padding: 24px; overflow-y: auto; }
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 13.5px; font-weight: bold; color: #374151; margin-bottom: 6px; }
-        .form-input { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; transition: border 0.2s; }
-        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .form-hint { font-size: 12px; color: #64748b; margin-top: 6px; }
-
-        .modal-footer { padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; border-radius: 0 0 12px 12px; }
-        .btn-cancel { padding: 12px 24px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #475569; cursor: pointer; transition: all 0.2s; }
-        .btn-cancel:hover { background: #f1f5f9; }
-        .btn-submit { padding: 12px 32px; background: #12387a; border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; transition: all 0.2s; }
-        .btn-submit:hover { background: #0B2A5B; }
+        /* 업체용 유료 열람 블라인드 처리 */
+        #locked-section.blur-locked {
+            filter: blur(6px);
+            user-select: none;
+            pointer-events: none;
+        }
+        #lock-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.35);
+            border-radius: 8px;
+        }
     </style>
 </head>
-<body class="flex flex-col min-h-screen page-bid-detail">
+<body class="flex flex-col h-screen overflow-hidden page-board">
 
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -413,13 +392,9 @@
             </button>
         </header>
 
-    <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full cursor-pointer" onclick="location.href='bid-list.html'">
-                    <i class="fas fa-chevron-left mr-3 text-lg opacity-80"></i> 입찰공고
-                </div>
-            </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-40 shrink-0 shadow-sm">
+        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
+            <div class="text-white font-bold text-xl md:text-2xl tracking-wide px-1">관리비 비교·평가 상세정보</div>
         </div>
     </div>
 </div>
@@ -616,285 +591,176 @@
         });
     </script>
 
-<div id="page-content" class="flex-1 flex flex-col">
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
 
-
-
-    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
-
-        <aside class="w-full md:w-[220px] shrink-0 hidden md:block h-fit z-40">
-            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
-                <div class="side-menu-tab" onclick="location.href='bid-list.html'"><span>견적 및 입찰 정보</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                <div class="side-menu-tab" onclick="location.href='company-ads.html'"><span>협력업체 홍보관</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                <div class="side-menu-tab-active" onclick="location.href='joint-bid.html'"><span>우수업체 공동선정</span></div>
-            </div>
-        </aside>
-
-        <section class="flex-1 min-w-0">
-
-            <div class="detail-header">
-                <span class="j-badge recruit">참여모집중</span>
-                <span class="ml-2 text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded">마감 D-12</span>
-                <h1 class="detail-title mt-2">[일산/고양] 오피스텔 소방종합정밀점검 연합 입찰 (10개 단지 목표)</h1>
-                <div class="flex gap-4 mt-3 text-[14px] text-gray-500 font-medium">
-                    <span><i class="fas fa-map-marker-alt"></i> 경기 일산동구/서구, 고양시 덕양구</span>
-                    <span><i class="fas fa-tag"></i> 소방시설</span>
-                    <span><i class="fas fa-eye"></i> 조회수 145</span>
-                </div>
+        <main class="max-w-[1000px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col gap-6 flex-1 items-start">
+            <div class="w-full flex justify-between items-end pb-3 border-b-2 border-[#2563eb]">
+                <h3 class="text-[22px] font-bold text-[#2563eb]">관리비 비교·평가 의뢰 상세</h3>
+                <button onclick="location.href='fee-list.html'" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-md hover:bg-gray-200 shadow-sm">목록으로</button>
             </div>
 
-            <div class="tab-nav">
-                <div class="tab-btn active" onclick="switchTab('tab-info', this)">공고 상세 (과업 지시)</div>
-                <div class="tab-btn" onclick="switchTab('tab-list', this)">참여 단지 현황 <span class="text-blue-600 font-bold ml-1">6</span></div>
-                <div class="tab-btn" onclick="switchTab('tab-qna', this)">문의 게시판</div>
-            </div>
+            <div class="w-full bg-white border border-gray-200 rounded-md shadow-sm p-8 space-y-6">
 
-            <div id="tab-info" class="tab-content active">
-                <div class="content-section">
-                    <h3 class="content-title">연합 입찰 개요</h3>
-                    <p class="text-[15px] leading-relaxed text-gray-700 mb-4">
-                        일산 및 고양시 지역의 오피스텔 단지들을 모아 소방시설 종합정밀점검 및 작동기능점검 용역 단가를 낮추기 위한 연합 입찰입니다. 개별 단지가 입찰할 때보다 최소 15%에서 최대 20%의 비용 절감을 목표로 합니다.
-                    </p>
-                    <table class="info-table">
-                        <tbody>
-                            <tr>
-                                <th>대상 지역</th>
-                                <td>경기 고양시 일산동구, 일산서구, 덕양구 소재 집합건물</td>
-                            </tr>
-                            <tr>
-                                <th>모집 기간</th>
-                                <td>2026. 08. 10 ~ 2026. 08. 29 (12일 남음)</td>
-                            </tr>
-                            <tr>
-                                <th>입찰 진행 방식</th>
-                                <td>목표 단지(10개) 모집 완료 즉시 협회 우수업체 대상 블라인드 견적 요청</td>
-                            </tr>
-                            <tr>
-                                <th>최종 업체 선정</th>
-                                <td>참여 단지 관리소장 투표를 통해 최다 득표 업체 1곳 선정 (이후 개별 계약 진행)</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- 상단 기본 정보 (공개 정보 — 블라인드 대상 아님) -->
+                <div class="border-b pb-6">
+                    <span id="detail-status" class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-md inline-block mb-3">불러오는 중</span>
+                    <h2 id="detail-title" class="text-2xl font-bold text-gray-900 mb-2">단지 정보를 불러오는 중...</h2>
+                    <p id="detail-summary" class="text-gray-500"></p>
                 </div>
 
-                <div class="content-section">
-                    <h3 class="content-title">표준 과업 지시 내용 (요약)</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded p-5 text-[14px] text-gray-700 leading-loose">
-                        1. 관련 법령에 따른 소방시설 종합정밀점검(연 1회) 및 작동기능점검(연 1회) 실시<br>
-                        2. 소방서 제출용 점검 결과 보고서 작성 및 관할 소방서 대행 접수<br>
-                        3. 점검 결과 지적 사항에 대한 보수 공사 시, 참여 단지에 한해 부품 원가 및 공임 10% 추가 할인 적용 보장<br>
-                        4. 비상 상황 발생 시 2시간 이내 현장 출동 서비스 포함
+                <!-- 업체용 열람 대상 정보 (연락처/의뢰목적/첨부파일) -->
+                <div id="locked-section" class="blur-locked relative space-y-6">
+
+                    <!-- 의뢰인 정보 -->
+                    <div class="bg-blue-50 p-5 rounded-md border border-blue-100 flex flex-col md:flex-row gap-4 items-center">
+                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shrink-0">
+                            <i class="fas fa-building-user"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-blue-600 font-bold mb-1">의뢰 단지 / 담당자</p>
+                            <p id="detail-contact" class="text-lg font-bold text-gray-900"></p>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div id="tab-list" class="tab-content">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="content-title mb-0">현재 참여 단지 목록</h3>
-                    <span class="text-sm text-gray-500">참여가 확정된 단지는 익명으로 표시됩니다.</span>
-                </div>
-
-                <ul class="participant-list">
-                    <li class="participant-item">
-                        <span class="p-name">A 오피스텔 (일산동구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 34,500㎡</span>
-                            <span class="p-spec">1,200세대</span>
+                    <!-- 의뢰 목적 및 현재 상황 -->
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-clipboard-list text-gray-400 mr-2"></i>의뢰 목적 및 현재 상황</h4>
+                        <div id="detail-purpose" class="bg-gray-50 p-6 rounded-md border border-gray-200 text-gray-700 min-h-[150px] leading-relaxed">
                         </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">B 주상복합 (일산서구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 42,000㎡</span>
-                            <span class="p-spec">850세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">C 상업용 상가 (덕양구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 18,000㎡</span>
-                            <span class="p-spec">점포 120개</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">D 오피스텔 (일산동구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 12,500㎡</span>
-                            <span class="p-spec">450세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">E 오피스텔 (덕양구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 25,000㎡</span>
-                            <span class="p-spec">700세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">F 복합상가 (일산서구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 9,000㎡</span>
-                            <span class="p-spec">점포 65개</span>
-                        </div>
-                    </li>
-                </ul>
-                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 text-sm font-bold text-center rounded">
-                    합산 총 연면적: 141,000㎡ 달성 (단가 협상력 ⇧)
-                </div>
-            </div>
-
-            <div id="tab-qna" class="tab-content">
-                <h3 class="content-title">이 공동선정에 대한 문의</h3>
-                <div class="text-center py-20 text-gray-500 font-bold border border-dashed border-gray-300 rounded">
-                    아직 등록된 문의가 없습니다.<br>공동선정 조건이나 과업 내용에 대해 자유롭게 질문해 주세요.
-                </div>
-            </div>
-
-        </section>
-
-        <aside class="w-full md:w-[320px] shrink-0 relative">
-            <div class="sticky-panel">
-                <div class="panel-price-title">목표 달성 시 예상 최대 절감률</div>
-                <div class="panel-price">20% <span class="text-lg font-bold text-gray-600">할인 예상</span></div>
-
-                <div class="progress-box">
-                    <div class="progress-text">
-                        <span>현재 모인 단지</span>
-                        <span class="text-blue-600">6 / 10 곳</span>
                     </div>
-                    <div class="progress-bar-bg mb-2">
-                        <div class="progress-bar-fill"></div>
+
+                    <!-- 고지서 파일 첨부 내역 (실제 attachment_url 연동) -->
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-file-invoice text-gray-400 mr-2"></i>최근 관리비 고지서 첨부</h4>
+                        <div id="detail-attachment-wrapper" class="flex flex-col gap-2"></div>
                     </div>
-                    <div class="text-center text-[12.5px] text-gray-500 mt-2 font-medium">
-                        4개 단지만 더 모이면 입찰이 시작됩니다!
-                    </div>
+
                 </div>
+                <!-- /locked-section -->
 
-                <div class="text-[13px] text-gray-600 mb-6 bg-gray-50 p-3 rounded leading-relaxed">
-                    <ul class="pl-4 list-disc marker:text-gray-400">
-                        <li>참여 신청은 무료입니다.</li>
-                        <li>업체 견적 확인 후 최종 계약은 개별 단지의 자유로운 결정에 따릅니다.</li>
-                    </ul>
-                </div>
-
-                <button class="btn-join" onclick="openModal()">
-                    <i class="fas fa-hand-paper mr-2"></i> 우리 단지 참여하기
-                </button>
-
-                <button class="w-full mt-3 py-3 text-[14px] font-bold text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition">
-                    <i class="fas fa-share-alt mr-1"></i> 주변 단지 소장님께 공유
-                </button>
             </div>
-        </aside>
-    </main>
+        </main>
 
+        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+        <script src="../../assets/js/footer.js?v=1.3"></script>
     </div>
-    <!-- 핑크박스 끝 -->
+</div>
 
-    <div id="footer-container"></div>
-
-    <div id="join-modal" class="modal-overlay" onclick="closeModalOnBg(event)">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">공동선정 참여 신청서</h3>
-                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="mb-5 p-3 bg-blue-50 text-blue-800 text-[13px] rounded border border-blue-200">
-                    <strong>[안내]</strong> 업체가 정확한 견적을 산출하기 위해 건물의 규모 정보가 필요합니다. 입력하신 건물명은 모집 마감 전까지 타인에게 익명 처리됩니다.
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">건물명 (단지명)</label>
-                    <input type="text" class="form-input" placeholder="예: 일산 센트럴 오피스텔">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">건물 형태</label>
-                    <select class="form-input bg-white cursor-pointer">
-                        <option value="">선택해 주세요</option>
-                        <option value="오피스텔">오피스텔</option>
-                        <option value="상업용상가">상업용 상가 (프라자상가)</option>
-                        <option value="주상복합">주상복합</option>
-                        <option value="지식산업센터">지식산업센터(아파트형 공장)</option>
-                        <option value="기타">기타 집합건물</option>
-                    </select>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="form-group flex-1">
-                        <label class="form-label">총 연면적 (㎡)</label>
-                        <input type="number" class="form-input" placeholder="숫자만 입력">
-                        <div class="form-hint">건축물대장 기준</div>
-                    </div>
-                    <div class="form-group flex-1">
-                        <label class="form-label">세대수 (또는 점포수)</label>
-                        <input type="number" class="form-input" placeholder="숫자만 입력">
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="form-group flex-1">
-                        <label class="form-label">지하 층수</label>
-                        <input type="number" class="form-input" placeholder="예: 3">
-                    </div>
-                    <div class="form-group flex-1">
-                        <label class="form-label">지상 층수</label>
-                        <input type="number" class="form-input" placeholder="예: 15">
-                    </div>
-                </div>
-
-                <div class="form-group mb-0">
-                    <label class="form-label">기타 특이사항 및 전달사항 (선택)</label>
-                    <textarea class="form-input h-24 resize-none" placeholder="예: 기계식 주차 타워 1기 포함되어 있습니다."></textarea>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal()">취소</button>
-                <button class="btn-submit" onclick="submitJoinForm()">신청 완료하기</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="../../assets/js/footer.js?v=1.3"></script>
     <script>
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-        }
+        let currentEvaluationData = null;
 
-        const modal = document.getElementById('join-modal');
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const evaluationId = urlParams.get('id');
 
-        function openModal() {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'scroll';
-        }
-
-        function closeModalOnBg(event) {
-            if (event.target === modal) {
-                closeModal();
+            if (!evaluationId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'fee-list.html';
+                return;
             }
+
+            const { data, error } = await supabaseClient
+                .from('fee_evaluations')
+                .select('*')
+                .eq('id', evaluationId)
+                .single();
+
+            if (error || !data) {
+                alert('데이터를 불러오는데 실패했습니다.');
+                return;
+            }
+
+            currentEvaluationData = data;
+
+            // 공개 정보 (블라인드 대상 아님)
+            document.getElementById('detail-status').innerText = data.status || '분석 모집중';
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-summary').innerText = data.building_summary;
+
+            // 블라인드 대상 정보는 미리 채워두되(unlock 즉시 보이도록), 화면에는
+            // #locked-section의 blur로 가려져 있으므로 로그인 전에는 노출되지 않음.
+            document.getElementById('detail-contact').innerText = `${data.client_name} (${data.client_contact})`;
+
+            let formattedPurpose = (data.evaluation_purpose || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            document.getElementById('detail-purpose').innerHTML = formattedPurpose;
+
+            const attachmentWrapper = document.getElementById('detail-attachment-wrapper');
+            if (data.attachment_url) {
+                attachmentWrapper.innerHTML = `
+                    <a href="${data.attachment_url}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit">
+                        <i class="fa-regular fa-file-image text-green-600 text-lg"></i> 관리비 고지서 원본 보기
+                    </a>`;
+            } else {
+                attachmentWrapper.innerHTML = `<p class="text-sm text-gray-400">첨부된 고지서가 없습니다.</p>`;
+            }
+
+            renderLockOverlay();
+        });
+
+        function renderLockOverlay() {
+            const lockedSection = document.getElementById('locked-section');
+            const overlay = document.createElement('div');
+            overlay.id = 'lock-overlay';
+            overlay.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-lock text-3xl text-[#12387a] mb-3"></i>
+                    <p class="text-[15px] font-bold text-gray-800 mb-1">업체 전용 상세정보입니다</p>
+                    <p class="text-[13px] text-gray-500 mb-4">담당자 연락처, 의뢰 목적, 고지서 원본은<br>결제 후 열람하실 수 있습니다.</p>
+                </div>
+                <button onclick="unlockDetail()" class="px-6 py-3 bg-[#2563eb] text-white font-bold text-[14px] rounded-lg hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    <i class="fas fa-unlock"></i> 10,000원 결제 후 열람하기
+                </button>
+            `;
+            lockedSection.appendChild(overlay);
         }
 
-        function submitJoinForm() {
-            alert('참여 신청이 완료되었습니다! 목표 단지 수가 모집되면 블라인드 입찰이 시작됩니다.');
-            closeModal();
-            const currentCountElem = document.querySelector('.progress-text .text-blue-600');
-            const fillElem = document.querySelector('.progress-bar-fill');
-            currentCountElem.innerText = '7 / 10 곳';
-            fillElem.style.width = '70%';
+        /* ============================================================
+           [향후 결제 연동 방향 제안]
+           지금은 결제 RPC가 없어 confirm() 확인만으로 바로 공개 처리하는
+           임시 동작. 실제 서비스에서는 board-corner.html의 위탁관리사
+           매칭 결제 흐름(payment-modal → processPayment → RPC
+           unlock_bidding_info)과 동일한 패턴으로 아래와 같이 확장하는
+           것을 제안함:
+
+           1) DB: fee_evaluations에 unlock_fee(기본 10000) 컬럼 추가.
+              열람권한을 기록할 fee_evaluation_unlocks(user_id,
+              evaluation_id, unlocked_at) 테이블 신설 — 이미 결제한
+              사용자는 재방문 시 재결제 없이 바로 열람되도록.
+           2) Supabase RPC: unlock_bidding_info를 본떠 만든
+              unlock_fee_evaluation(target_evaluation_id) 함수를 새로
+              작성 — user_profiles.points 차감 + fee_evaluation_unlocks
+              insert를 하나의 트랜잭션으로 처리.
+           3) 프론트: 아래 unlockDetail()의 confirm() 부분을
+              board-corner.html에 있는 payment-modal(#payment-modal)
+              마크업을 이 페이지로 그대로 옮겨와 열고, "결제 진행하기"
+              클릭 시 supabaseClient.rpc('unlock_fee_evaluation', {...})
+              호출로 교체하면 됨. 성공 시에만 blur-locked 클래스를
+              제거하도록 하면 지금 구조를 그대로 재사용 가능.
+           4) 페이지 최초 로드 시에도, 로그인한 사용자가 이미
+              fee_evaluation_unlocks에 기록이 있으면 자동으로 블라인드를
+              풀어주는 체크를 DOMContentLoaded 안에 추가하면 됨.
+           ============================================================ */
+        async function unlockDetail() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            // TODO(백엔드 연동 필요): 위 주석의 unlock_fee_evaluation RPC가
+            // 준비되면 아래 confirm()을 실제 결제 모달 + RPC 호출로 교체.
+            const confirmed = confirm('업체용 상세정보 열람에는 10,000원이 결제됩니다.\n(현재는 개발 중으로 결제 없이 바로 열람됩니다)\n\n계속하시겠습니까?');
+            if (!confirmed) return;
+
+            const lockedSection = document.getElementById('locked-section');
+            lockedSection.classList.remove('blur-locked');
+            const overlay = document.getElementById('lock-overlay');
+            if (overlay) overlay.remove();
         }
     </script>
 </body>

@@ -582,6 +582,7 @@
 
         let allJobs = [], filteredJobs = [];
         let currentSort = 'latest', itemsPerPage = 20, currentPage = 1;
+        const DB_TABLE_NAME = 'jobs';
 
         function initApp() {
             initRegionFilters();
@@ -629,19 +630,163 @@
             applyFilters();
         };
 
-        window.applyFilters = function() {
+        async function fetchJobs() {
             const tbody = document.getElementById('job-list-body');
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">필터 조건에 맞는 공고를 불러오는 중입니다...</td></tr>';
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .select('*')
+                    .order('id', { ascending: false });
+                if (error) throw error;
+                allJobs = data || [];
+                applyFilters();
+            } catch (error) {
+                console.error('구인 목록을 불러오는데 실패했습니다:', error);
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</td></tr>';
+            }
+        }
 
-            setTimeout(() => {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">등록된 공고가 없습니다.</td></tr>';
-                document.getElementById('total-count').innerText = "0";
-            }, 500);
+        window.applyFilters = function() {
+            filteredJobs = [...allJobs];
+
+            // 조회기간 (등록일 기준)
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+            if (startDateStr) {
+                const sd = new Date(startDateStr); sd.setHours(0, 0, 0, 0);
+                filteredJobs = filteredJobs.filter(j => j.created_at && new Date(j.created_at) >= sd);
+            }
+            if (endDateStr) {
+                const ed = new Date(endDateStr); ed.setHours(23, 59, 59, 999);
+                filteredJobs = filteredJobs.filter(j => j.created_at && new Date(j.created_at) <= ed);
+            }
+
+            // 채용상태
+            let selectedStatus = 'ALL';
+            document.getElementsByName('status').forEach(r => { if (r.checked) selectedStatus = r.value; });
+            if (selectedStatus === 'OPEN') {
+                filteredJobs = filteredJobs.filter(j => (j.status || 'OPEN') === 'OPEN');
+            } else if (selectedStatus === 'CLOSED') {
+                filteredJobs = filteredJobs.filter(j => j.status === 'CLOSED');
+            }
+
+            // 직종
+            const checkedCategories = Array.from(document.querySelectorAll('.job-category-chk:checked')).map(cb => cb.value);
+            if (checkedCategories.length > 0) {
+                filteredJobs = filteredJobs.filter(j => checkedCategories.includes(j.category || j.job_category));
+            }
+
+            // 지역
+            const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-chk:checked')).map(cb => cb.value);
+            if (checkedSubRegions.length > 0) {
+                filteredJobs = filteredJobs.filter(j => {
+                    const region = j.region || j.location || j.address || '';
+                    return checkedSubRegions.some(sr => {
+                        if (sr === '전국 전체') return true;
+                        const cleanTarget = sr.replace(/(전체)$/, '').replace(/(시|군|구)$/, '').trim();
+                        return region.includes(cleanTarget);
+                    });
+                });
+            }
+
+            // 포함 단어
+            if (tags.length > 0) {
+                filteredJobs = filteredJobs.filter(j => {
+                    const searchText = `${j.title || ''} ${j.company_name || ''} ${j.region || j.location || ''}`.toLowerCase();
+                    return tags.every(tag => searchText.includes(tag.toLowerCase()));
+                });
+            }
+
+            // 제외 단어
+            const excludeInput = document.getElementById('search-exclude').value.trim();
+            if (excludeInput) {
+                const excludeWords = excludeInput.split(',').map(w => w.trim().toLowerCase()).filter(w => w);
+                filteredJobs = filteredJobs.filter(j => {
+                    const searchText = `${j.title || ''} ${j.company_name || ''} ${j.region || j.location || ''}`.toLowerCase();
+                    return !excludeWords.some(ew => searchText.includes(ew));
+                });
+            }
+
+            // 정렬
+            if (currentSort === 'latest') {
+                filteredJobs.sort((a, b) => b.id - a.id);
+            } else if (currentSort === 'views') {
+                filteredJobs.sort((a, b) => (b.view_count || b.views || 0) - (a.view_count || a.views || 0));
+            }
+
+            currentPage = 1;
+            updateDisplay();
         };
 
-        function fetchJobs() {
-            applyFilters();
+        function updateDisplay() {
+            document.getElementById('total-count').innerText = filteredJobs.length;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginated = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
+            renderJobsList(paginated, startIndex);
+            renderPagination(filteredJobs.length);
         }
+
+        function renderJobsList(jobs, startIndex) {
+            const tbody = document.getElementById('job-list-body');
+            tbody.innerHTML = '';
+
+            if (jobs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">조건에 맞는 공고가 없습니다.</td></tr>';
+                return;
+            }
+
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '-';
+                const d = new Date(dateStr);
+                return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+            };
+
+            jobs.forEach((job, i) => {
+                const isOpen = (job.status || 'OPEN') === 'OPEN';
+                const title = job.title || '제목 없음';
+                const region = job.region || job.location || job.address || '-';
+                const category = job.category || job.job_category || '';
+                const views = job.view_count || job.views || 0;
+
+                const tr = document.createElement('tr');
+                tr.className = 'cursor-pointer';
+                tr.onclick = () => goToJobDetail(job.id, views);
+                tr.innerHTML = `
+                    <td class="text-center">${startIndex + i + 1}</td>
+                    <td class="text-left pl-4 font-bold text-[#0B2A5B] hover:underline">${isOpen ? '' : '<span class="text-gray-400 mr-1">[마감]</span>'}${title}</td>
+                    <td class="text-center">${[category, region].filter(Boolean).join(' / ') || '-'}</td>
+                    <td class="text-center text-[13px]">${formatDate(job.end_date)}<br><span class="text-gray-400">${formatDate(job.created_at)}</span></td>
+                    <td class="text-center">${views}</td>
+                    <td class="text-center"><i class="far fa-heart text-gray-300"></i></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const container = document.getElementById('pagination-container');
+            if (!container) return;
+
+            let html = `<button onclick="changeJobPage(${Math.max(1, currentPage - 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += (i === currentPage)
+                    ? `<button class="w-8 h-8 border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs">${i}</button>`
+                    : `<button onclick="changeJobPage(${i})" class="w-8 h-8 border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">${i}</button>`;
+            }
+            html += `<button onclick="changeJobPage(${Math.min(totalPages, currentPage + 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&gt;</button>`;
+            container.innerHTML = html;
+        }
+
+        window.changeJobPage = function(page) { currentPage = page; updateDisplay(); };
+
+        window.goToJobDetail = function(id, currentViews) {
+            if (supabaseClient) {
+                supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).then();
+            }
+            window.location.href = `job-detail.html?id=${id}`;
+        };
 
         initApp();
     })();

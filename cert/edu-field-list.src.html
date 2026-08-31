@@ -191,21 +191,21 @@
 
                     <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
                     <input type="text" id="exclude-word-input" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-blue-500 transition-colors" placeholder="제외할 단어 (쉼표 구분)">
-                    <button class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] rounded lg:ml-2 whitespace-nowrap transition-colors">검 색</button>
+                    <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] rounded lg:ml-2 whitespace-nowrap transition-colors">검 색</button>
                 </div>
 
                 <div class="flex justify-between items-end px-2 pt-2 pb-0">
                     <div class="text-[13px] text-gray-700 pb-2 pl-1">
-                        총 <span class="text-red-600 font-bold">5</span>건의 일정이 있습니다. 
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 일정이 있습니다. 
                     </div>
                     <div class="flex items-end gap-2">
-                        <select class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer">
-                            <option>20개씩보기</option>
-                            <option>50개씩보기</option>
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
                         </select>
                         <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0">
-                            <button class="bg-[#333] text-white px-3 flex items-center justify-center h-full">최신순</button>
-                            <button class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full">조회순</button>
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full">조회순</button>
                         </div>
                     </div>
                 </div>
@@ -234,34 +234,13 @@
                                 <th>조회수</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="badge-open">접수중</span></td>
-                                <td class="font-bold text-[#0B2A5B]">제1회 관리소장 직무능력 향상 현장교육</td>
-                                <td>일산 킨텍스 제1전시장</td>
-                                <td>관리소장직무</td>
-                                <td>고양시</td>
-                                <td>2026.09.15</td>
-                                <td>2026.09.10</td>
-                                <td>128</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge-open">접수중</span></td>
-                                <td class="font-bold text-[#0B2A5B]">소방안전관리자 현장 실습 및 점검 요령</td>
-                                <td>김포 소방안전체험관</td>
-                                <td>소방안전실무</td>
-                                <td>김포시</td>
-                                <td>2026.09.20</td>
-                                <td>2026.09.15</td>
-                                <td>95</td>
-                            </tr>
+                        <tbody id="edu-list-body">
+                            <tr><td colspan="8" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="flex justify-center items-center gap-1 mt-8 mb-10">
-                    <button class="w-9 h-9 rounded text-sm bg-[#12387a] text-white font-bold">1</button>
-                </div>
+                <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
             </section>
 
             <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
@@ -284,6 +263,173 @@
             const manualInput = document.getElementById('manual-word-input');
 
             initRegionFilters();
+
+            const dummyStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+            const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+            const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
+            const DB_TABLE_NAME = 'field_courses';
+
+            let allCourses = [], filteredCourses = [];
+            let currentSort = 'latest', itemsPerPage = 20, currentPage = 1;
+
+            async function fetchCourses() {
+                const tbody = document.getElementById('edu-list-body');
+                if (!supabaseClient) return;
+                try {
+                    const { data, error } = await supabaseClient
+                        .from(DB_TABLE_NAME)
+                        .select('*')
+                        .order('id', { ascending: false });
+                    if (error) throw error;
+                    allCourses = data || [];
+                    applyFilters();
+                } catch (error) {
+                    console.error('현장 교육 목록을 불러오는데 실패했습니다:', error);
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</td></tr>';
+                }
+            }
+
+            window.applyFilters = function() {
+                filteredCourses = [...allCourses];
+
+                const startDateStr = document.getElementById('start-date').value;
+                const endDateStr = document.getElementById('end-date').value;
+                if (startDateStr) {
+                    const sd = new Date(startDateStr); sd.setHours(0, 0, 0, 0);
+                    filteredCourses = filteredCourses.filter(c => c.created_at && new Date(c.created_at) >= sd);
+                }
+                if (endDateStr) {
+                    const ed = new Date(endDateStr); ed.setHours(23, 59, 59, 999);
+                    filteredCourses = filteredCourses.filter(c => c.created_at && new Date(c.created_at) <= ed);
+                }
+
+                let selectedStatus = 'ALL';
+                document.getElementsByName('status').forEach(r => { if (r.checked) selectedStatus = r.value; });
+                if (selectedStatus === 'OPEN') {
+                    filteredCourses = filteredCourses.filter(c => (c.status || 'OPEN') === 'OPEN');
+                } else if (selectedStatus === 'CLOSED') {
+                    filteredCourses = filteredCourses.filter(c => c.status === 'CLOSED');
+                }
+
+                const checkedCategories = Array.from(document.querySelectorAll('.category-cb:checked')).map(cb => cb.value);
+                if (checkedCategories.length > 0) {
+                    filteredCourses = filteredCourses.filter(c => checkedCategories.includes(c.category));
+                }
+
+                const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-checkbox:checked')).map(cb => cb.value);
+                if (checkedSubRegions.length > 0) {
+                    filteredCourses = filteredCourses.filter(c => {
+                        const region = c.region || '';
+                        return checkedSubRegions.some(sr => {
+                            if (sr === '전국 전체') return true;
+                            const cleanTarget = sr.replace(/(전체)$/, '').replace(/(시|군|구)$/, '').trim();
+                            return region.includes(cleanTarget);
+                        });
+                    });
+                }
+
+                if (tags.length > 0) {
+                    filteredCourses = filteredCourses.filter(c => {
+                        const searchText = `${c.title || ''} ${c.location || ''} ${c.region || ''}`.toLowerCase();
+                        return tags.every(tag => searchText.includes(tag.toLowerCase()));
+                    });
+                }
+
+                const excludeInput = document.getElementById('exclude-word-input').value.trim();
+                if (excludeInput) {
+                    const excludeWords = excludeInput.split(',').map(w => w.trim().toLowerCase()).filter(w => w);
+                    filteredCourses = filteredCourses.filter(c => {
+                        const searchText = `${c.title || ''} ${c.location || ''} ${c.region || ''}`.toLowerCase();
+                        return !excludeWords.some(ew => searchText.includes(ew));
+                    });
+                }
+
+                if (currentSort === 'latest') {
+                    filteredCourses.sort((a, b) => b.id - a.id);
+                } else if (currentSort === 'views') {
+                    filteredCourses.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+                }
+
+                currentPage = 1;
+                updateDisplay();
+            };
+
+            window.setSort = function(sortType) {
+                currentSort = sortType;
+                const btnLatest = document.getElementById('btn-sort-latest');
+                const btnViews = document.getElementById('btn-sort-views');
+                if (sortType === 'latest') {
+                    btnLatest.className = 'bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold';
+                    btnViews.className = 'text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full';
+                } else {
+                    btnViews.className = 'bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold border-l border-[#333]';
+                    btnLatest.className = 'text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full';
+                }
+                applyFilters();
+            };
+
+            window.setPerPage = function(select) {
+                itemsPerPage = parseInt(select.value, 10);
+                currentPage = 1;
+                applyFilters();
+            };
+
+            function updateDisplay() {
+                document.getElementById('total-count').innerText = filteredCourses.length;
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const paginated = filteredCourses.slice(startIndex, startIndex + itemsPerPage);
+                renderList(paginated);
+                renderPagination(filteredCourses.length);
+            }
+
+            function renderList(courses) {
+                const tbody = document.getElementById('edu-list-body');
+                tbody.innerHTML = '';
+                if (courses.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 text-gray-500">조건에 맞는 일정이 없습니다.</td></tr>';
+                    return;
+                }
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return '-';
+                    const d = new Date(dateStr);
+                    return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+                };
+                courses.forEach(c => {
+                    const isOpen = (c.status || 'OPEN') === 'OPEN';
+                    const badge = isOpen ? '<span class="badge-open">접수중</span>' : '<span class="badge-closed">마감</span>';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${badge}</td>
+                        <td class="font-bold text-[#0B2A5B]">${c.title || '제목 없음'}</td>
+                        <td>${c.location || '-'}</td>
+                        <td>${c.category || '-'}</td>
+                        <td>${c.region || '-'}</td>
+                        <td>${formatDate(c.edu_date)}</td>
+                        <td>${formatDate(c.deadline)}</td>
+                        <td>${c.view_count || 0}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function renderPagination(totalItems) {
+                const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+                const container = document.getElementById('pagination-container');
+                if (!container) return;
+                let html = `<button onclick="changeEduPage(${Math.max(1, currentPage - 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>`;
+                for (let i = 1; i <= totalPages; i++) {
+                    html += (i === currentPage)
+                        ? `<button class="w-9 h-9 rounded text-sm bg-[#12387a] text-white font-bold">${i}</button>`
+                        : `<button onclick="changeEduPage(${i})" class="w-9 h-9 rounded text-sm bg-white border border-gray-300 hover:bg-gray-50">${i}</button>`;
+                }
+                html += `<button onclick="changeEduPage(${Math.min(totalPages, currentPage + 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&gt;</button>`;
+                container.innerHTML = html;
+            }
+
+            window.changeEduPage = function(page) { currentPage = page; updateDisplay(); };
+
+            fetchCourses();
 
             window.setPeriod = function(period, btnElement) {
                 document.querySelectorAll('.period-btn').forEach(btn => {
@@ -315,17 +461,10 @@
                     startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
                     endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
                 }
+                applyFilters();
             };
 
-            window.applyDateFilter = function() {
-                const startDate = document.getElementById('start-date').value;
-                const endDate = document.getElementById('end-date').value;
-                if(!startDate && !endDate) {
-                    alert("전체 기간으로 검색합니다.");
-                } else {
-                    alert(`선택된 기간 (${startDate || '시작일 미지정'} ~ ${endDate || '종료일 미지정'}) 으로 검색을 실행합니다.`);
-                }
-            };
+            window.applyDateFilter = function() { applyFilters(); };
 
             function renderTags() {
                 if (!includeContainer) return;
@@ -346,6 +485,7 @@
                 if (trimmed && !tags.includes(trimmed)) {
                     tags.push(trimmed);
                     renderTags();
+                    applyFilters();
                 }
             }
 
@@ -365,6 +505,7 @@
                 }
 
                 renderTags();
+                applyFilters();
             }
 
             if (includeContainer) {
@@ -405,6 +546,7 @@
 
                     if (target.value === 'OPEN') addTag('접수중');
                     else if (target.value === 'CLOSED') addTag('마감');
+                    applyFilters();
                 }
             });
 
