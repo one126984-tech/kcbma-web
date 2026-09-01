@@ -1,11 +1,11 @@
-<!-- 파일명: admin-course-edit.src.html -->
+<!-- 파일명: admin-field-course-edit.src.html -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
 <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>과정 등록/수정 | 대한집합건물관리협회</title>
+    <title>현장 교육 등록/수정 | 대한집합건물관리협회</title>
 
     <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -208,7 +208,7 @@
 
 
     <style>
-        /* 이 페이지(과정 등록/수정) 전용 CSS */
+        /* 이 페이지(현장 교육 등록/수정) 전용 CSS */
         html, body { overflow-y: scroll; }
 
         .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; }
@@ -225,8 +225,6 @@
 
         .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; font-weight: 500; }
         .custom-radio input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
-        .custom-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; font-weight: 500; }
-        .custom-checkbox input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
 
         .form-hint { font-size: 12px; color: #94a3b8; margin-top: 4px; }
     </style>
@@ -502,8 +500,8 @@
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
             <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab" onclick="window.location.href='admin-dashboard.html'">대시보드</div>
-                <div class="side-menu-tab-active">과정 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-field-courses.html'">현장 교육 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-courses.html'">과정 관리</div>
+                <div class="side-menu-tab-active">현장 교육 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
@@ -514,8 +512,8 @@
 
         <section class="flex-1 min-w-0 flex flex-col gap-6">
             <div class="flex items-center justify-between">
-                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]" id="page-title">새 과정 등록</div>
-                <button onclick="location.href='admin-courses.html'" class="text-gray-500 hover:text-[#12387a] font-bold text-[13.5px]"><i class="fas fa-list mr-1"></i>목록으로</button>
+                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]" id="page-title">새 일정 등록</div>
+                <button onclick="location.href='admin-field-courses.html'" class="text-gray-500 hover:text-[#12387a] font-bold text-[13.5px]"><i class="fas fa-list mr-1"></i>목록으로</button>
             </div>
 
             <form id="course-form">
@@ -523,128 +521,56 @@
                     <div class="section-title">기본 정보</div>
                     <table class="form-table">
                         <tr>
-                            <th>자격증명<span class="required">*</span></th>
-                            <td colspan="3"><input type="text" id="title" class="form-input" placeholder="예) 기전당직실무관리사 자격 취득 과정" required></td>
+                            <th>과정명<span class="required">*</span></th>
+                            <td colspan="3"><input type="text" id="title" class="form-input" placeholder="예) 제1회 관리소장 직무능력 향상 현장교육" required></td>
                         </tr>
                         <tr>
-                            <th>슬러그<span class="required">*</span></th>
-                            <td>
-                                <input type="text" id="slug" class="form-input" placeholder="예) electrical-duty" required>
-                                <div class="form-hint">URL에 사용됩니다. 자격증명 입력 시 자동 제안됩니다.</div>
-                            </td>
-                            <th>분야</th>
+                            <th>분류</th>
                             <td>
                                 <select id="category" class="form-input">
-                                    <option value="기전">기전</option>
-                                    <option value="전기방재">전기방재</option>
-                                    <option value="기계">기계</option>
-                                    <option value="영선">영선</option>
-                                    <option value="배관">배관</option>
-                                    <option value="행정">행정</option>
-                                    <option value="환경위생">환경위생</option>
+                                    <option value="소방안전실무">소방안전실무</option>
+                                    <option value="전기설비실무">전기설비실무</option>
+                                    <option value="기계설비실무">기계설비실무</option>
+                                    <option value="건축·영선실무">건축·영선실무</option>
+                                    <option value="관리소장직무">관리소장직무</option>
+                                    <option value="회계·행정">회계·행정</option>
                                 </select>
                             </td>
-                        </tr>
-                        <tr>
-                            <th>과정 소개</th>
-                            <td colspan="3"><textarea id="description" class="form-input" rows="8" placeholder="과정에 대한 상세 소개를 입력하세요. (HTML 허용)"></textarea></td>
-                        </tr>
-                        <tr>
-                            <th>썸네일 URL</th>
-                            <td colspan="3"><input type="text" id="thumbnail_url" class="form-input" placeholder="https://..."></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section-card mt-6">
-                    <div class="section-title">수강 정보</div>
-                    <table class="form-table">
-                        <tr>
-                            <th>수강 방식</th>
-                            <td>
-                                <div class="flex gap-6">
-                                    <label class="custom-radio"><input type="radio" name="edu_method" value="VOD" checked> VOD</label>
-                                    <label class="custom-radio"><input type="radio" name="edu_method" value="LIVE"> LIVE</label>
-                                    <label class="custom-radio"><input type="radio" name="edu_method" value="MIX"> MIX</label>
-                                </div>
-                            </td>
-                            <th>수강 기간</th>
-                            <td><input type="text" id="edu_period" class="form-input" placeholder="예) 신청일로부터 30일"></td>
-                        </tr>
-                        <tr>
-                            <th>정가</th>
-                            <td><input type="number" id="original_price" class="form-input" placeholder="0" min="0"></td>
-                            <th>할인가</th>
-                            <td><input type="number" id="discount_price" class="form-input" placeholder="0" min="0"></td>
-                        </tr>
-                        <tr>
-                            <th>무료 여부</th>
-                            <td colspan="3"><label class="custom-checkbox"><input type="checkbox" id="is_free"> 무료 (100% 장학지원)</label></td>
-                        </tr>
-                        <tr>
-                            <th>자격증 발급비<span class="required">*</span></th>
-                            <td colspan="3">
-                                <input type="number" id="cert_price" class="form-input" style="width:200px;" placeholder="250000" min="0" required>
-                                <div class="form-hint">수료 후 자격증 발급 신청 시 계좌이체로 결제하는 비용입니다. (원)</div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>수료 기준<br><span class="text-gray-400 text-[12px] font-normal">(진도율/시험점수)</span></th>
-                            <td colspan="3">
-                                <div class="flex gap-4 items-center">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm text-gray-600 whitespace-nowrap">진도율</span>
-                                        <input type="number" id="progress_rate" class="form-input" style="width:100px;" placeholder="80" min="0" max="100">
-                                        <span class="text-sm text-gray-600">%</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm text-gray-600 whitespace-nowrap">시험 점수</span>
-                                        <input type="number" id="exam_score" class="form-input" style="width:100px;" placeholder="60" min="0" max="100">
-                                        <span class="text-sm text-gray-600">점</span>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section-card mt-6">
-                    <div class="section-title">강사 정보</div>
-                    <table class="form-table">
-                        <tr>
-                            <th>강사명</th>
-                            <td><input type="text" id="instructor_name" class="form-input" placeholder="예) 홍길동"></td>
-                            <th>강사 사진 URL</th>
-                            <td><input type="text" id="instructor_img" class="form-input" placeholder="https://..."></td>
-                        </tr>
-                        <tr>
-                            <th>강사 약력</th>
-                            <td colspan="3"><textarea id="instructor_bio" class="form-input" rows="4" placeholder="강사 약력을 입력하세요."></textarea></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section-card mt-6">
-                    <div class="section-title">노출 설정</div>
-                    <table class="form-table">
-                        <tr>
-                            <th>접수 상태</th>
+                            <th>상태</th>
                             <td>
                                 <select id="status" class="form-input">
-                                    <option value="OPEN">접수중 (OPEN)</option>
-                                    <option value="CLOSED">마감 (CLOSED)</option>
-                                    <option value="UPCOMING">준비중 (UPCOMING)</option>
+                                    <option value="OPEN">접수중</option>
+                                    <option value="CLOSED">마감</option>
                                 </select>
                             </td>
-                            <th>정렬 순서</th>
-                            <td><input type="number" id="sort_order" class="form-input" placeholder="0" value="0"></td>
+                        </tr>
+                        <tr>
+                            <th>교육 장소(현장)</th>
+                            <td colspan="3"><input type="text" id="location" class="form-input" placeholder="예) 일산 킨텍스 제1전시장"></td>
+                        </tr>
+                        <tr>
+                            <th>지역</th>
+                            <td colspan="3">
+                                <input type="text" id="region" class="form-input" placeholder="예) 고양시">
+                                <div class="form-hint">목록 페이지의 지역 검색 필터와 매칭됩니다. 시/군/구 명칭을 포함해 입력해주세요.</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>교육 일자</th>
+                            <td><input type="date" id="edu_date" class="form-input"></td>
+                            <th>접수 마감일</th>
+                            <td><input type="date" id="deadline" class="form-input"></td>
+                        </tr>
+                        <tr>
+                            <th>상세 안내</th>
+                            <td colspan="3"><textarea id="description" class="form-input" rows="8" placeholder="교육 내용, 준비물, 문의처 등을 입력하세요."></textarea></td>
                         </tr>
                     </table>
                 </div>
 
-                <div class="flex justify-center gap-3 mt-8 mb-4">
-                    <button type="submit" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[15px] py-3 px-10 rounded transition-colors shadow-sm"><i class="fas fa-save mr-1.5"></i>저장</button>
-                    <button type="button" onclick="location.href='admin-courses.html'" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-[15px] py-3 px-10 rounded transition-colors">취소</button>
+                <div class="flex justify-center gap-3 mt-8">
+                    <button type="button" onclick="location.href='admin-field-courses.html'" class="px-8 py-3 border border-gray-300 rounded font-bold text-gray-600 hover:bg-gray-50">취소</button>
+                    <button type="submit" class="px-10 py-3 bg-[#12387a] hover:bg-[#0e2b61] text-white rounded font-bold shadow-sm">저장하기</button>
                 </div>
             </form>
         </section>
@@ -655,8 +581,10 @@
 
     <script>
         const supabaseClient = window.sb;
-        const params = new URLSearchParams(window.location.search);
-        const courseId = params.get('id');
+        const DB_TABLE_NAME = 'field_courses';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
         const isEditMode = !!courseId;
 
         async function checkAdmin() {
@@ -669,105 +597,43 @@
             return true;
         }
 
-        function slugify(text) {
-            return text
-                .toString()
-                .trim()
-                .toLowerCase()
-                .replace(/[^a-z0-9가-힣\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-');
-        }
-
-        document.getElementById('title').addEventListener('input', (e) => {
-            if (isEditMode) return;
-            const slugField = document.getElementById('slug');
-            if (!slugField.dataset.userEdited) {
-                slugField.value = slugify(e.target.value);
-            }
-        });
-        document.getElementById('slug').addEventListener('input', () => {
-            document.getElementById('slug').dataset.userEdited = 'true';
-        });
-
         function setFormValues(course) {
             document.getElementById('title').value = course.title || '';
-            document.getElementById('slug').value = course.slug || '';
-            document.getElementById('category').value = course.category || '기전';
-            document.getElementById('description').value = course.description || '';
-            document.getElementById('thumbnail_url').value = course.thumbnail_url || '';
-
-            const method = course.edu_method || 'VOD';
-            const radio = document.querySelector(`input[name="edu_method"][value="${method}"]`);
-            if (radio) radio.checked = true;
-
-            document.getElementById('edu_period').value = course.edu_period || '';
-            document.getElementById('original_price').value = course.original_price ?? 0;
-            document.getElementById('discount_price').value = course.discount_price ?? 0;
-            document.getElementById('is_free').checked = !!course.is_free;
-            document.getElementById('cert_price').value = course.cert_price ?? 250000;
-
-            const passCriteria = course.pass_criteria || {};
-            document.getElementById('progress_rate').value = passCriteria.progress_rate ?? 80;
-            document.getElementById('exam_score').value = passCriteria.exam_score ?? 60;
-
-            document.getElementById('instructor_name').value = course.instructor_name || '';
-            document.getElementById('instructor_bio').value = course.instructor_bio || '';
-            document.getElementById('instructor_img').value = course.instructor_img || '';
-
+            document.getElementById('category').value = course.category || '소방안전실무';
             document.getElementById('status').value = course.status || 'OPEN';
-            document.getElementById('sort_order').value = course.sort_order ?? 0;
+            document.getElementById('location').value = course.location || '';
+            document.getElementById('region').value = course.region || '';
+            document.getElementById('edu_date').value = course.edu_date ? course.edu_date.substring(0, 10) : '';
+            document.getElementById('deadline').value = course.deadline ? course.deadline.substring(0, 10) : '';
+            document.getElementById('description').value = course.description || '';
         }
 
         async function loadCourse() {
             try {
                 const { data, error } = await supabaseClient
-                    .from('cert_courses')
+                    .from(DB_TABLE_NAME)
                     .select('*')
                     .eq('id', courseId)
                     .single();
 
                 if (error) throw error;
-                if (data) {
-                    setFormValues(data);
-                    document.getElementById('slug').dataset.userEdited = 'true';
-                }
+                if (data) setFormValues(data);
             } catch (e) {
-                console.error('과정 정보 조회 실패:', e);
-                alert('과정 정보를 불러오는 중 오류가 발생했습니다.');
+                console.error('현장 교육 정보 조회 실패:', e);
+                alert('정보를 불러오는 중 오류가 발생했습니다.');
             }
-        }
-
-        function getRadioValue(name) {
-            const radios = document.getElementsByName(name);
-            for (const radio of radios) {
-                if (radio.checked) return radio.value;
-            }
-            return null;
         }
 
         function buildPayload() {
             return {
                 title: document.getElementById('title').value.trim(),
-                slug: document.getElementById('slug').value.trim(),
                 category: document.getElementById('category').value,
-                description: document.getElementById('description').value,
-                thumbnail_url: document.getElementById('thumbnail_url').value.trim() || null,
-                edu_method: getRadioValue('edu_method') || 'VOD',
-                edu_period: document.getElementById('edu_period').value.trim() || null,
-                original_price: Number(document.getElementById('original_price').value) || 0,
-                discount_price: Number(document.getElementById('discount_price').value) || 0,
-                is_free: document.getElementById('is_free').checked,
-                cert_price: Number(document.getElementById('cert_price').value) || 0,
-                pass_criteria: {
-                    progress_rate: Number(document.getElementById('progress_rate').value) || 0,
-                    exam_score: Number(document.getElementById('exam_score').value) || 0
-                },
-                instructor_name: document.getElementById('instructor_name').value.trim() || null,
-                instructor_bio: document.getElementById('instructor_bio').value.trim() || null,
-                instructor_img: document.getElementById('instructor_img').value.trim() || null,
                 status: document.getElementById('status').value,
-                sort_order: Number(document.getElementById('sort_order').value) || 0
+                location: document.getElementById('location').value.trim() || null,
+                region: document.getElementById('region').value.trim() || null,
+                edu_date: document.getElementById('edu_date').value || null,
+                deadline: document.getElementById('deadline').value || null,
+                description: document.getElementById('description').value.trim() || null
             };
         }
 
@@ -775,9 +641,7 @@
             e.preventDefault();
 
             const title = document.getElementById('title').value.trim();
-            const slug = document.getElementById('slug').value.trim();
-            if (!title) { alert('자격증명을 입력해주세요.'); return; }
-            if (!slug) { alert('슬러그를 입력해주세요.'); return; }
+            if (!title) { alert('과정명을 입력해주세요.'); return; }
 
             const payload = buildPayload();
 
@@ -785,20 +649,20 @@
                 let error;
                 if (isEditMode) {
                     ({ error } = await supabaseClient
-                        .from('cert_courses')
+                        .from(DB_TABLE_NAME)
                         .update(payload)
                         .eq('id', courseId));
                 } else {
                     ({ error } = await supabaseClient
-                        .from('cert_courses')
+                        .from(DB_TABLE_NAME)
                         .insert(payload));
                 }
 
                 if (error) throw error;
                 alert(isEditMode ? '수정되었습니다.' : '등록되었습니다.');
-                location.href = 'admin-courses.html';
+                location.href = 'admin-field-courses.html';
             } catch (e) {
-                console.error('과정 저장 실패:', e);
+                console.error('저장 실패:', e);
                 alert('저장 중 오류가 발생했습니다: ' + (e.message || ''));
             }
         }
@@ -808,10 +672,8 @@
             if (!ok) return;
 
             if (isEditMode) {
-                document.getElementById('page-title').textContent = '과정 수정';
+                document.getElementById('page-title').textContent = '현장 교육 수정';
                 await loadCourse();
-            } else {
-                document.getElementById('cert_price').value = 250000;
             }
 
             document.getElementById('course-form').addEventListener('submit', handleSubmit);

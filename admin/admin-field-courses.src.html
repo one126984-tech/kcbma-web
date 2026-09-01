@@ -1,4 +1,4 @@
-<!-- 파일명: admin-courses.src.html -->
+<!-- 파일명: admin-field-courses.src.html -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
@@ -6,7 +6,7 @@
 <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>과정 관리 | 대한집합건물관리협회</title>
+    <title>현장 교육 관리 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
@@ -24,7 +24,7 @@
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(과정 관리) 전용 CSS */
+        /* 이 페이지(현장 교육 관리) 전용 CSS */
         html, body { overflow-y: scroll; }
 
         .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 26px; }
@@ -44,10 +44,6 @@
         .btn-manage { display: inline-flex; align-items: center; justify-content: center; padding: 5px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
         .btn-edit { background: #e0e7ff; color: #1e3a8a; }
         .btn-edit:hover { background: #c7d2fe; }
-        .btn-curriculum { background: #dcfce7; color: #15803d; }
-        .btn-curriculum:hover { background: #bbf7d0; }
-        .btn-exam { background: #fef3c7; color: #92400e; }
-        .btn-exam:hover { background: #fde68a; }
         .btn-delete { background: #fee2e2; color: #b91c1c; }
         .btn-delete:hover { background: #fecaca; }
     </style>
@@ -69,8 +65,8 @@
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
             <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab" onclick="window.location.href='admin-dashboard.html'">대시보드</div>
-                <div class="side-menu-tab-active">과정 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-field-courses.html'">현장 교육 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-courses.html'">과정 관리</div>
+                <div class="side-menu-tab-active">현장 교육 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
@@ -81,8 +77,8 @@
 
         <section class="flex-1 min-w-0 flex flex-col gap-6">
             <div class="flex items-center justify-between">
-                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">과정 관리</div>
-                <button onclick="location.href='admin-course-edit.html'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[14px] py-2.5 px-5 rounded transition-colors shadow-sm"><i class="fas fa-plus mr-1.5"></i>새 과정 등록</button>
+                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">현장 교육 관리</div>
+                <button onclick="location.href='admin-field-course-edit.html'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[14px] py-2.5 px-5 rounded transition-colors shadow-sm"><i class="fas fa-plus mr-1.5"></i>새 일정 등록</button>
             </div>
 
             <table class="filter-table shadow-sm">
@@ -93,7 +89,6 @@
                             <label class="custom-radio"><input type="radio" name="status_filter" value="ALL" checked onchange="applyFilters()"> 전체</label>
                             <label class="custom-radio"><input type="radio" name="status_filter" value="OPEN" onchange="applyFilters()"> 접수중</label>
                             <label class="custom-radio"><input type="radio" name="status_filter" value="CLOSED" onchange="applyFilters()"> 마감</label>
-                            <label class="custom-radio"><input type="radio" name="status_filter" value="UPCOMING" onchange="applyFilters()"> 준비중</label>
                         </div>
                     </td>
                 </tr>
@@ -114,13 +109,13 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>자격증명</th>
-                                <th>분야</th>
-                                <th>방식</th>
+                                <th>과정명</th>
+                                <th>분류</th>
+                                <th>지역</th>
                                 <th>상태</th>
-                                <th>수강생</th>
+                                <th>교육일자</th>
+                                <th>마감일</th>
                                 <th>조회수</th>
-                                <th>등록일</th>
                                 <th>관리</th>
                             </tr>
                         </thead>
@@ -138,6 +133,7 @@
 
     <script>
         const supabaseClient = window.sb;
+        const DB_TABLE_NAME = 'field_courses';
         let allCourses = [], filteredCourses = [];
 
         async function checkAdmin() {
@@ -158,27 +154,9 @@
         }
 
         function statusBadge(status) {
-            if (status === 'OPEN') return '<span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[11px] font-bold">접수중</span>';
             if (status === 'CLOSED') return '<span class="bg-gray-500 text-white px-2 py-0.5 rounded text-[11px] font-bold">마감</span>';
-            return '<span class="bg-yellow-400 text-white px-2 py-0.5 rounded text-[11px] font-bold">준비중</span>';
+            return '<span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[11px] font-bold">접수중</span>';
         }
-
-        function methodText(method) {
-            if (method === 'VOD') return '동영상(VOD)';
-            if (method === 'LIVE') return '실시간(Zoom)';
-            if (method === 'MIX') return '혼합형';
-            return '-';
-        }
-
-        const dummyCourses = [
-            { id: 'dummy-1', title: '기전당직실무관리사 자격 취득 과정 (2026년 상반기)', category: '기전', edu_method: 'VOD', status: 'OPEN', enroll_count: 42, view_count: 342, created_at: '2026-07-01T00:00:00Z' },
-            { id: 'dummy-2', title: '전기방재안전관리사 실시간 화상 강의 과정', category: '전기방재', edu_method: 'LIVE', status: 'OPEN', enroll_count: 28, view_count: 198, created_at: '2026-07-05T00:00:00Z' },
-            { id: 'dummy-3', title: '기계설비유지관리사 이론 및 실무 종합과정', category: '기계', edu_method: 'MIX', status: 'OPEN', enroll_count: 35, view_count: 256, created_at: '2026-07-10T00:00:00Z' },
-            { id: 'dummy-4', title: '영선실무관리사 자격증 취득 과정', category: '영선', edu_method: 'VOD', status: 'CLOSED', enroll_count: 51, view_count: 174, created_at: '2026-06-01T00:00:00Z' },
-            { id: 'dummy-5', title: '배관시설관리사 실무 심화과정 (Zoom 화상강의)', category: '배관', edu_method: 'LIVE', status: 'OPEN', enroll_count: 19, view_count: 91, created_at: '2026-07-20T00:00:00Z' },
-            { id: 'dummy-6', title: '공동주택관리행정사 이론 및 사례 연구', category: '행정', edu_method: 'VOD', status: 'OPEN', enroll_count: 60, view_count: 312, created_at: '2026-06-15T00:00:00Z' },
-            { id: 'dummy-7', title: '환경위생관리사 위생관리 실무 종합과정', category: '환경위생', edu_method: 'MIX', status: 'UPCOMING', enroll_count: 0, view_count: 143, created_at: '2026-08-01T00:00:00Z' }
-        ];
 
         async function fetchCourses() {
             const tbody = document.getElementById('course-list-body');
@@ -186,18 +164,16 @@
 
             try {
                 const { data, error } = await supabaseClient
-                    .from('cert_courses')
+                    .from(DB_TABLE_NAME)
                     .select('*')
-                    .order('sort_order', { ascending: true })
-                    .order('created_at', { ascending: false });
+                    .order('id', { ascending: false });
 
                 if (error) throw error;
-                allCourses = (data && data.length > 0) ? data : dummyCourses;
+                allCourses = data || [];
                 applyFilters();
             } catch (e) {
-                console.error('과정 목록 조회 실패:', e);
-                allCourses = dummyCourses;
-                applyFilters();
+                console.error('현장 교육 목록 조회 실패:', e);
+                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
             }
         }
 
@@ -214,7 +190,7 @@
             const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
 
             filteredCourses = allCourses.filter(item => {
-                const matchStatus = status === 'ALL' || item.status === status;
+                const matchStatus = status === 'ALL' || (item.status || 'OPEN') === status;
                 const matchKeyword = !keyword || (item.title || '').toLowerCase().includes(keyword);
                 return matchStatus && matchKeyword;
             });
@@ -226,7 +202,7 @@
             const tbody = document.getElementById('course-list-body');
 
             if (!filteredCourses || filteredCourses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-gray-400">조건에 맞는 과정이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-gray-400">조건에 맞는 일정이 없습니다.</td></tr>';
                 return;
             }
 
@@ -235,16 +211,14 @@
                     <td class="text-gray-400">${idx + 1}</td>
                     <td class="text-left font-bold text-[#0B2A5B]">${item.title || '-'}</td>
                     <td>${item.category || '-'}</td>
-                    <td>${methodText(item.edu_method)}</td>
+                    <td>${item.region || '-'}</td>
                     <td>${statusBadge(item.status)}</td>
-                    <td>${item.enroll_count || 0}</td>
+                    <td>${formatDate(item.edu_date)}</td>
+                    <td>${formatDate(item.deadline)}</td>
                     <td>${item.view_count || 0}</td>
-                    <td class="text-gray-500">${formatDate(item.created_at)}</td>
                     <td>
                         <div class="flex flex-wrap gap-1.5 justify-center">
-                            <span class="btn-manage btn-edit" onclick="location.href='admin-course-edit.html?id=${item.id}'">수정</span>
-                            <span class="btn-manage btn-curriculum" onclick="location.href='admin-curriculum.html?course_id=${item.id}'">커리큘럼</span>
-                            <span class="btn-manage btn-exam" onclick="location.href='admin-exams.html?course_id=${item.id}'">시험관리</span>
+                            <span class="btn-manage btn-edit" onclick="location.href='admin-field-course-edit.html?id=${item.id}'">수정</span>
                             <span class="btn-manage btn-delete" onclick="deleteCourse('${item.id}')">삭제</span>
                         </div>
                     </td>
@@ -257,7 +231,7 @@
 
             try {
                 const { error } = await supabaseClient
-                    .from('cert_courses')
+                    .from(DB_TABLE_NAME)
                     .delete()
                     .eq('id', id);
 
@@ -265,7 +239,7 @@
                 alert('삭제되었습니다.');
                 fetchCourses();
             } catch (e) {
-                console.error('과정 삭제 실패:', e);
+                console.error('삭제 실패:', e);
                 alert('삭제 중 오류가 발생했습니다.');
             }
         }
