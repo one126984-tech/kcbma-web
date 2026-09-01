@@ -913,6 +913,8 @@
                     const isOpen = (c.status || 'OPEN') === 'OPEN';
                     const badge = isOpen ? '<span class="badge-open">접수중</span>' : '<span class="badge-closed">마감</span>';
                     const tr = document.createElement('tr');
+                    tr.className = 'cursor-pointer';
+                    tr.onclick = () => { location.href = `edu-field-detail.html?id=${c.id}`; };
                     tr.innerHTML = `
                         <td>${badge}</td>
                         <td class="font-bold text-[#0B2A5B]">${c.title || '제목 없음'}</td>

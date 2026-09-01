@@ -137,7 +137,7 @@
         </div>
 
         <!-- 전체 폼 묶음 -->
-        <form onsubmit="event.preventDefault(); alert('등록이 완료되었습니다.'); window.location.href='job-detail.html';">
+        <form id="job-write-form" onsubmit="submitJob(event)">
 
             <!-- [1] 채용정보 입력 폼 -->
             <div id="form-job">
@@ -146,11 +146,23 @@
                         <div class="flex-1 w-full space-y-4">
                             <div>
                                 <label class="block text-[13px] font-bold text-gray-600 mb-1.5">기업명 (단지명)</label>
-                                <input type="text" placeholder="예: (주)진선개발 또는 JS빌딩 관리단" class="input-box w-full md:w-1/2">
+                                <input type="text" id="f-company" placeholder="예: (주)진선개발 또는 JS빌딩 관리단" class="input-box w-full md:w-1/2">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-gray-600 mb-1.5">채용 공고 제목 <span class="text-red-500">*</span></label>
-                                <input type="text" placeholder="예: 빌딩 관리소장 구인 (김포 퍼스트빌딩)" class="input-box w-full text-[16px] font-bold text-[#3b5bdb]">
+                                <input type="text" id="f-title" placeholder="예: 빌딩 관리소장 구인 (김포 퍼스트빌딩)" class="input-box w-full text-[16px] font-bold text-[#3b5bdb]">
+                            </div>
+                            <div>
+                                <label class="block text-[13px] font-bold text-gray-600 mb-1.5">직종 <span class="text-red-500">*</span></label>
+                                <select id="f-category" class="input-box w-full md:w-1/2 bg-white">
+                                    <option value="" disabled selected>선택</option>
+                                    <option value="관리소장">관리소장</option>
+                                    <option value="전기과장">전기과장</option>
+                                    <option value="전기기사">전기기사</option>
+                                    <option value="기전직">기전직</option>
+                                    <option value="시설 반장">시설 반장</option>
+                                    <option value="시설기사">시설기사</option>
+                                </select>
                             </div>
                         </div>
 
@@ -161,10 +173,10 @@
                             </div>
                             <div class="mb-3">
                                 <label class="block text-[13px] font-bold text-gray-600 mb-1.5">마감일 설정</label>
-                                <input type="date" class="input-box w-full">
+                                <input type="date" id="f-enddate" class="input-box w-full">
                             </div>
                             <label class="flex items-center gap-2 text-[13.5px] cursor-pointer mt-1 hover:text-black transition-colors">
-                                <input type="checkbox" class="w-4 h-4 accent-[#3b5bdb] cursor-pointer">
+                                <input type="checkbox" id="f-always" class="w-4 h-4 accent-[#3b5bdb] cursor-pointer">
                                 <span class="text-gray-700 font-medium">채용시까지 (상시채용)</span>
                             </label>
                         </div>
@@ -434,6 +446,63 @@
             `;
 
             container.insertBefore(div, addButton);
+        }
+
+        const dummyStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
+        const DB_TABLE_NAME = 'jobs';
+
+        async function submitJob(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('f-title').value.trim();
+            const category = document.getElementById('f-category').value;
+            const company = document.getElementById('f-company').value.trim();
+            const isAlways = document.getElementById('f-always').checked;
+            const endDate = isAlways ? null : document.getElementById('f-enddate').value;
+            const roadAddress = document.getElementById('job_roadAddress').value.trim();
+            const detailAddress = document.getElementById('job_detailAddress').value.trim();
+            const region = [roadAddress, detailAddress].filter(Boolean).join(' ');
+
+            if (!title) { alert('채용 공고 제목을 입력해 주세요.'); return; }
+            if (!category) { alert('직종을 선택해 주세요.'); return; }
+            if (!isAlways && !endDate) { alert('마감일을 선택하거나 "채용시까지"를 체크해 주세요.'); return; }
+            if (!supabaseClient) { alert('데이터베이스 연결에 실패했습니다.'); return; }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const submitBtnText = document.getElementById('submit-btn-text');
+            const originalText = submitBtnText.innerText;
+            submitBtn.disabled = true;
+            submitBtnText.innerText = '등록 중...';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .insert([{
+                        title: title,
+                        category: category,
+                        company_name: company,
+                        region: region,
+                        location: region,
+                        end_date: endDate,
+                        status: 'OPEN',
+                        view_count: 0
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                alert('채용정보가 성공적으로 등록되었습니다.');
+                const newId = data && data[0] && data[0].id;
+                window.location.href = newId ? `job-detail.html?id=${newId}` : 'job-list.html';
+            } catch (error) {
+                console.error('구인공고 등록 오류:', error);
+                alert('등록 중 오류가 발생했습니다: ' + (error.message || '잠시 후 다시 시도해주세요.'));
+                submitBtn.disabled = false;
+                submitBtnText.innerText = originalText;
+            }
         }
     </script>
 </body>

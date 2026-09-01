@@ -1,0 +1,227 @@
+<!-- 파일명: edu-field-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 edu-field-detail.html) -->
+<!-- @var PAGE_CLASS: page-cert -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>현장 교육 상세 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(현장 교육 상세) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .detail-header { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .detail-title { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 10px; line-height: 1.4; }
+        .detail-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: #666; flex-wrap: wrap; gap: 6px; }
+
+        .info-table { width: 100%; border-top: 2px solid #12387a; border-collapse: collapse; margin-bottom: 30px; background: #fff; }
+        .info-table th { width: 150px; background: #f8fafc; color: #333; font-weight: bold; text-align: left; padding: 15px 20px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 14px; }
+        .info-table td { padding: 15px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; }
+
+        .content-area { min-height: 200px; padding: 30px 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 30px; }
+
+        .badge-open { display: inline-block; padding: 4px 10px; background-color: #3b82f6; color: white; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; margin-right: 10px; vertical-align: middle; }
+        .badge-closed { display: inline-block; padding: 4px 10px; background-color: #6b7280; color: white; border-radius: 4px; font-size: 12px; font-weight: bold; text-align: center; margin-right: 10px; vertical-align: middle; }
+
+        .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
+        .btn-list { padding: 10px 30px; background: #fff; border: 1px solid #cbd5e1; color: #333; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-list:hover { background: #f8fafc; border-color: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
+            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
+                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full">
+                    현장 교육
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
+
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+                <div class="side-menu-tab" onclick="location.href='cert-list.html'">자격증 과정</div>
+                <div class="side-menu-tab-active">현장 교육</div>
+                <div class="side-menu-tab" onclick="location.href='cert-verify.html'">진위 확인</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 bg-white p-6 border border-gray-200 rounded shadow-sm">
+
+            <div id="loading-spinner" class="text-center py-20 text-gray-500 font-bold">
+                데이터를 불러오는 중입니다...
+            </div>
+
+            <div id="detail-container" style="display: none;">
+                <div class="detail-header">
+                    <div class="flex items-center mb-2">
+                        <span id="edu-status-badge"></span>
+                        <span id="edu-category" class="text-[13px] text-gray-500 font-bold ml-2"></span>
+                    </div>
+                    <h1 id="edu-title" class="detail-title"></h1>
+                    <div class="detail-meta">
+                        <div>
+                            <span class="mr-4"><i class="far fa-map mr-1"></i> <span id="edu-location"></span></span>
+                        </div>
+                        <div>
+                            <span class="mr-4"><i class="far fa-clock mr-1"></i> <span id="edu-date-summary"></span></span>
+                            <span><i class="far fa-eye mr-1"></i> 조회수 <span id="edu-views"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th>교육 장소(현장)</th>
+                            <td id="info-location"></td>
+                            <th>지역</th>
+                            <td id="info-region"></td>
+                        </tr>
+                        <tr>
+                            <th>교육 일자</th>
+                            <td id="info-edu-date"></td>
+                            <th>접수 마감일</th>
+                            <td id="info-deadline" class="font-bold text-red-600"></td>
+                        </tr>
+                        <tr>
+                            <th>분류</th>
+                            <td colspan="3" id="info-category"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="text-[16px] font-bold text-gray-800 mb-3 ml-1">상세 안내</div>
+                <div id="edu-content" class="content-area"></div>
+
+                <div class="btn-wrap">
+                    <button class="btn-list" onclick="location.href='edu-field-list.html'">목록으로</button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCourseDetail();
+        });
+
+        const dummyStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
+        const DB_TABLE_NAME = 'field_courses';
+
+        async function fetchCourseDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+
+            if (!courseId) {
+                alert('잘못된 접근입니다. (일정 ID가 없습니다)');
+                location.href = 'edu-field-list.html';
+                return;
+            }
+            if (!supabaseClient) return;
+
+            try {
+                const { data, error } = await supabaseClient.from(DB_TABLE_NAME).select('*').eq('id', courseId).single();
+                if (error) throw error;
+                if (!data) {
+                    alert('존재하지 않거나 삭제된 일정입니다.');
+                    location.href = 'edu-field-list.html';
+                    return;
+                }
+
+                renderCourseDetail(data);
+
+                // 조회수 증가 (비동기, 실패해도 화면엔 영향 없음)
+                supabaseClient.from(DB_TABLE_NAME).update({ view_count: (data.view_count || 0) + 1 }).eq('id', courseId).then();
+
+            } catch (error) {
+                document.getElementById('loading-spinner').innerHTML = '<span class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</span>';
+                console.error('Fetch error:', error);
+            }
+        }
+
+        function renderCourseDetail(course) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('detail-container').style.display = 'block';
+
+            const isOpen = (course.status || 'OPEN') === 'OPEN';
+
+            const badgeEl = document.getElementById('edu-status-badge');
+            if (isOpen) {
+                badgeEl.className = 'badge-open';
+                badgeEl.innerText = '접수중';
+            } else {
+                badgeEl.className = 'badge-closed';
+                badgeEl.innerText = '마감';
+            }
+
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '미지정';
+                const d = new Date(dateStr);
+                return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+            };
+
+            const title = course.title || '제목 없음';
+            const category = course.category || '분류 미지정';
+            const location = course.location || '장소 미기재';
+            const region = course.region || '-';
+            const eduDate = formatDate(course.edu_date);
+            const deadline = formatDate(course.deadline);
+            const views = course.view_count || 0;
+
+            document.getElementById('edu-title').innerText = title;
+            document.getElementById('edu-category').innerText = `[${category}]`;
+            document.getElementById('edu-location').innerText = location;
+            document.getElementById('edu-date-summary').innerText = `교육일 ${eduDate}`;
+            document.getElementById('edu-views').innerText = views;
+
+            document.getElementById('info-location').innerText = location;
+            document.getElementById('info-region').innerText = region;
+            document.getElementById('info-edu-date').innerText = eduDate;
+            document.getElementById('info-deadline').innerText = deadline;
+            document.getElementById('info-category').innerText = category;
+
+            let contentStr = course.description || '상세 안내가 없습니다.';
+            contentStr = contentStr.replace(/\n/g, '<br>');
+            document.getElementById('edu-content').innerHTML = contentStr;
+        }
+    </script>
+</body>
+</html>
