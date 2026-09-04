@@ -1,6 +1,6 @@
 <!-- 파일명: about.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 about.html) -->
 <!-- @var PAGE_CLASS: page-about -->
-<!-- @var BASE: ../../ -->
+<!-- @var BASE: / -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
@@ -45,13 +45,7 @@
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
     <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center">
-                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center">
-                    협회소개
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -111,8 +105,8 @@
 
                     <!-- 이미지 영역 -->
                     <div class="w-full lg:w-[320px] shrink-0 bg-white flex flex-col items-center justify-center p-4 gap-4">
-                        <img src="../../assets/img/방패로고-removebg-preview.png" alt="방패로고" class="w-32 object-contain">
-                        <img src="../../assets/img/관리협회_글자만-removebg-preview.png" alt="대한집합건물관리협회" class="w-48 object-contain">
+                        <img src="/assets/img/shield_logo_nobg.png" alt="방패로고" class="w-32 object-contain">
+                        <img src="/assets/img/logo_text_nobg.png" alt="대한집합건물관리협회" class="w-48 object-contain">
                     </div>
                 </div>
             </section>
@@ -168,7 +162,7 @@
     <!-- 핑크박스 끝 -->
 
     <!-- 푸터 스크립트 -->
-    <script src="../../assets/js/footer.js"></script>
+    <script src="/assets/js/footer.js"></script>
 
     <!-- 섹션 이동 및 메뉴 스타일 변경 스크립트 -->
     <script>
@@ -202,6 +196,11 @@
                 menuGreeting.classList.add(...inactiveClasses);
             }
         }
+    </script>
+    
+    <!-- 페이지 경로 기준점 설정 (루트 기준) 및 헤더/인증 스크립트 불러오기 -->
+    <script>
+      window.BASE_PATH = '/';
     </script>
 
 </body>

@@ -55,13 +55,7 @@
 <!-- @include header -->
 
     <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full">
-                    업체별 광고 (B2B)
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -71,10 +65,10 @@
 
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
-            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
-                <div class="side-menu-tab-active"><span>업체별 광고</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                <div class="side-menu-tab" onclick="location.href='bid-list.html'"><span>견적·입찰정보</span></div>
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="location.href='bid-list.html'"><span>견적 및 입찰 정보</span></div>
+                <div class="side-menu-tab-active"><span>협력업체 홍보관</span></div>
+                <div class="side-menu-tab" onclick="location.href='joint-bid.html'"><span>우수업체 공동선정</span></div>
             </div>
         </aside>
 
@@ -181,6 +175,12 @@
                 return;
             }
 
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
             const dataObj = {
                 company_name: document.getElementById('f-name').value.trim(),
                 catchphrase: document.getElementById('f-catchphrase').value.trim(),
@@ -192,7 +192,8 @@
                 email: document.getElementById('f-email').value.trim(),
                 service_summary: document.getElementById('f-service').value.trim(),
                 description: document.getElementById('f-desc').value.trim(),
-                is_premium: document.getElementById('f-premium').checked
+                is_premium: document.getElementById('f-premium').checked,
+                created_by: authData.user.id
             };
 
             const submitBtn = document.getElementById('btn-submit');
@@ -213,5 +214,9 @@
             }
         }
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

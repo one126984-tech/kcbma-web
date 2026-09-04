@@ -54,13 +54,7 @@
 <!-- @include header -->
 
     <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full">
-                    업체별 광고 (B2B)
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -70,10 +64,10 @@
 
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
-            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
-                <div class="side-menu-tab-active"><span>업체별 광고</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                <div class="side-menu-tab" onclick="location.href='bid-list.html'"><span>견적·입찰정보</span></div>
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="location.href='bid-list.html'"><span>견적 및 입찰 정보</span></div>
+                <div class="side-menu-tab-active"><span>협력업체 홍보관</span></div>
+                <div class="side-menu-tab" onclick="location.href='joint-bid.html'"><span>우수업체 공동선정</span></div>
             </div>
         </aside>
 
@@ -195,20 +189,24 @@
 
         function renderMockData() {
             const mockData = {
-                company_name: '(주)제일소방안전기술',
-                catchphrase: '과태료 0건! 완벽한 소방점검의 기준',
-                category: '소방시설',
-                region: '서울/경기',
-                phone: '1588-0001',
-                website: 'http://example.com',
-                is_premium: true,
-                manager_name: '홍길동 대표',
-                email: 'contact@jeil-fire.co.kr',
-                service_summary: '소방시설 종합정밀점검, 작동기능점검, 전문 소방공사, 소방안전관리 대행',
-                description: '당사는 20년 경력의 소방 전문 기업으로...\n\n1. 완벽한 점검 시스템\n2. 과태료 발생 시 100% 책임 보상\n3. 합리적인 월 정기 보수 비용'
+                company_name: '업체 정보를 찾을 수 없습니다.',
+                catchphrase: '잘못된 접근입니다.',
+                category: '오류',
+                region: '-',
+                phone: '-',
+                website: '',
+                is_premium: false,
+                manager_name: '-',
+                email: '-',
+                service_summary: '-',
+                description: '업체 정보를 불러오는데 실패했습니다. 올바른 주소로 접근해주세요.'
             };
             renderCompanyDetail(mockData);
         }
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

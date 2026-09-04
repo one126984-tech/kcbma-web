@@ -4,8 +4,8 @@
         Gemini가 준 파일명 체계(fee-list/fee-write/fee-detail 모두 독립 파일)에
         맞춰 완전히 별도 페이지로 분리함. 헤더/서브헤더("관리단 코너")/안내문/
         좌측 3단 사이드바는 board-corner.html과 완전히 동일하게 유지하고,
-        사이드바에서 "위탁관리사 선정"↔"전자투표·총회 대행"은 board-corner.html로,
-        "관리비 비교·평가"는 이 페이지 자신으로 location.href 이동함.
+        사이드바에서 "위탁관리사 선정"은 board-corner.html로, "전자투표·총회 대행"은
+        evote-list.html로, "관리비 비교·평가"는 이 페이지 자신으로 location.href 이동함.
         fee_evaluations 테이블 조회는 무료 의뢰라 결제모달 없이 바로 목록에 노출.
         헤더/서브헤더/푸터는 다른 페이지와 동일하게 파샬(@include)로 조립. -->
 <!-- @var PAGE_CLASS: page-board -->
@@ -51,21 +51,13 @@
          핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-40 shrink-0 shadow-sm">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="w-full md:w-[220px] shrink-0 flex items-center justify-center">
-                <div class="text-white font-bold text-xl md:text-2xl tracking-wide px-1">
-                    관리단 코너
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
     <!-- ★ 스크롤 영역 시작 -->
-    <div class="flex-1 custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
 
         <!-- 메인 콘텐츠 레이아웃 -->
         <main class="max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col md:flex-row gap-8 flex-1 items-start">
@@ -79,7 +71,7 @@
                         <div class="side-menu-tab-active">
                             <span>관리비 비교·평가</span>
                         </div>
-                        <div class="side-menu-tab" onclick="location.href='board-corner.html?tab=evote'">
+                        <div class="side-menu-tab" onclick="location.href='evote-list.html'">
                             <span>전자투표·총회 대행</span>
                         </div>
                     </div>
@@ -89,18 +81,17 @@
             <div class="flex-1 min-w-0 h-auto relative flex flex-col mt-0">
 
                 <section class="flex-1 shrink-0 pb-8">
-                    <!-- 관리단 코너 종합 이용 안내 (board-corner.html과 동일하게 항상 표시) -->
+                    <!-- 관리비 비교·평가 서비스 안내 -->
                     <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-8 flex gap-5 md:gap-6 items-start shadow-sm">
                         <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
                             <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">관리단 코너 종합 이용 안내</h3>
+                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">관리비 비교·평가 서비스 안내</h3>
                             <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>위탁관리사 선정:</b> 투명하고 공정한 공개경쟁 입찰을 통해 단지에 최적화된 위탁관리업체를 선정하실 수 있습니다.</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>관리비 비교·평가:</b> 관리단 또는 입주민 그룹은 무료로 평가를 의뢰하고, 여러 전문 업체들의 객관적인 진단을 받아보세요!</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전자투표·총회 대행:</b> 법적 효력을 완벽히 갖춘 안전하고 편리한 전자투표 및 총회 진행을 지원합니다.</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>유료 서비스 안내:</b> 파트너 업체의 상세정보 열람 및 매칭, 총회 대행 등 일부 기능은 <span class="text-red-600 font-bold">사전 안내 후 유료</span>로 진행됩니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>무료 진단 의뢰:</b> 입주민이나 관리단 누구나 단지의 최근 관리비 고지서를 첨부하여 평가를 무료로 의뢰할 수 있습니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전문가 맞춤 분석:</b> 공용전기료 등 과다 청구가 의심되는 항목에 대해 여러 전문 업체들의 객관적인 진단을 받아보세요.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>정보 보호 및 유료 열람:</b> 고지서 원본 및 개인정보는 블라인드 처리되며, 전문 업체가 열람권 결제 후 분석 리포트를 제안합니다.</span></li>
                             </ul>
                         </div>
                     </div>
@@ -184,5 +175,9 @@
             });
         }
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

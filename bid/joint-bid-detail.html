@@ -1,4 +1,9 @@
-<!-- 파일명: joint-bid-detail.src.html -->
+<!-- 파일명: joint-bid-detail.src.html
+     ★ 2026-09: joint_bids/joint_bid_participants 테이블과 실제 연동됨.
+     URL의 ?id=값으로 공고 1건을 조회해 상단 정보/과업 내용/참여현황/사이드 패널을
+     채우고, "우리 단지 참여하기" 모달 제출 시 join_bid_participation RPC로
+     참여 등록 + joint_bids.current_count 증가를 함께 처리함.
+     "문의 게시판" 탭은 아직 별도 게시판 기능이 없어 정적 안내 문구만 유지. -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>우수업체 공동선정 상세 | 대한집합건물관리협회</title>
 
-    <style>
+<style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
            절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
@@ -19,8 +24,11 @@
               쓸 것. */
         #main-header { background-color: #ffffff; }
         #sub-header-bar {
-            background-color: #12387a; height: 56px;
-            /* ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+            background-color: #12387a; height: 6px;
+            /* ★ 2026-09: 굵은 직선 형태로 축소 (기존 56px 짜리 텍스트 바에서
+               텍스트를 전부 지우고 얇은 색상 바로 변경) — height 값은
+               common-css.html 쪽과 반드시 동일하게 맞출 것.
+               ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
                분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
                형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
                #main-header가 통째로 sticky라 자동으로 같이 고정됨.
@@ -50,14 +58,25 @@
             display: none; flex: 1; justify-content: space-between; align-items: center;
             padding: 0 24px; white-space: nowrap;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header nav { display: flex; }
+        }
+        /* ★ 2026-09 (4차 수정): 사용자 실측 결과 실제 페이지 폭이 803px로
+           나오는 환경(모니터 배율 등으로 인해 창은 넓어 보여도 실제 CSS 기준
+           폭은 좁게 잡히는 경우)에서도 가로 메뉴를 보이게 해달라는 요청.
+           768~1023px 구간은 원래 메뉴 6개+SOS 문구+아이콘을 다 넣기엔
+           여유가 부족한 폭이라, 이 구간에서만 폰트를 줄이고 SOS 문구 텍스트를
+           숨겨(아이콘만 유지) 최대한 겹치지 않게 압축함. 1024px 이상에서는
+           원래 여백대로 표시됨. */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
         }
         #main-header .sos-btn {
             display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
         #main-header > header > button { display: block; }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header > header > button { display: none; }
         }
         #sub-header-bar {
@@ -91,7 +110,6 @@
             font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
         }
     </style>
-
 
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -188,7 +206,7 @@
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
 
         #main-header { background-color: #ffffff; }
-        #sub-header-bar { background-color: #12387a; height: 56px; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
 
         /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
         .side-menu-tab {
@@ -362,7 +380,7 @@
 
             <!-- 1) 좌측 로고 -->
             <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
-            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
@@ -401,7 +419,7 @@
                 </div>
 
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -414,13 +432,7 @@
         </header>
 
     <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full cursor-pointer" onclick="location.href='bid-list.html'">
-                    <i class="fas fa-chevron-left mr-3 text-lg opacity-80"></i> 입찰공고
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 </div>
 
@@ -461,7 +473,7 @@
                 </div>
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
     </div>
@@ -479,15 +491,65 @@
             }
         }
 
+        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
+        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
+        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
+        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
+        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
+        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
+        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '../../login.html'; };
+                }
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // supabase가 없으면 함수 종료 (에러 방지)
-            if (typeof supabase === 'undefined') {
-                console.log("Supabase 객체를 찾을 수 없습니다. (스크립트 로딩 순서 확인 필요)");
+            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
+            if (!window.sb) {
                 return;
             }
             
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) {
                 console.log("로그인된 사용자가 없습니다.");
                 return; 
@@ -520,14 +582,14 @@
         }
 
         async function loadNotifications() {
-            if (typeof supabase === 'undefined') return;
-            const { data: { user } } = await supabase.auth.getUser();
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) return;
 
             const listContainer = document.getElementById('notification-list');
             if (!listContainer) return;
 
-            const { data, error } = await supabase
+            const { data, error } = await window.sb
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
@@ -554,7 +616,7 @@
                 li.onclick = async (e) => {
                     e.stopPropagation();
                     if (!notification.is_read) {
-                        await supabase
+                        await window.sb
                             .from('notifications')
                             .update({ is_read: true })
                             .eq('id', notification.id);
@@ -588,8 +650,8 @@
                 ro.observe(headerEl);
             }
 
-            // 알림 개수 불러오기 실행
-            fetchUnreadCount();
+            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
 
             // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');
@@ -636,40 +698,37 @@
 
             <div class="detail-header">
                 <span class="j-badge recruit">참여모집중</span>
-                <span class="ml-2 text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded">마감 D-12</span>
-                <h1 class="detail-title mt-2">[일산/고양] 오피스텔 소방종합정밀점검 연합 입찰 (10개 단지 목표)</h1>
+                <span id="detail-dday" class="ml-2 text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded"></span>
+                <h1 id="detail-title" class="detail-title mt-2">불러오는 중...</h1>
                 <div class="flex gap-4 mt-3 text-[14px] text-gray-500 font-medium">
-                    <span><i class="fas fa-map-marker-alt"></i> 경기 일산동구/서구, 고양시 덕양구</span>
-                    <span><i class="fas fa-tag"></i> 소방시설</span>
-                    <span><i class="fas fa-eye"></i> 조회수 145</span>
+                    <span><i class="fas fa-map-marker-alt"></i> <span id="detail-region"></span></span>
+                    <span><i class="fas fa-tag"></i> <span id="detail-category"></span></span>
                 </div>
             </div>
 
             <div class="tab-nav">
                 <div class="tab-btn active" onclick="switchTab('tab-info', this)">공고 상세 (과업 지시)</div>
-                <div class="tab-btn" onclick="switchTab('tab-list', this)">참여 단지 현황 <span class="text-blue-600 font-bold ml-1">6</span></div>
+                <div class="tab-btn" onclick="switchTab('tab-list', this)">참여 단지 현황 <span id="detail-participant-count" class="text-blue-600 font-bold ml-1">0</span></div>
                 <div class="tab-btn" onclick="switchTab('tab-qna', this)">문의 게시판</div>
             </div>
 
             <div id="tab-info" class="tab-content active">
                 <div class="content-section">
                     <h3 class="content-title">연합 입찰 개요</h3>
-                    <p class="text-[15px] leading-relaxed text-gray-700 mb-4">
-                        일산 및 고양시 지역의 오피스텔 단지들을 모아 소방시설 종합정밀점검 및 작동기능점검 용역 단가를 낮추기 위한 연합 입찰입니다. 개별 단지가 입찰할 때보다 최소 15%에서 최대 20%의 비용 절감을 목표로 합니다.
-                    </p>
+                    <p id="detail-benefit-desc" class="text-[15px] leading-relaxed text-gray-700 mb-4"></p>
                     <table class="info-table">
                         <tbody>
                             <tr>
                                 <th>대상 지역</th>
-                                <td>경기 고양시 일산동구, 일산서구, 덕양구 소재 집합건물</td>
+                                <td id="info-region"></td>
                             </tr>
                             <tr>
                                 <th>모집 기간</th>
-                                <td>2026. 08. 10 ~ 2026. 08. 29 (12일 남음)</td>
+                                <td id="info-period"></td>
                             </tr>
                             <tr>
                                 <th>입찰 진행 방식</th>
-                                <td>목표 단지(10개) 모집 완료 즉시 협회 우수업체 대상 블라인드 견적 요청</td>
+                                <td>목표 단지 모집 완료 즉시 협회 우수업체 대상 블라인드 견적 요청</td>
                             </tr>
                             <tr>
                                 <th>최종 업체 선정</th>
@@ -680,13 +739,8 @@
                 </div>
 
                 <div class="content-section">
-                    <h3 class="content-title">표준 과업 지시 내용 (요약)</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded p-5 text-[14px] text-gray-700 leading-loose">
-                        1. 관련 법령에 따른 소방시설 종합정밀점검(연 1회) 및 작동기능점검(연 1회) 실시<br>
-                        2. 소방서 제출용 점검 결과 보고서 작성 및 관할 소방서 대행 접수<br>
-                        3. 점검 결과 지적 사항에 대한 보수 공사 시, 참여 단지에 한해 부품 원가 및 공임 10% 추가 할인 적용 보장<br>
-                        4. 비상 상황 발생 시 2시간 이내 현장 출동 서비스 포함
-                    </div>
+                    <h3 class="content-title">과업 개요 및 필수 포함 사항</h3>
+                    <div id="detail-task-description" class="bg-gray-50 border border-gray-200 rounded p-5 text-[14px] text-gray-700 leading-loose whitespace-pre-line"></div>
                 </div>
             </div>
 
@@ -696,53 +750,10 @@
                     <span class="text-sm text-gray-500">참여가 확정된 단지는 익명으로 표시됩니다.</span>
                 </div>
 
-                <ul class="participant-list">
-                    <li class="participant-item">
-                        <span class="p-name">A 오피스텔 (일산동구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 34,500㎡</span>
-                            <span class="p-spec">1,200세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">B 주상복합 (일산서구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 42,000㎡</span>
-                            <span class="p-spec">850세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">C 상업용 상가 (덕양구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 18,000㎡</span>
-                            <span class="p-spec">점포 120개</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">D 오피스텔 (일산동구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 12,500㎡</span>
-                            <span class="p-spec">450세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">E 오피스텔 (덕양구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 25,000㎡</span>
-                            <span class="p-spec">700세대</span>
-                        </div>
-                    </li>
-                    <li class="participant-item">
-                        <span class="p-name">F 복합상가 (일산서구)</span>
-                        <div class="flex gap-2">
-                            <span class="p-spec">연면적: 9,000㎡</span>
-                            <span class="p-spec">점포 65개</span>
-                        </div>
-                    </li>
+                <ul id="participant-list" class="participant-list">
+                    <li class="participant-item text-gray-400">불러오는 중...</li>
                 </ul>
-                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 text-sm font-bold text-center rounded">
-                    합산 총 연면적: 141,000㎡ 달성 (단가 협상력 ⇧)
-                </div>
+                <div id="participant-summary" class="mt-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 text-sm font-bold text-center rounded"></div>
             </div>
 
             <div id="tab-qna" class="tab-content">
@@ -756,20 +767,18 @@
 
         <aside class="w-full md:w-[320px] shrink-0 relative">
             <div class="sticky-panel">
-                <div class="panel-price-title">목표 달성 시 예상 최대 절감률</div>
-                <div class="panel-price">20% <span class="text-lg font-bold text-gray-600">할인 예상</span></div>
+                <div class="panel-price-title">목표 달성 시 예상 혜택</div>
+                <div id="detail-benefit" class="panel-price text-2xl">-</div>
 
                 <div class="progress-box">
                     <div class="progress-text">
                         <span>현재 모인 단지</span>
-                        <span class="text-blue-600">6 / 10 곳</span>
+                        <span id="progress-count" class="text-blue-600">0 / 0 곳</span>
                     </div>
                     <div class="progress-bar-bg mb-2">
-                        <div class="progress-bar-fill"></div>
+                        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
                     </div>
-                    <div class="text-center text-[12.5px] text-gray-500 mt-2 font-medium">
-                        4개 단지만 더 모이면 입찰이 시작됩니다!
-                    </div>
+                    <div id="progress-message" class="text-center text-[12.5px] text-gray-500 mt-2 font-medium"></div>
                 </div>
 
                 <div class="text-[13px] text-gray-600 mb-6 bg-gray-50 p-3 rounded leading-relaxed">
@@ -809,12 +818,12 @@
 
                 <div class="form-group">
                     <label class="form-label">건물명 (단지명)</label>
-                    <input type="text" class="form-input" placeholder="예: 일산 센트럴 오피스텔">
+                    <input type="text" id="join-building-name" class="form-input" placeholder="예: 일산 센트럴 오피스텔">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">건물 형태</label>
-                    <select class="form-input bg-white cursor-pointer">
+                    <select id="join-building-type" class="form-input bg-white cursor-pointer">
                         <option value="">선택해 주세요</option>
                         <option value="오피스텔">오피스텔</option>
                         <option value="상업용상가">상업용 상가 (프라자상가)</option>
@@ -827,41 +836,49 @@
                 <div class="flex gap-4">
                     <div class="form-group flex-1">
                         <label class="form-label">총 연면적 (㎡)</label>
-                        <input type="number" class="form-input" placeholder="숫자만 입력">
+                        <input type="number" id="join-area-sqm" class="form-input" placeholder="숫자만 입력">
                         <div class="form-hint">건축물대장 기준</div>
                     </div>
                     <div class="form-group flex-1">
                         <label class="form-label">세대수 (또는 점포수)</label>
-                        <input type="number" class="form-input" placeholder="숫자만 입력">
+                        <input type="number" id="join-unit-count" class="form-input" placeholder="숫자만 입력">
                     </div>
                 </div>
 
                 <div class="flex gap-4">
                     <div class="form-group flex-1">
                         <label class="form-label">지하 층수</label>
-                        <input type="number" class="form-input" placeholder="예: 3">
+                        <input type="number" id="join-basement-floors" class="form-input" placeholder="예: 3">
                     </div>
                     <div class="form-group flex-1">
                         <label class="form-label">지상 층수</label>
-                        <input type="number" class="form-input" placeholder="예: 15">
+                        <input type="number" id="join-ground-floors" class="form-input" placeholder="예: 15">
                     </div>
                 </div>
 
                 <div class="form-group mb-0">
                     <label class="form-label">기타 특이사항 및 전달사항 (선택)</label>
-                    <textarea class="form-input h-24 resize-none" placeholder="예: 기계식 주차 타워 1기 포함되어 있습니다."></textarea>
+                    <textarea id="join-notes" class="form-input h-24 resize-none" placeholder="예: 기계식 주차 타워 1기 포함되어 있습니다."></textarea>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal()">취소</button>
-                <button class="btn-submit" onclick="submitJoinForm()">신청 완료하기</button>
+                <button id="join-submit-btn" class="btn-submit" onclick="submitJoinForm()">신청 완료하기</button>
             </div>
         </div>
     </div>
 
     <script src="../../assets/js/footer.js?v=1.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentBidId = null;
+        let currentBidData = null;
+
         function switchTab(tabId, element) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
@@ -888,14 +905,183 @@
             }
         }
 
-        function submitJoinForm() {
+        function ddayText(deadline) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const d = new Date(deadline);
+            const diffDays = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return '모집 마감';
+            if (diffDays === 0) return '오늘 마감';
+            return `마감 D-${diffDays}`;
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        function renderBid(bid) {
+            document.getElementById('detail-dday').innerText = ddayText(bid.deadline);
+            document.getElementById('detail-title').innerText = `${bid.title} (${bid.target_count}개 단지 목표)`;
+            document.getElementById('detail-region').innerText = bid.region;
+            document.getElementById('detail-category').innerText = bid.category;
+            document.getElementById('detail-benefit-desc').innerText = bid.task_description || '';
+            document.getElementById('info-region').innerText = bid.region;
+            document.getElementById('info-period').innerText = `${formatDate(bid.created_at)} ~ ${formatDate(bid.deadline)} (${ddayText(bid.deadline)})`;
+            document.getElementById('detail-task-description').innerText = bid.task_description || '등록된 과업 내용이 없습니다.';
+            document.getElementById('detail-benefit').innerText = bid.benefit_text || '-';
+
+            const current = bid.current_count || 0;
+            const target = bid.target_count || 1;
+            const percent = Math.min(100, Math.round((current / target) * 100));
+            document.getElementById('progress-count').innerText = `${current} / ${target} 곳`;
+            document.getElementById('progress-bar-fill').style.width = percent + '%';
+            const remaining = target - current;
+            document.getElementById('progress-message').innerText = remaining > 0
+                ? `${remaining}개 단지만 더 모이면 입찰이 시작됩니다!`
+                : '목표 단지 수를 달성했습니다!';
+            document.getElementById('detail-participant-count').innerText = current;
+        }
+
+        function renderParticipants(list) {
+            const ul = document.getElementById('participant-list');
+            const summary = document.getElementById('participant-summary');
+
+            if (!list || list.length === 0) {
+                ul.innerHTML = '<li class="participant-item text-gray-400">아직 참여한 단지가 없습니다. 첫 번째로 참여해보세요!</li>';
+                summary.innerText = '';
+                return;
+            }
+
+            ul.innerHTML = list.map(p => {
+                const specs = [];
+                if (p.area_sqm) specs.push(`<span class="p-spec">연면적: ${Number(p.area_sqm).toLocaleString()}㎡</span>`);
+                if (p.unit_count) specs.push(`<span class="p-spec">${Number(p.unit_count).toLocaleString()}세대(점포)</span>`);
+                return `
+                    <li class="participant-item">
+                        <span class="p-name">${p.building_name}${p.building_type ? ` (${p.building_type})` : ''}</span>
+                        <div class="flex gap-2">${specs.join('')}</div>
+                    </li>
+                `;
+            }).join('');
+
+            const totalArea = list.reduce((sum, p) => sum + (p.area_sqm || 0), 0);
+            summary.innerText = totalArea > 0
+                ? `합산 총 연면적: ${totalArea.toLocaleString()}㎡ 달성 (단가 협상력 ⇧)`
+                : '';
+        }
+
+        async function fetchParticipants(bidId) {
+            const { data, error } = await supabaseClient
+                .from('joint_bid_participants')
+                .select('*')
+                .eq('bid_id', bidId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('참여 단지 조회 오류:', error);
+                return;
+            }
+            renderParticipants(data);
+        }
+
+        async function fetchBidDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bidId = urlParams.get('id');
+            currentBidId = bidId;
+
+            if (!bidId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'joint-bid.html';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('joint_bids')
+                .select('*')
+                .eq('id', bidId)
+                .single();
+
+            if (error || !data) {
+                alert('공고 정보를 불러오는데 실패했습니다.');
+                location.href = 'joint-bid.html';
+                return;
+            }
+
+            currentBidData = data;
+            renderBid(data);
+            fetchParticipants(bidId);
+        }
+
+        async function submitJoinForm() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const buildingName = document.getElementById('join-building-name').value.trim();
+            if (!buildingName) {
+                alert('건물명(단지명)을 입력해주세요.');
+                return;
+            }
+
+            const buildingType = document.getElementById('join-building-type').value || null;
+            const areaSqm = parseInt(document.getElementById('join-area-sqm').value, 10) || null;
+            const unitCount = parseInt(document.getElementById('join-unit-count').value, 10) || null;
+            const basementFloors = parseInt(document.getElementById('join-basement-floors').value, 10) || null;
+            const groundFloors = parseInt(document.getElementById('join-ground-floors').value, 10) || null;
+            const notes = document.getElementById('join-notes').value.trim() || null;
+
+            const btn = document.getElementById('join-submit-btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = '처리 중...';
+
+            const { data, error } = await supabaseClient.rpc('join_bid_participation', {
+                p_bid_id: currentBidId,
+                p_building_name: buildingName,
+                p_building_type: buildingType,
+                p_area_sqm: areaSqm,
+                p_unit_count: unitCount,
+                p_basement_floors: basementFloors,
+                p_ground_floors: groundFloors,
+                p_notes: notes
+            });
+
+            btn.disabled = false;
+            btn.innerText = originalText;
+
+            if (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+                return;
+            }
+
+            if (!data.success) {
+                alert(data.message);
+                return;
+            }
+
             alert('참여 신청이 완료되었습니다! 목표 단지 수가 모집되면 블라인드 입찰이 시작됩니다.');
             closeModal();
-            const currentCountElem = document.querySelector('.progress-text .text-blue-600');
-            const fillElem = document.querySelector('.progress-bar-fill');
-            currentCountElem.innerText = '7 / 10 곳';
-            fillElem.style.width = '70%';
+            document.getElementById('join-building-name').value = '';
+            document.getElementById('join-area-sqm').value = '';
+            document.getElementById('join-unit-count').value = '';
+            document.getElementById('join-basement-floors').value = '';
+            document.getElementById('join-ground-floors').value = '';
+            document.getElementById('join-notes').value = '';
+
+            currentBidData.current_count = data.new_count;
+            renderBid(currentBidData);
+            fetchParticipants(currentBidId);
         }
+
+        document.addEventListener('DOMContentLoaded', fetchBidDetail);
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

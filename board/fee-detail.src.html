@@ -4,13 +4,11 @@
      고지서 첨부파일을 보여줌.
      ★ 첨부파일: data.attachment_url을 실제 <a href>로 바인딩(클릭 시 Storage의
         실제 고지서 파일이 새 탭에서 열림). URL이 없는 경우 "첨부파일 없음" 표시.
-     ★ 업체용 유료 열람 구조(향후 결제 연동 방향): 담당자 연락처/의뢰목적/첨부파일을
-        #locked-section으로 감싸 blur 처리해두고, "10,000원 결제 후 열람하기" 버튼을
-        누르면 unlockDetail()이 실행됨. 지금은 실제 결제 RPC가 아직 없어 confirm()
-        확인 후 바로 공개 처리하는 임시 동작이며, 실제 서비스에서는
-        board-corner.html의 위탁관리사 매칭 결제 흐름(payment-modal → RPC
-        unlock_bidding_info)과 동일한 패턴으로 unlock_fee_evaluation RPC를 새로
-        만들어 여기 연결하면 됨(구체적인 확장 방향은 unlockDetail() 함수 위 주석 참고).
+     ★ 업체용 유료 열람 구조: board-corner.html의 위탁관리사 매칭 결제 흐름과 동일한
+        패턴(payment-modal → processPayment → RPC unlock_fee_evaluation)으로 연동
+        완료. fee_evaluations.unlock_fee 컬럼과 fee_evaluation_unlocks 테이블을 통해
+        결제 시 포인트 차감 + 열람권 기록을 하나의 트랜잭션으로 처리하며, 이미 결제한
+        사용자는 페이지 로드 시 자동으로 블라인드가 해제됨(2026-09).
         헤더/서브헤더/푸터는 다른 페이지와 동일하게 파샬(@include)로 조립. -->
 <!-- @var PAGE_CLASS: page-board -->
 <!-- @var BASE: ../../ -->
@@ -70,11 +68,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-40 shrink-0 shadow-sm">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="text-white font-bold text-xl md:text-2xl tracking-wide px-1">관리비 비교·평가 상세정보</div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
@@ -133,16 +127,54 @@
     </div>
 </div>
 
+    <!-- ================= 결제 모달창 ================= -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 w-[500px] shadow-xl text-center">
+            <h2 class="text-xl font-bold mb-6 text-gray-800">상세정보 열람 수수료 결제</h2>
+            <div class="mb-8">
+                <p class="text-[15px] text-gray-700 whitespace-nowrap mb-4">담당자 연락처, 의뢰 목적, 고지서 원본을 열람하시겠습니까?</p>
+                <div class="text-[16px] flex items-center justify-center gap-2">
+                    <span class="font-bold text-gray-800">열람 수수료 : </span>
+                    <span class="font-bold text-red-600"><span id="modal-fee-text">0</span> 포인트</span>
+                    <span id="modal-remaining-container">
+                        <!-- 포인트 상황에 따라 자동 교체됨 -->
+                    </span>
+                </div>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="closePaymentModal()" class="w-[140px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition text-center">취소</button>
+                <button id="payment-confirm-btn" onclick="processPayment()" class="w-[140px] py-2.5 bg-[#dbeafe] text-black font-bold rounded-md hover:bg-[#bfdbfe] transition text-center">결제 진행하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 포인트 충전 팝업 모달창 ================= -->
+    <div id="charge-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-[400px] shadow-xl text-center">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">포인트 충전</h2>
+            <div class="mb-6 text-gray-700 text-[15px]">
+                <p>포인트가 부족하여 열람할 수 없습니다.</p>
+                <p class="font-bold text-blue-600 mt-2">5,000 포인트를 충전하시겠습니까?</p>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">취소</button>
+                <button onclick="processCharge()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">충전하기</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         let currentEvaluationData = null;
+        let currentEvaluationId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const evaluationId = urlParams.get('id');
+            currentEvaluationId = evaluationId;
 
             if (!evaluationId) {
                 alert('잘못된 접근입니다.');
@@ -185,10 +217,34 @@
                 attachmentWrapper.innerHTML = `<p class="text-sm text-gray-400">첨부된 고지서가 없습니다.</p>`;
             }
 
+            // 이미 결제(열람권 보유)한 사용자는 자동으로 블라인드 해제
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (authData.user) {
+                const { data: unlockRow } = await supabaseClient
+                    .from('fee_evaluation_unlocks')
+                    .select('user_id')
+                    .eq('user_id', authData.user.id)
+                    .eq('evaluation_id', evaluationId)
+                    .maybeSingle();
+
+                if (unlockRow) {
+                    removeLock();
+                    return;
+                }
+            }
+
             renderLockOverlay();
         });
 
+        function removeLock() {
+            const lockedSection = document.getElementById('locked-section');
+            lockedSection.classList.remove('blur-locked');
+            const overlay = document.getElementById('lock-overlay');
+            if (overlay) overlay.remove();
+        }
+
         function renderLockOverlay() {
+            const fee = (currentEvaluationData && currentEvaluationData.unlock_fee) || 10000;
             const lockedSection = document.getElementById('locked-section');
             const overlay = document.createElement('div');
             overlay.id = 'lock-overlay';
@@ -198,56 +254,110 @@
                     <p class="text-[15px] font-bold text-gray-800 mb-1">업체 전용 상세정보입니다</p>
                     <p class="text-[13px] text-gray-500 mb-4">담당자 연락처, 의뢰 목적, 고지서 원본은<br>결제 후 열람하실 수 있습니다.</p>
                 </div>
-                <button onclick="unlockDetail()" class="px-6 py-3 bg-[#2563eb] text-white font-bold text-[14px] rounded-lg hover:bg-blue-700 transition shadow-md flex items-center gap-2">
-                    <i class="fas fa-unlock"></i> 10,000원 결제 후 열람하기
+                <button onclick="openPaymentModal()" class="px-6 py-3 bg-[#2563eb] text-white font-bold text-[14px] rounded-lg hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    <i class="fas fa-unlock"></i> ${fee.toLocaleString()}원 결제 후 열람하기
                 </button>
             `;
             lockedSection.appendChild(overlay);
         }
 
-        /* ============================================================
-           [향후 결제 연동 방향 제안]
-           지금은 결제 RPC가 없어 confirm() 확인만으로 바로 공개 처리하는
-           임시 동작. 실제 서비스에서는 board-corner.html의 위탁관리사
-           매칭 결제 흐름(payment-modal → processPayment → RPC
-           unlock_bidding_info)과 동일한 패턴으로 아래와 같이 확장하는
-           것을 제안함:
+        let currentFee = 0;
 
-           1) DB: fee_evaluations에 unlock_fee(기본 10000) 컬럼 추가.
-              열람권한을 기록할 fee_evaluation_unlocks(user_id,
-              evaluation_id, unlocked_at) 테이블 신설 — 이미 결제한
-              사용자는 재방문 시 재결제 없이 바로 열람되도록.
-           2) Supabase RPC: unlock_bidding_info를 본떠 만든
-              unlock_fee_evaluation(target_evaluation_id) 함수를 새로
-              작성 — user_profiles.points 차감 + fee_evaluation_unlocks
-              insert를 하나의 트랜잭션으로 처리.
-           3) 프론트: 아래 unlockDetail()의 confirm() 부분을
-              board-corner.html에 있는 payment-modal(#payment-modal)
-              마크업을 이 페이지로 그대로 옮겨와 열고, "결제 진행하기"
-              클릭 시 supabaseClient.rpc('unlock_fee_evaluation', {...})
-              호출로 교체하면 됨. 성공 시에만 blur-locked 클래스를
-              제거하도록 하면 지금 구조를 그대로 재사용 가능.
-           4) 페이지 최초 로드 시에도, 로그인한 사용자가 이미
-              fee_evaluation_unlocks에 기록이 있으면 자동으로 블라인드를
-              풀어주는 체크를 DOMContentLoaded 안에 추가하면 됨.
-           ============================================================ */
-        async function unlockDetail() {
+        async function openPaymentModal() {
             const { data: authData } = await supabaseClient.auth.getUser();
             if (!authData.user) {
                 alert('로그인이 필요합니다.');
                 return;
             }
 
-            // TODO(백엔드 연동 필요): 위 주석의 unlock_fee_evaluation RPC가
-            // 준비되면 아래 confirm()을 실제 결제 모달 + RPC 호출로 교체.
-            const confirmed = confirm('업체용 상세정보 열람에는 10,000원이 결제됩니다.\n(현재는 개발 중으로 결제 없이 바로 열람됩니다)\n\n계속하시겠습니까?');
-            if (!confirmed) return;
+            currentFee = (currentEvaluationData && currentEvaluationData.unlock_fee) || 10000;
 
-            const lockedSection = document.getElementById('locked-section');
-            lockedSection.classList.remove('blur-locked');
-            const overlay = document.getElementById('lock-overlay');
-            if (overlay) overlay.remove();
+            const { data: profile } = await supabaseClient
+                .from('user_profiles')
+                .select('points')
+                .eq('id', authData.user.id)
+                .single();
+
+            const userPoints = profile ? profile.points : 0;
+            const remaining = userPoints - currentFee;
+
+            document.getElementById('modal-fee-text').innerText = currentFee.toLocaleString();
+            const remainingContainer = document.getElementById('modal-remaining-container');
+            const confirmBtn = document.getElementById('payment-confirm-btn');
+
+            if (remaining >= 0) {
+                remainingContainer.innerHTML = `<span class="text-blue-600 font-bold ml-1">(결제후 ${remaining.toLocaleString()}포인트 남음)</span>`;
+                confirmBtn.disabled = false;
+                confirmBtn.className = "w-[140px] py-2.5 bg-[#dbeafe] text-black font-bold rounded-md hover:bg-[#bfdbfe] transition text-center cursor-pointer";
+            } else {
+                remainingContainer.innerHTML = `<span class="text-blue-600 font-bold ml-2 cursor-pointer underline hover:text-blue-800 transition" onclick="openChargeModal()">포인트 충전하기</span>`;
+                confirmBtn.disabled = true;
+                confirmBtn.className = "w-[140px] py-2.5 bg-gray-300 text-gray-500 font-bold rounded-md cursor-not-allowed text-center";
+            }
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function openChargeModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('charge-modal').classList.remove('hidden');
+        }
+
+        function closeChargeModal() {
+            document.getElementById('charge-modal').classList.add('hidden');
+        }
+
+        async function processCharge() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) return;
+
+            const { data: profile } = await supabaseClient.from('user_profiles').select('points').eq('id', authData.user.id).single();
+            const newPoints = (profile ? profile.points : 0) + 5000;
+
+            const { error } = await supabaseClient.from('user_profiles').update({ points: newPoints }).eq('id', authData.user.id);
+
+            if (error) {
+                alert('충전에 실패했습니다.');
+            } else {
+                alert('5,000 포인트 충전이 완료되었습니다.');
+                closeChargeModal();
+                openPaymentModal();
+            }
+        }
+
+        async function processPayment() {
+            const confirmBtn = document.getElementById('payment-confirm-btn');
+            const originalText = confirmBtn.innerText;
+            confirmBtn.innerText = '처리 중...';
+            confirmBtn.disabled = true;
+
+            const { data, error } = await supabaseClient.rpc('unlock_fee_evaluation', {
+                target_evaluation_id: currentEvaluationId
+            });
+
+            confirmBtn.innerText = originalText;
+            confirmBtn.disabled = false;
+            closePaymentModal();
+
+            if (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+                return;
+            }
+
+            if (data.success) {
+                removeLock();
+            } else {
+                alert(data.message);
+            }
         }
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

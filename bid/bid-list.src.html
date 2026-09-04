@@ -59,13 +59,7 @@
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
     <div id="sticky-top-bar" class="w-full flex flex-col relative z-[900] shrink-0 bg-transparent">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
-                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center h-full">
-                    입찰공고
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
     </div>
 <!-- @include header-close -->
 
@@ -698,6 +692,9 @@
                 }).catch(error => { location.href = url; });
         }
         window.addEventListener('popstate', function(event) { location.reload(); });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

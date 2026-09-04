@@ -1,0 +1,938 @@
+<!-- 파일명: evote-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 evote-detail.html)
+     evote-list.html "업체용 상세열람" 버튼이 가리키는 페이지.
+     URL의 ?id=값으로 assembly_requests 테이블에서 의뢰 1건을 조회해 단지정보/
+     담당자 연락처/총회 일정·안건/진행 상황을 보여줌.
+     ★ 업체용 유료 열람 구조: fee-detail.html과 동일한 패턴(payment-modal →
+        processPayment → RPC unlock_assembly_request)으로 연동 완료.
+        assembly_requests.unlock_fee 컬럼과 assembly_request_unlocks 테이블을 통해
+        결제 시 포인트 차감 + 열람권 기록을 하나의 트랜잭션으로 처리하며, 이미 결제한
+        사용자는 페이지 로드 시 자동으로 블라인드가 해제됨(2026-09).
+        헤더/서브헤더/푸터는 다른 페이지와 동일하게 파샬(@include)로 조립. -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>총회 전문가 매칭 상세정보 | 대한집합건물관리협회</title>
+
+<style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
+           _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+           ⚠ 여기에 opacity 0→1 페이드 같은 "로딩 후 서서히 나타내기" 트릭을
+              다시 넣지 말 것. resume-list.html 원본 주석에 남아있듯,
+              그런 트릭을 View Transition(아래 view-transition-css 파샬)과
+              같이 쓰면 "이중 페이드"로 오히려 흰 화면이 더 도드라져 보이는
+              버그가 실제로 있었음. 이 파일은 순수 배경색 즉시 고정 용도로만
+              쓸 것. */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 6px;
+            /* ★ 2026-09: 굵은 직선 형태로 축소 (기존 56px 짜리 텍스트 바에서
+               텍스트를 전부 지우고 얇은 색상 바로 변경) — height 값은
+               common-css.html 쪽과 반드시 동일하게 맞출 것.
+               ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+               분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
+               형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
+               #main-header가 통째로 sticky라 자동으로 같이 고정됨.
+               (예전에 시도했던 position:sticky 오버라이드는 제거함) */
+        }
+
+        /* ★★★ 2026-08 추가 → 이후 되돌림: Tailwind CDN 스크립트가 렌더링을
+           막고있는 동안(로드 전) 페이지가 스타일 없이 날것으로 보이는 문제를
+           고치려고 script에 defer를 붙여봤었는데, 그러면 오른쪽 유틸리티
+           영역(알림·마이페이지·로그인)처럼 이 스킈레톤이 못 커버한 부분이
+           Tailwind 로드 전에 잠깐 글자가 겹쳐 보이는 "새로운" 버그가 생겨서
+           defer는 다시 뺐음 (지금은 원래대로 blocking script).
+
+           ★★★ 2026-08 추가 업데이트: 위 문제 자체가 이제 근본적으로 해결됨.
+           Tailwind CDN <script> 태그를 전부 걷어내고, 미리 빌드해둔 정적
+           파일(assets/css/tailwind.css)을 <link rel="stylesheet">로 불러오는
+           방식으로 교체함 (tailwind.config.js 참고). 이제 "CDN이 다운로드/
+           실행되길 기다리는 시간"이 아예 없어서 이 스킈레톤 CSS는 실질적으로
+           불필요해졌지만, 혹시 모를 안전망으로 그냥 남겨둠 (있어도 무해함 —
+           .css 파일과 값이 같아서 중복 적용일 뿐). */
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            #main-header nav { display: flex; }
+        }
+        /* ★ 2026-09 (4차 수정): 사용자 실측 결과 실제 페이지 폭이 803px로
+           나오는 환경(모니터 배율 등으로 인해 창은 넓어 보여도 실제 CSS 기준
+           폭은 좁게 잡히는 경우)에서도 가로 메뉴를 보이게 해달라는 요청.
+           768~1023px 구간은 원래 메뉴 6개+SOS 문구+아이콘을 다 넣기엔
+           여유가 부족한 폭이라, 이 구간에서만 폰트를 줄이고 SOS 문구 텍스트를
+           숨겨(아이콘만 유지) 최대한 겹치지 않게 압축함. 1024px 이상에서는
+           원래 여백대로 표시됨. */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 768px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+
+        /* ★ 2026-08 추가: 좌측 사이드 탭 메뉴(.side-menu-tab / .side-menu-tab-active)를
+           common-css.html이 아니라 여기(critical-css)에도 미리 정의해둠.
+           이 두 클래스는 원래 common-css.html에만 있었는데, common-css는 문서
+           순서상 Tailwind CDN <script> 태그보다 "뒤"에 온다. Tailwind CDN
+           스크립트는 렌더링을 막는(blocking) 스크립트라서, 그게 다운로드/실행
+           되는 동안에는 아직 뒤에 있는 common-css의 <style>이 파싱되기 전이라
+           활성 탭(파란 배경)이 잠깐 "흰색"으로 보였다가 그 직후 파란색으로
+           바뀌는 깜빡임이 있었음. Tailwind 스크립트보다 앞에 오는 이 파일에
+           동일한 규칙을 미리 넣어두면, 첫 렌더링부터 바로 파란색으로 나와서
+           깜빡임이 없어짐 (common-css.html 쪽 정의는 그대로 둬도 무해 — 값이
+           같아서 중복 적용일 뿐 충돌 없음). */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+    </style>
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
+           _partials/view-transition-css.html 파일만 고치고 build.js를 다시
+           실행할 것. 절대 각 페이지에서 직접 고치지 말 것.
+
+           ★★★ 2026-08 기준 크로스 문서 View Transition 기능을 완전히 껐음.
+           이유: 헤더 안 움직임 → 서브헤더 흰 화면 → 본문 울렁임 → 헤더가
+           오른쪽으로 갔다 돌아옴 → 입찰공고/구인구직 등 여전히 덜컹거림,
+           이런 식으로 한 군데 고치면 다른 데서 새로운 미세한 어긋남이
+           계속 튀어나왔음. 이 기능은 브라우저가 이전 페이지와 새 페이지의
+           스크린샷을 직접 찍어서 애니메이션시키는 방식이라, 코드만 보고
+           고치는 방식으로는 실제 브라우저에서 어떻게 보일지 확인이 안 되고
+           끝없이 두더지잡기가 됨.
+
+           그래서 아래 @view-transition 자체를 꺼서 그냥 "즉시 전환"(깜빡임
+           없이 바로 바뀌는 일반적인 페이지 이동)으로 되돌림. 헤더/서브헤더가
+           흔들리거나 밀리거나 울렁이는 문제가 구조적으로 있을 수 없음
+           (애니메이션 자체가 없으니까). 아래의 view-transition-name /
+           키프레임 코드들은 그대로 남겨뒀지만 @view-transition이 꺼져있는
+           동안은 전부 아무 효과가 없음 — 나중에 다시 켜고 싶으면 아래
+           @view-transition 블록의 주석만 풀면 됨. */
+        /*
+        @view-transition {
+            navigation: auto;
+        }
+        */
+        #main-header {
+            view-transition-name: site-header;
+        }
+        #page-content {
+            view-transition-name: page-content;
+        }
+        @keyframes page-content-out {
+            to { opacity: 0; }
+        }
+        @keyframes page-content-in {
+            from { opacity: 0; }
+        }
+        ::view-transition-old(page-content) {
+            animation: 150ms ease-in both page-content-out;
+        }
+        ::view-transition-new(page-content) {
+            animation: 200ms ease-out both page-content-in;
+        }
+        /* 핵심: 박스 크기/위치를 이전↔새 페이지 사이에서 자동으로
+           보간(모핑)하는 기본 동작을 꺼서 "들썩임"을 없앰 */
+        ::view-transition-group(page-content) {
+            animation: none;
+            width: 100%;
+            height: 100%;
+        }
+        ::view-transition-group(site-header) {
+            animation: none;
+        }
+        ::view-transition-old(site-header),
+        ::view-transition-new(site-header) {
+            animation: none;
+        }
+        /* ★ 2026-08: #sub-header-bar가 이제 header.html/header-close.html
+           분할 구조 덕분에 #main-header의 "자식"으로 들어가 있음 (예전엔
+           #page-content 쪽의 형제 요소였음). 그래서 따로 view-transition-name을
+           줄 필요가 없어짐 — 부모인 site-header(#main-header)의 캡처 영역에
+           자동으로 같이 포함됨. (오히려 여기 따로 이름을 주면 "이름표 붙은
+           요소를 또 다른 이름표 붙은 요소 안에 중첩"시키는 예전에 버그났던
+           패턴이 재발하니 절대 다시 추가하지 말 것 — 본문이 울렁이던 그 버그.) */
+        /* 안전장치: 같은 페이지 안에서 사이드 탭(AJAX)만 바뀔 때는
+           슬라이드 애니메이션이 절대 걸리지 않도록 강제로 끔.
+           AJAX 탭 전환이 있는 페이지(job-list/resume-list/bid-list 등)의
+           탭 전환 스크립트에서 이 클래스를 잠깐 추가했다가 제거해야 함. */
+        html.no-page-transition #page-content,
+        html.no-page-transition ::view-transition-group(page-content),
+        html.no-page-transition ::view-transition-old(page-content),
+        html.no-page-transition ::view-transition-new(page-content) {
+            animation: none !important;
+            transform: none !important;
+        }
+    </style>
+
+
+    <style>
+        /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
+           _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
+
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
+
+        /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+
+        /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
+           패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
+           (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+        .side-menu-active-wrapper { padding: 10px; }
+
+        /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
+        .left-scroll-area {
+            direction: rtl;
+            overflow-y: auto;
+            height: 100%;
+            padding-bottom: 2rem;
+        }
+        .left-scroll-area::-webkit-scrollbar { width: 6px; }
+        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+        .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+        /* ★ 우측 본문 영역 독립 스크롤 */
+        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+        .main-scroll-area::-webkit-scrollbar { width: 8px; }
+        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 커스텀 스크롤바 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 스크롤바 숨김 유틸리티 */
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* -------------------------------------
+           공통 헤더 관련 스타일
+           ------------------------------------- */
+        .sos-btn {
+            background-color: transparent;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+            padding: 5px 8px;
+            margin-left: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s;
+        }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background-color 0.15s;
+        }
+        .login-btn:hover { background-color: #1a252f; }
+
+        .mypage-btn-mobile {
+            background-color: #0088cc;
+            color: #ffffff;
+            transition: background-color 0.15s;
+        }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* 이 페이지(총회 전문가 매칭 상세) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 업체용 유료 열람 블라인드 처리 */
+        #locked-section.blur-locked {
+            filter: blur(6px);
+            user-select: none;
+            pointer-events: none;
+        }
+        #lock-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.35);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden page-board">
+
+<!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
+         _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+         이 버전은 여러 페이지에 흩어져 있던 기능을 하나로 합친 것:
+         - data-menu 속성 + 현재 페이지 메뉴 파란색 강조 (원래 bid-list.html에만 있던 기능)
+         - 같은 페이지 클릭 시 새로고침 방지 가드 (원래 job-list.html에만 있던 기능)
+         이제 모든 페이지에서 두 기능 다 적용됨. -->
+    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
+        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+
+            <!-- 1) 좌측 로고 -->
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
+            </div>
+
+            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
+            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+
+            <!-- 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn nav-sos">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </nav>
+
+            <!-- 3) 우측 유틸리티 영역 -->
+            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
+                <!-- 알림 종소리 및 드롭다운 컨테이너 -->
+                <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
+                    <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
+                    <!-- 알림 개수 뱃지 (초기 숨김) -->
+                    <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
+                        0
+                    </span>
+
+                    <!-- 알림 목록 드롭다운 창 (초기 숨김) -->
+                    <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
+                        <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
+                        <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default">
+                            <!-- JS를 통해 여기에 알림 내역이 들어갑니다 -->
+                        </ul>
+                    </div>
+                </div>
+
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+            </div>
+
+            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            </button>
+        </header>
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
+</div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+
+            <!-- 모바일 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </div>
+
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <!-- 모바일 알림 버튼 -->
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                    <i class="fa-regular fa-bell mr-1"></i> 알림
+                    <!-- 모바일 알림 개수 뱃지 (초기 숨김) -->
+                    <span id="mobile-notification-badge" class="hidden absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">
+                        0
+                    </span>
+                </div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 메뉴 열기/닫기 스크립트
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
+        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
+        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
+        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
+        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
+        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
+        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '../../login.html'; };
+                }
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
+        // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
+        async function fetchUnreadCount() {
+            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
+            if (!window.sb) {
+                return;
+            }
+            
+            const { data: { user } } = await window.sb.auth.getUser();
+            if (!user) {
+                console.log("로그인된 사용자가 없습니다.");
+                return; 
+            }
+
+            const { count, error } = await supabase
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false);
+
+            if (error) {
+                console.error('알림 개수 로드 오류:', error);
+                return;
+            }
+
+            // ★ 원인 파악을 위한 디버깅 로그 추가 ★
+            console.log("알림 개수:", count, "로그인 유저:", user.id);
+
+            const pcBadge = document.getElementById('notification-badge');
+            const mobileBadge = document.getElementById('mobile-notification-badge');
+
+            if (count > 0) {
+                if (pcBadge) { pcBadge.innerText = count; pcBadge.classList.remove('hidden'); }
+                if (mobileBadge) { mobileBadge.innerText = count; mobileBadge.classList.remove('hidden'); }
+            } else {
+                if (pcBadge) pcBadge.classList.add('hidden');
+                if (mobileBadge) mobileBadge.classList.add('hidden');
+            }
+        }
+
+        async function loadNotifications() {
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
+            if (!user) return;
+
+            const listContainer = document.getElementById('notification-list');
+            if (!listContainer) return;
+
+            const { data, error } = await window.sb
+                .from('notifications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            listContainer.innerHTML = ''; 
+
+            if (error) {
+                console.error('알림 로드 오류:', error);
+                return;
+            }
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<li class="px-4 py-3 text-sm text-gray-500">새로운 알림이 없습니다.</li>';
+                return;
+            }
+
+            data.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = `px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 ${notification.is_read ? 'text-gray-500' : 'text-black font-medium bg-blue-50'}`;
+                li.innerText = notification.message;
+                
+                li.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (!notification.is_read) {
+                        await window.sb
+                            .from('notifications')
+                            .update({ is_read: true })
+                            .eq('id', notification.id);
+                    }
+                    if (notification.link_url) {
+                        window.location.href = notification.link_url;
+                    }
+                };
+                listContainer.appendChild(li);
+            });
+        }
+
+        // 현재 페이지에 해당하는 GNB 메뉴 파란색 강조 및 알림 이벤트 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.gnb-item').forEach(item => {
+                const menuKey = item.getAttribute('data-menu');
+                if (menuKey && currentPath.includes('/' + menuKey + '/')) {
+                    item.classList.add('text-[#0088cc]');
+                }
+            });
+
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+                const updateHeaderHeightVar = () => {
+                    const h = headerEl.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+                };
+                updateHeaderHeightVar();
+                const ro = new ResizeObserver(updateHeaderHeightVar);
+                ro.observe(headerEl);
+            }
+
+            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
+
+            // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
+            const bellContainer = document.getElementById('bell-container');
+            const dropdown = document.getElementById('notification-dropdown');
+            
+            if (bellContainer && dropdown) {
+                bellContainer.addEventListener('click', (e) => {
+                    // 드롭다운 내부 클릭 시 닫히지 않도록 방지
+                    if(e.target.closest('#notification-dropdown')) return;
+                    
+                    dropdown.classList.toggle('hidden');
+                    if (!dropdown.classList.contains('hidden')) {
+                        loadNotifications();
+                    }
+                });
+
+                // 빈 화면 클릭 시 드롭다운 닫기
+                document.addEventListener('click', (e) => {
+                    if (!bellContainer.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+
+        <!-- 중앙 정렬 메인 콘텐츠 (사이드바 없는 구조) -->
+        <main class="max-w-[1000px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col gap-6 flex-1 items-start">
+            <div class="w-full flex justify-between items-end pb-3 border-b-2 border-[#2563eb]">
+                <h3 class="text-[22px] font-bold text-[#2563eb]">총회 전문가(헬퍼) 매칭 의뢰 상세</h3>
+                <button onclick="location.href='evote-list.html'" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-md hover:bg-gray-200 shadow-sm">목록으로</button>
+            </div>
+
+            <div class="w-full bg-white border border-gray-200 rounded-md shadow-sm p-8 space-y-6">
+
+                <!-- 상단 기본 정보 (공개 정보 — 블라인드 대상 아님) -->
+                <div class="border-b pb-6">
+                    <span id="detail-status" class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-md inline-block mb-3">불러오는 중</span>
+                    <h2 id="detail-title" class="text-2xl font-bold text-gray-900 mb-2">단지 정보를 불러오는 중...</h2>
+                    <p id="detail-summary" class="text-gray-500"></p>
+                </div>
+
+                <!-- 업체용 열람 대상 정보 (연락처/일정·안건/진행상황) -->
+                <div id="locked-section" class="blur-locked relative space-y-6">
+
+                    <!-- 의뢰인 정보 -->
+                    <div class="bg-blue-50 p-5 rounded-md border border-blue-100 flex flex-col md:flex-row gap-4 items-center">
+                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shrink-0">
+                            <i class="fas fa-building-user"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-blue-600 font-bold mb-1">의뢰 단지 / 담당자</p>
+                            <p id="detail-contact" class="text-lg font-bold text-gray-900"></p>
+                        </div>
+                    </div>
+
+                    <!-- 총회 일정 및 안건 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                            <p class="text-sm text-gray-500 font-bold mb-1"><i class="fas fa-calendar-check mr-1"></i> 예상 총회 일정</p>
+                            <p id="detail-date" class="text-md font-bold text-gray-900"></p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                            <p class="text-sm text-gray-500 font-bold mb-1"><i class="fas fa-gavel mr-1"></i> 주요 안건</p>
+                            <p id="detail-type" class="text-md font-bold text-gray-900"></p>
+                        </div>
+                    </div>
+
+                    <!-- 진행 상황 및 요청 사항 -->
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-clipboard-list text-gray-400 mr-2"></i>진행 상황 및 요청 사항</h4>
+                        <div id="detail-purpose" class="bg-gray-50 p-6 rounded-md border border-gray-200 text-gray-700 min-h-[150px] leading-relaxed">
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /locked-section -->
+
+            </div>
+        </main>
+
+        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+        <script src="../../assets/js/footer.js?v=1.3"></script>
+    </div>
+</div>
+
+    <!-- ================= 결제 모달창 ================= -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 w-[500px] shadow-xl text-center">
+            <h2 class="text-xl font-bold mb-6 text-gray-800">상세정보 열람 수수료 결제</h2>
+            <div class="mb-8">
+                <p class="text-[15px] text-gray-700 whitespace-nowrap mb-4">담당자 연락처, 총회 일정·안건, 진행 상황을 열람하시겠습니까?</p>
+                <div class="text-[16px] flex items-center justify-center gap-2">
+                    <span class="font-bold text-gray-800">열람 수수료 : </span>
+                    <span class="font-bold text-red-600"><span id="modal-fee-text">0</span> 포인트</span>
+                    <span id="modal-remaining-container">
+                        <!-- 포인트 상황에 따라 자동 교체됨 -->
+                    </span>
+                </div>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="closePaymentModal()" class="w-[140px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition text-center">취소</button>
+                <button id="payment-confirm-btn" onclick="processPayment()" class="w-[140px] py-2.5 bg-[#dbeafe] text-black font-bold rounded-md hover:bg-[#bfdbfe] transition text-center">결제 진행하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 포인트 충전 팝업 모달창 ================= -->
+    <div id="charge-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[9999] hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-[400px] shadow-xl text-center">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">포인트 충전</h2>
+            <div class="mb-6 text-gray-700 text-[15px]">
+                <p>포인트가 부족하여 열람할 수 없습니다.</p>
+                <p class="font-bold text-blue-600 mt-2">5,000 포인트를 충전하시겠습니까?</p>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">취소</button>
+                <button onclick="processCharge()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">충전하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentRequestData = null;
+        let currentRequestId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestId = urlParams.get('id');
+            currentRequestId = requestId;
+
+            if (!requestId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'evote-list.html';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('assembly_requests')
+                .select('*')
+                .eq('id', requestId)
+                .single();
+
+            if (error || !data) {
+                alert('데이터를 불러오는데 실패했습니다.');
+                return;
+            }
+
+            currentRequestData = data;
+
+            // 공개 정보 바인딩
+            document.getElementById('detail-status').innerText = data.status || '헬퍼 모집중';
+            document.getElementById('detail-title').innerText = data.title;
+
+            // 단지 요약에는 지역 정보와 요약을 합쳐서 표기
+            document.getElementById('detail-summary').innerText = `[${data.location}] ${data.building_summary} | 주요안건: ${data.assembly_type}`;
+
+            // 블라인드 처리된 비공개 정보 바인딩
+            document.getElementById('detail-contact').innerText = `${data.client_name} (${data.client_contact})`;
+            document.getElementById('detail-date').innerText = data.expected_date;
+            document.getElementById('detail-type').innerText = data.assembly_type;
+
+            let formattedDetails = (data.details || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            document.getElementById('detail-purpose').innerHTML = formattedDetails;
+
+            // 이미 결제(열람권 보유)한 사용자는 자동으로 블라인드 해제
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (authData.user) {
+                const { data: unlockRow } = await supabaseClient
+                    .from('assembly_request_unlocks')
+                    .select('user_id')
+                    .eq('user_id', authData.user.id)
+                    .eq('request_id', requestId)
+                    .maybeSingle();
+
+                if (unlockRow) {
+                    removeLock();
+                    return;
+                }
+            }
+
+            renderLockOverlay();
+        });
+
+        function removeLock() {
+            const lockedSection = document.getElementById('locked-section');
+            lockedSection.classList.remove('blur-locked');
+            const overlay = document.getElementById('lock-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        function renderLockOverlay() {
+            const fee = (currentRequestData && currentRequestData.unlock_fee) || 10000;
+            const lockedSection = document.getElementById('locked-section');
+            const overlay = document.createElement('div');
+            overlay.id = 'lock-overlay';
+            overlay.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-lock text-3xl text-[#12387a] mb-3"></i>
+                    <p class="text-[15px] font-bold text-gray-800 mb-1">업체 전용 상세정보입니다</p>
+                    <p class="text-[13px] text-gray-500 mb-4">담당자 연락처, 의뢰 목적, 상세 내용은<br>결제 후 열람하실 수 있습니다.</p>
+                </div>
+                <button onclick="openPaymentModal()" class="px-6 py-3 bg-[#2563eb] text-white font-bold text-[14px] rounded-lg hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    <i class="fas fa-unlock"></i> ${fee.toLocaleString()}원 결제 후 열람하기
+                </button>
+            `;
+            lockedSection.appendChild(overlay);
+        }
+
+        let currentFee = 0;
+
+        async function openPaymentModal() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            currentFee = (currentRequestData && currentRequestData.unlock_fee) || 10000;
+
+            const { data: profile } = await supabaseClient
+                .from('user_profiles')
+                .select('points')
+                .eq('id', authData.user.id)
+                .single();
+
+            const userPoints = profile ? profile.points : 0;
+            const remaining = userPoints - currentFee;
+
+            document.getElementById('modal-fee-text').innerText = currentFee.toLocaleString();
+            const remainingContainer = document.getElementById('modal-remaining-container');
+            const confirmBtn = document.getElementById('payment-confirm-btn');
+
+            if (remaining >= 0) {
+                remainingContainer.innerHTML = `<span class="text-blue-600 font-bold ml-1">(결제후 ${remaining.toLocaleString()}포인트 남음)</span>`;
+                confirmBtn.disabled = false;
+                confirmBtn.className = "w-[140px] py-2.5 bg-[#dbeafe] text-black font-bold rounded-md hover:bg-[#bfdbfe] transition text-center cursor-pointer";
+            } else {
+                remainingContainer.innerHTML = `<span class="text-blue-600 font-bold ml-2 cursor-pointer underline hover:text-blue-800 transition" onclick="openChargeModal()">포인트 충전하기</span>`;
+                confirmBtn.disabled = true;
+                confirmBtn.className = "w-[140px] py-2.5 bg-gray-300 text-gray-500 font-bold rounded-md cursor-not-allowed text-center";
+            }
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function openChargeModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('charge-modal').classList.remove('hidden');
+        }
+
+        function closeChargeModal() {
+            document.getElementById('charge-modal').classList.add('hidden');
+        }
+
+        async function processCharge() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) return;
+
+            const { data: profile } = await supabaseClient.from('user_profiles').select('points').eq('id', authData.user.id).single();
+            const newPoints = (profile ? profile.points : 0) + 5000;
+
+            const { error } = await supabaseClient.from('user_profiles').update({ points: newPoints }).eq('id', authData.user.id);
+
+            if (error) {
+                alert('충전에 실패했습니다.');
+            } else {
+                alert('5,000 포인트 충전이 완료되었습니다.');
+                closeChargeModal();
+                openPaymentModal();
+            }
+        }
+
+        async function processPayment() {
+            const confirmBtn = document.getElementById('payment-confirm-btn');
+            const originalText = confirmBtn.innerText;
+            confirmBtn.innerText = '처리 중...';
+            confirmBtn.disabled = true;
+
+            const { data, error } = await supabaseClient.rpc('unlock_assembly_request', {
+                target_request_id: currentRequestId
+            });
+
+            confirmBtn.innerText = originalText;
+            confirmBtn.disabled = false;
+            closePaymentModal();
+
+            if (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+                return;
+            }
+
+            if (data.success) {
+                removeLock();
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

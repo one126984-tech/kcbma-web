@@ -56,13 +56,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center">
-            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide">
-                관리자
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
 <!-- @include header-close -->
 
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
@@ -278,5 +272,9 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

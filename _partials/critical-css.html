@@ -1,4 +1,4 @@
-    <style>
+<style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
            절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
@@ -11,8 +11,11 @@
               쓸 것. */
         #main-header { background-color: #ffffff; }
         #sub-header-bar {
-            background-color: #12387a; height: 56px;
-            /* ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+            background-color: #12387a; height: 6px;
+            /* ★ 2026-09: 굵은 직선 형태로 축소 (기존 56px 짜리 텍스트 바에서
+               텍스트를 전부 지우고 얇은 색상 바로 변경) — height 값은
+               common-css.html 쪽과 반드시 동일하게 맞출 것.
+               ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
                분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
                형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
                #main-header가 통째로 sticky라 자동으로 같이 고정됨.
@@ -42,14 +45,25 @@
             display: none; flex: 1; justify-content: space-between; align-items: center;
             padding: 0 24px; white-space: nowrap;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header nav { display: flex; }
+        }
+        /* ★ 2026-09 (4차 수정): 사용자 실측 결과 실제 페이지 폭이 803px로
+           나오는 환경(모니터 배율 등으로 인해 창은 넓어 보여도 실제 CSS 기준
+           폭은 좁게 잡히는 경우)에서도 가로 메뉴를 보이게 해달라는 요청.
+           768~1023px 구간은 원래 메뉴 6개+SOS 문구+아이콘을 다 넣기엔
+           여유가 부족한 폭이라, 이 구간에서만 폰트를 줄이고 SOS 문구 텍스트를
+           숨겨(아이콘만 유지) 최대한 겹치지 않게 압축함. 1024px 이상에서는
+           원래 여백대로 표시됨. */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
         }
         #main-header .sos-btn {
             display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
         #main-header > header > button { display: block; }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header > header > button { display: none; }
         }
         #sub-header-bar {

@@ -11,7 +11,7 @@
 
             <!-- 1) 좌측 로고 -->
             <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='{{BASE}}index.html'">
-            <img src="{{BASE}}assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='{{BASE}}방패로고.jpg'">
+            <img src="{{BASE}}assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
@@ -50,7 +50,7 @@
                 </div>
 
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='{{BASE}}mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div onclick="if(!location.pathname.endsWith('login.html')) location.href='{{BASE}}login.html'" class="login-btn">로그인</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='{{BASE}}login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">

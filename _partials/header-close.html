@@ -37,7 +37,7 @@
                 </div>
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='{{BASE}}mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div onclick="location.href='{{BASE}}login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='{{BASE}}login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
     </div>
@@ -55,15 +55,65 @@
             }
         }
 
+        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
+        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
+        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
+        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
+        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
+        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
+        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '{{BASE}}login.html'; };
+                }
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // supabase가 없으면 함수 종료 (에러 방지)
-            if (typeof supabase === 'undefined') {
-                console.log("Supabase 객체를 찾을 수 없습니다. (스크립트 로딩 순서 확인 필요)");
+            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
+            if (!window.sb) {
                 return;
             }
             
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) {
                 console.log("로그인된 사용자가 없습니다.");
                 return; 
@@ -96,14 +146,14 @@
         }
 
         async function loadNotifications() {
-            if (typeof supabase === 'undefined') return;
-            const { data: { user } } = await supabase.auth.getUser();
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) return;
 
             const listContainer = document.getElementById('notification-list');
             if (!listContainer) return;
 
-            const { data, error } = await supabase
+            const { data, error } = await window.sb
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
@@ -130,7 +180,7 @@
                 li.onclick = async (e) => {
                     e.stopPropagation();
                     if (!notification.is_read) {
-                        await supabase
+                        await window.sb
                             .from('notifications')
                             .update({ is_read: true })
                             .eq('id', notification.id);
@@ -164,8 +214,8 @@
                 ro.observe(headerEl);
             }
 
-            // 알림 개수 불러오기 실행
-            fetchUnreadCount();
+            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
 
             // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');

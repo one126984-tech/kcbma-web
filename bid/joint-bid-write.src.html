@@ -1,4 +1,7 @@
-<!-- 파일명: joint-bid-write.src.html -->
+<!-- 파일명: joint-bid-write.src.html
+     ★ 2026-09: joint_bids 테이블에 실제 insert하도록 연동됨. 로그인 확인 후
+     등록 완료 시 joint-bid-detail.html?id=...로 이동. 첨부파일(과업지시서)은
+     아직 Storage 업로드가 연결되지 않아 UI만 있고 실제로 저장되지 않음. -->
 <!-- @var PAGE_CLASS: page-bid-write -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -59,13 +62,7 @@
 <!-- @include header -->
 
     <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full cursor-pointer" onclick="location.href='joint-bid.html'">
-                    <i class="fas fa-chevron-left mr-3 text-lg opacity-80"></i> 공고 등록
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -110,7 +107,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="input-group mb-0">
                             <label class="input-label">업무 분류 <span class="required">*</span></label>
-                            <select class="form-select">
+                            <select id="f-category" class="form-select">
                                 <option value="">분류를 선택하세요</option>
                                 <option value="소방시설">소방시설·점검</option>
                                 <option value="전기설비">전기·통신설비</option>
@@ -125,7 +122,7 @@
 
                         <div class="input-group mb-0">
                             <label class="input-label">대상 지역 (대분류) <span class="required">*</span></label>
-                            <select class="form-select">
+                            <select id="f-region" class="form-select">
                                 <option value="">지역을 선택하세요</option>
                                 <option value="전국">전국 연합</option>
                                 <option value="서울">서울</option>
@@ -138,7 +135,7 @@
 
                     <div class="input-group mt-6">
                         <label class="input-label">연합 입찰 공고 제목 <span class="required">*</span></label>
-                        <input type="text" class="form-input" placeholder="예: [일산/고양] 오피스텔 소방종합정밀점검 연합 입찰 모집">
+                        <input type="text" id="f-title" class="form-input" placeholder="예: [일산/고양] 오피스텔 소방종합정밀점검 연합 입찰 모집">
                     </div>
                 </div>
 
@@ -148,21 +145,21 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="input-group mb-0">
                             <label class="input-label">참여 단지 모집 마감일 <span class="required">*</span></label>
-                            <input type="date" class="form-input">
+                            <input type="date" id="f-deadline" class="form-input">
                             <div class="form-hint"><i class="fas fa-clock"></i> 해당 일자 자정에 모집이 자동 마감됩니다.</div>
                         </div>
 
                         <div class="input-group mb-0">
                             <label class="input-label">목표 단지 수 (최소 요건) <span class="required">*</span></label>
                             <div class="relative">
-                                <input type="number" class="form-input pr-10" placeholder="숫자만 입력 (예: 10)">
+                                <input type="number" id="f-target-count" class="form-input pr-10" placeholder="숫자만 입력 (예: 10)">
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">곳</span>
                             </div>
                         </div>
 
                         <div class="input-group mb-0">
                             <label class="input-label">목표 달성 시 예상 혜택 <span class="required">*</span></label>
-                            <input type="text" class="form-input" placeholder="예: 15%~20% 할인 보장">
+                            <input type="text" id="f-benefit" class="form-input" placeholder="예: 15%~20% 할인 보장">
                             <div class="form-hint"><i class="fas fa-bullhorn"></i> 리스트에 강조되어 표시될 문구입니다.</div>
                         </div>
                     </div>
@@ -173,7 +170,7 @@
 
                     <div class="input-group">
                         <label class="input-label">과업 개요 및 필수 포함 사항 <span class="required">*</span></label>
-                        <textarea class="form-textarea h-48 resize-y" placeholder="업체들이 투찰 시 반드시 고려해야 할 조건, 점검 방식, 포함되어야 할 서비스 내용 등을 상세히 적어주세요.&#13;&#10;&#13;&#10;[작성 예시]&#13;&#10;1. 소방시설 작동기능점검 및 종합정밀점검 포함&#13;&#10;2. 점검 시 발견된 불량 내역 수리 시, 부품비 10% 추가 할인 적용 必&#13;&#10;3. 관할 소방서 서류 제출 대행 포함"></textarea>
+                        <textarea id="f-task" class="form-textarea h-48 resize-y" placeholder="업체들이 투찰 시 반드시 고려해야 할 조건, 점검 방식, 포함되어야 할 서비스 내용 등을 상세히 적어주세요.&#13;&#10;&#13;&#10;[작성 예시]&#13;&#10;1. 소방시설 작동기능점검 및 종합정밀점검 포함&#13;&#10;2. 점검 시 발견된 불량 내역 수리 시, 부품비 10% 추가 할인 적용 必&#13;&#10;3. 관할 소방서 서류 제출 대행 포함"></textarea>
                     </div>
 
                     <div class="input-group mb-0">
@@ -203,7 +200,12 @@
     <div id="footer-container"></div>
 
     <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         document.addEventListener('DOMContentLoaded', () => {
             const fileInput = document.getElementById('file-upload');
             const uploadBox = document.querySelector('.file-upload-box');
@@ -220,10 +222,57 @@
             });
         });
 
-        function submitBid() {
+        async function submitBid() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const category = document.getElementById('f-category').value;
+            const region = document.getElementById('f-region').value;
+            const title = document.getElementById('f-title').value.trim();
+            const deadline = document.getElementById('f-deadline').value;
+            const targetCount = parseInt(document.getElementById('f-target-count').value, 10);
+            const benefitText = document.getElementById('f-benefit').value.trim();
+            const taskDescription = document.getElementById('f-task').value.trim();
+
+            if (!category || !region || !title || !deadline || !targetCount || !benefitText || !taskDescription) {
+                alert('필수 항목(*)을 모두 입력해주세요.');
+                return;
+            }
+
+            const submitBtn = document.querySelector('.btn-submit');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = '등록 중...';
+
+            const { data, error } = await supabaseClient
+                .from('joint_bids')
+                .insert([{
+                    category, region, title, deadline,
+                    target_count: targetCount,
+                    benefit_text: benefitText,
+                    task_description: taskDescription,
+                    created_by: authData.user.id
+                }])
+                .select();
+
+            if (error) {
+                alert('공고 등록에 실패했습니다: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+                return;
+            }
+
             alert('새로운 우수업체 공동선정 공고가 성공적으로 등록되었습니다.');
-            window.location.href = 'joint-bid.html';
+            const newId = data && data[0] && data[0].id;
+            window.location.href = newId ? `joint-bid-detail.html?id=${newId}` : 'joint-bid.html';
         }
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>

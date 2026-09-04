@@ -54,21 +54,13 @@
          핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-40 shrink-0 shadow-sm">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="w-full md:w-[220px] shrink-0 flex items-center justify-center">
-                <div class="text-white font-bold text-xl md:text-2xl tracking-wide px-1">
-                    관리단 코너
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
     <!-- ★ 스크롤 영역 시작 -->
-    <div class="flex-1 custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
 
         <!-- 메인 콘텐츠 레이아웃 -->
         <main class="max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col md:flex-row gap-8 flex-1 items-start">
@@ -82,7 +74,7 @@
                         <div class="side-menu-tab" onclick="location.href='fee-list.html'">
                             <span>관리비 비교·평가</span>
                         </div>
-                        <div class="side-menu-tab" data-tab="evote" onclick="switchTab('evote', this)">
+                        <div class="side-menu-tab" onclick="location.href='evote-list.html'">
                             <span>전자투표·총회 대행</span>
                         </div>
                     </div>
@@ -92,18 +84,17 @@
             <div class="flex-1 min-w-0 h-auto relative flex flex-col mt-0">
 
                 <section class="flex-1 shrink-0 pb-8">
-                    <!-- 관리단 코너 종합 이용 안내 (탭과 무관하게 항상 표시) -->
+                    <!-- 위탁관리사 선정 공고 및 매칭 안내 -->
                     <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-8 flex gap-5 md:gap-6 items-start shadow-sm">
                         <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
                             <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">관리단 코너 종합 이용 안내</h3>
+                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">위탁관리사 선정 공고 및 매칭 안내</h3>
                             <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>위탁관리사 선정:</b> 투명하고 공정한 공개경쟁 입찰을 통해 단지에 최적화된 위탁관리업체를 선정하실 수 있습니다.</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>관리비 비교·평가:</b> 관리단 또는 입주민 그룹은 무료로 평가를 의뢰하고, 여러 전문 업체들의 객관적인 진단을 받아보세요!</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전자투표·총회 대행:</b> 법적 효력을 완벽히 갖춘 안전하고 편리한 전자투표 및 총회 진행을 지원합니다.</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>유료 서비스 안내:</b> 파트너 업체의 상세정보 열람 및 매칭, 총회 대행 등 일부 기능은 <span class="text-red-600 font-bold">사전 안내 후 유료</span>로 진행됩니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>공개경쟁 입찰:</b> 투명하고 공정한 입찰 과정을 통해 단지에 최적화된 위탁관리업체를 선정할 수 있습니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>상세정보 보호:</b> 단지의 세부 정보와 담당자 연락처는 철저히 블라인드 처리되며 안전하게 보호됩니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>업체 제안 확인:</b> 위탁관리사가 소정의 열람 수수료를 결제한 후 상세 내역을 확인하고 단지에 맞춤 제안을 보냅니다.</span></li>
                             </ul>
                         </div>
                     </div>
@@ -210,11 +201,7 @@
         let currentFee = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // fee-list.html 사이드바에서 "전자투표·총회 대행"을 클릭하면
-            // board-corner.html?tab=evote 로 넘어오므로 그 경우만 evote 탭을 열어줌.
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialTab = urlParams.get('tab') === 'evote' ? 'evote' : 'management';
-            switchTab(initialTab);
+            switchTab('management');
         });
 
         async function fetchBiddings() {
@@ -248,15 +235,9 @@
             });
         }
 
-        // "관리비 비교·평가"는 별도 페이지(fee-list.html)로 분리됨 —
-        // 관련 조회 로직은 fee-list.src.html 참고.
-
-        // "전자투표·총회 대행" 탭: 아직 실제 데이터/기능 연동 전이라 준비중 안내만 표시.
-        function renderEvoteComingSoon() {
-            const listContainer = document.getElementById('bidding-list');
-            document.getElementById('content-count').innerText = 0;
-            listContainer.innerHTML = `<div class="text-center text-gray-400 py-16 bg-white border border-gray-200 rounded-md">전자투표·총회 대행 서비스는 준비 중입니다.</div>`;
-        }
+        // "관리비 비교·평가"는 별도 페이지(fee-list.html)로, "전자투표·총회 대행"은
+        // 별도 페이지(evote-list.html)로 완전히 분리됨 — 관련 조회 로직은
+        // 각각 fee-list.src.html / evote-list.src.html 참고.
 
         async function openPaymentModal(btn, biddingId, fee) {
             currentTargetBtn = btn;
@@ -403,13 +384,15 @@
                 registerBtn.innerHTML = '<i class="fas fa-pen mr-1"></i> 공고 등록';
                 registerBtn.onclick = () => location.href = 'board-write.html';
                 fetchBiddings();
-            } else if (type === 'evote') {
-                titleEl.innerText = "전자투표 및 총회 개최 지원 서비스";
-                countSuffixEl.innerText = "";
-                registerBtn.style.display = 'none';
-                renderEvoteComingSoon();
             }
         }
     </script>
+ <!-- 페이지 경로 기준점 설정 (루트 기준) -->
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+    
+    <!-- 절대 경로(/)로 스크립트 불러오기 -->
+
 </body>
 </html>

@@ -55,13 +55,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center relative z-[800] shrink-0">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
-                자격증
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-[800] shrink-0"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
@@ -263,6 +257,10 @@
         document.getElementById('cert-number-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') handleSearch();
         });
+    </script>
+
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

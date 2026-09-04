@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>입찰공고 | 대한집합건물관리협회</title>
 
-    <style>
+<style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
            절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
@@ -20,8 +20,11 @@
               쓸 것. */
         #main-header { background-color: #ffffff; }
         #sub-header-bar {
-            background-color: #12387a; height: 56px;
-            /* ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+            background-color: #12387a; height: 6px;
+            /* ★ 2026-09: 굵은 직선 형태로 축소 (기존 56px 짜리 텍스트 바에서
+               텍스트를 전부 지우고 얇은 색상 바로 변경) — height 값은
+               common-css.html 쪽과 반드시 동일하게 맞출 것.
+               ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
                분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
                형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
                #main-header가 통째로 sticky라 자동으로 같이 고정됨.
@@ -51,14 +54,25 @@
             display: none; flex: 1; justify-content: space-between; align-items: center;
             padding: 0 24px; white-space: nowrap;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header nav { display: flex; }
+        }
+        /* ★ 2026-09 (4차 수정): 사용자 실측 결과 실제 페이지 폭이 803px로
+           나오는 환경(모니터 배율 등으로 인해 창은 넓어 보여도 실제 CSS 기준
+           폭은 좁게 잡히는 경우)에서도 가로 메뉴를 보이게 해달라는 요청.
+           768~1023px 구간은 원래 메뉴 6개+SOS 문구+아이콘을 다 넣기엔
+           여유가 부족한 폭이라, 이 구간에서만 폰트를 줄이고 SOS 문구 텍스트를
+           숨겨(아이콘만 유지) 최대한 겹치지 않게 압축함. 1024px 이상에서는
+           원래 여백대로 표시됨. */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
         }
         #main-header .sos-btn {
             display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
         #main-header > header > button { display: block; }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header > header > button { display: none; }
         }
         #sub-header-bar {
@@ -92,7 +106,6 @@
             font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
         }
     </style>
-
 
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
@@ -190,7 +203,7 @@
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
 
         #main-header { background-color: #ffffff; }
-        #sub-header-bar { background-color: #12387a; height: 56px; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
 
         /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
         .side-menu-tab {
@@ -325,7 +338,7 @@
 
             <!-- 1) 좌측 로고 -->
             <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
-            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
@@ -364,7 +377,7 @@
                 </div>
 
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -381,13 +394,7 @@
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
     <div id="sticky-top-bar" class="w-full flex flex-col relative z-[900] shrink-0 bg-transparent">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
-                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center h-full">
-                    입찰공고
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
     </div>
 </div>
 
@@ -428,7 +435,7 @@
                 </div>
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
     </div>
@@ -446,15 +453,65 @@
             }
         }
 
+        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
+        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
+        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
+        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
+        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
+        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
+        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '../../login.html'; };
+                }
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // supabase가 없으면 함수 종료 (에러 방지)
-            if (typeof supabase === 'undefined') {
-                console.log("Supabase 객체를 찾을 수 없습니다. (스크립트 로딩 순서 확인 필요)");
+            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
+            if (!window.sb) {
                 return;
             }
             
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) {
                 console.log("로그인된 사용자가 없습니다.");
                 return; 
@@ -487,14 +544,14 @@
         }
 
         async function loadNotifications() {
-            if (typeof supabase === 'undefined') return;
-            const { data: { user } } = await supabase.auth.getUser();
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) return;
 
             const listContainer = document.getElementById('notification-list');
             if (!listContainer) return;
 
-            const { data, error } = await supabase
+            const { data, error } = await window.sb
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
@@ -521,7 +578,7 @@
                 li.onclick = async (e) => {
                     e.stopPropagation();
                     if (!notification.is_read) {
-                        await supabase
+                        await window.sb
                             .from('notifications')
                             .update({ is_read: true })
                             .eq('id', notification.id);
@@ -555,8 +612,8 @@
                 ro.observe(headerEl);
             }
 
-            // 알림 개수 불러오기 실행
-            fetchUnreadCount();
+            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
 
             // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');
@@ -1212,6 +1269,9 @@
                 }).catch(error => { location.href = url; });
         }
         window.addEventListener('popstate', function(event) { location.reload(); });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

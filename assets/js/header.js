@@ -50,20 +50,21 @@
         
         <!-- 1) 좌측 로고 (메인화면 이동) -->
         <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" data-href="${basePath}index.html" onclick="handleNavigation(this)">
-          <img src="${basePath}assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='${basePath}방패로고.jpg'">
+          <img src="${basePath}assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
         </div>
         
         <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
         <nav class="hidden lg:flex flex-1 justify-center items-center gap-6 xl:gap-9 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
-          <div data-menu="about" data-href="${basePath}pages/about/about.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
-          <div data-menu="jobs" data-href="${basePath}pages/jobs/job-list.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
-          <div data-menu="bid" data-href="${basePath}pages/bid/bid-list.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-          <div data-menu="cert" data-href="${basePath}pages/cert/cert-list.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
-          <div data-menu="management" data-href="${basePath}pages/management/management.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단코너</div>
-          <div data-menu="community" data-href="${basePath}pages/community/field-experience.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+          <div data-menu="about" data-href="${basePath}about/about.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+          <div data-menu="jobs" data-href="${basePath}jobs/job-list.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+          <div data-menu="bid" data-href="${basePath}bid/bid-list.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+          <div data-menu="cert" data-href="${basePath}cert/cert-list.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+          <!-- 💡 관리단코너 경로 최종 수정 -->
+          <div data-menu="board-corner" data-href="${basePath}board/board-corner.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단코너</div>
+          <div data-menu="community" data-href="${basePath}community/field-experience.html" onclick="handleNavigation(this)" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
           
-          <!-- 이미지와 동일한 텍스트형 긴급SOS 호출 -->
-          <div data-menu="sos" data-href="${basePath}pages/SOS/sos-request.html" onclick="handleNavigation(this)" class="cursor-pointer text-[#dc2626] font-bold hover:text-[#b91c1c] pb-1 transition-colors flex items-center gap-1.5 ml-2">
+          <!-- 이미지와 동일한 텍스트형 긴급SOS 호출 (빨간색 강제 적용) -->
+          <div data-menu="sos" data-href="${basePath}sos/sos-request.html" onclick="handleNavigation(this)" class="cursor-pointer font-bold hover:text-[#b91c1c] pb-1 transition-colors flex items-center gap-1.5 ml-2" style="color: #ef4444;">
             <i class="fa-solid fa-phone"></i>
             <span>긴급 SOS 호출</span>
           </div>
@@ -77,8 +78,9 @@
             <span class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">2</span>
           </div>
           
-          <div data-href="${basePath}pages/mypage/dashboard.html" onclick="handleNavigation(this)" class="cursor-pointer text-[15px] hover:text-[#0088cc]">마이페이지</div>
-          <div onclick="window.location.href='${basePath}login.html'" class="login-btn ml-1">로그인</div>
+          <div data-href="${basePath}mypage/dashboard.html" onclick="handleNavigation(this)" class="cursor-pointer text-[15px] hover:text-[#0088cc]">마이페이지</div>
+          <!-- PC 로그인 버튼 -->
+          <div id="pc-login-btn" class="login-btn ml-1">로그인</div>
         </div>
         
         <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -102,15 +104,16 @@
         </div>
         
         <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
-          <div data-href="${basePath}pages/about/about.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
-          <div data-href="${basePath}pages/jobs/job-list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-          <div data-href="${basePath}pages/bid/bid-list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
-          <div data-href="${basePath}pages/cert/cert-list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
-          <div data-href="${basePath}pages/management/management.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">관리단코너</div>
-          <div data-href="${basePath}pages/community/field-experience.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+          <div data-href="${basePath}about/about.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+          <div data-href="${basePath}jobs/job-list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+          <div data-href="${basePath}bid/bid-list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+          <div data-href="${basePath}cert/cert-list.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+          <!-- 💡 관리단코너 경로 최종 수정 -->
+          <div data-href="${basePath}board/board-corner.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">관리단코너</div>
+          <div data-href="${basePath}community/field-experience.html" onclick="handleNavigation(this)" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
           
-          <!-- 모바일 긴급SOS 호출 (버튼형) -->
-          <div data-href="${basePath}pages/SOS/sos-request.html" onclick="handleNavigation(this)" class="sos-btn-mobile cursor-pointer">
+          <!-- 모바일 긴급SOS 호출 (버튼형 - 빨간색 강제 적용) -->
+          <div data-href="${basePath}sos/sos-request.html" onclick="handleNavigation(this)" class="sos-btn-mobile cursor-pointer" style="background-color: #ef4444; color: white;">
             <i class="fa-solid fa-phone"></i>
             <span>긴급 SOS 전문가 호출</span>
           </div>
@@ -122,9 +125,10 @@
               <i class="fa-regular fa-bell mr-1"></i> 알림
               <span class="absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">2</span>
             </div>
-            <div data-href="${basePath}pages/mypage/dashboard.html" onclick="handleNavigation(this)" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            <div data-href="${basePath}mypage/dashboard.html" onclick="handleNavigation(this)" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
           </div>
-          <div onclick="window.location.href='${basePath}login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+          <!-- 모바일 로그인 버튼 -->
+          <div id="mobile-login-btn" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
         </div>
       </div>
     </div>
@@ -152,8 +156,76 @@
     }
   };
 
+  // 💡 Supabase 로드 및 초기화 함수 💡
+  async function initSupabaseAuth() {
+    if (!window.supabase) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+    
+    window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    updateAuthUI(session);
+
+    window.supabaseClient.auth.onAuthStateChange((event, session) => {
+      updateAuthUI(session);
+    });
+  }
+
+  // 💡 버튼 텍스트 변경 (로그인/로그아웃) 💡
+  function updateAuthUI(session) {
+    const pcLoginBtn = document.getElementById('pc-login-btn');
+    const mobileLoginBtn = document.getElementById('mobile-login-btn');
+
+    if (session) {
+      if (pcLoginBtn) {
+        pcLoginBtn.innerText = "로그아웃";
+        pcLoginBtn.onclick = async () => {
+          await window.supabaseClient.auth.signOut();
+          alert("로그아웃 되었습니다.");
+          window.location.reload();
+        };
+      }
+      if (mobileLoginBtn) {
+        mobileLoginBtn.innerText = "로그아웃";
+        mobileLoginBtn.onclick = async () => {
+          await window.supabaseClient.auth.signOut();
+          alert("로그아웃 되었습니다.");
+          window.location.reload();
+        };
+      }
+    } else {
+      if (pcLoginBtn) {
+        pcLoginBtn.innerText = "로그인";
+        pcLoginBtn.onclick = () => { window.location.href = basePath + 'login.html'; };
+      }
+      if (mobileLoginBtn) {
+        mobileLoginBtn.innerText = "로그인";
+        mobileLoginBtn.onclick = () => { window.location.href = basePath + 'login.html'; };
+      }
+    }
+  }
+
   function renderHeader() {
     const container = document.getElementById('header-container');
+    
+    if (!container) {
+      const oldHeader = document.querySelector('header');
+      if (oldHeader) {
+        const wrapper = oldHeader.closest('div.border-b');
+        if (wrapper) wrapper.remove();
+      }
+    }
+
     if (container) {
       if (container.dataset.rendered === 'true') return;
       container.innerHTML = headerHtml;
@@ -188,6 +260,8 @@
         document.documentElement.style.setProperty('--header-actual-height', h2 + 'px');
       });
     }
+
+    initSupabaseAuth().catch(console.error);
   }
 
   const targetContainer = document.getElementById('header-container');

@@ -1,0 +1,141 @@
+<!-- 파일명: board-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 board-detail.html)
+     URL의 ?id=값으로 management_biddings 공고 1건을 Supabase에서 조회해
+     전체 화면으로 상세정보(담당자 연락처/상세내역/첨부파일)를 보여주는 페이지.
+     board-corner.html 안의 열람 모달(openDetailModal)과는 별개로, 직접 URL
+     공유가 필요할 때를 위한 독립 상세 페이지. 헤더/서브헤더/푸터는 다른
+     페이지와 동일하게 파샬(@include)로 조립. -->
+<!-- @var PAGE_CLASS: page-board -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>관리단 코너 상세정보 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* 이 페이지(관리단 코너 상세정보) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+
+        <!-- 메인 콘텐츠 레이아웃 -->
+        <main class="max-w-[1000px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col gap-6 flex-1 items-start">
+            <div class="w-full flex justify-between items-end pb-3 border-b-2 border-[#2f66e0]">
+                <h3 class="text-[22px] font-bold text-[#2f66e0]">위탁관리사 상세정보</h3>
+                <button onclick="location.href='board-corner.html'" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-md hover:bg-gray-200">목록으로</button>
+            </div>
+
+            <div class="w-full bg-white border border-gray-200 rounded-md shadow-sm p-8 space-y-6">
+                <!-- 상단 기본 정보 -->
+                <div class="border-b pb-6">
+                    <span id="detail-status" class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-sm inline-block mb-3">불러오는 중</span>
+                    <h2 id="detail-title" class="text-2xl font-bold text-gray-900 mb-2">공고 제목을 불러오는 중...</h2>
+                    <p id="detail-summary" class="text-gray-500"></p>
+                </div>
+
+                <!-- 연락처 정보 -->
+                <div class="bg-blue-50 p-5 rounded-md border border-blue-100 flex flex-col md:flex-row gap-4 items-center">
+                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shrink-0">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-blue-600 font-bold mb-1">담당자 및 연락처</p>
+                        <p id="detail-contact" class="text-lg font-bold text-gray-900"></p>
+                    </div>
+                </div>
+
+                <!-- 상세 내역 -->
+                <div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-file-alt text-gray-400 mr-2"></i>상세 내역</h4>
+                    <div id="detail-proposal" class="bg-gray-50 p-6 rounded-md border border-gray-200 text-gray-700 min-h-[150px] leading-relaxed">
+                    </div>
+                </div>
+
+                <!-- 파일 첨부 내역 -->
+                <div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-paperclip text-gray-400 mr-2"></i>첨부 파일</h4>
+                    <div class="flex flex-col gap-2">
+                        <a href="#" onclick="alert('가상의 파일 다운로드를 시작합니다.')" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit">
+                            <i class="fa-regular fa-file-pdf text-red-500 text-lg"></i> 위탁관리수수료_제안서.pdf
+                        </a>
+                        <a href="#" onclick="alert('가상의 파일 다운로드를 시작합니다.')" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit">
+                            <i class="fa-regular fa-file-pdf text-red-500 text-lg"></i> 회사_지명원.pdf
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+        <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+    </div>
+</div>
+
+    <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const biddingId = urlParams.get('id');
+
+            if (!biddingId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'board-corner.html';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('management_biddings')
+                .select('*')
+                .eq('id', biddingId)
+                .single();
+
+            if (error || !data) {
+                alert('데이터를 불러오는데 실패했습니다.');
+                return;
+            }
+
+            document.getElementById('detail-status').innerText = data.status;
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-summary').innerText = data.building_summary;
+            document.getElementById('detail-contact').innerText = `${data.contact_person} (${data.contact_phone})`;
+
+            let formattedProposal = data.detailed_proposal.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            document.getElementById('detail-proposal').innerHTML = formattedProposal;
+        });
+    </script>
+</body>
+</html>

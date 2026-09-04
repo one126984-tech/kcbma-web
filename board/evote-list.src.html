@@ -1,0 +1,379 @@
+<!-- 파일명: evote-list.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 evote-list.html)
+     "관리단 코너"의 "전자투표·총회 대행" 사이드바 탭이 가리키는 별도 페이지.
+     fee-list.html과 동일하게 board-corner.html 안의 JS 탭 전환(옛 renderEvoteComingSoon
+     placeholder)에서 완전히 독립된 페이지로 분리함. 헤더/서브헤더("관리단 코너")/
+     좌측 3단 사이드바는 board-corner.html·fee-list.html과 동일하게 유지하고,
+     사이드바에서 "위탁관리사 선정"→board-corner.html, "관리비 비교·평가"→fee-list.html로
+     이동, "전자투표·총회 대행"은 이 페이지 자신으로 location.href 이동함.
+     assembly_requests 테이블 조회는 무료 의뢰라 결제모달 없이 바로 목록에 노출되고,
+     "업체용 상세열람" 버튼을 눌러야 보이는 evote-detail.html에서만 블라인드 처리됨.
+     지역(대분류/소분류)·포함/제외 단어 검색 필터는 bid-list.html과 동일한 패턴을 재사용.
+     헤더/서브헤더/푸터는 다른 페이지와 동일하게 파샬(@include)로 조립. -->
+<!-- @var PAGE_CLASS: page-board -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>전자투표·총회 대행 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* 이 페이지(전자투표·총회 대행 목록) 전용 CSS */
+        html, body { overflow: hidden; height: 100%; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+
+        /* 지역/단어 검색 필터 (bid-list.html과 동일한 패턴) */
+        .filter-table { width: 100%; border: 1px solid #e5e7eb; border-bottom: none; background: #fff; border-collapse: collapse; margin-bottom: 0; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 14px; padding: 14px 5px; vertical-align: middle; }
+        .filter-table td { padding: 14px 20px; border-bottom: 1px dashed #e5e7eb; font-size: 13.5px; vertical-align: middle; background: #f8fafc; }
+
+        .custom-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; user-select: none; }
+        .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 13.5px; font-weight: 500; user-select: none; }
+
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 38px; padding: 4px 8px; cursor: text; }
+        .tag-input-container input { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; background: transparent; }
+        .tag-chip { display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 2px 8px; border-radius: 9999px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+        .tag-remove { color: #64748b; cursor: pointer; font-size: 11px; font-weight: bold; padding: 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .tag-remove:hover { color: #ef4444; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+    <!-- ★ 스크롤 영역 시작 -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+
+        <!-- 메인 콘텐츠 레이아웃 -->
+        <main class="max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col md:flex-row gap-8 flex-1 items-start">
+
+            <!-- 좌측 사이드바 (LNB 삼단 배너, board-corner.html·fee-list.html과 동일) -->
+            <aside class="w-full md:w-[220px] shrink-0 h-auto z-40 relative">
+                <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm p-3 flex flex-col gap-1 sticky top-0 mt-0">
+                        <div class="side-menu-tab" onclick="location.href='board-corner.html'">
+                            <span>위탁관리사 선정</span>
+                        </div>
+                        <div class="side-menu-tab" onclick="location.href='fee-list.html'">
+                            <span>관리비 비교·평가</span>
+                        </div>
+                        <div class="side-menu-tab-active">
+                            <span>전자투표·총회 대행</span>
+                        </div>
+                    </div>
+            </aside>
+
+            <!-- 우측 전체 콘텐츠 영역 -->
+            <div class="flex-1 min-w-0 h-auto relative flex flex-col mt-0">
+
+                <section class="flex-1 shrink-0 pb-8">
+
+                    <!-- 총회 전문가 매칭 및 전자투표 안내 -->
+                    <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                        <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-users-viewfinder text-[#12387a] text-lg md:text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">총회 전문가 매칭 및 전자투표 안내</h3>
+                            <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>총회 헬퍼 무료 구인:</b> 관리인 선임, 규약 제정 등 복잡한 총회 준비를 도와줄 전문가(대행사)를 무료로 구인할 수 있습니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>안전한 매칭 시스템:</b> 단지의 규모와 안건에 맞는 최적의 파트너가 매칭되어 합법적이고 원활한 총회 개최를 지원합니다.</span></li>
+                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전자투표 솔루션 연계:</b> 총회 당일 투표율을 높이고 법적 효력을 완벽히 갖출 수 있도록 전자투표 시스템 도입을 지원합니다.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 지역 검색 및 상태 필터 영역 -->
+                    <table class="filter-table shadow-sm rounded-t-md overflow-hidden" id="region-filter-section">
+                        <tbody>
+                            <tr>
+                                <th>지 역</th>
+                                <td class="p-4">
+                                    <div class="flex flex-col gap-3 w-full">
+                                        <div class="border border-gray-300 bg-white rounded p-3 w-full">
+                                            <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-100 pb-2">
+                                                대분류 <span class="text-gray-400 font-normal ml-1">(다중 선택 가능)</span>
+                                            </div>
+                                            <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-9 gap-y-2 gap-x-2" id="major-region-container">
+                                                <label class="custom-checkbox"><input type="checkbox" value="전국" class="major-checkbox"> 전국</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="서울" class="major-checkbox"> 서울</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경기" class="major-checkbox"> 경기</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="인천" class="major-checkbox"> 인천</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="부산" class="major-checkbox"> 부산</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="대구" class="major-checkbox"> 대구</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="광주" class="major-checkbox"> 광주</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="대전" class="major-checkbox"> 대전</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="울산" class="major-checkbox"> 울산</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="세종" class="major-checkbox"> 세종</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="강원" class="major-checkbox"> 강원</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="충북" class="major-checkbox"> 충북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="충남" class="major-checkbox"> 충남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="전북" class="major-checkbox"> 전북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="전남" class="major-checkbox"> 전남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경북" class="major-checkbox"> 경북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경남" class="major-checkbox"> 경남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="제주" class="major-checkbox"> 제주</label>
+                                            </div>
+                                        </div>
+                                        <div class="border border-gray-300 bg-blue-50/30 rounded p-3 w-full min-h-[80px] overflow-hidden" id="minor-region-box" style="transition: height 0.25s ease;">
+                                            <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-200 pb-2">
+                                                소분류 <span class="text-gray-400 font-normal ml-1">(대분류 선택 시 하위 지역이 나타납니다)</span>
+                                            </div>
+                                            <div class="flex flex-col gap-3" id="minor-region-container">
+                                                <div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>상 태</th>
+                                <td>
+                                    <div class="flex items-center gap-6">
+                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="ALL" checked> 전체보기</label>
+                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="OPEN"> 진행중</label>
+                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="CLOSED"> 마감</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 포함/제외 단어 검색 영역 -->
+                    <div id="search-keyword-section" class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-8 border border-gray-200 shadow-sm rounded-b-md border-t-0">
+                        <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+                        <div id="include-word-container" class="flex-1 min-w-[200px] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-blue-500">
+                            <input type="text" id="manual-word-input" placeholder="포함할 단어 (엔터 추가)">
+                        </div>
+                        <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                        <input type="text" id="exclude-word-input" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-blue-500 transition-colors" placeholder="제외할 단어 (쉼표 구분)">
+                        <button onclick="fetchAssemblyRequests()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] rounded lg:ml-2 whitespace-nowrap transition-colors">검 색</button>
+                    </div>
+
+                    <!-- 상단 타이틀 영역 -->
+                    <div id="main-title-box" class="flex justify-between items-end pb-3 mb-6 border-b-2 border-[#2f66e0]">
+                        <h3 id="content-title" class="text-[22px] font-bold text-[#2f66e0]">총회 전문가(헬퍼) 매칭 의뢰 현황</h3>
+                        <div class="flex items-center gap-4">
+                            <div class="text-[15px] text-gray-500 pb-1">
+                                총 <span id="content-count" class="font-bold text-gray-900">0</span>건이 등록된 의뢰
+                            </div>
+                            <button onclick="location.href='evote-write.html'" class="px-4 py-2 bg-blue-600 text-white font-bold text-[14px] rounded hover:bg-blue-700 transition shadow-sm mb-1">
+                                <i class="fas fa-pen mr-1"></i> 의뢰 등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 콘텐츠 리스트 영역 -->
+                    <div id="bidding-list" class="space-y-4"></div>
+                </section>
+            </div>
+        </main>
+
+        <!-- 푸터 영역 -->
+        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+        <script src="{{BASE}}assets/js/region-data.js"></script>
+        <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+
+    </div>
+</div>
+
+    <!-- 스크립트: assembly_requests 조회 -->
+    <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        /* ==== 검색 필터(지역/단어) 제어 로직 ==== */
+        let selectedMajors = [];
+        const minorBox = document.getElementById('minor-region-box');
+        const minorContainer = document.getElementById('minor-region-container');
+
+        let searchTags = [];
+        const includeContainer = document.getElementById('include-word-container');
+        const manualInput = document.getElementById('manual-word-input');
+
+        function initFilters() {
+            const majorContainer = document.getElementById('major-region-container');
+            if(majorContainer) {
+                majorContainer.querySelectorAll('.major-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) selectedMajors.push(this.value);
+                        else selectedMajors = selectedMajors.filter(val => val !== this.value);
+                        renderMinorRegions();
+                    });
+                });
+            }
+
+            if(includeContainer && manualInput) {
+                includeContainer.addEventListener('click', (e) => {
+                    if (e.target.closest('.tag-remove')) { removeTag(e.target.closest('.tag-remove').dataset.word); }
+                    else { manualInput.focus(); }
+                });
+
+                manualInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ',') {
+                        e.preventDefault();
+                        manualInput.value.split(',').forEach(w => addTag(w));
+                        manualInput.value = '';
+                    } else if (e.key === 'Backspace' && manualInput.value === '' && searchTags.length > 0) {
+                        removeTag(searchTags[searchTags.length - 1]);
+                    }
+                });
+            }
+        }
+
+        function renderMinorRegions() {
+            if(!minorBox || !minorContainer) return;
+            const startHeight = minorBox.getBoundingClientRect().height;
+            minorContainer.innerHTML = '';
+            
+            if (selectedMajors.length === 0) {
+                minorContainer.innerHTML = '<div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>';
+            } else {
+                selectedMajors.forEach(major => {
+                    const groupDiv = document.createElement('div'); 
+                    groupDiv.className = 'mb-2 last:mb-0';
+                    const groupTitle = document.createElement('div'); 
+                    groupTitle.className = 'text-[12px] font-bold text-gray-600 mb-1.5'; 
+                    groupTitle.textContent = `[${major}]`;
+                    groupDiv.appendChild(groupTitle);
+                    
+                    const gridDiv = document.createElement('div'); 
+                    gridDiv.className = 'grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-y-2 gap-x-2';
+
+                    if (major === '전국') { 
+                        gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="전국 전체" class="font-bold text-blue-600 sub-region-checkbox"> <span class="font-bold">전국 전체</span></label>`; 
+                    } else {
+                        gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="${major} 전체" class="font-bold text-blue-600 sub-region-checkbox"> <span class="font-bold">${major} 전체</span></label>`;
+                        if (typeof subRegionData !== 'undefined' && subRegionData[major]) {
+                            subRegionData[major].forEach(minor => {
+                                if (minor.replace(/\s+/g, '') === `${major}전체`) return;
+                                gridDiv.innerHTML += `<label class="custom-checkbox"><input type="checkbox" value="${minor}" class="sub-region-checkbox"> <span>${minor}</span></label>`;
+                            });
+                        }
+                    }
+                    groupDiv.appendChild(gridDiv); 
+                    minorContainer.appendChild(groupDiv);
+                });
+            }
+            animateMinorBoxHeight(startHeight);
+        }
+
+        function animateMinorBoxHeight(startHeight) {
+            minorBox.style.height = startHeight + 'px';
+            minorBox.style.height = 'auto';
+            const endHeight = minorBox.getBoundingClientRect().height;
+            minorBox.style.height = startHeight + 'px';
+            void minorBox.offsetHeight;
+            requestAnimationFrame(() => { minorBox.style.height = endHeight + 'px'; });
+
+            const onEnd = (e) => {
+                if (e.propertyName !== 'height') return;
+                minorBox.style.height = 'auto';
+                minorBox.removeEventListener('transitionend', onEnd);
+            };
+            minorBox.addEventListener('transitionend', onEnd);
+        }
+
+        function renderTags() {
+            if(!includeContainer) return;
+            includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
+            searchTags.forEach(word => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                includeContainer.insertBefore(chip, manualInput);
+            });
+            manualInput.placeholder = searchTags.length > 0 ? "" : "포함할 단어 (엔터 추가)";
+        }
+
+        function addTag(word) {
+            const trimmed = word.trim();
+            if (trimmed && !searchTags.includes(trimmed)) {
+                searchTags.push(trimmed); renderTags();
+            }
+        }
+
+        function removeTag(word) {
+            searchTags = searchTags.filter(t => t !== word);
+            renderTags();
+        }
+
+        /* ==== 메인 로직 ==== */
+        document.addEventListener('DOMContentLoaded', () => {
+            initFilters(); 
+            fetchAssemblyRequests();
+        });
+
+        async function fetchAssemblyRequests() {
+            const listContainer = document.getElementById('bidding-list');
+            const countSpan = document.getElementById('content-count');
+
+            const { data, error } = await supabaseClient
+                .from('assembly_requests')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                if(error) console.error("데이터를 불러오는 중 오류가 발생했습니다:", error);
+                
+                countSpan.innerText = '0';
+                listContainer.innerHTML = `<div class="text-center text-gray-400 py-16 bg-white border border-gray-200 rounded-md shadow-sm">등록된 총회 전문가 매칭 의뢰가 아직 없습니다.</div>`;
+                return;
+            }
+
+            countSpan.innerText = data.length;
+            listContainer.innerHTML = '';
+
+            data.forEach(item => {
+                const statusLabel = item.status || '헬퍼 모집중';
+                
+                const cardHtml = `
+                    <div class="bg-white border border-gray-200 rounded-md p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-300 transition shadow-sm">
+                        <div>
+                            <span class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-sm mb-2.5 inline-block">${statusLabel}</span>
+                            <h4 class="text-[17px] font-bold text-gray-900 mb-1.5">${item.title}</h4>
+                            <p class="text-[14px] text-gray-500">${item.building_summary} <span class="text-gray-300 mx-1">|</span> 주요안건: ${item.assembly_type}</p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button onclick="location.href='evote-detail.html?id=${item.id}'" class="bg-[#fde047] hover:bg-[#facc15] text-gray-900 text-[14px] font-bold px-5 py-3 rounded-md transition flex items-center gap-2">
+                                <i class="fas fa-lock"></i> 업체용 상세열람
+                            </button>
+                        </div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

@@ -94,14 +94,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center justify-between">
-            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide">
-                자격증
-            </div>
-            <div id="header-timer-slot"></div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
@@ -792,6 +785,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

@@ -56,13 +56,7 @@
 <!-- @include header -->
 
     <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full">
-                    입찰공고 (B2B)
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -202,6 +196,12 @@
                 return;
             }
 
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
             const title = document.getElementById('f-title').value.trim();
             const company = document.getElementById('f-company').value.trim();
             const category = document.getElementById('f-category').value;
@@ -235,7 +235,8 @@
                             end_date: endDate,
                             description: description,
                             status: 'OPEN',
-                            views: 0
+                            views: 0,
+                            created_by: authData.user.id
                         }
                     ]);
 
@@ -254,5 +255,9 @@
             }
         }
     </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
 </body>
 </html>
