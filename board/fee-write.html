@@ -303,6 +303,71 @@
             transition: background-color 0.15s;
         }
         .mypage-btn-mobile:hover { background-color: #0077b3; }
+
+        /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
+           community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
+           개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
+           페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
+        .guide-notice-box {
+            display: flex;
+            background-color: #f8f9fb;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #143b86;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 30px;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+        }
+        .guide-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background-color: #e6edfa;
+            color: #143b86;
+            border-radius: 50%;
+            margin-right: 20px;
+            flex-shrink: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .guide-content {
+            flex-grow: 1;
+        }
+        .guide-content h4 {
+            color: #143b86;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 16px 0;
+        }
+        .guide-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .guide-content li {
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 10px;
+            font-size: 14.5px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .guide-content li::before {
+            content: "-";
+            position: absolute;
+            left: 0;
+            color: #555;
+        }
+        .guide-content li strong {
+            color: #333;
+            font-weight: 600;
+        }
+        .text-red {
+            color: #d32f2f;
+            font-weight: bold;
+        }
     </style>
 
 
@@ -720,11 +785,11 @@
                     </button>
                 </div>
 
+        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+        <script src="../../assets/js/footer.js?v=1.3"></script>
             </div>
         </main>
 
-        <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
-        <script src="../../assets/js/footer.js?v=1.3"></script>
     </div>
 </div>
 
