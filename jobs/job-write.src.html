@@ -76,13 +76,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="text-white font-bold text-xl md:text-2xl tracking-wide">
-                구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
@@ -191,10 +185,10 @@
                                     <i class="fas fa-user-check opacity-80"></i> 지원자격
                                 </span>
                             </div>
-                            <div class="form-row"><span class="form-label">경력</span><div class="form-input-wrap"><input type="text" placeholder="예: 경력 3년 이상 필수" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">경력</span><div class="form-input-wrap"><input type="text" id="f-career" placeholder="예: 경력 3년 이상 필수" class="input-box"></div></div>
                             <div class="form-row"><span class="form-label">학력</span>
                                 <div class="form-input-wrap">
-                                    <select class="input-box bg-white">
+                                    <select id="f-education" class="input-box bg-white">
                                         <option value="" disabled selected>선택</option>
                                         <option>학력 무관</option><option>고졸 이상</option><option>대졸 이상</option>
                                     </select>
@@ -209,13 +203,13 @@
                             </div>
                             <div class="form-row"><span class="form-label">고용형태</span>
                                 <div class="form-input-wrap">
-                                    <select class="input-box bg-white">
+                                    <select id="f-employment-type" class="input-box bg-white">
                                         <option value="" disabled selected>선택</option>
                                         <option>정규직</option><option>계약직 (기간제)</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-row"><span class="form-label">근무형태</span><div class="form-input-wrap"><input type="text" placeholder="예: 주 5일 근무 (주 40시간)" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">근무형태</span><div class="form-input-wrap"><input type="text" id="f-work-schedule" placeholder="예: 주 5일 근무 (주 40시간)" class="input-box"></div></div>
                         </div>
                     </div>
 
@@ -226,7 +220,7 @@
                                     <i class="fas fa-building opacity-80"></i> 근무조건
                                 </span>
                             </div>
-                            <div class="form-row"><span class="form-label">임금</span><div class="form-input-wrap"><input type="text" placeholder="예: 월급 440만원 ~ 440만원" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">임금</span><div class="form-input-wrap"><input type="text" id="f-salary" placeholder="예: 월급 440만원 ~ 440만원" class="input-box"></div></div>
                             <div class="form-row items-start"><span class="form-label mt-2">지역</span>
                                 <div class="form-input-wrap space-y-2">
                                     <div class="flex gap-2">
@@ -244,8 +238,8 @@
                                     <i class="fas fa-gift opacity-80"></i> 복리후생
                                 </span>
                             </div>
-                            <div class="form-row"><span class="form-label">보험/연금</span><div class="form-input-wrap"><input type="text" placeholder="예: 4대보험 가입" value="국민연금, 고용보험, 산재보험, 건강보험" class="input-box"></div></div>
-                            <div class="form-row"><span class="form-label">기타</span><div class="form-input-wrap"><input type="text" placeholder="예: 중식 제공, 퇴직금 별도" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">보험/연금</span><div class="form-input-wrap"><input type="text" id="f-insurance" placeholder="예: 4대보험 가입" value="국민연금, 고용보험, 산재보험, 건강보험" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">기타</span><div class="form-input-wrap"><input type="text" id="f-other-benefits" placeholder="예: 중식 제공, 퇴직금 별도" class="input-box"></div></div>
                         </div>
                     </div>
                 </div>
@@ -261,8 +255,8 @@
                                 <h3 class="text-[16px] font-bold text-gray-900">1. 모집분야 및 담당업무</h3>
                             </div>
                             <div id="list-task" class="space-y-2">
-                                <div class="flex items-center gap-2"><input type="text" value="- 오피스텔 시설관리 기사" class="input-box flex-1"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
-                                <button type="button" onclick="addListItem('list-task', '업무 내용을 입력하세요')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
+                                <div class="flex items-center gap-2"><input type="text" value="- 오피스텔 시설관리 기사" class="input-box flex-1 list-task-input"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
+                                <button type="button" onclick="addListItem('list-task', '업무 내용을 입력하세요', 'list-task-input')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
                             </div>
                         </div>
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-t-[4px] border-t-[#2aa096] p-6">
@@ -271,8 +265,8 @@
                                 <h3 class="text-[16px] font-bold text-gray-900">2. 자격요건 및 우대사항</h3>
                             </div>
                             <div id="list-qual" class="space-y-2">
-                                <div class="flex items-center gap-2"><input type="text" value="[필수] 시설관리 경력 3년 이상" class="input-box flex-1"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
-                                <button type="button" onclick="addListItem('list-qual', '자격요건을 입력하세요')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
+                                <div class="flex items-center gap-2"><input type="text" value="[필수] 시설관리 경력 3년 이상" class="input-box flex-1 list-qual-input"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
+                                <button type="button" onclick="addListItem('list-qual', '자격요건을 입력하세요', 'list-qual-input')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
                             </div>
                         </div>
                         <div class="bg-sky-50 rounded-xl shadow-sm border border-sky-200 border-t-[4px] border-t-sky-400 p-6 md:col-span-2">
@@ -280,7 +274,7 @@
                                 <div class="w-8 h-8 rounded-full bg-white text-sky-500 flex items-center justify-center text-sm shadow-sm"><i class="fas fa-exclamation-triangle"></i></div>
                                 <h3 class="text-[16px] font-bold text-gray-900">지원 시 유의사항 (선택)</h3>
                             </div>
-                            <textarea class="input-box bg-white" placeholder="이메일 지원 시 제목에 반드시 [지원분야_이름]을 기재해 주세요." style="min-height: 80px;"></textarea>
+                            <textarea id="f-notice" class="input-box bg-white" placeholder="이메일 지원 시 제목에 반드시 [지원분야_이름]을 기재해 주세요." style="min-height: 80px;"></textarea>
                         </div>
                     </div>
                 </div>
@@ -434,14 +428,14 @@
             }).open();
         }
 
-        function addListItem(containerId, placeholderText) {
+        function addListItem(containerId, placeholderText, itemClass) {
             const container = document.getElementById(containerId);
             const addButton = container.lastElementChild;
 
             const div = document.createElement('div');
             div.className = 'flex items-center gap-2 mb-2';
             div.innerHTML = `
-                <input type="text" placeholder="${placeholderText}" class="input-box text-[14.5px] flex-1">
+                <input type="text" placeholder="${placeholderText}" class="input-box text-[14.5px] flex-1 ${itemClass || ''}">
                 <button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:bg-red-50 hover:text-red-500 rounded transition-colors"><i class="fas fa-times"></i></button>
             `;
 
@@ -457,6 +451,12 @@
         async function submitJob(event) {
             event.preventDefault();
 
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
             const title = document.getElementById('f-title').value.trim();
             const category = document.getElementById('f-category').value;
             const company = document.getElementById('f-company').value.trim();
@@ -465,6 +465,20 @@
             const roadAddress = document.getElementById('job_roadAddress').value.trim();
             const detailAddress = document.getElementById('job_detailAddress').value.trim();
             const region = [roadAddress, detailAddress].filter(Boolean).join(' ');
+
+            const careerLevel = document.getElementById('f-career').value.trim();
+            const educationLevel = document.getElementById('f-education').value;
+            const employmentType = document.getElementById('f-employment-type').value;
+            const workSchedule = document.getElementById('f-work-schedule').value.trim();
+            const salary = document.getElementById('f-salary').value.trim();
+            const insuranceBenefits = document.getElementById('f-insurance').value.trim();
+            const otherBenefits = document.getElementById('f-other-benefits').value.trim();
+            const notice = document.getElementById('f-notice').value.trim();
+
+            const jobDuties = Array.from(document.querySelectorAll('.list-task-input'))
+                .map(el => el.value.trim()).filter(Boolean).join('\n');
+            const qualifications = Array.from(document.querySelectorAll('.list-qual-input'))
+                .map(el => el.value.trim()).filter(Boolean).join('\n');
 
             if (!title) { alert('채용 공고 제목을 입력해 주세요.'); return; }
             if (!category) { alert('직종을 선택해 주세요.'); return; }
@@ -488,7 +502,18 @@
                         location: region,
                         end_date: endDate,
                         status: 'OPEN',
-                        view_count: 0
+                        view_count: 0,
+                        career_level: careerLevel || null,
+                        education_level: educationLevel || null,
+                        employment_type: employmentType || null,
+                        work_schedule: workSchedule || null,
+                        salary: salary || null,
+                        insurance_benefits: insuranceBenefits || null,
+                        other_benefits: otherBenefits || null,
+                        job_duties: jobDuties || null,
+                        qualifications: qualifications || null,
+                        notice: notice || null,
+                        created_by: authData.user.id
                     }])
                     .select();
 
@@ -504,6 +529,9 @@
                 submitBtnText.innerText = originalText;
             }
         }
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

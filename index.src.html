@@ -45,7 +45,10 @@
         }
 
         .hero-banner {
-            background-color: #23344e;
+            background: linear-gradient(rgba(15, 28, 51, 0.55), rgba(15, 28, 51, 0.55)), url('/assets/img/architecture.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -53,8 +56,8 @@
             align-items: center;
             text-align: center;
             width: 100%;
-            min-height: 100vh;
-            padding: 130px 20px 40px 20px;
+            min-height: 0;
+            padding: 20px 20px;
             box-sizing: border-box;
         }
 
@@ -78,7 +81,7 @@
         }
 
         .hero-banner .title-main {
-            font-size: 4.5rem;
+            font-size: 5.5rem;
             font-weight: 900;
             margin-bottom: 1.5rem;
             letter-spacing: -0.05em;
@@ -94,7 +97,7 @@
         }
 
         @media (max-width: 768px) {
-            .hero-banner { padding-top: 110px; }
+            .hero-banner { padding-top: 20px; }
             .hero-banner .title-main { font-size: 2.8rem; margin-bottom: 1rem; }
             .hero-banner .subtitle-top { font-size: 1.1rem; margin-bottom: 1rem; }
             .hero-banner .subtitle-bottom { font-size: 1.05rem; margin-bottom: 2.5rem;}
@@ -121,7 +124,7 @@
             <div class="welcome-badge">어서 오세요</div>
             <p class="subtitle-top">집합건물관리의 든든한 울타리</p>
             <h1 class="title-main">대한집합건물관리협회</h1>
-            <p class="subtitle-bottom">실무 중심의 역량강화를 통해 안전하고 효율적으로 건물 관리 합니다.</p>
+            <p class="subtitle-bottom">실무 중심의 역량강화를 통해 안전하고 효율적으로 건물을 관리 합니다.</p>
         </main>
 
     </div>
@@ -151,6 +154,13 @@
         <span class="text-2xl mb-0.5 group-hover:animate-bounce">🚨</span>
         <span class="absolute inset-0 w-full h-full rounded-full bg-red-500 opacity-40 animate-ping -z-10"></span>
     </a>
+
+    <!-- 페이지 경로 기준점 설정 -->
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+    
+    <!-- 헤더 및 인증 스크립트 하나만 불러오기 -->
 
 </body>
 </html>

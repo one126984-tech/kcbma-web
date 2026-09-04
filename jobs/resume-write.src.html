@@ -198,13 +198,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="text-white font-bold text-xl md:text-2xl tracking-wide">
-                구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
@@ -342,8 +336,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const dummyStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
 const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
-const SUPABASE_KEY = 'YOUR_SUPABASE_KEY'; // 원래 키 값으로 변경하세요.
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
+const DB_TABLE_NAME = 'master_board';
 
 const contentArea = document.getElementById('content');
 const exampleText = "[작성 예시]\n■ 주요 경력 사항\n- OO오피스텔 시설관리 (2018.03 ~ 2023.10)\n- XX아파트 전기기사 (2015.01 ~ 2018.02)\n\n■ 주요 업무 내용\n- 공용부 시설물 유지보수 및 영선 업무\n- 전기/소방 설비 안전 점검\n- 세대 민원 처리\n\n■ 자기소개\n책임감이 강하고 성실하게 근무하는 편입니다. 입사하게 된다면 내 집처럼 생각하고 꼼꼼히 관리하겠습니다.";
@@ -400,17 +397,42 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
         title: mainTitle,
         content: document.getElementById('content').value,
         custom_data: JSON.stringify(customDataObj),
-        status: 'OPEN'
+        status: 'OPEN',
+        views: 0
     };
 
+    if (!supabaseClient) {
+        alert('데이터베이스 연결에 실패했습니다.');
+        return;
+    }
+
+    const submitBtn = document.querySelector('#resumePostForm button[type="submit"]');
+    const originalBtnText = submitBtn.innerText;
+    submitBtn.disabled = true;
+    submitBtn.innerText = '등록 중...';
+
     try {
-        console.log("전송 데이터:", postData);
-        alert("🎉 이력서가 성공적으로 등록되었습니다!");
+        const { data, error } = await supabaseClient
+            .from(DB_TABLE_NAME)
+            .insert([postData])
+            .select();
+
+        if (error) throw error;
+
+        alert('🎉 이력서가 성공적으로 등록되었습니다!');
+        const newId = data && data[0] && data[0].id;
+        window.location.href = newId ? `resume-detail.html?id=${newId}` : 'resume-list.html';
     } catch (err) {
-        console.error("서버 통신 에러:", err);
-        alert("이력서 등록 중 문제가 발생했습니다.");
+        console.error('이력서 등록 오류:', err);
+        alert('이력서 등록 중 문제가 발생했습니다: ' + (err.message || '잠시 후 다시 시도해주세요.'));
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalBtnText;
     }
 });
 </script>
+
+    <script>
+      window.BASE_PATH = '/';
+    </script>
 </body>
 </html>

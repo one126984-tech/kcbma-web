@@ -85,13 +85,7 @@
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
     <div id="sticky-top-bar" class="w-full flex flex-col bg-white shadow-md relative z-[900] shrink-0">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
-                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center h-full">
-                    구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -934,6 +928,9 @@
         initRegionFilters();
         fetchResumes();
     })();
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

@@ -57,13 +57,7 @@
          핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
          페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
          ---------------------------------------------------- -->
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shrink-0">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
-            <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl flex items-center justify-center tracking-wide h-full">
-                마이페이지
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shrink-0"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
@@ -280,5 +274,12 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
+<!-- 페이지 경로 기준점 설정 (루트 기준) -->
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+    
+    <!-- 절대 경로(/)로 스크립트 불러오기 -->
+
 </body>
 </html>

@@ -1,6 +1,11 @@
 <!-- 파일명: job-detail.src.html
      ★ 원본은 사이트 헤더가 아예 없는 완전 별개 화면이었음. 표준 헤더/서브헤더를 붙임.
-     Pretendard 폰트와 고유 색상 테마는 이 페이지만의 개성으로 보고 유지. -->
+     Pretendard 폰트와 고유 색상 테마는 이 페이지만의 개성으로 보고 유지.
+     ★ 2026-09: jobs 테이블과 실제 연동됨(job-list.html에서 넘어온 ?id=로 조회).
+     경력/학력/고용형태/근무형태/임금/복리후생/모집분야/자격요건/유의사항 모두
+     job-write.html에서 입력한 실제 값으로 표시되며, 조회수도 자동 증가함.
+     write 폼에 없는 "근무조건 상세(휴게시간 등)"/"접수방법 및 제출서류" 절은
+     실데이터가 없어 제거함. "기업정보" 탭은 아직 별도 기능이 없어 장식용으로만 남음. -->
 <!-- @var PAGE_CLASS: page-jobs -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -66,13 +71,7 @@
 
 <!-- @include header -->
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="text-white font-bold text-xl md:text-2xl tracking-wide">
-                구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
@@ -114,18 +113,16 @@
 
         <div class="border border-gray-200 rounded-lg p-6 mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative">
             <div>
-                <div class="text-[14px] font-bold text-gray-600 mb-2">주식회사 진선개발</div>
+                <div id="detail-company" class="text-[14px] font-bold text-gray-600 mb-2"></div>
                 <h2 class="text-[24px] font-bold tracking-tight">
-                    <span class="text-[#3b5bdb]">빌딩 관리소장 구인</span>
-                    <span class="text-gray-500 text-[18px] ml-1 font-medium">(김포 퍼스트빌딩)</span>
+                    <span id="detail-title" class="text-[#3b5bdb]">불러오는 중...</span>
                 </h2>
             </div>
             <div class="flex flex-col items-end gap-2 absolute top-6 right-6 md:static">
-                <div class="text-[13px] text-gray-500">조회수 686</div>
+                <div id="detail-viewcount" class="text-[13px] text-gray-500"></div>
 
                 <div class="flex items-center gap-2">
-                    <div class="border border-pink-600 text-pink-600 rounded-full px-4 py-1 text-[13px] font-bold bg-white">
-                        D-27
+                    <div id="detail-dday" class="border border-pink-600 text-pink-600 rounded-full px-4 py-1 text-[13px] font-bold bg-white">
                     </div>
                 </div>
             </div>
@@ -142,11 +139,11 @@
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">경력</span>
-                        <span class="info-value">경력 (최소 3년 이상) 필수</span>
+                        <span id="detail-career" class="info-value">-</span>
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">학력</span>
-                        <span class="info-value">고졸 ~ 석사</span>
+                        <span id="detail-education" class="info-value">-</span>
                     </div>
                 </div>
 
@@ -158,11 +155,11 @@
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">고용형태</span>
-                        <span class="info-value">기간의 정함이 있는 근로계약</span>
+                        <span id="detail-employment-type" class="info-value">-</span>
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">근무형태</span>
-                        <span class="info-value">주 5일 근무 (주 소정근로시간: 40시간)</span>
+                        <span id="detail-work-schedule" class="info-value">-</span>
                     </div>
                 </div>
             </div>
@@ -176,11 +173,11 @@
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">임금</span>
-                        <span class="info-value">월급 440만원 ~ 440만원</span>
+                        <span id="detail-salary" class="info-value">-</span>
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">지역</span>
-                        <span class="info-value">경기도 고양시 일산동구 중앙로 1233, 현대타운빌 오피스텔 (장항동)</span>
+                        <span id="detail-region" class="info-value">-</span>
                     </div>
                 </div>
 
@@ -192,11 +189,11 @@
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">보험/연금</span>
-                        <span class="info-value">국민연금, 고용보험, 산재보험, 건강보험</span>
+                        <span id="detail-insurance" class="info-value">-</span>
                     </div>
                     <div class="info-list-row pl-1">
                         <span class="info-label">기타</span>
-                        <span class="info-value">중식 제공 (식대 포함)</span>
+                        <span id="detail-other-benefits" class="info-value">-</span>
                     </div>
                 </div>
             </div>
@@ -217,11 +214,8 @@
                         </div>
                         <h3 class="text-[17px] font-bold text-gray-900">1. 모집분야 및 담당업무</h3>
                     </div>
-                    <ul class="list-disc list-inside text-[14.5px] text-gray-600 space-y-2 leading-relaxed ml-1">
-                        <li><strong class="text-gray-800">모집분야:</strong> 오피스텔 시설관리 기사</li>
-                        <li>오피스텔 공용부 시설물 유지보수 및 영선업무</li>
-                        <li>소방, 전기, 기계 설비 일일 점검 및 안전관리</li>
-                        <li>세대 내 간단한 민원 처리 및 지원 업무</li>
+                    <ul id="detail-job-duties" class="list-disc list-inside text-[14.5px] text-gray-600 space-y-2 leading-relaxed ml-1">
+                        <li>등록된 내용이 없습니다.</li>
                     </ul>
                 </div>
 
@@ -232,56 +226,12 @@
                         </div>
                         <h3 class="text-[17px] font-bold text-gray-900">2. 자격요건 및 우대사항</h3>
                     </div>
-                    <div class="space-y-2.5 text-[14.5px]">
-                        <div class="flex gap-2">
-                            <span class="font-bold text-red-500 shrink-0">[필수]</span>
-                            <span class="text-gray-700">시설관리 실무 경력 3년 이상</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="font-bold text-red-500 shrink-0">[필수]</span>
-                            <span class="text-gray-900 font-bold">전기기사 및 소방안전관리자 1급 소지자</span>
-                        </div>
-                        <div class="flex gap-2 pt-1">
-                            <span class="font-bold text-[#0B2A5B] shrink-0">[우대]</span>
-                            <span class="text-gray-600">기계설비유지관리자 등 유관 자격증 추가 소지자</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="font-bold text-[#0B2A5B] shrink-0">[우대]</span>
-                            <span class="text-gray-600">인근 거주자 (출퇴근 용이) 및 장기 근무 가능자</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-t-[4px] border-t-[#2aa096] p-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-full bg-teal-50 text-[#2aa096] flex items-center justify-center text-sm">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h3 class="text-[17px] font-bold text-gray-900">3. 근무조건</h3>
-                    </div>
-                    <ul class="text-[14.5px] text-gray-600 space-y-2.5 leading-relaxed">
-                        <li><strong class="text-gray-800 inline-block w-20">근무형태:</strong> 계약직 12개월 (근무 평가 후 연장 가능)</li>
-                        <li><strong class="text-gray-800 inline-block w-20">근무일시:</strong> 주 5일(월~금), 09:00 ~ 18:00</li>
-                        <li><strong class="text-gray-800 inline-block w-20">휴게시간:</strong> 12:00 ~ 13:00 (1시간)</li>
-                        <li><strong class="text-gray-800 inline-block w-20">급여조건:</strong> 월 4,400,000원 (고정 급여)</li>
+                    <ul id="detail-qualifications" class="list-disc list-inside text-[14.5px] text-gray-600 space-y-2 leading-relaxed ml-1">
+                        <li>등록된 내용이 없습니다.</li>
                     </ul>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-t-[4px] border-t-[#2aa096] p-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-full bg-teal-50 text-[#2aa096] flex items-center justify-center text-sm">
-                            <i class="fas fa-envelope-open-text"></i>
-                        </div>
-                        <h3 class="text-[17px] font-bold text-gray-900">4. 접수방법 및 제출서류</h3>
-                    </div>
-                    <ul class="list-disc list-inside text-[14.5px] text-gray-600 space-y-2 leading-relaxed ml-1">
-                        <li><strong class="text-gray-800">제출서류:</strong> 이력서 (반드시 사진 부착), 자기소개서</li>
-                        <li><strong class="text-gray-800">접수방법:</strong> 담당자 이메일 지원</li>
-                        <li><strong class="text-gray-800">전형절차:</strong> 서류 접수 후 합격자에 한하여 개별통보 및 면접 진행</li>
-                    </ul>
-                </div>
-
-                <div class="bg-sky-50 rounded-xl shadow-sm border border-sky-200 border-t-[4px] border-t-sky-400 p-6 md:col-span-2 relative overflow-hidden">
+                <div id="detail-notice-box" class="bg-sky-50 rounded-xl shadow-sm border border-sky-200 border-t-[4px] border-t-sky-400 p-6 md:col-span-2 relative overflow-hidden hidden">
                     <div class="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-40 rounded-full z-0"></div>
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-3">
@@ -290,12 +240,7 @@
                             </div>
                             <h3 class="text-[17px] font-bold text-gray-900">지원 시 유의사항</h3>
                         </div>
-                        <p class="text-[14.5px] text-gray-700 leading-relaxed mb-2">
-                            이메일 지원 시 메일 제목에 반드시 <strong class="text-gray-900">[빌딩 관리소장 지원_본인이름]</strong>을 기재해 주시기 바랍니다.
-                        </p>
-                        <p class="text-[14px] font-bold text-sky-600">
-                            ※ 미기재 시 이력서 분류가 되지 않아 채용 시 불이익을 받을 수 있습니다.
-                        </p>
+                        <p id="detail-notice" class="text-[14.5px] text-gray-700 leading-relaxed whitespace-pre-line"></p>
                     </div>
                 </div>
 
@@ -316,6 +261,85 @@
 
     <div id="footer-container"></div>
     <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        function ddayText(endDate) {
+            if (!endDate) return '상시채용';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const d = new Date(endDate);
+            const diffDays = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return '마감';
+            if (diffDays === 0) return '오늘마감';
+            return `D-${diffDays}`;
+        }
+
+        function renderList(elementId, text) {
+            const ul = document.getElementById(elementId);
+            const lines = (text || '').split('\n').map(l => l.trim()).filter(Boolean);
+            if (lines.length === 0) {
+                ul.innerHTML = '<li>등록된 내용이 없습니다.</li>';
+                return;
+            }
+            ul.innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+        }
+
+        async function fetchJobDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id');
+
+            if (!jobId) {
+                alert('잘못된 접근입니다.');
+                location.href = 'job-list.html';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('jobs')
+                .select('*')
+                .eq('id', jobId)
+                .single();
+
+            if (error || !data) {
+                alert('채용정보를 불러오는데 실패했습니다.');
+                location.href = 'job-list.html';
+                return;
+            }
+
+            document.getElementById('detail-company').innerText = data.company_name || '';
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-viewcount').innerText = `조회수 ${(data.view_count || 0) + 1}`;
+            document.getElementById('detail-dday').innerText = ddayText(data.end_date);
+
+            document.getElementById('detail-career').innerText = data.career_level || '무관';
+            document.getElementById('detail-education').innerText = data.education_level || '무관';
+            document.getElementById('detail-employment-type').innerText = data.employment_type || '-';
+            document.getElementById('detail-work-schedule').innerText = data.work_schedule || '-';
+            document.getElementById('detail-salary').innerText = data.salary || '-';
+            document.getElementById('detail-region').innerText = data.region || data.location || '-';
+            document.getElementById('detail-insurance').innerText = data.insurance_benefits || '-';
+            document.getElementById('detail-other-benefits').innerText = data.other_benefits || '-';
+
+            renderList('detail-job-duties', data.job_duties);
+            renderList('detail-qualifications', data.qualifications);
+
+            if (data.notice) {
+                document.getElementById('detail-notice').innerText = data.notice;
+                document.getElementById('detail-notice-box').classList.remove('hidden');
+            }
+
+            // 조회수 +1 (실패해도 화면 표시에는 영향 없음)
+            supabaseClient.from('jobs').update({ view_count: (data.view_count || 0) + 1 }).eq('id', jobId).then(() => {});
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchJobDetail);
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
 </body>
 </html>

@@ -64,13 +64,7 @@
          페이지 이동 시 이 영역 전체만 슬라이드 전환됨 (헤더는 고정)
          ---------------------------------------------------- -->
     <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex gap-4 md:gap-8 items-center h-full">
-                <div class="md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center md:justify-center h-full">
-                    긴급SOS 호출
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
     </div>
 <!-- @include header-close -->
 
@@ -346,8 +340,8 @@
       gpsBtn.disabled = false;
     }
 
-    const SUPABASE_URL = '여기에_URL_입력';
-    const SUPABASE_ANON_KEY = '여기에_ANON_KEY_입력';
+    const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
     let supabaseClient;
     if (SUPABASE_URL.startsWith('http')) {
       supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -391,5 +385,12 @@
       }, 1500);
     });
   </script>
+<!-- 페이지 경로 기준점 설정 (루트 기준) -->
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+    
+    <!-- 절대 경로(/)로 스크립트 불러오기 -->
+
 </body>
 </html>

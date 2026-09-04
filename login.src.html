@@ -1,0 +1,187 @@
+<!-- 파일명: login.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 login.html)
+     ★ 2026-09: 원래 login.html/callback.html은 파샬 시스템을 안 쓰는 독립 페이지였는데,
+     그래서 로그인 페이지에서만 상단 공통 헤더(GNB)가 안 보이는 문제가 있었음.
+     다른 페이지들과 동일하게 @include header/header-close를 적용해서 헤더가 보이도록 수정.
+     이 파일은 사이트 루트에 있어서 index.html과 동일하게 @var BASE를 빈 값으로 선언함
+     (헤더 파샬의 {{BASE}}가 '../../' 대신 아무것도 안 붙게 = 루트 기준 상대경로). -->
+<!-- @var PAGE_CLASS: page-login -->
+<!-- @var BASE: -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>간편 로그인 - 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(로그인) 전용 CSS */
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+<!-- @include header-close -->
+
+<main id="page-content" class="flex-1 flex items-start justify-center overflow-y-auto px-4 pt-6 md:pt-10 pb-6">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-[420px] p-6 sm:p-7 relative">
+        <button type="button" onclick="location.href='{{BASE}}index.html'" class="absolute top-3 right-4 text-gray-400 hover:text-gray-800 text-[22px] transition-colors" title="메인으로">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="text-center mb-4 mt-1">
+            <h2 class="text-[22px] font-black text-[#0B2A5B] tracking-tight">간편 로그인</h2>
+            <p class="text-[13px] text-gray-500 mt-1">소셜 계정 또는 이메일로 안전하게 시작하세요.</p>
+        </div>
+
+        <!-- 1. 소셜 로그인 영역 -->
+        <div class="flex flex-col gap-3 mb-4">
+            <button onclick="signInWithProvider('google')" class="w-full bg-[#4285F4] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#3367D6] transition-colors shadow-sm cursor-pointer">
+                <i class="fab fa-google absolute left-5 text-lg"></i> 구글계정으로 시작하기
+            </button>
+            <button onclick="startNaverLogin()" class="w-full bg-[#03c75a] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#02b351] transition-colors shadow-sm cursor-pointer">
+                <span class="absolute left-5 font-black text-lg">N</span> 네이버계정으로 시작하기
+            </button>
+            <button onclick="signInWithProvider('kakao')" class="w-full bg-[#FEE500] text-[#000000] rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#f4dc00] transition-colors shadow-sm cursor-pointer">
+                <i class="fas fa-comment absolute left-5 text-lg"></i> 카카오계정으로 시작하기
+            </button>
+        </div>
+
+        <div class="flex items-center mb-4">
+            <div class="flex-grow border-t border-gray-200"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-400 text-[13px]">또는 이메일 직접 입력</span>
+            <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <!-- 2. 매직 링크 로그인 영역 -->
+        <div id="email-login-section">
+            <div id="step-1-email" class="flex flex-col gap-2">
+                <input type="email" id="email-input" placeholder="example@email.com" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-[14px] focus:outline-none focus:border-[#0B2A5B] focus:ring-1 focus:ring-[#0B2A5B]">
+                <button id="send-btn" onclick="sendMagicLink()" class="w-full bg-gray-800 text-white rounded-lg py-2.5 font-bold text-[14px] hover:bg-black transition-colors shadow-sm">
+                    로그인 링크 받기
+                </button>
+            </div>
+
+            <div id="step-2-message" class="hidden flex-col items-center justify-center py-4 bg-gray-50 rounded-xl border border-gray-100">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0B2A5B] text-xl mb-3">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <p class="text-[15px] text-gray-800 font-bold mb-1">이메일이 발송되었습니다.</p>
+                <p class="text-[13px] text-gray-500 text-center leading-relaxed">
+                    이메일함에서 <strong class="text-[#0B2A5B]">링크(Sign in)를 클릭</strong>하시면<br>자동으로 로그인됩니다.
+                </p>
+                <button onclick="resetEmailStep()" class="mt-4 text-[13px] text-gray-400 underline hover:text-gray-600">
+                    이메일 다시 입력하기
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 text-[13px] text-gray-500 leading-relaxed">
+            <span class="text-[#0B2A5B] font-bold">로그인</span> 하면<br>
+            <a href="#" class="font-bold text-[#12387a] underline hover:text-black">이용약관</a> 및 <a href="#" class="font-bold text-[#12387a] underline hover:text-black">개인정보처리방침</a>에<br>동의하게 됩니다.
+        </div>
+    </div>
+</main>
+
+    <!-- 페이지 경로 기준점 설정 -->
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
+        // 구글, 카카오 로그인
+        async function signInWithProvider(providerName) {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                provider: providerName,
+                options: { redirectTo: window.location.origin + '/index.html' }
+            });
+            if (error) alert("로그인 에러: " + error.message);
+        }
+
+        // 네이버 로그인 (동적 콜백 URL 적용)
+        function startNaverLogin() {
+            localStorage.setItem('returnUrl', '/index.html');
+            const clientId = "QQt53ijWrcAksEFEIQcc"; 
+            
+            // 현재 접속 중인 도메인(127.0.0.1 또는 실서버)을 감지하여 콜백 주소 자동 생성
+            const currentOrigin = window.location.origin;
+            const callbackUrl = encodeURIComponent(currentOrigin + "/callback.html"); 
+            
+            const state = Math.random().toString(36).substr(2, 11);
+            window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${clientId}&redirect_uri=${callbackUrl}&state=${state}`;
+        }
+
+        // 이메일 매직 링크 발송
+        async function sendMagicLink() {
+            const emailInput = document.getElementById('email-input');
+            const sendBtn = document.getElementById('send-btn');
+            const email = emailInput.value.trim();
+
+            if(!email) {
+                alert("이메일을 입력해주세요.");
+                emailInput.focus();
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.innerText = "발송 중...";
+            sendBtn.classList.add('opacity-70');
+
+            const { error } = await supabaseClient.auth.signInWithOtp({
+                email: email,
+                options: {
+                    emailRedirectTo: window.location.origin + '/index.html',
+                    shouldCreateUser: true
+                }
+            });
+
+            sendBtn.disabled = false;
+            sendBtn.innerText = "로그인 링크 받기";
+            sendBtn.classList.remove('opacity-70');
+
+            if (error) {
+                alert("링크 발송 실패: " + error.message);
+            } else {
+                document.getElementById('step-1-email').classList.add('hidden');
+                document.getElementById('step-2-message').classList.remove('hidden');
+                document.getElementById('step-2-message').classList.add('flex');
+            }
+        }
+
+        function resetEmailStep() {
+            document.getElementById('step-2-message').classList.add('hidden');
+            document.getElementById('step-2-message').classList.remove('flex');
+            document.getElementById('step-1-email').classList.remove('hidden');
+            document.getElementById('email-input').value = '';
+            document.getElementById('email-input').focus();
+        }
+    </script>
+</body>
+</html>

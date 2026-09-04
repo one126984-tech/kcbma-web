@@ -59,13 +59,7 @@
 <!-- @include header -->
 
     <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center">
-            <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-                <div class="w-full md:w-[220px] shrink-0 text-white font-bold text-xl md:text-2xl tracking-wide flex items-center justify-center h-full cursor-pointer" onclick="location.href='resume-list.html'">
-                    <i class="fas fa-chevron-left mr-3 text-lg opacity-80"></i> 구인 <span class="text-gray-300 font-light mx-2">/</span> 구직
-                </div>
-            </div>
-        </div>
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
@@ -257,6 +251,9 @@
             };
             renderResumeDetail(mockData);
         }
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>

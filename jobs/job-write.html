@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>채용정보 등록 | 대한집합건물관리협회</title>
 
-    <style>
+<style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
            절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
@@ -23,8 +23,11 @@
               쓸 것. */
         #main-header { background-color: #ffffff; }
         #sub-header-bar {
-            background-color: #12387a; height: 56px;
-            /* ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+            background-color: #12387a; height: 6px;
+            /* ★ 2026-09: 굵은 직선 형태로 축소 (기존 56px 짜리 텍스트 바에서
+               텍스트를 전부 지우고 얇은 색상 바로 변경) — height 값은
+               common-css.html 쪽과 반드시 동일하게 맞출 것.
+               ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
                분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
                형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
                #main-header가 통째로 sticky라 자동으로 같이 고정됨.
@@ -54,14 +57,25 @@
             display: none; flex: 1; justify-content: space-between; align-items: center;
             padding: 0 24px; white-space: nowrap;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header nav { display: flex; }
+        }
+        /* ★ 2026-09 (4차 수정): 사용자 실측 결과 실제 페이지 폭이 803px로
+           나오는 환경(모니터 배율 등으로 인해 창은 넓어 보여도 실제 CSS 기준
+           폭은 좁게 잡히는 경우)에서도 가로 메뉴를 보이게 해달라는 요청.
+           768~1023px 구간은 원래 메뉴 6개+SOS 문구+아이콘을 다 넣기엔
+           여유가 부족한 폭이라, 이 구간에서만 폰트를 줄이고 SOS 문구 텍스트를
+           숨겨(아이콘만 유지) 최대한 겹치지 않게 압축함. 1024px 이상에서는
+           원래 여백대로 표시됨. */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
         }
         #main-header .sos-btn {
             display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
         #main-header > header > button { display: block; }
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             #main-header > header > button { display: none; }
         }
         #sub-header-bar {
@@ -95,7 +109,6 @@
             font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
         }
     </style>
-
 
     <!-- 폰트 적용 (Pretendard) -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -193,7 +206,7 @@
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
 
         #main-header { background-color: #ffffff; }
-        #sub-header-bar { background-color: #12387a; height: 56px; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
 
         /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
         .side-menu-tab {
@@ -347,7 +360,7 @@
 
             <!-- 1) 좌측 로고 -->
             <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
-            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" onerror="this.src='../../방패로고.jpg'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
@@ -386,7 +399,7 @@
                 </div>
 
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -398,13 +411,7 @@
             </button>
         </header>
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] h-[56px] flex items-center shadow-md">
-        <div class="max-w-[1400px] mx-auto w-full px-4 md:px-8 flex items-center h-full">
-            <div class="text-white font-bold text-xl md:text-2xl tracking-wide">
-                구인 <span class="text-gray-400 font-light mx-2">/</span> 구직
-            </div>
-        </div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
 </div>
 
     <!-- 모바일 메뉴 -->
@@ -444,7 +451,7 @@
                 </div>
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그아웃</div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
     </div>
@@ -462,15 +469,65 @@
             }
         }
 
+        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
+        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
+        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
+        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
+        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
+        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
+        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '../../login.html'; };
+                }
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // supabase가 없으면 함수 종료 (에러 방지)
-            if (typeof supabase === 'undefined') {
-                console.log("Supabase 객체를 찾을 수 없습니다. (스크립트 로딩 순서 확인 필요)");
+            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
+            if (!window.sb) {
                 return;
             }
             
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) {
                 console.log("로그인된 사용자가 없습니다.");
                 return; 
@@ -503,14 +560,14 @@
         }
 
         async function loadNotifications() {
-            if (typeof supabase === 'undefined') return;
-            const { data: { user } } = await supabase.auth.getUser();
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
             if (!user) return;
 
             const listContainer = document.getElementById('notification-list');
             if (!listContainer) return;
 
-            const { data, error } = await supabase
+            const { data, error } = await window.sb
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
@@ -537,7 +594,7 @@
                 li.onclick = async (e) => {
                     e.stopPropagation();
                     if (!notification.is_read) {
-                        await supabase
+                        await window.sb
                             .from('notifications')
                             .update({ is_read: true })
                             .eq('id', notification.id);
@@ -571,8 +628,8 @@
                 ro.observe(headerEl);
             }
 
-            // 알림 개수 불러오기 실행
-            fetchUnreadCount();
+            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
 
             // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');
@@ -705,10 +762,10 @@
                                     <i class="fas fa-user-check opacity-80"></i> 지원자격
                                 </span>
                             </div>
-                            <div class="form-row"><span class="form-label">경력</span><div class="form-input-wrap"><input type="text" placeholder="예: 경력 3년 이상 필수" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">경력</span><div class="form-input-wrap"><input type="text" id="f-career" placeholder="예: 경력 3년 이상 필수" class="input-box"></div></div>
                             <div class="form-row"><span class="form-label">학력</span>
                                 <div class="form-input-wrap">
-                                    <select class="input-box bg-white">
+                                    <select id="f-education" class="input-box bg-white">
                                         <option value="" disabled selected>선택</option>
                                         <option>학력 무관</option><option>고졸 이상</option><option>대졸 이상</option>
                                     </select>
@@ -723,13 +780,13 @@
                             </div>
                             <div class="form-row"><span class="form-label">고용형태</span>
                                 <div class="form-input-wrap">
-                                    <select class="input-box bg-white">
+                                    <select id="f-employment-type" class="input-box bg-white">
                                         <option value="" disabled selected>선택</option>
                                         <option>정규직</option><option>계약직 (기간제)</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-row"><span class="form-label">근무형태</span><div class="form-input-wrap"><input type="text" placeholder="예: 주 5일 근무 (주 40시간)" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">근무형태</span><div class="form-input-wrap"><input type="text" id="f-work-schedule" placeholder="예: 주 5일 근무 (주 40시간)" class="input-box"></div></div>
                         </div>
                     </div>
 
@@ -740,7 +797,7 @@
                                     <i class="fas fa-building opacity-80"></i> 근무조건
                                 </span>
                             </div>
-                            <div class="form-row"><span class="form-label">임금</span><div class="form-input-wrap"><input type="text" placeholder="예: 월급 440만원 ~ 440만원" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">임금</span><div class="form-input-wrap"><input type="text" id="f-salary" placeholder="예: 월급 440만원 ~ 440만원" class="input-box"></div></div>
                             <div class="form-row items-start"><span class="form-label mt-2">지역</span>
                                 <div class="form-input-wrap space-y-2">
                                     <div class="flex gap-2">
@@ -758,8 +815,8 @@
                                     <i class="fas fa-gift opacity-80"></i> 복리후생
                                 </span>
                             </div>
-                            <div class="form-row"><span class="form-label">보험/연금</span><div class="form-input-wrap"><input type="text" placeholder="예: 4대보험 가입" value="국민연금, 고용보험, 산재보험, 건강보험" class="input-box"></div></div>
-                            <div class="form-row"><span class="form-label">기타</span><div class="form-input-wrap"><input type="text" placeholder="예: 중식 제공, 퇴직금 별도" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">보험/연금</span><div class="form-input-wrap"><input type="text" id="f-insurance" placeholder="예: 4대보험 가입" value="국민연금, 고용보험, 산재보험, 건강보험" class="input-box"></div></div>
+                            <div class="form-row"><span class="form-label">기타</span><div class="form-input-wrap"><input type="text" id="f-other-benefits" placeholder="예: 중식 제공, 퇴직금 별도" class="input-box"></div></div>
                         </div>
                     </div>
                 </div>
@@ -775,8 +832,8 @@
                                 <h3 class="text-[16px] font-bold text-gray-900">1. 모집분야 및 담당업무</h3>
                             </div>
                             <div id="list-task" class="space-y-2">
-                                <div class="flex items-center gap-2"><input type="text" value="- 오피스텔 시설관리 기사" class="input-box flex-1"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
-                                <button type="button" onclick="addListItem('list-task', '업무 내용을 입력하세요')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
+                                <div class="flex items-center gap-2"><input type="text" value="- 오피스텔 시설관리 기사" class="input-box flex-1 list-task-input"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
+                                <button type="button" onclick="addListItem('list-task', '업무 내용을 입력하세요', 'list-task-input')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
                             </div>
                         </div>
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-t-[4px] border-t-[#2aa096] p-6">
@@ -785,8 +842,8 @@
                                 <h3 class="text-[16px] font-bold text-gray-900">2. 자격요건 및 우대사항</h3>
                             </div>
                             <div id="list-qual" class="space-y-2">
-                                <div class="flex items-center gap-2"><input type="text" value="[필수] 시설관리 경력 3년 이상" class="input-box flex-1"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
-                                <button type="button" onclick="addListItem('list-qual', '자격요건을 입력하세요')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
+                                <div class="flex items-center gap-2"><input type="text" value="[필수] 시설관리 경력 3년 이상" class="input-box flex-1 list-qual-input"><button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:text-red-500 rounded"><i class="fas fa-times"></i></button></div>
+                                <button type="button" onclick="addListItem('list-qual', '자격요건을 입력하세요', 'list-qual-input')" class="mt-3 text-[13px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i class="fas fa-plus"></i> 항목 추가</button>
                             </div>
                         </div>
                         <div class="bg-sky-50 rounded-xl shadow-sm border border-sky-200 border-t-[4px] border-t-sky-400 p-6 md:col-span-2">
@@ -794,7 +851,7 @@
                                 <div class="w-8 h-8 rounded-full bg-white text-sky-500 flex items-center justify-center text-sm shadow-sm"><i class="fas fa-exclamation-triangle"></i></div>
                                 <h3 class="text-[16px] font-bold text-gray-900">지원 시 유의사항 (선택)</h3>
                             </div>
-                            <textarea class="input-box bg-white" placeholder="이메일 지원 시 제목에 반드시 [지원분야_이름]을 기재해 주세요." style="min-height: 80px;"></textarea>
+                            <textarea id="f-notice" class="input-box bg-white" placeholder="이메일 지원 시 제목에 반드시 [지원분야_이름]을 기재해 주세요." style="min-height: 80px;"></textarea>
                         </div>
                     </div>
                 </div>
@@ -948,14 +1005,14 @@
             }).open();
         }
 
-        function addListItem(containerId, placeholderText) {
+        function addListItem(containerId, placeholderText, itemClass) {
             const container = document.getElementById(containerId);
             const addButton = container.lastElementChild;
 
             const div = document.createElement('div');
             div.className = 'flex items-center gap-2 mb-2';
             div.innerHTML = `
-                <input type="text" placeholder="${placeholderText}" class="input-box text-[14.5px] flex-1">
+                <input type="text" placeholder="${placeholderText}" class="input-box text-[14.5px] flex-1 ${itemClass || ''}">
                 <button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 flex shrink-0 items-center justify-center text-gray-300 hover:bg-red-50 hover:text-red-500 rounded transition-colors"><i class="fas fa-times"></i></button>
             `;
 
@@ -971,6 +1028,12 @@
         async function submitJob(event) {
             event.preventDefault();
 
+            const { data: authData } = await supabaseClient.auth.getUser();
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
             const title = document.getElementById('f-title').value.trim();
             const category = document.getElementById('f-category').value;
             const company = document.getElementById('f-company').value.trim();
@@ -979,6 +1042,20 @@
             const roadAddress = document.getElementById('job_roadAddress').value.trim();
             const detailAddress = document.getElementById('job_detailAddress').value.trim();
             const region = [roadAddress, detailAddress].filter(Boolean).join(' ');
+
+            const careerLevel = document.getElementById('f-career').value.trim();
+            const educationLevel = document.getElementById('f-education').value;
+            const employmentType = document.getElementById('f-employment-type').value;
+            const workSchedule = document.getElementById('f-work-schedule').value.trim();
+            const salary = document.getElementById('f-salary').value.trim();
+            const insuranceBenefits = document.getElementById('f-insurance').value.trim();
+            const otherBenefits = document.getElementById('f-other-benefits').value.trim();
+            const notice = document.getElementById('f-notice').value.trim();
+
+            const jobDuties = Array.from(document.querySelectorAll('.list-task-input'))
+                .map(el => el.value.trim()).filter(Boolean).join('\n');
+            const qualifications = Array.from(document.querySelectorAll('.list-qual-input'))
+                .map(el => el.value.trim()).filter(Boolean).join('\n');
 
             if (!title) { alert('채용 공고 제목을 입력해 주세요.'); return; }
             if (!category) { alert('직종을 선택해 주세요.'); return; }
@@ -1002,7 +1079,18 @@
                         location: region,
                         end_date: endDate,
                         status: 'OPEN',
-                        view_count: 0
+                        view_count: 0,
+                        career_level: careerLevel || null,
+                        education_level: educationLevel || null,
+                        employment_type: employmentType || null,
+                        work_schedule: workSchedule || null,
+                        salary: salary || null,
+                        insurance_benefits: insuranceBenefits || null,
+                        other_benefits: otherBenefits || null,
+                        job_duties: jobDuties || null,
+                        qualifications: qualifications || null,
+                        notice: notice || null,
+                        created_by: authData.user.id
                     }])
                     .select();
 
@@ -1018,6 +1106,9 @@
                 submitBtnText.innerText = originalText;
             }
         }
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>
