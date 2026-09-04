@@ -301,6 +301,71 @@
             transition: background-color 0.15s;
         }
         .mypage-btn-mobile:hover { background-color: #0077b3; }
+
+        /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
+           community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
+           개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
+           페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
+        .guide-notice-box {
+            display: flex;
+            background-color: #f8f9fb;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #143b86;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 30px;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+        }
+        .guide-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background-color: #e6edfa;
+            color: #143b86;
+            border-radius: 50%;
+            margin-right: 20px;
+            flex-shrink: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .guide-content {
+            flex-grow: 1;
+        }
+        .guide-content h4 {
+            color: #143b86;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 16px 0;
+        }
+        .guide-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .guide-content li {
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 10px;
+            font-size: 14.5px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .guide-content li::before {
+            content: "-";
+            position: absolute;
+            left: 0;
+            color: #555;
+        }
+        .guide-content li strong {
+            color: #333;
+            font-weight: 600;
+        }
+        .text-red {
+            color: #d32f2f;
+            font-weight: bold;
+        }
     </style>
 
 
@@ -650,18 +715,15 @@
 
             <section class="flex-1 shrink-0 max-w-[900px] w-full pb-8">
 
-                <!-- 활발하고 건전한 커뮤니티 활동을 위한 안내 (커뮤니티 전체 게시판 공통) -->
-                <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-8 flex gap-5 md:gap-6 items-start shadow-sm">
-                    <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
-                        <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">활발하고 건전한 커뮤니티 활동을 위한 안내</h3>
-                        <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
-                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>상호 존중 소통:</b> 타 회원의 의견을 존중하며 무분별한 비방이나 욕설은 엄격히 금지됩니다. 위반 게시물은 <span class="text-red-600 font-bold">사전 경고 없이 삭제</span>될 수 있습니다.</span></li>
-                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>게시판 주제 준수:</b> 각 게시판의 목적과 성격에 맞는 내용을 게시하여 유익한 정보 공유를 지향해 주세요. (e.g., '현장경험 공유', '질의응답' 등)</span></li>
-                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>개인 및 정보 보호:</b> 타인의 저작권이나 기관의 민감한 내부 정보를 무단 공유하지 않도록 유의해 주세요.</span></li>
-                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>유료 콘텐츠 안내:</b> 전문가 답변 열람 등 일부 유료 콘텐츠는 <span class="text-red-600 font-bold">결제 안내 후</span> 이용하실 수 있습니다.</span></li>
+                <!-- 현장경험 공유 게시판 전용 안내 -->
+                <div class="guide-notice-box">
+                    <div class="guide-icon"><i class="fas fa-shield-halved"></i></div>
+                    <div class="guide-content">
+                        <h4>현장경험 공유 게시판 이용 안내</h4>
+                        <ul>
+                            <li><strong>생생한 노하우 공유:</strong> 동료 소장님들과 현장 대처 사례, 성공 및 실패 경험을 나누며 유익한 정보를 교류하는 공간입니다.</li>
+                            <li><strong>개인정보 철저 보호:</strong> 사례 공유 시 특정 단지명, 입주민의 실명, 업체명 등 민감한 정보는 반드시 익명 처리해 주시기 바랍니다.</li>
+                            <li><strong>상호 존중 피드백:</strong> 다른 회원의 대처 방식에 대한 무분별한 비난은 삼가며, 건설적인 조언과 공감으로 소통해 주세요.</li>
                         </ul>
                     </div>
                 </div>
