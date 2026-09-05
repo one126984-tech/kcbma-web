@@ -752,22 +752,43 @@
         <!-- 우측 메인 콘텐츠 -->
         <section id="main-content" class="flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
 
-            <div class="w-full bg-[#f4f7f9] border border-gray-200 rounded-lg py-5 px-2 shadow-sm mb-6">
-                <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-300 gap-y-4 sm:gap-y-0">
-                    <div class="flex flex-col items-center justify-center text-center px-2 py-1">
-                        <i class="fa-solid fa-helmet-safety text-[42px] text-amber-500 drop-shadow-sm mb-3"></i>
-                        <div class="font-bold text-gray-900 text-[15px] lg:text-[16px] mb-1.5 tracking-tight">공사·용역 입찰</div>
-                        <div class="text-[12px] lg:text-[13px] text-gray-600 leading-snug">건축, 도장, 승강기 등<br>대규모 공사/용역</div>
+            <!-- 위탁관리사 선정 공고 및 매칭 안내 -->
+            <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">위탁관리사 선정 공고 및 매칭 안내</h3>
+                    <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>공개경쟁 입찰:</b> 투명하고 공정한 입찰 과정을 통해 단지에 최적화된 위탁관리업체를 선정할 수 있습니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>상세정보 보호:</b> 단지의 세부 정보와 담당자 연락처는 철저히 블라인드 처리되며 안전하게 보호됩니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>업체 제안 확인:</b> 위탁관리사가 소정의 열람 수수료를 결제한 후 상세 내역을 확인하고 단지에 맞춤 제안을 보냅니다.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="w-full bg-[#f4f7f9] border border-gray-200 rounded-lg py-2.5 px-2 shadow-sm mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-300 gap-y-2 sm:gap-y-0">
+                    <div class="flex flex-row items-center gap-3 text-left px-3 py-1">
+                        <i class="fa-solid fa-helmet-safety text-[24px] text-amber-500 drop-shadow-sm shrink-0"></i>
+                        <div>
+                            <div class="font-bold text-gray-900 text-[14px] lg:text-[15px] tracking-tight">공사·용역 입찰</div>
+                            <div class="text-[11px] lg:text-[12px] text-gray-600 leading-snug">건축, 도장, 승강기 등 대규모 공사/용역</div>
+                        </div>
                     </div>
-                    <div class="flex flex-col items-center justify-center text-center px-2 py-1">
-                        <i class="fa-solid fa-toolbox text-[42px] text-red-500 drop-shadow-sm mb-3"></i>
-                        <div class="font-bold text-gray-900 text-[15px] lg:text-[16px] mb-1.5 tracking-tight">전문 시설관리</div>
-                        <div class="text-[12px] lg:text-[13px] text-gray-600 leading-snug">소방, 전기, 기계, 정보통신<br>법정 점검 및 유지보수</div>
+                    <div class="flex flex-row items-center gap-3 text-left px-3 py-1">
+                        <i class="fa-solid fa-toolbox text-[24px] text-red-500 drop-shadow-sm shrink-0"></i>
+                        <div>
+                            <div class="font-bold text-gray-900 text-[14px] lg:text-[15px] tracking-tight">전문 시설관리</div>
+                            <div class="text-[11px] lg:text-[12px] text-gray-600 leading-snug">소방, 전기, 기계, 정보통신 법정 점검 및 유지보수</div>
+                        </div>
                     </div>
-                    <div class="flex flex-col items-center justify-center text-center px-2 py-1">
-                        <i class="fa-solid fa-hands-bubbles text-[42px] text-emerald-500 drop-shadow-sm mb-3"></i>
-                        <div class="font-bold text-gray-900 text-[15px] lg:text-[16px] mb-1.5 tracking-tight">환경·위생 관리</div>
-                        <div class="text-[12px] lg:text-[13px] text-gray-600 leading-snug">소독, 방역, 청소,<br>폐기물 처리</div>
+                    <div class="flex flex-row items-center gap-3 text-left px-3 py-1">
+                        <i class="fa-solid fa-hands-bubbles text-[24px] text-emerald-500 drop-shadow-sm shrink-0"></i>
+                        <div>
+                            <div class="font-bold text-gray-900 text-[14px] lg:text-[15px] tracking-tight">환경·위생 관리</div>
+                            <div class="text-[11px] lg:text-[12px] text-gray-600 leading-snug">소독, 방역, 청소, 폐기물 처리</div>
+                        </div>
                     </div>
                 </div>
             </div>
