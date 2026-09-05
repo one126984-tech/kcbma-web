@@ -710,10 +710,10 @@
 
 
     <!-- 하단 레이아웃 분할 -->
-    <main class="flex-1 overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
 
         <!-- 좌측 사이드바: 220px 폭, hide-scrollbar -->
-        <aside class="w-full md:w-[220px] shrink-0 h-full overflow-hidden hide-scrollbar z-40 pb-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
             <div class="pr-1 pt-1">
                 <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="side-menu-container">
                     <div class="side-menu-tab-active" onclick="loadContent('bid-list.html', this)">견적 및 입찰 정보</div>
@@ -750,7 +750,7 @@
         </aside>
 
         <!-- 우측 메인 콘텐츠 -->
-        <section id="main-content" class="flex-1 min-w-0 h-full overflow-y-auto custom-scroll pr-2 pb-10">
+        <section id="main-content" class="flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
 
             <div class="w-full bg-[#f4f7f9] border border-gray-200 rounded-lg py-5 px-2 shadow-sm mb-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-300 gap-y-4 sm:gap-y-0">

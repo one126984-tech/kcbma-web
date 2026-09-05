@@ -62,20 +62,15 @@ document.addEventListener("DOMContentLoaded", () => {
             </p>
           </div>
 
-          <!-- 우측: 사이트맵 (좌측 3줄과 높이를 맞춰 나란히 정렬) -->
-          <div class="flex flex-col justify-between shrink-0 text-white font-semibold">
-            <div class="flex gap-8">
-              <a href="${prefix}about/about.html" class="hover:text-slate-200 transition-colors no-underline">협회소개</a>
-              <a href="${prefix}board/board-corner.html" class="hover:text-slate-200 transition-colors no-underline">관리단 코너</a>
-            </div>
-            <div class="flex gap-8">
-              <a href="${prefix}jobs/job-list.html" class="hover:text-slate-200 transition-colors no-underline">구인구직</a>
-              <a href="${prefix}community/notice.html" class="hover:text-slate-200 transition-colors no-underline">커뮤니티</a>
-            </div>
-            <div class="flex gap-8">
-              <a href="${prefix}bid/bid-list.html" class="hover:text-slate-200 transition-colors no-underline">입찰공고</a>
-              <a href="https://cafe.naver.com/kcbma114" target="_blank" class="hover:text-slate-200 transition-colors no-underline">네이버 카페</a>
-            </div>
+          <!-- 우측: 사이트맵 (2열 그리드로 통일 — flex는 항목별 텍스트 길이가 달라 두 번째 열이
+               행마다 어긋나 보이는 문제가 있었음. grid는 컬럼 폭이 고정되어 항상 줄이 맞음) -->
+          <div class="grid grid-cols-2 gap-x-8 gap-y-2 shrink-0 text-white font-semibold self-center">
+            <a href="${prefix}about/about.html" class="hover:text-slate-200 transition-colors no-underline">협회소개</a>
+            <a href="${prefix}board/board-corner.html" class="hover:text-slate-200 transition-colors no-underline">관리단 코너</a>
+            <a href="${prefix}jobs/job-list.html" class="hover:text-slate-200 transition-colors no-underline">구인구직</a>
+            <a href="${prefix}community/notice.html" class="hover:text-slate-200 transition-colors no-underline">커뮤니티</a>
+            <a href="${prefix}bid/bid-list.html" class="hover:text-slate-200 transition-colors no-underline">입찰공고</a>
+            <a href="https://cafe.naver.com/kcbma114" target="_blank" class="text-lime-400 hover:text-lime-300 transition-colors no-underline">네이버 카페</a>
           </div>
         </div>
 
