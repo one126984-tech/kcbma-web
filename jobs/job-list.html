@@ -414,6 +414,43 @@
         .tag-chip { display: inline-flex; align-items: center; gap: 4px; background-color: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; white-space: nowrap; }
         .tag-remove { color: #6b7280; cursor: pointer; font-size: 11px; font-weight: bold; padding: 2px; display: flex; align-items: center; justify-content: center; }
         .tag-remove:hover { color: #ef4444; }
+
+        /* ============================================================
+           모바일 전용 "상세검색" 전체화면 오버레이.
+           데스크탑(768px 이상)에서는 #mas-open-btn 자체가 md:hidden으로
+           안 보이고, 아래 3개 요소는 767px 이하에서만 강제로 숨겨서
+           (JS가 안의 실제 입력요소들을 오버레이 쪽으로 옮겨감) 데스크탑
+           마크업/동작에는 전혀 영향이 없도록 함.
+           ============================================================ */
+        @media (max-width: 767px) {
+            #desktop-filter-table, #word-toolbar, #period-box { display: none !important; }
+        }
+        #mobile-advanced-search { display: none; }
+        #mobile-advanced-search.mas-open { display: flex; }
+        .mas-section { margin-bottom: 24px; }
+        .mas-section-title { font-size: 14px; font-weight: bold; color: #1f2937; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .mas-section-title .mas-info { color: #cbd5e1; font-size: 12px; }
+        .mas-btn-select { width: 100%; border: 1px solid #c7d2fe; color: #3b5bdb; background: #f5f7ff; font-weight: bold; padding: 13px; border-radius: 6px; text-align: center; font-size: 14px; }
+        .mas-btn-select + .mas-btn-select { margin-top: 8px; }
+        .mas-check-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px 10px; }
+        .mas-check { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: #374151; white-space: nowrap; }
+        .mas-check input[type="checkbox"], .mas-check input[type="radio"] { width: 16px; height: 16px; flex-shrink: 0; }
+        .mas-wage-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .mas-wage-row select, .mas-wage-row input[type="text"] { border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 10px; font-size: 13px; }
+        .mas-wage-row input[type="text"] { width: 90px; }
+        .mas-toggle { position: relative; width: 40px; height: 22px; border-radius: 999px; background: #d1d5db; flex-shrink: 0; cursor: pointer; transition: background .15s; }
+        .mas-toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+        .mas-toggle.on { background: #3b5bdb; }
+        .mas-toggle.on::after { transform: translateX(18px); }
+        .mas-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .mas-quick-btn { border: 1px solid #d1d5db; color: #4b5563; font-size: 12px; padding: 6px 10px; border-radius: 6px; background: #fff; }
+        .mas-quick-btn.mas-active { border-color: #3b5bdb; color: #3b5bdb; background: #eef1ff; font-weight: bold; }
+        .mas-date-row { display: flex; align-items: center; gap: 8px; }
+        .mas-date-row input[type="date"] { flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px; font-size: 12px; }
+
+        /* 직종/지역/자격증/전공 등에서 쓰는 하위 선택 팝업(바텀시트) */
+        #mas-picker { display: none; }
+        #mas-picker.mas-open { display: flex; }
     </style>
 </head>
 
@@ -737,6 +774,230 @@
         });
     </script>
 
+<!-- ============================================================
+     모바일 전용 "상세검색" 전체화면 오버레이 + 하위 선택 팝업.
+     데스크탑(768px 이상)에서는 CSS로 완전히 안 보이며, 안의 실제
+     기능(검색어/제외검색어/직종/지역/상태/등록일)은 아래 스크립트가
+     초기 로드 시(모바일 폭일 때만) 원래 데스크탑 필터영역에서 이
+     오버레이 쪽으로 "이동"시켜서 그대로 재사용합니다. 그 외 항목
+     (희망임금/경력/학력/고용형태 등)은 아직 사이트에 해당 데이터가
+     없어서 화면만 있고 실제 검색에는 반영되지 않는 항목입니다.
+     ============================================================ -->
+<div id="mobile-advanced-search" class="md:hidden fixed inset-0 z-[9999] bg-white flex-col">
+    <div class="flex items-center justify-between border-b border-gray-200 px-4 h-14 shrink-0">
+        <span class="font-bold text-[16px] text-[#12387a]">상세검색</span>
+        <button type="button" onclick="closeMobileAdvancedSearch()" class="w-9 h-9 flex items-center justify-center text-gray-500 text-lg"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 py-5" id="mas-body">
+
+        <div class="mas-section">
+            <div class="mas-section-title">검색어 <i class="fas fa-info-circle mas-info"></i></div>
+            <div id="mas-slot-search-word"></div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">제외 검색어 <i class="fas fa-info-circle mas-info"></i></div>
+            <div id="mas-slot-search-exclude"></div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">직종</div>
+            <button type="button" class="mas-btn-select" onclick="openMasPicker('category')">직종 선택</button>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">지역</div>
+            <button type="button" class="mas-btn-select" onclick="openMasPicker('region')">지역 선택</button>
+            <button type="button" class="mas-btn-select" onclick="openMasPicker('stub')">역세권별 선택</button>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">채용상태</div>
+            <div id="mas-slot-status"></div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">희망임금</div>
+            <div class="mas-wage-row">
+                <select><option>선택</option><option>월급</option><option>연봉</option><option>시급</option></select>
+                <input type="text" placeholder=""> <span class="text-[13px] text-gray-500">만원이상</span>
+                <span class="text-gray-300">~</span>
+                <input type="text" placeholder=""> <span class="text-[13px] text-gray-500">만원이하</span>
+            </div>
+            <label class="mas-check mt-3"><input type="checkbox" checked> 관계없음</label>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">재택근무 가능 여부</div>
+            <label class="mas-check"><input type="checkbox"> 재택근무</label>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">경력</div>
+            <div class="mas-check-grid-2 mb-3">
+                <label class="mas-check"><input type="checkbox" checked> 전체</label>
+                <label class="mas-check"><input type="checkbox"> 신입</label>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[13px] text-gray-600">경력 (</span>
+                <input type="text" class="border border-gray-300 rounded px-2 py-1.5 text-[12px] w-14 text-center" placeholder="년">
+                <span class="text-[13px] text-gray-500">년 ~</span>
+                <input type="text" class="border border-gray-300 rounded px-2 py-1.5 text-[12px] w-14 text-center" placeholder="년">
+                <span class="text-[13px] text-gray-500">년 )</span>
+                <label class="mas-check"><input type="checkbox"> 관계없음</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">학력</div>
+            <div class="mas-check-grid-2">
+                <label class="mas-check"><input type="checkbox" checked> 전체</label>
+                <label class="mas-check"><input type="checkbox"> 중졸이하</label>
+                <label class="mas-check"><input type="checkbox"> 고졸</label>
+                <label class="mas-check"><input type="checkbox"> 대졸(2~3년)</label>
+                <label class="mas-check"><input type="checkbox"> 대졸(4년)</label>
+                <label class="mas-check"><input type="checkbox"> 석사</label>
+                <label class="mas-check"><input type="checkbox"> 박사</label>
+                <label class="mas-check"><input type="checkbox"> 학력무관</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">고용형태 <i class="fas fa-info-circle mas-info"></i></div>
+            <div class="flex flex-col gap-3">
+                <label class="mas-check"><input type="checkbox"> 기간의 정함이 없는 근로계약</label>
+                <label class="mas-check"><input type="checkbox"> 기간의 정함이 없는 근로계약(시간(선택)제)</label>
+                <label class="mas-check"><input type="checkbox"> 기간의 정함이 있는 근로계약</label>
+                <label class="mas-check"><input type="checkbox"> 기간의 정함이 있는 근로계약(시간(선택)제)</label>
+                <label class="mas-check"><input type="checkbox"> 파견근로</label>
+                <label class="mas-check"><input type="checkbox"> 대체인력채용</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">채용구분</div>
+            <div class="mas-check-grid-2">
+                <label class="mas-check"><input type="checkbox"> 상용직</label>
+                <label class="mas-check"><input type="checkbox"> 일용직</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">근무형태</div>
+            <div class="mas-check-grid-2">
+                <label class="mas-check"><input type="checkbox"> 주 5일</label>
+                <label class="mas-check"><input type="checkbox"> 주 6일</label>
+                <label class="mas-check"><input type="checkbox"> 주 4일</label>
+                <label class="mas-check"><input type="checkbox"> 주 3일</label>
+                <label class="mas-check"><input type="checkbox"> 주 2일</label>
+                <label class="mas-check"><input type="checkbox"> 주 1일</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">격일근무 여부</div>
+            <label class="mas-check"><input type="checkbox"> 격일근무</label>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">근로시간단축 여부</div>
+            <label class="mas-check"><input type="checkbox"> 근로시간단축여부</label>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">교대근무여부</div>
+            <label class="mas-check"><input type="checkbox"> 교대근무가능여부</label>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">식사(비)제공</div>
+            <div class="mas-check-grid-2">
+                <label class="mas-check"><input type="checkbox"> 1식</label>
+                <label class="mas-check"><input type="checkbox"> 2식</label>
+                <label class="mas-check"><input type="checkbox"> 3식</label>
+                <label class="mas-check"><input type="checkbox"> 중식비지급</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">
+                기타 복리후생 <i class="fas fa-info-circle mas-info"></i>
+                <span class="mas-toggle ml-2" onclick="this.classList.toggle('on')"></span>
+                <span class="text-[12px] text-gray-400 font-normal">OR</span>
+            </div>
+            <div class="mas-check-grid-2">
+                <label class="mas-check"><input type="checkbox"> 통근버스</label>
+                <label class="mas-check"><input type="checkbox"> 기숙사</label>
+                <label class="mas-check"><input type="checkbox"> 차량유지비</label>
+                <label class="mas-check"><input type="checkbox"> 교육비 지원</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">자격면허</div>
+            <button type="button" class="mas-btn-select" onclick="openMasPicker('stub')">자격증 선택</button>
+            <label class="mas-check mt-3"><input type="checkbox"> 필수자격만 검색</label>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">전공</div>
+            <button type="button" class="mas-btn-select" onclick="openMasPicker('stub')">전공 선택</button>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">기타 우대사항</div>
+            <div class="mas-check-grid-2">
+                <label class="mas-check"><input type="checkbox"> 문서작성 (워드프로세스 활용)</label>
+                <label class="mas-check"><input type="checkbox"> 표계산 (스프레드시트 활용)</label>
+                <label class="mas-check"><input type="checkbox"> 프레젠테이션 프로그램 활용</label>
+                <label class="mas-check"><input type="checkbox"> 회계프로그램</label>
+                <label class="mas-check"><input type="checkbox"> 기타</label>
+                <label class="mas-check"><input type="checkbox"> 장애인</label>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">마감일</div>
+            <div class="mas-date-row"><input type="date"><span class="text-gray-300">~</span><input type="date"></div>
+            <div class="mas-quick-btns">
+                <button type="button" class="mas-quick-btn mas-active" onclick="masQuickToggle(this)">전체</button>
+                <button type="button" class="mas-quick-btn" onclick="masQuickToggle(this)">오늘</button>
+                <button type="button" class="mas-quick-btn" onclick="masQuickToggle(this)">내일</button>
+                <button type="button" class="mas-quick-btn" onclick="masQuickToggle(this)">3일</button>
+                <button type="button" class="mas-quick-btn" onclick="masQuickToggle(this)">1주 이내</button>
+                <button type="button" class="mas-quick-btn" onclick="masQuickToggle(this)">2주 이내</button>
+                <button type="button" class="mas-quick-btn" onclick="masQuickToggle(this)">한달</button>
+            </div>
+        </div>
+
+        <div class="mas-section">
+            <div class="mas-section-title">등록일</div>
+            <div id="mas-slot-registration"></div>
+        </div>
+
+        <div class="text-center text-[12px] text-gray-400 mt-2 mb-4">위 항목 중 지역·직종·채용상태·등록일·검색어만 실제 검색에 반영됩니다.</div>
+    </div>
+    <div class="border-t border-gray-200 p-3 shrink-0 flex gap-2">
+        <button type="button" onclick="resetMobileAdvancedSearch()" class="flex-1 border border-gray-300 text-gray-600 font-bold py-3 rounded text-[15px]">초기화</button>
+        <button type="button" onclick="submitMobileAdvancedSearch()" class="flex-[2] bg-[#0B2A5B] text-white font-bold py-3 rounded text-[15px]">검색</button>
+    </div>
+</div>
+
+<div id="mas-picker" class="md:hidden fixed inset-0 z-[10000] bg-white flex-col">
+    <div class="flex items-center justify-between border-b border-gray-200 px-4 h-14 shrink-0">
+        <span class="font-bold text-[15px] text-[#12387a]" id="mas-picker-title">선택</span>
+        <button type="button" onclick="closeMasPicker()" class="w-9 h-9 flex items-center justify-center text-gray-500 text-lg"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 py-4">
+        <div id="mas-picker-panel-category" class="hidden"></div>
+        <div id="mas-picker-panel-region" class="hidden"></div>
+        <div id="mas-picker-panel-stub" class="hidden text-center text-gray-400 text-[13px] py-16">아직 준비 중인 기능입니다.<br>추후 지원 예정입니다.</div>
+    </div>
+    <div class="border-t border-gray-200 p-3 shrink-0">
+        <button type="button" onclick="closeMasPicker()" class="w-full bg-[#0B2A5B] text-white font-bold py-3 rounded text-[15px]">선택 완료</button>
+    </div>
+</div>
+
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
 
@@ -760,7 +1021,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-4" id="period-box">
                     <div class="flex justify-between items-center mb-3">
                         <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
                         <!-- '기간 전체' 버튼을 조회기간 텍스트 옆으로 이동 및 크기 축소 -->
@@ -798,12 +1059,18 @@
                 </div>
             </div>
 
-            <table class="filter-table shadow-sm">
+            <!-- 모바일 전용: 상세검색 진입 버튼 (데스크탑에서는 안 보임, 아래 필터테이블 자체가 그대로 보임) -->
+            <button type="button" id="mas-open-btn" onclick="openMobileAdvancedSearch()" class="md:hidden w-full flex items-center justify-between bg-white border border-gray-200 rounded shadow-sm px-4 py-3 mb-4 text-left">
+                <span class="flex items-center gap-2 font-bold text-[14px] text-[#12387a]"><i class="fas fa-sliders-h"></i> 상세검색</span>
+                <span class="text-[12px] text-gray-400">지역·직종·조건 설정 <i class="fas fa-chevron-right ml-1"></i></span>
+            </button>
+
+            <table class="filter-table shadow-sm" id="desktop-filter-table">
                 <tbody>
-                    <tr>
+                    <tr data-filter-row="region">
                         <th class="hidden sm:table-cell">지<br>역</th>
                         <td class="block sm:table-cell w-full p-4">
-                            <div class="flex flex-col gap-3 w-full">
+                            <div class="flex flex-col gap-3 w-full" id="region-filter-content">
                                 <div class="border border-gray-300 bg-white rounded p-3 w-full">
                                     <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-100 pb-2">
                                         대분류 <span class="text-gray-400 font-normal ml-1">(다중 선택 가능)</span>
@@ -841,10 +1108,10 @@
                             </div>
                         </td>
                     </tr>
-                    <tr>
+                    <tr data-filter-row="category">
                         <th class="hidden sm:table-cell">직<br>종</th>
                         <td class="block sm:table-cell w-full p-4">
-                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-4 w-full" id="category-filter-content">
                                 <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리소장"> <span>관리소장</span></label>
                                 <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기과장"> <span>전기과장</span></label>
                                 <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기기사"> <span>전기기사</span></label>
@@ -854,10 +1121,10 @@
                             </div>
                         </td>
                     </tr>
-                    <tr>
+                    <tr data-filter-row="status">
                         <th class="hidden sm:table-cell" style="color: #1e3a8a; font-size: 15px; font-weight: bold; padding-top: 10px; padding-bottom: 10px;">상<br>태</th>
                         <td class="block sm:table-cell w-full overflow-visible p-4" style="padding-top: 10px; padding-bottom: 10px;">
-                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2 mt-2">
+                            <div class="flex flex-nowrap items-center justify-start gap-x-5 lg:gap-x-7 w-full overflow-x-auto no-scrollbar pb-2 mt-2" id="status-filter-content">
                                 <div class="flex items-center shrink-0">
                                     <span class="font-bold text-[14px] text-[#333]">채용상태</span><span class="text-gray-200 mx-1 lg:mx-2">|</span>
                                     <div class="flex items-center gap-2">
@@ -872,7 +1139,7 @@
                 </tbody>
             </table>
 
-            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-4 border border-gray-200 shadow-sm rounded">
+            <div class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-4 border border-gray-200 shadow-sm rounded" id="word-toolbar">
                 <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
                 <div id="include-word-container" class="flex-1 min-w-[200px] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-blue-500">
                     <input type="text" id="manual-word-input" placeholder="업체명, 지역, 키워드 (엔터 추가)">
@@ -1424,6 +1691,81 @@
             window.location.href = `job-detail.html?id=${id}`;
         };
 
+        // ================================================================
+        // 모바일 전용 "상세검색" 오버레이: 실제 데스크탑 필터 요소들을
+        // (모바일 폭일 때만) 오버레이 안으로 옮겨서 그대로 재사용한다.
+        // 데스크탑 폭에서는 이 함수가 아무 것도 하지 않으므로 기존
+        // 데스크탑 마크업/동작에는 영향이 없다.
+        // ================================================================
+        function isMobileViewport() { return window.matchMedia('(max-width: 767px)').matches; }
+        function moveNode(node, target) { if (node && target) target.appendChild(node); }
+
+        function initMobileAdvancedSearch() {
+            if (!isMobileViewport()) return;
+
+            moveNode(manualInput ? manualInput.closest('#include-word-container') : null, document.getElementById('mas-slot-search-word'));
+            if (manualInput) manualInput.placeholder = tags.length > 0 ? "" : "검색어를 입력해주세요.";
+
+            const excludeEl = document.getElementById('search-exclude');
+            if (excludeEl) { excludeEl.placeholder = "제외 검색어를 입력해주세요."; moveNode(excludeEl, document.getElementById('mas-slot-search-exclude')); }
+
+            moveNode(document.getElementById('category-filter-content'), document.getElementById('mas-picker-panel-category'));
+            moveNode(document.getElementById('region-filter-content'), document.getElementById('mas-picker-panel-region'));
+            moveNode(document.getElementById('status-filter-content'), document.getElementById('mas-slot-status'));
+            moveNode(document.getElementById('period-box'), document.getElementById('mas-slot-registration'));
+        }
+
+        window.openMobileAdvancedSearch = function() {
+            document.getElementById('mobile-advanced-search').classList.add('mas-open');
+            document.body.style.overflow = 'hidden';
+        };
+        window.closeMobileAdvancedSearch = function() {
+            document.getElementById('mobile-advanced-search').classList.remove('mas-open');
+            document.body.style.overflow = '';
+        };
+        window.openMasPicker = function(type) {
+            ['category', 'region', 'stub'].forEach(t => {
+                const panel = document.getElementById('mas-picker-panel-' + t);
+                if (panel) panel.classList.toggle('hidden', t !== type);
+            });
+            const titles = { category: '직종 선택', region: '지역 선택', stub: '준비 중' };
+            document.getElementById('mas-picker-title').textContent = titles[type] || '선택';
+            document.getElementById('mas-picker').classList.add('mas-open');
+        };
+        window.closeMasPicker = function() {
+            document.getElementById('mas-picker').classList.remove('mas-open');
+        };
+        window.masQuickToggle = function(btn) {
+            btn.parentElement.querySelectorAll('.mas-quick-btn').forEach(b => b.classList.remove('mas-active'));
+            btn.classList.add('mas-active');
+        };
+        window.resetMobileAdvancedSearch = function() {
+            // 실제 검색에 반영되는 항목만 초기화: 직종/지역/상태/검색어/제외검색어/등록일
+            document.querySelectorAll('.job-category-chk:checked, .sub-region-chk:checked, .major-checkbox:checked').forEach(cb => cb.checked = false);
+            selectedMajors = [];
+            renderMinorRegions();
+            tags = [];
+            renderTags();
+            const excludeEl = document.getElementById('search-exclude');
+            if (excludeEl) excludeEl.value = '';
+            const statusAll = document.querySelector('.status-radio[value="ALL"]');
+            if (statusAll) statusAll.checked = true;
+            const regBtn = document.querySelector('#mas-slot-registration .period-btn');
+            if (regBtn) window.setPeriod('all', regBtn);
+
+            // 화면에만 있는 장식용 항목(희망임금/경력/학력/고용형태 등)은 보기만 초기화
+            document.querySelectorAll('#mas-body input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#mas-body select').forEach(s => s.selectedIndex = 0);
+            document.querySelectorAll('#mas-body .mas-toggle.on').forEach(t => t.classList.remove('on'));
+            document.querySelectorAll('#mas-body .mas-quick-btn').forEach(b => b.classList.remove('mas-active'));
+            document.querySelectorAll('#mas-body .mas-quick-btn').forEach(b => { if (b.textContent.trim() === '전체') b.classList.add('mas-active'); });
+        };
+        window.submitMobileAdvancedSearch = function() {
+            applyFilters();
+            closeMobileAdvancedSearch();
+        };
+
+        initMobileAdvancedSearch();
         initApp();
     })();
     </script>
