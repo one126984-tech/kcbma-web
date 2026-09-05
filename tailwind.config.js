@@ -25,7 +25,7 @@
  *  새 페이지를 추가했으면 build.js로 먼저 .html을 만든 뒤에 위 명령을 돌릴 것.
  */
 module.exports = {
-  content: ["./**/*.html", "!./node_modules/**"],
+  content: ["./**/*.html", "./assets/js/*.js", "!./node_modules/**"],
   theme: { extend: {} },
   plugins: [],
 };

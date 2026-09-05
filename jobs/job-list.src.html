@@ -100,10 +100,10 @@
 
 
     <!-- 하단 레이아웃 분할 -->
-    <main class="flex-1 overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
 
         <!-- 좌측 사이드바: overflow-hidden 적용으로 위아래 이동(스크롤) 완전 고정, rtl 삭제 -->
-        <aside class="w-full md:w-[220px] shrink-0 h-full overflow-hidden hide-scrollbar z-40 pb-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
             <div class="pr-1 pt-1">
                 <!-- ★ AJAX 탭 전환 -->
                 <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
@@ -143,7 +143,7 @@
         </aside>
 
         <!-- 우측 메인 콘텐츠 영역 (개별 스크롤 허용) -->
-        <section id="main-content" class="content-area flex-1 min-w-0 h-full overflow-y-auto custom-scroll pr-2 pb-10">
+        <section id="main-content" class="content-area flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
             <div class="notice-box flex-col sm:flex-row mb-6">
                 <div class="notice-icon-wrapper self-start"><i class="fas fa-shield-alt"></i></div>
                 <div class="notice-content">
