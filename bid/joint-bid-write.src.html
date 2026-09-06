@@ -211,15 +211,22 @@
 
             fileInput.addEventListener('change', function(e) {
                 if(this.files && this.files.length > 0) {
-                    const fileName = this.files[0].name;
+                    selectedFile = this.files[0];
+                    const fileName = selectedFile.name;
                     uploadBox.innerHTML = `
                         <div class="file-upload-icon text-blue-500"><i class="fas fa-file-alt"></i></div>
                         <div class="file-upload-text text-blue-600">${fileName}</div>
                         <div class="text-xs text-gray-500 mt-2">파일이 성공적으로 첨부되었습니다. 클릭하여 변경 가능.</div>
                     `;
+                } else {
+                    selectedFile = null;
                 }
             });
         });
+
+        // ★ 첨부파일(과업지시서) 업로드용 선택된 File 객체 보관 — Supabase Storage
+        //    버킷 joint_bids_attachments 에 업로드 후 Public URL을 attachment_url 컬럼에 저장.
+        let selectedFile = null;
 
         async function submitBid() {
             const { data: authData } = await supabaseClient.auth.getUser();
@@ -244,7 +251,40 @@
             const submitBtn = document.querySelector('.btn-submit');
             const originalText = submitBtn.innerText;
             submitBtn.disabled = true;
-            submitBtn.innerText = '등록 중...';
+
+            let fileUrl = null;
+
+            // ★ 첨부파일 처리 로직
+            if (selectedFile) {
+                submitBtn.innerText = '파일 업로드 중...';
+
+                // 고유 파일명 생성
+                const fileExt = selectedFile.name.split('.').pop();
+                const uniqueFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+                const filePath = `task_docs/${uniqueFileName}`;
+
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('joint_bids_attachments')
+                    .upload(filePath, selectedFile);
+
+                if (uploadError) {
+                    alert('파일 업로드에 실패했습니다: ' + uploadError.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                    return;
+                }
+
+                // Public URL 생성
+                const { data: { publicUrl } } = supabaseClient
+                    .storage
+                    .from('joint_bids_attachments')
+                    .getPublicUrl(filePath);
+
+                fileUrl = publicUrl;
+            }
+
+            submitBtn.innerText = '공고 등록 중...';
 
             const { data, error } = await supabaseClient
                 .from('joint_bids')
@@ -253,7 +293,8 @@
                     target_count: targetCount,
                     benefit_text: benefitText,
                     task_description: taskDescription,
-                    created_by: authData.user.id
+                    created_by: authData.user.id,
+                    attachment_url: fileUrl // DB에 추가한 컬럼
                 }])
                 .select();
 

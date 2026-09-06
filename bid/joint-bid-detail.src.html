@@ -163,7 +163,14 @@
 
                 <div class="content-section">
                     <h3 class="content-title">과업 개요 및 필수 포함 사항</h3>
-                    <div id="detail-task-description" class="bg-gray-50 border border-gray-200 rounded p-5 text-[14px] text-gray-700 leading-loose whitespace-pre-line"></div>
+                    <div id="detail-task-description" class="bg-gray-50 border border-gray-200 rounded p-5 text-[14px] text-gray-700 leading-loose whitespace-pre-line mb-4"></div>
+
+                    <!-- ★ 첨부파일 다운로드 버튼 영역 -->
+                    <div id="detail-attachment-container" class="hidden">
+                        <a id="detail-attachment-link" href="#" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-700 shadow-sm transition-colors">
+                            <i class="fas fa-file-download text-blue-600 text-lg"></i> 표준 과업지시서 열기 / 다운로드
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -354,6 +361,17 @@
             document.getElementById('info-period').innerText = `${formatDate(bid.created_at)} ~ ${formatDate(bid.deadline)} (${ddayText(bid.deadline)})`;
             document.getElementById('detail-task-description').innerText = bid.task_description || '등록된 과업 내용이 없습니다.';
             document.getElementById('detail-benefit').innerText = bid.benefit_text || '-';
+
+            // ★ 첨부파일 유무에 따라 다운로드 버튼 노출 처리
+            const attachmentContainer = document.getElementById('detail-attachment-container');
+            const attachmentLink = document.getElementById('detail-attachment-link');
+            if (bid.attachment_url) {
+                attachmentLink.href = bid.attachment_url;
+                attachmentContainer.classList.remove('hidden');
+            } else {
+                if (attachmentContainer) attachmentContainer.classList.add('hidden');
+            }
+
 
             const current = bid.current_count || 0;
             const target = bid.target_count || 1;

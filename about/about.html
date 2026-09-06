@@ -427,7 +427,7 @@
                     </div>
                 </div>
 
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='/mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div onclick="goToMypage()" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
                 <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='/login.html'" class="login-btn">로그인</div>
             </div>
 
@@ -484,9 +484,24 @@
                         0
                     </span>
                 </div>
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='/mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="goToMypage()" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='/login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마이페이지 로그인 안내 팝업 (비로그인 상태에서 마이페이지 클릭 시) -->
+    <div id="mypage-login-prompt" class="hidden fixed inset-0 z-[1200] bg-black/50 flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-[360px] w-full p-6 text-center">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center text-[#12387a] text-xl">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <p class="text-[15px] font-bold text-gray-800 mb-1">먼저 로그인 후 사용 가능합니다.</p>
+            <p class="text-[13px] text-gray-500 mb-6">마이페이지는 로그인한 회원만 이용할 수 있어요.</p>
+            <div class="flex gap-2">
+                <button type="button" onclick="closeMypageLoginPrompt()" class="flex-1 border border-gray-300 text-gray-600 font-bold py-2.5 rounded-lg text-[14px] hover:bg-gray-50">취소</button>
+                <button type="button" onclick="confirmMypageLogin()" class="flex-1 bg-[#12387a] text-white font-bold py-2.5 rounded-lg text-[14px] hover:bg-[#0e2b61]">로그인</button>
             </div>
         </div>
     </div>
@@ -529,6 +544,29 @@
                 );
             }
             return window.sb;
+        }
+
+        // --- 마이페이지 클릭: 로그인 상태면 바로 이동, 아니면 "마이페이지 클릭 -> 마이페이지 화면(X)"
+        //     대신 안내 팝업(로그인/취소)부터 띄운다. 마이페이지 화면이 잠깐 보였다가
+        //     사라지는 흔들림을 막기 위해, 애초에 마이페이지로 이동 자체를 안 함. ---
+        async function goToMypage() {
+            if (location.pathname.endsWith('dashboard.html')) return; // 이미 마이페이지면 아무 것도 안 함(기존과 동일)
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                location.href = '/mypage/dashboard.html';
+            } else {
+                document.getElementById('mypage-login-prompt').classList.remove('hidden');
+            }
+        }
+        function closeMypageLoginPrompt() {
+            document.getElementById('mypage-login-prompt').classList.add('hidden');
+        }
+        function confirmMypageLogin() {
+            // 로그인 완료 후 다시 마이페이지로 돌아오도록 사이트 루트 기준 절대경로로 저장
+            // (login.html이 여러 깊이의 페이지에서 열릴 수 있어 / 상대경로는 여기선 쓸 수 없음)
+            localStorage.setItem('returnUrl', '/mypage/dashboard.html');
+            location.href = '/login.html';
         }
 
         function applyAuthUI(session) {

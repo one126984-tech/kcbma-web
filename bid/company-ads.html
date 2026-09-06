@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>입찰공고 | 대한집합건물관리협회</title>
+    <title>협력업체 홍보관 | 대한집합건물관리협회</title>
 
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -364,39 +364,43 @@
         /* 이 페이지(협력업체 홍보관) 전용 CSS */
         html, body { overflow: hidden; height: 100%; }
 
-        .premium-card { background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%); border: 2px solid #fbbf24; border-radius: 8px; box-shadow: 0 4px 10px -2px rgba(251, 191, 36, 0.2); transition: all 0.3s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; height: 100%; }
-        .premium-card:hover { transform: translateY(-5px); box-shadow: 0 15px 20px -5px rgba(251, 191, 36, 0.3); border-color: #f59e0b; }
-        .premium-badge { position: absolute; top: 12px; right: 12px; background: #f59e0b; color: #fff; font-size: 11px; font-weight: 900; padding: 5px 12px; border-radius: 99px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); letter-spacing: 0.5px; z-index: 10; }
+        .premium-card { background: #ffffff; border: 2px solid #12387a; border-radius: 12px; box-shadow: 0 4px 15px -3px rgba(18, 56, 122, 0.15); transition: all 0.3s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; height: 100%; }
+        .premium-card:hover { transform: translateY(-5px); box-shadow: 0 15px 25px -5px rgba(18, 56, 122, 0.25); border-color: #1e40af; }
 
-        .p-card-logo { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(251, 191, 36, 0.3); background: rgba(255,255,255,0.6); }
-        .p-card-content { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-        .p-card-title { font-size: 18px; font-weight: 900; color: #111; margin-bottom: 6px; }
+        .premium-badge { display: inline-flex; align-items: center; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); letter-spacing: 0.5px; margin-left: auto; }
+
+        .p-card-top-strip { display: flex; align-items: center; padding: 6px 16px; min-height: 32px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .trust-badge-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; }
+        .t-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 800; letter-spacing: -0.3px; display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.25); color: #fff; border: 1px solid rgba(255,255,255,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+
+        .p-card-content { padding: 18px 20px; flex: 1; display: flex; flex-direction: column; }
+        .p-card-title { font-size: 19px; font-weight: 900; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
         .p-catchphrase { font-size: 14.5px; font-weight: 800; color: #b45309; margin-bottom: 10px; word-break: keep-all; line-height: 1.4; }
         .p-card-desc { font-size: 13.5px; color: #475569; margin-bottom: 16px; line-height: 1.5; }
 
-        .p-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 20px; border-top: 1px solid rgba(251, 191, 36, 0.3); background: rgba(255,255,255,0.4); margin-top: auto; }
-        .btn-p-contact { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 0; border-radius: 6px; font-size: 14px; font-weight: bold; transition: all 0.2s; cursor: pointer; }
-        .btn-p-call { background: #12387a; color: white; border: 1px solid #12387a; box-shadow: 0 2px 4px rgba(18, 56, 122, 0.2); }
-        .btn-p-call:hover { background: #0B2A5B; }
+        .p-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 16px 20px; border-top: 1px solid #f1f5f9; background: #fafafa; margin-top: auto; }
+        .btn-p-action { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 0; border-radius: 6px; font-size: 13.5px; font-weight: bold; transition: all 0.2s; cursor: pointer; }
+        .btn-p-quote { background: #fff7ed; color: #dc2626; border: 1px solid #f97316; grid-column: 1 / -1; }
+        .btn-p-quote:hover { background: #ffedd5; border-color: #ea580c; }
+        .btn-p-call { background: #eff6ff; color: #1e3a8a; border: 1px solid #12387a; }
+        .btn-p-call:hover { background: #dbeafe; }
         .btn-p-web { background: white; color: #334155; border: 1px solid #cbd5e1; }
         .btn-p-web:hover { background: #f8fafc; border-color: #94a3b8; }
 
-        .general-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; height: 100%; transition: all 0.2s; }
-        .general-card:hover { border-color: #94a3b8; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .general-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; height: 100%; transition: all 0.2s; }
+        .general-card:hover { border-color: #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-3px); }
 
-        .g-card-content { padding: 16px; flex: 1; display: flex; flex-direction: column; }
-        .g-card-title { font-size: 15px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+        .g-card-content { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+        .g-card-title { font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 
-        .g-catchphrase { font-size: 13.5px; font-weight: 700; color: #2563eb; margin-bottom: 12px; line-height: 1.4; word-break: keep-all; background: #eff6ff; padding: 6px 10px; border-radius: 4px; border-left: 3px solid #3b82f6; }
+        .g-catchphrase { font-size: 13.5px; font-weight: 700; color: #2563eb; margin-bottom: 12px; line-height: 1.4; word-break: keep-all; background: #f0fdf4; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #3b82f6; }
 
-        .g-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 14px; border-top: 1px dashed #e2e8f0; background: #f8fafc; margin-top: auto; }
-        .btn-g-contact { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; border-radius: 4px; font-size: 12px; font-weight: bold; transition: all 0.2s; cursor: pointer; background: white; border: 1px solid #cbd5e1; color: #475569; }
-        .btn-g-contact:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
+        .g-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 12px 18px; border-top: 1px dashed #e2e8f0; background: #f8fafc; margin-top: auto; }
+        .btn-g-action { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; border-radius: 4px; font-size: 12px; font-weight: bold; transition: all 0.2s; cursor: pointer; background: white; border: 1px solid #cbd5e1; color: #475569; }
+        .btn-g-action:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
 
-        .badge-tag { display: inline-block; padding: 3px 8px; background-color: #e0e7ff; color: #3730a3; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; }
-        .badge-region { display: inline-block; padding: 3px 8px; background-color: #f1f5f9; color: #475569; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; }
-
+        .badge-tag { display: inline-block; padding: 4px 8px; background-color: #f1f5f9; color: #475569; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
@@ -453,7 +457,7 @@
                     </div>
                 </div>
 
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div onclick="goToMypage()" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
                 <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
@@ -506,9 +510,24 @@
                         0
                     </span>
                 </div>
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="goToMypage()" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마이페이지 로그인 안내 팝업 (비로그인 상태에서 마이페이지 클릭 시) -->
+    <div id="mypage-login-prompt" class="hidden fixed inset-0 z-[1200] bg-black/50 flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-[360px] w-full p-6 text-center">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center text-[#12387a] text-xl">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <p class="text-[15px] font-bold text-gray-800 mb-1">먼저 로그인 후 사용 가능합니다.</p>
+            <p class="text-[13px] text-gray-500 mb-6">마이페이지는 로그인한 회원만 이용할 수 있어요.</p>
+            <div class="flex gap-2">
+                <button type="button" onclick="closeMypageLoginPrompt()" class="flex-1 border border-gray-300 text-gray-600 font-bold py-2.5 rounded-lg text-[14px] hover:bg-gray-50">취소</button>
+                <button type="button" onclick="confirmMypageLogin()" class="flex-1 bg-[#12387a] text-white font-bold py-2.5 rounded-lg text-[14px] hover:bg-[#0e2b61]">로그인</button>
             </div>
         </div>
     </div>
@@ -551,6 +570,29 @@
                 );
             }
             return window.sb;
+        }
+
+        // --- 마이페이지 클릭: 로그인 상태면 바로 이동, 아니면 "마이페이지 클릭 -> 마이페이지 화면(X)"
+        //     대신 안내 팝업(로그인/취소)부터 띄운다. 마이페이지 화면이 잠깐 보였다가
+        //     사라지는 흔들림을 막기 위해, 애초에 마이페이지로 이동 자체를 안 함. ---
+        async function goToMypage() {
+            if (location.pathname.endsWith('dashboard.html')) return; // 이미 마이페이지면 아무 것도 안 함(기존과 동일)
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                location.href = '../../mypage/dashboard.html';
+            } else {
+                document.getElementById('mypage-login-prompt').classList.remove('hidden');
+            }
+        }
+        function closeMypageLoginPrompt() {
+            document.getElementById('mypage-login-prompt').classList.add('hidden');
+        }
+        function confirmMypageLogin() {
+            // 로그인 완료 후 다시 마이페이지로 돌아오도록 사이트 루트 기준 절대경로로 저장
+            // (login.html이 여러 깊이의 페이지에서 열릴 수 있어 ../../ 상대경로는 여기선 쓸 수 없음)
+            localStorage.setItem('returnUrl', '/mypage/dashboard.html');
+            location.href = '../../login.html';
         }
 
         function applyAuthUI(session) {
@@ -807,6 +849,87 @@
             fetchCompanies();
         });
 
+        function getIconForCategory(category) {
+            const cat = category || '';
+            if (cat.includes('소방')) return 'fa-fire-extinguisher text-red-500';
+            if (cat.includes('전기')) return 'fa-bolt text-yellow-500';
+            if (cat.includes('승강기')) return 'fa-sort-amount-up text-blue-500';
+            if (cat.includes('기계') || cat.includes('건축') || cat.includes('보수') || cat.includes('설비')) return 'fa-tools text-slate-500';
+            if (cat.includes('위생') || cat.includes('청소') || cat.includes('방역')) return 'fa-broom text-cyan-500';
+            if (cat.includes('보안') || cat.includes('경비')) return 'fa-shield-alt text-slate-600';
+            return 'fa-building text-indigo-500';
+        }
+
+        function getGradientForCategory(category) {
+            const cat = category || '';
+            if (cat.includes('소방')) return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)';
+            if (cat.includes('청소') || cat.includes('위생') || cat.includes('방역')) return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+            if (cat.includes('기계') || cat.includes('건축') || cat.includes('보수') || cat.includes('설비') || cat.includes('도장') || cat.includes('방수')) return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            if (cat.includes('전기')) return 'linear-gradient(135deg, #eab308 0%, #d97706 100%)';
+            if (cat.includes('승강기')) return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
+            if (cat.includes('보안') || cat.includes('경비')) return 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
+            return 'linear-gradient(135deg, #12387a 0%, #1e40af 100%)';
+        }
+
+        function requestQuote(e, companyName) {
+            e.stopPropagation();
+            alert(`[${companyName}] 업체로 단지 기본 정보와 함께 간편 견적 요청이 전송되었습니다.\n(※ 관리자 확인 후 상세 안내 예정입니다.)`);
+        }
+
+        function createPremiumCard(c) {
+            const iconClass = getIconForCategory(c.category);
+            const topGradientStyle = `background: ${getGradientForCategory(c.category)};`;
+
+            let trustBadges = `<span class="t-badge cert"><i class="fas fa-check-circle"></i> 정식면허</span>`;
+            if (c.id % 2 === 0) trustBadges += `<span class="t-badge guarantee"><i class="fas fa-file-contract"></i> 하자보증서</span>`;
+            if (c.id % 3 === 0) trustBadges += `<span class="t-badge emergency"><i class="fas fa-truck-fast"></i> 24h 출동</span>`;
+
+            return `
+            <div class="premium-card cursor-pointer" onclick="location.href='company-detail.html?id=${c.id}'">
+                <div class="p-card-top-strip" style="${topGradientStyle}">
+                    <div class="trust-badge-wrap">${trustBadges}</div>
+                </div>
+                <div class="p-card-content">
+                    <h3 class="p-card-title">
+                        <i class="fas ${iconClass} text-[24px]"></i>
+                        ${c.company_name || '업체명 없음'}
+                        <span class="premium-badge">PREMIUM</span>
+                    </h3>
+                    <div class="p-catchphrase line-clamp-2">"${c.catchphrase || '최상의 서비스를 제공합니다.'}"</div>
+                    <p class="p-card-desc line-clamp-2">${c.service_summary || '자세한 서비스 내용은 상세 페이지에서 확인하세요.'}</p>
+                    <div class="flex flex-wrap mt-auto pt-3">
+                        <span class="badge-tag"><i class="fas fa-tag text-gray-400 mr-1"></i>${c.category || '기타'}</span>
+                        <span class="badge-tag"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${c.region || '전국'}</span>
+                    </div>
+                </div>
+                <div class="p-card-actions">
+                    <button class="btn-p-action btn-p-quote" onclick="requestQuote(event, '${c.company_name}')"><i class="fas fa-bolt"></i> 원클릭 간편 견적</button>
+                    <button class="btn-p-action btn-p-call" onclick="event.stopPropagation(); window.location.href='tel:${c.phone}'"><i class="fas fa-phone-alt"></i> 전화연결</button>
+                    ${c.website
+                        ? `<button class="btn-p-action btn-p-web" onclick="event.stopPropagation(); window.open('${c.website}', '_blank')"><i class="fas fa-globe"></i> 웹사이트</button>`
+                        : `<button class="btn-p-action btn-p-web" onclick="event.stopPropagation(); location.href='company-detail.html?id=${c.id}'"><i class="fas fa-info-circle"></i> 상세정보</button>`}
+                </div>
+            </div>`;
+        }
+
+        function createGeneralCard(c) {
+            const iconClass = getIconForCategory(c.category);
+            return `
+            <div class="general-card cursor-pointer" onclick="location.href='company-detail.html?id=${c.id}'">
+                <div class="g-card-content">
+                    <h3 class="g-card-title line-clamp-2"><i class="fas ${iconClass} text-[20px]"></i> ${c.company_name || '업체명 없음'}</h3>
+                    <div class="g-catchphrase line-clamp-2">"${c.catchphrase || '성실하게 책임 시공합니다.'}"</div>
+                    <div class="flex flex-wrap mt-auto pt-2">
+                        <span class="badge-tag">${c.category || '기타'}</span><span class="badge-tag">${c.region || '전국'}</span>
+                    </div>
+                </div>
+                <div class="g-card-actions">
+                    <button class="btn-g-action" onclick="event.stopPropagation(); window.location.href='tel:${c.phone}'"><i class="fas fa-phone-alt text-blue-600"></i> 통화</button>
+                    <button class="btn-g-action" onclick="event.stopPropagation(); location.href='company-detail.html?id=${c.id}'"><i class="fas fa-info-circle text-gray-500"></i> 상세</button>
+                </div>
+            </div>`;
+        }
+
         async function fetchCompanies() {
             const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
             const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
@@ -839,57 +962,6 @@
 
             premiumContainer.innerHTML = premiumCompanies.length ? premiumCompanies.map(createPremiumCard).join('') : '<div class="col-span-full py-10 text-center text-gray-500">등록된 프리미엄 업체가 없습니다.</div>';
             generalContainer.innerHTML = generalCompanies.length ? generalCompanies.map(createGeneralCard).join('') : '<div class="col-span-full py-10 text-center text-gray-500">등록된 일반 업체가 없습니다.</div>';
-        }
-
-        function getIconForCategory(category) {
-            const cat = category || '';
-            if (cat.includes('소방')) return 'fa-fire-extinguisher text-red-500/80';
-            if (cat.includes('전기')) return 'fa-bolt text-yellow-500/80';
-            if (cat.includes('승강기')) return 'fa-sort-amount-up text-blue-500/80';
-            if (cat.includes('기계') || cat.includes('건축')) return 'fa-tools text-slate-500/80';
-            if (cat.includes('위생')) return 'fa-broom text-cyan-500/80';
-            if (cat.includes('보안')) return 'fa-shield-alt text-slate-600/80';
-            return 'fa-building text-blue-400/80';
-        }
-
-        function createPremiumCard(c) {
-            const iconClass = getIconForCategory(c.category);
-            return `
-            <div class="premium-card cursor-pointer" onclick="location.href='company-detail.html?id=${c.id}'">
-                <div class="premium-badge">PREMIUM</div>
-                <div class="p-card-logo">
-                    <i class="fas ${iconClass} text-6xl"></i>
-                </div>
-                <div class="p-card-content">
-                    <h3 class="p-card-title">${c.company_name}</h3>
-                    <div class="p-catchphrase line-clamp-2">"${c.catchphrase}"</div>
-                    <p class="p-card-desc line-clamp-2">${c.service_summary || '전문 서비스를 제공합니다.'}</p>
-                    <div class="flex flex-wrap mt-auto">
-                        <span class="badge-tag">${c.category}</span><span class="badge-region">${c.region}</span>
-                    </div>
-                </div>
-                <div class="p-card-actions">
-                    <button class="btn-p-contact btn-p-call" onclick="event.stopPropagation(); window.location.href='tel:${c.phone}'"><i class="fas fa-phone-alt"></i> ${c.phone}</button>
-                    ${c.website ? `<button class="btn-p-contact btn-p-web" onclick="event.stopPropagation(); window.open('${c.website}', '_blank')"><i class="fas fa-home"></i> 홈페이지</button>` : `<button class="btn-p-contact btn-p-web" onclick="event.stopPropagation(); location.href='company-detail.html?id=${c.id}'"><i class="fas fa-info-circle"></i> 상세정보</button>`}
-                </div>
-            </div>`;
-        }
-
-        function createGeneralCard(c) {
-            return `
-            <div class="general-card cursor-pointer" onclick="location.href='company-detail.html?id=${c.id}'">
-                <div class="g-card-content">
-                    <h3 class="g-card-title line-clamp-2">${c.company_name}</h3>
-                    <div class="g-catchphrase line-clamp-2">"${c.catchphrase}"</div>
-                    <div class="flex flex-wrap mt-auto pt-2">
-                        <span class="badge-tag">${c.category}</span><span class="badge-region">${c.region}</span>
-                    </div>
-                </div>
-                <div class="g-card-actions">
-                    <button class="btn-g-contact" onclick="event.stopPropagation(); window.location.href='tel:${c.phone}'"><i class="fas fa-phone-alt"></i> 통화하기</button>
-                    ${c.website ? `<button class="btn-g-contact" onclick="event.stopPropagation(); window.open('${c.website}', '_blank')"><i class="fas fa-home"></i> 사이트</button>` : `<button class="btn-g-contact" onclick="event.stopPropagation(); location.href='company-detail.html?id=${c.id}'"><i class="fas fa-info-circle"></i> 상세정보</button>`}
-                </div>
-            </div>`;
         }
 
         const mainContent = document.getElementById('main-content');
