@@ -63,20 +63,27 @@
         .feed-item .feed-name { color: #ffffff; font-weight: 700; }
         .feed-item .feed-date { color: #93a3c1; font-size: 12px; margin-left: auto; }
 
-        .cert-card-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: all 0.25s; display: flex; flex-direction: column; height: 100%; cursor: pointer; overflow: hidden; }
+        .cert-card-item { background: #fff; border: 1px solid #f1f3f5; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); transition: all 0.25s; display: flex; flex-direction: row; height: auto; min-height: 200px; cursor: pointer; overflow: hidden; }
         .cert-card-item:hover { box-shadow: 0 16px 32px rgba(11,42,91,0.14); border-color: #93c5fd; transform: translateY(-6px); }
-        .cert-card-visual { height: 140px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; flex-shrink: 0; }
-        .cert-card-visual i { font-size: 46px; color: rgba(255,255,255,0.95); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
-        .cert-card-status { position: absolute; top: 12px; left: 12px; z-index: 2; }
-        .cert-card-body { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1; }
-        .cert-card-cat { display: inline-block; font-size: 11.5px; font-weight: 700; color: #274bce; background: #e0e7ff; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; width: fit-content; }
-        .cert-card-title { font-size: 16px; font-weight: 800; color: #0B2A5B; line-height: 1.4; margin-bottom: 6px; }
-        .cert-card-desc { font-size: 12.5px; color: #6b7280; line-height: 1.55; margin-bottom: 14px; flex: 1; }
-        .cert-card-footer { border-top: 1px solid #f1f3f5; padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+        .cert-card-visual { width: 280px; position: relative; overflow: hidden; flex-shrink: 0; background-color: #e2e8f0; }
+        .cert-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25,0.8,0.25,1); display: block; }
+        .cert-card-item:hover .cert-card-img { transform: scale(1.08); }
+        .cert-card-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.02) 100%); z-index: 1; pointer-events: none; }
+        .cert-card-status { position: absolute; top: 14px; left: 14px; z-index: 2; }
+        .cert-card-body { padding: 22px 26px; display: flex; flex-direction: column; flex: 1; }
+        .cert-card-cat { display: inline-block; font-size: 11.5px; font-weight: 700; color: #274bce; background: #e0e7ff; padding: 3px 10px; border-radius: 999px; margin-bottom: 10px; width: fit-content; }
+        .cert-card-title { font-size: 19px; font-weight: 800; color: #0B2A5B; line-height: 1.35; margin-bottom: 8px; }
+        .cert-card-desc { font-size: 13.5px; color: #6b7280; line-height: 1.6; margin-bottom: 18px; flex: 1; }
+        .cert-card-footer { border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .cert-free-badge { display: inline-flex; align-items: center; gap: 4px; background: #ecfdf5; color: #059669; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; width: fit-content; }
-        .cert-card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #9ca3af; }
-        .cert-detail-btn { width: 100%; text-align: center; background: #12387a; color: #fff; font-weight: 700; font-size: 13.5px; padding: 10px 0; border-radius: 8px; transition: background 0.2s; }
+        .cert-card-meta { font-size: 12.5px; color: #9ca3af; }
+        .cert-detail-btn { text-align: center; background: #12387a; color: #fff; font-weight: 700; font-size: 13.5px; padding: 9px 22px; border-radius: 8px; transition: background 0.2s; white-space: nowrap; }
         .cert-card-item:hover .cert-detail-btn { background: #0e2b61; }
+
+        @media (max-width: 768px) {
+            .cert-card-item { flex-direction: column; }
+            .cert-card-visual { width: 100%; height: 180px; }
+        }
 
         .empty-state { text-align: center; padding: 80px 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; color: #6b7280; }
         .cert-loading-box { text-align: center; padding: 90px 20px; color: #6b7280; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
@@ -154,15 +161,11 @@
                         <td style="border-bottom: 2px solid #e5e7eb;">
                             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-y-4 gap-x-2">
                                 <label class="custom-radio"><input type="radio" name="cert_field" value="ALL" checked onchange="applyFilters()"> 전체</label>
-                                <label class="custom-radio"><input type="radio" name="cert_field" value="기전" onchange="applyFilters()"> 기전</label>
-                                <label class="custom-radio"><input type="radio" name="cert_field" value="전기방재" onchange="applyFilters()"> 전기방재</label>
-                                <label class="custom-radio"><input type="radio" name="cert_field" value="기계" onchange="applyFilters()"> 기계</label>
-                                <label class="custom-radio"><input type="radio" name="cert_field" value="영선" onchange="applyFilters()"> 영선</label>
-                                <label class="custom-radio"><input type="radio" name="cert_field" value="배관" onchange="applyFilters()"> 배관</label>
                                 <label class="custom-radio"><input type="radio" name="cert_field" value="행정" onchange="applyFilters()"> 행정</label>
-                                <label class="custom-radio"><input type="radio" name="cert_field" value="환경위생" onchange="applyFilters()"> 환경위생</label>
                                 <label class="custom-radio"><input type="radio" name="cert_field" value="회계" onchange="applyFilters()"> 회계</label>
                                 <label class="custom-radio"><input type="radio" name="cert_field" value="환경미화" onchange="applyFilters()"> 환경미화</label>
+                                <label class="custom-radio"><input type="radio" name="cert_field" value="기전" onchange="applyFilters()"> 기전</label>
+                                <label class="custom-radio"><input type="radio" name="cert_field" value="전기" onchange="applyFilters()"> 전기</label>
                             </div>
                         </td>
                     </tr>
@@ -180,7 +183,7 @@
                 </table>
 
                 <!-- 데이터 리스트 그리드 -->
-                <div id="cert-list-body" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 w-full">
+                <div id="cert-list-body" class="grid grid-cols-1 gap-6 mt-6 w-full">
                 </div>
 
                 <div id="pagination-container" class="flex justify-center gap-2 mt-10"></div>
@@ -254,27 +257,19 @@
         }
 
         const CERT_VISUAL_MAP = {
-            'dummy-1': { icon: 'fa-bolt', gradient: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
-            'dummy-2': { icon: 'fa-fire-extinguisher', gradient: 'linear-gradient(135deg,#b91c1c,#f97316)' },
-            'dummy-3': { icon: 'fa-gears', gradient: 'linear-gradient(135deg,#0f766e,#14b8a6)' },
-            'dummy-4': { icon: 'fa-screwdriver-wrench', gradient: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
-            'dummy-5': { icon: 'fa-faucet-drip', gradient: 'linear-gradient(135deg,#0369a1,#0ea5e9)' },
-            'dummy-6': { icon: 'fa-building-shield', gradient: 'linear-gradient(135deg,#334155,#64748b)' },
-            'dummy-7': { icon: 'fa-leaf', gradient: 'linear-gradient(135deg,#15803d,#65a30d)' },
-            'dummy-8': { icon: 'fa-file-invoice-dollar', gradient: 'linear-gradient(135deg,#c2410c,#f59e0b)' },
-            'dummy-9': { icon: 'fa-broom', gradient: 'linear-gradient(135deg,#0d9488,#4ade80)' }
+            'cert-1': { image_path: '../../assets/img/property_manager.jpg' },   // 관리소장
+            'cert-2': { image_path: '../../assets/img/accounting_manager.jpg' }, // 경리
+            'cert-3': { image_path: '../../assets/img/cleaning_manager.jpg' },   // 미화
+            'cert-4': { image_path: '../../assets/img/facility_manager.jpg' },    // 기전영선
+            'cert-5': { image_path: '../../assets/img/electrical_manager.jpg' }   // 전기실무
         };
 
         const dummyCertCourses = [
-            { id: 'dummy-1', title: '기전당직실무관리사', short_desc: '수변전·발전기·공조설비 등 당직 실무 전반.', status: 'OPEN', enroll_count: 128, category: '기전', edu_method: 'VOD' },
-            { id: 'dummy-2', title: '전기방재설비관리사', short_desc: '소방·방재 전기설비 점검과 비상시 대응 절차.', status: 'OPEN', enroll_count: 96, category: '전기방재', edu_method: 'LIVE' },
-            { id: 'dummy-3', title: '기계설비실무관리사', short_desc: '냉동기·보일러 등 건물 기계설비 운전 및 유지보수.', status: 'OPEN', enroll_count: 141, category: '기계', edu_method: 'MIX' },
-            { id: 'dummy-4', title: '건물영선실무관리사', short_desc: '건물 내외부 보수·유지관리를 위한 영선 실무.', status: 'OPEN', enroll_count: 82, category: '영선', edu_method: 'VOD' },
-            { id: 'dummy-5', title: '배관설비실무관리사', short_desc: '급배수·소방배관 점검과 고장 대응 실무.', status: 'OPEN', enroll_count: 45, category: '배관', edu_method: 'LIVE' },
-            { id: 'dummy-6', title: '시설행정실무관리사', short_desc: '집합건물 관리규약 및 행정 서류 처리 실무.', status: 'OPEN', enroll_count: 167, category: '행정', edu_method: 'VOD' },
-            { id: 'dummy-7', title: '환경위생실무관리사', short_desc: '건물 위생관리 및 소독 관리 등 환경위생 실무.', status: 'OPEN', enroll_count: 73, category: '환경위생', edu_method: 'MIX' },
-            { id: 'dummy-8', title: '경리회계실무관리사', short_desc: '관리비 회계처리, 세무신고 등 회계 실무.', status: 'OPEN', enroll_count: 58, category: '회계', edu_method: 'VOD' },
-            { id: 'dummy-9', title: '환경미화관리사', short_desc: '구역별 청소 방법 등 건물 환경미화 실무.', status: 'OPEN', enroll_count: 41, category: '환경미화', edu_method: 'VOD' }
+            { id: 'cert-1', title: '관리소장실무 관리사', short_desc: '집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다.', status: 'OPEN', enroll_count: 320, category: '행정', edu_method: 'VOD' },
+            { id: 'cert-4', title: '기전영선실무 관리사', short_desc: '전기, 기계, 배관, 영선 등 건물 내 각종 시설물 유지보수 및 비상시 대응 절차를 통합적으로 다룹니다.', status: 'OPEN', enroll_count: 288, category: '기전', edu_method: 'MIX' },
+            { id: 'cert-2', title: '경리실무 관리사', short_desc: '관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양합니다.', status: 'OPEN', enroll_count: 215, category: '회계', edu_method: 'LIVE' },
+            { id: 'cert-3', title: '미화실무 관리사', short_desc: '건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습합니다.', status: 'OPEN', enroll_count: 142, category: '환경미화', edu_method: 'VOD' },
+            { id: 'cert-5', title: '전기실무 관리사', short_desc: '전기기사 실무 경력(2년) 충족에 어려움을 겪는 분들을 위한 완벽한 해답! 수배전반 등 현장 베테랑 전기 전문가의 밀착 지도로 즉시 투입 가능한 실무를 배우고, 자체 평가를 거쳐 확실한 자격을 부여받으세요.', status: 'OPEN', enroll_count: 76, category: '전기', edu_method: 'MIX' }
         ];
 
         async function fetchCertData() {
@@ -317,18 +312,29 @@
                 const status = item.status || 'OPEN';
                 let sBadge = status === 'OPEN' ? '<span class="cert-card-status bg-blue-600 text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">접수중</span>' : '<span class="cert-card-status bg-gray-500 text-white px-2.5 py-1 rounded text-[11px] font-bold shadow">마감</span>';
                 let mText = item.edu_method === 'VOD' ? '동영상(VOD)' : item.edu_method === 'LIVE' ? '실시간(Zoom)' : '혼합형';
-                const visual = CERT_VISUAL_MAP[item.id] || { icon: 'fa-certificate', gradient: 'linear-gradient(135deg,#12387a,#274bce)' };
+                const visual = CERT_VISUAL_MAP[item.id] || { image_path: '../../assets/img/cert-progress-illustration.png' };
+
+                // ★ 전기실무 관리사(cert-5)는 다른 과정과 구분되도록 보라색 톤 배경/테두리 적용
+                const isSpecial = item.id === 'cert-5';
+                const cardStyle = isSpecial ? ' style="background:#faf5ff; border:2px solid #6610f2;"' : '';
+                const catStyle = isSpecial ? ' style="color:#6610f2; background:#f3e8ff;"' : '';
+                const titleStyle = isSpecial ? ' style="color:#6610f2;"' : '';
+                const btnStyle = isSpecial ? ' style="background:#6610f2;"' : '';
 
                 return `
-                    <div class="cert-card-item" onclick="location.href='cert-detail.html?id=${item.id}'">
-                        <div class="cert-card-visual" style="background:${visual.gradient};">${sBadge}<i class="fas ${visual.icon}"></i></div>
+                    <div class="cert-card-item"${cardStyle} onclick="location.href='cert-detail.html?id=${item.id}'">
+                        <div class="cert-card-visual">
+                            <div class="cert-card-overlay"></div>
+                            ${sBadge}
+                            <img src="${visual.image_path}" alt="${item.title || ''}" class="cert-card-img" onerror="this.onerror=null; this.src='../../assets/img/cert-progress-illustration.png'; this.style.objectFit='contain'; this.style.padding='30px'; this.style.opacity='0.5';">
+                        </div>
                         <div class="cert-card-body">
-                            <span class="cert-card-cat">${item.category || '-'} · ${mText}</span>
-                            <h3 class="cert-card-title line-clamp-2">${item.title || '-'}</h3>
+                            <span class="cert-card-cat"${catStyle}>${item.category || '-'} · ${mText}</span>
+                            <h3 class="cert-card-title line-clamp-2"${titleStyle}>${item.title || '-'}</h3>
                             <p class="cert-card-desc line-clamp-2">${item.short_desc || '-'}</p>
                             <div class="cert-card-footer">
-                                <div class="flex items-center justify-between"><span class="cert-free-badge"><i class="fas fa-circle-check"></i> 무료</span><span class="cert-card-meta"><i class="fas fa-user-graduate mr-1"></i>${item.enroll_count || 0}명</span></div>
-                                <button type="button" class="cert-detail-btn" onclick="event.stopPropagation(); location.href='cert-detail.html?id=${item.id}';">자세히 보기 <i class="fas fa-arrow-right ml-1"></i></button>
+                                <div class="flex items-center gap-3"><span class="cert-free-badge"><i class="fas fa-circle-check"></i> 무료</span><span class="cert-card-meta"><i class="fas fa-user-graduate mr-1"></i>${item.enroll_count || 0}명</span></div>
+                                <button type="button" class="cert-detail-btn"${btnStyle} onclick="event.stopPropagation(); location.href='cert-detail.html?id=${item.id}';">자세히 보기 <i class="fas fa-arrow-right ml-1"></i></button>
                             </div>
                         </div>
                     </div>

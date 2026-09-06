@@ -115,19 +115,32 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
         const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
+        // 로그인 후 돌아갈 주소 결정: 마이페이지 등에서 로그인을 유도하며
+        // localStorage에 returnUrl을 미리 저장해뒀으면 그 주소로, 없으면 기본값(index.html)으로.
+        function resolveReturnUrl() {
+            const stored = localStorage.getItem('returnUrl');
+            if (stored) localStorage.removeItem('returnUrl'); // 한 번 쓰면 청소 (callback.html과 동일한 방식)
+            const path = stored || '/index.html';
+            return path.startsWith('http') ? path : window.location.origin + path;
+        }
+
         // 구글, 카카오 로그인
         async function signInWithProvider(providerName) {
             if (!supabaseClient) return;
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: providerName,
-                options: { redirectTo: window.location.origin + '/index.html' }
+                options: { redirectTo: resolveReturnUrl() }
             });
             if (error) alert("로그인 에러: " + error.message);
         }
 
         // 네이버 로그인 (동적 콜백 URL 적용)
         function startNaverLogin() {
-            localStorage.setItem('returnUrl', '/index.html');
+            // ★ 마이페이지 등에서 이미 returnUrl을 저장해뒀다면 그대로 두고,
+            //   없을 때만(=그냥 로그인 페이지로 바로 들어온 경우) 기본값으로 채운다.
+            if (!localStorage.getItem('returnUrl')) {
+                localStorage.setItem('returnUrl', '/index.html');
+            }
             const clientId = "QQt53ijWrcAksEFEIQcc"; 
             
             // 현재 접속 중인 도메인(127.0.0.1 또는 실서버)을 감지하여 콜백 주소 자동 생성
@@ -157,7 +170,7 @@
             const { error } = await supabaseClient.auth.signInWithOtp({
                 email: email,
                 options: {
-                    emailRedirectTo: window.location.origin + '/index.html',
+                    emailRedirectTo: resolveReturnUrl(),
                     shouldCreateUser: true
                 }
             });

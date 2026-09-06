@@ -188,10 +188,11 @@
                             <div class="form-row"><span class="form-label">경력</span><div class="form-input-wrap"><input type="text" id="f-career" placeholder="예: 경력 3년 이상 필수" class="input-box"></div></div>
                             <div class="form-row"><span class="form-label">학력</span>
                                 <div class="form-input-wrap">
-                                    <select id="f-education" class="input-box bg-white">
+                                    <select id="f-education" class="input-box bg-white" onchange="document.getElementById('f-education-custom').classList.toggle('hidden', this.value !== '직접작성')">
                                         <option value="" disabled selected>선택</option>
-                                        <option>학력 무관</option><option>고졸 이상</option><option>대졸 이상</option>
+                                        <option>학력무관</option><option>중졸이하</option><option>고졸</option><option>대졸(2~3년)</option><option>대졸(4년)</option><option>석사</option><option>박사</option><option>직접작성</option>
                                     </select>
+                                    <input type="text" id="f-education-custom" placeholder="학력 조건을 직접 입력하세요" class="input-box mt-2 hidden">
                                 </div>
                             </div>
                         </div>
@@ -467,7 +468,8 @@
             const region = [roadAddress, detailAddress].filter(Boolean).join(' ');
 
             const careerLevel = document.getElementById('f-career').value.trim();
-            const educationLevel = document.getElementById('f-education').value;
+            const eduSelectVal = document.getElementById('f-education').value;
+            const educationLevel = eduSelectVal === '직접작성' ? document.getElementById('f-education-custom').value.trim() : eduSelectVal;
             const employmentType = document.getElementById('f-employment-type').value;
             const workSchedule = document.getElementById('f-work-schedule').value.trim();
             const salary = document.getElementById('f-salary').value.trim();

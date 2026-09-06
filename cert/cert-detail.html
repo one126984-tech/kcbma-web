@@ -473,7 +473,7 @@
                     </div>
                 </div>
 
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div onclick="goToMypage()" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
                 <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
@@ -526,9 +526,24 @@
                         0
                     </span>
                 </div>
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="goToMypage()" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마이페이지 로그인 안내 팝업 (비로그인 상태에서 마이페이지 클릭 시) -->
+    <div id="mypage-login-prompt" class="hidden fixed inset-0 z-[1200] bg-black/50 flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-[360px] w-full p-6 text-center">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center text-[#12387a] text-xl">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <p class="text-[15px] font-bold text-gray-800 mb-1">먼저 로그인 후 사용 가능합니다.</p>
+            <p class="text-[13px] text-gray-500 mb-6">마이페이지는 로그인한 회원만 이용할 수 있어요.</p>
+            <div class="flex gap-2">
+                <button type="button" onclick="closeMypageLoginPrompt()" class="flex-1 border border-gray-300 text-gray-600 font-bold py-2.5 rounded-lg text-[14px] hover:bg-gray-50">취소</button>
+                <button type="button" onclick="confirmMypageLogin()" class="flex-1 bg-[#12387a] text-white font-bold py-2.5 rounded-lg text-[14px] hover:bg-[#0e2b61]">로그인</button>
             </div>
         </div>
     </div>
@@ -571,6 +586,29 @@
                 );
             }
             return window.sb;
+        }
+
+        // --- 마이페이지 클릭: 로그인 상태면 바로 이동, 아니면 "마이페이지 클릭 -> 마이페이지 화면(X)"
+        //     대신 안내 팝업(로그인/취소)부터 띄운다. 마이페이지 화면이 잠깐 보였다가
+        //     사라지는 흔들림을 막기 위해, 애초에 마이페이지로 이동 자체를 안 함. ---
+        async function goToMypage() {
+            if (location.pathname.endsWith('dashboard.html')) return; // 이미 마이페이지면 아무 것도 안 함(기존과 동일)
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                location.href = '../../mypage/dashboard.html';
+            } else {
+                document.getElementById('mypage-login-prompt').classList.remove('hidden');
+            }
+        }
+        function closeMypageLoginPrompt() {
+            document.getElementById('mypage-login-prompt').classList.add('hidden');
+        }
+        function confirmMypageLogin() {
+            // 로그인 완료 후 다시 마이페이지로 돌아오도록 사이트 루트 기준 절대경로로 저장
+            // (login.html이 여러 깊이의 페이지에서 열릴 수 있어 ../../ 상대경로는 여기선 쓸 수 없음)
+            localStorage.setItem('returnUrl', '/mypage/dashboard.html');
+            location.href = '../../login.html';
         }
 
         function applyAuthUI(session) {
@@ -774,7 +812,7 @@
         let currentUser = null;
         let currentEnrollment = null;
 
-        const isDummyId = (id) => typeof id === 'string' && id.startsWith('dummy');
+        const isDummyId = (id) => typeof id === 'string' && (id.startsWith('dummy') || id.startsWith('cert-'));
 
         const CERT_VISUAL_MAP = {
             'dummy-1': { icon: 'fa-bolt', gradient: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
@@ -785,7 +823,12 @@
             'dummy-6': { icon: 'fa-building-shield', gradient: 'linear-gradient(135deg,#334155,#64748b)' },
             'dummy-7': { icon: 'fa-leaf', gradient: 'linear-gradient(135deg,#15803d,#65a30d)' },
             'dummy-8': { icon: 'fa-file-invoice-dollar', gradient: 'linear-gradient(135deg,#c2410c,#f59e0b)' },
-            'dummy-9': { icon: 'fa-broom', gradient: 'linear-gradient(135deg,#0d9488,#4ade80)' }
+            'dummy-9': { icon: 'fa-broom', gradient: 'linear-gradient(135deg,#0d9488,#4ade80)' },
+            'cert-1': { icon: 'fa-user-tie', gradient: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+            'cert-2': { icon: 'fa-file-invoice-dollar', gradient: 'linear-gradient(135deg,#c2410c,#f59e0b)' },
+            'cert-3': { icon: 'fa-broom', gradient: 'linear-gradient(135deg,#0d9488,#4ade80)' },
+            'cert-4': { icon: 'fa-screwdriver-wrench', gradient: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+            'cert-5': { icon: 'fa-bolt', gradient: 'linear-gradient(135deg,#6610f2,#a78bfa)' }
         };
 
         const dummyCourseMap = {
@@ -860,6 +903,46 @@
                 pass_criteria: { progress_rate: 80, exam_score: 60 },
                 instructor_name: '윤미화', instructor_bio: '건물 환경미화 관리 및 교육 분야 11년 경력을 보유하고 있으며, 다수의 미화원 양성 교육을 진행해왔습니다.',
                 status: 'OPEN', view_count: 108, enroll_count: 41
+            },
+            'cert-1': {
+                id: 'cert-1', title: '관리소장실무 관리사', slug: 'property-manager', category: '행정',
+                description: '<p>집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다. 입주자대표회의 운영, 관리규약 실무, 민원 대응 및 시설 운영 총괄 업무를 체계적으로 학습합니다.</p><p>현장에서 바로 활용 가능한 행정 서식과 실전 민원 대응 사례를 중심으로 구성된 실무형 과정입니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 60일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '이소장', instructor_bio: '20년간 대형 공동주택 및 오피스빌딩 관리소장으로 근무한 실무 전문가로, 다수의 관리소장 양성 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 405, enroll_count: 320
+            },
+            'cert-2': {
+                id: 'cert-2', title: '경리실무 관리사', slug: 'accounting-manager', category: '회계',
+                description: '<p>관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양하는 과정입니다. 관리사무소 장부 작성부터 부가세·원천징수 등 세무 실무까지 단계적으로 학습합니다.</p><p>실제 관리비 부과 사례와 결산 서류를 기반으로, 회계 초보자도 바로 실무에 적용할 수 있도록 구성했습니다.</p>',
+                edu_method: 'LIVE', edu_period: '2026-09-01 ~ 09-05', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '강경리', instructor_bio: '관리사무소 경리·회계 실무 15년 경력을 보유하고 있으며, 다수의 집합건물 회계 감사 대응 및 결산 업무를 수행했습니다.',
+                status: 'OPEN', view_count: 289, enroll_count: 215
+            },
+            'cert-3': {
+                id: 'cert-3', title: '미화실무 관리사', slug: 'cleaning-manager', category: '환경미화',
+                description: '<p>건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습하는 과정입니다. 약품 및 장비 사용법부터 특수 청소, 위생 점검까지 폭넓게 다룹니다.</p><p>현장에서 바로 활용할 수 있는 청소 장비·약품 사용법과 안전 수칙을 실습형 커리큘럼으로 구성했습니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 30일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '윤미화', instructor_bio: '건물 환경미화 관리 및 교육 분야 11년 경력을 보유하고 있으며, 다수의 미화원 양성 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 198, enroll_count: 142
+            },
+            'cert-4': {
+                id: 'cert-4', title: '기전영선실무 관리사', slug: 'facility-manager', category: '기전',
+                description: '<p>전기, 기계, 배관, 영선 등 건물 내 각종 시설물 유지보수 및 비상시 대응 절차를 통합적으로 다루는 과정입니다. 수변전설비부터 배관·영선 보수까지 기전 전 분야를 실무 중심으로 학습합니다.</p><p>실제 현장 고장 사례와 점검 체크리스트를 기반으로, 기전영선 업무를 폭넓게 수행할 수 있도록 구성된 실무형 과정입니다.</p>',
+                edu_method: 'MIX', edu_period: '2026-09-10 ~ 09-24', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '김기전', instructor_bio: '20년간 대형 오피스빌딩 기전실 총괄 관리 경력을 보유한 실무 전문가로, 다수의 기전영선 실무 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 356, enroll_count: 288
+            },
+            'cert-5': {
+                id: 'cert-5', title: '전기실무 관리사', slug: 'electrical-manager', category: '전기',
+                description: '<p>전기기사 실무 경력(2년) 충족에 어려움을 겪는 분들을 위한 과정입니다. 수배전반 등 현장에서 일하는 베테랑 전기 전문가의 밀착 지도를 통해 즉시 투입 가능한 실무를 배웁니다.</p><p>이론과 현장 실습을 병행하며, 자체 평가를 거쳐 확실한 자격을 부여받는 실무형 과정으로 구성했습니다.</p>',
+                edu_method: 'MIX', edu_period: '2026-09-05 ~ 09-19', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '정전기', instructor_bio: '수배전반 및 고압전기설비 현장 실무 17년 경력을 보유한 베테랑 전기 전문가로, 전기기사 실무 교육을 다수 진행해왔습니다.',
+                status: 'OPEN', view_count: 132, enroll_count: 76
             }
         };
 
@@ -927,6 +1010,43 @@
                 { id: 3, chapter_no: 3, title: '구역별 청소 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
                 { id: 4, chapter_no: 4, title: '특수 청소 및 위생 관리', duration_min: 40, content_type: 'VOD', is_preview: false },
                 { id: 5, chapter_no: 5, title: '환경미화 관리 계획 수립', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'cert-1': [
+                { id: 1, chapter_no: 1, title: '관리소장 직무 개요와 법적 책임', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '입주자대표회의 운영 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '관리규약 작성 및 개정 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '민원 응대 및 분쟁 조정 사례', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '시설 운영 총괄 및 예산 관리', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 6, chapter_no: 6, title: '관리소장 행정서류 작성 실무', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'cert-2': [
+                { id: 1, chapter_no: 1, title: '관리사무소 경리 실무 개요', duration_min: 40, content_type: 'LIVE', is_preview: true },
+                { id: 2, chapter_no: 2, title: '관리비 부과 및 회계 처리', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 3, chapter_no: 3, title: '예산 편성 및 결산 실무', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '세무 실무(부가세·원천징수·4대보험)', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 5, chapter_no: 5, title: '관리비 정산 및 입주민 고지', duration_min: 40, content_type: 'LIVE', is_preview: false }
+            ],
+            'cert-3': [
+                { id: 1, chapter_no: 1, title: '환경미화 기초 및 안전교육', duration_min: 35, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '청소 약품 및 장비 사용법', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '구역별 청소 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '위생/소독 관리 실무', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '환경미화 관리 계획 수립', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'cert-4': [
+                { id: 1, chapter_no: 1, title: '기전영선 업무 개요와 안전수칙', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '수변전설비 및 전기설비 점검 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '기계·공조설비 운전관리', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '배관설비 점검 및 누수 대응', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '영선(도장·방수·목공) 보수 실무', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 6, chapter_no: 6, title: '비상시 대응 절차 및 사례 연구', duration_min: 35, content_type: 'LIVE', is_preview: false }
+            ],
+            'cert-5': [
+                { id: 1, chapter_no: 1, title: '수배전반 구조와 안전수칙', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '저압/고압 전기설비 점검 실무', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 3, chapter_no: 3, title: '수배전반 현장 실습(베테랑 밀착 지도)', duration_min: 60, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '전기 고장 진단 및 응급 대응', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '실무 자체 평가 및 자격 부여', duration_min: 30, content_type: 'LIVE', is_preview: false }
             ]
         };
 
@@ -1010,7 +1130,7 @@
         async function fetchCurriculum() {
             try {
                 const cid = currentCourse.id;
-                if (typeof cid === 'string' && cid.startsWith('dummy')) {
+                if (typeof cid === 'string' && (cid.startsWith('dummy') || cid.startsWith('cert-'))) {
                     return dummyCurriculumMap[cid] || dummyCurriculum;
                 }
                 const { data, error } = await supabaseClient
