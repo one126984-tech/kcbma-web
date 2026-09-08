@@ -43,6 +43,13 @@
 
         .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; margin-bottom: 24px; transition: box-shadow 0.2s; }
 
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 20px 24px; display: flex; gap: 14px; align-items: flex-start; border-radius: 6px; }
+        .notice-icon-wrapper { width: 40px; height: 40px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .notice-title { font-size: 14.5px; font-weight: 700; color: #12387a; margin-bottom: 10px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 7px; font-size: 13px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+
         .detail-hero { height: 130px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .detail-hero i { font-size: 54px; color: rgba(255,255,255,0.95); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18)); }
         .detail-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 85% 15%, rgba(255,255,255,0.18), transparent 55%); }
@@ -225,7 +232,7 @@
                 status: 'OPEN', view_count: 108, enroll_count: 41
             },
             'cert-1': {
-                id: 'cert-1', title: '관리소장실무 관리사', slug: 'property-manager', category: '행정',
+                id: 'cert-1', title: '관리소장 실무관리사', slug: 'property-manager', category: '관리소장 실무',
                 description: '<p>집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다. 입주자대표회의 운영, 관리규약 실무, 민원 대응 및 시설 운영 총괄 업무를 체계적으로 학습합니다.</p><p>현장에서 바로 활용 가능한 행정 서식과 실전 민원 대응 사례를 중심으로 구성된 실무형 과정입니다.</p>',
                 edu_method: 'VOD', edu_period: '신청일로부터 60일', cert_price: 250000,
                 pass_criteria: { progress_rate: 80, exam_score: 60 },
@@ -233,7 +240,7 @@
                 status: 'OPEN', view_count: 405, enroll_count: 320
             },
             'cert-2': {
-                id: 'cert-2', title: '경리실무 관리사', slug: 'accounting-manager', category: '회계',
+                id: 'cert-2', title: '경리회계 실무관리사', slug: 'accounting-manager', category: '경리회계 실무',
                 description: '<p>관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양하는 과정입니다. 관리사무소 장부 작성부터 부가세·원천징수 등 세무 실무까지 단계적으로 학습합니다.</p><p>실제 관리비 부과 사례와 결산 서류를 기반으로, 회계 초보자도 바로 실무에 적용할 수 있도록 구성했습니다.</p>',
                 edu_method: 'LIVE', edu_period: '2026-09-01 ~ 09-05', cert_price: 250000,
                 pass_criteria: { progress_rate: 80, exam_score: 60 },
@@ -241,7 +248,7 @@
                 status: 'OPEN', view_count: 289, enroll_count: 215
             },
             'cert-3': {
-                id: 'cert-3', title: '미화실무 관리사', slug: 'cleaning-manager', category: '환경미화',
+                id: 'cert-3', title: '환경미화 실무관리사', slug: 'cleaning-manager', category: '환경미화 실무',
                 description: '<p>건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습하는 과정입니다. 약품 및 장비 사용법부터 특수 청소, 위생 점검까지 폭넓게 다룹니다.</p><p>현장에서 바로 활용할 수 있는 청소 장비·약품 사용법과 안전 수칙을 실습형 커리큘럼으로 구성했습니다.</p>',
                 edu_method: 'VOD', edu_period: '신청일로부터 30일', cert_price: 250000,
                 pass_criteria: { progress_rate: 80, exam_score: 60 },
@@ -249,7 +256,7 @@
                 status: 'OPEN', view_count: 198, enroll_count: 142
             },
             'cert-4': {
-                id: 'cert-4', title: '기전영선실무 관리사', slug: 'facility-manager', category: '기전',
+                id: 'cert-4', title: '기전영선 실무관리사', slug: 'facility-manager', category: '기전영선 실무',
                 description: '<p>전기, 기계, 배관, 영선 등 건물 내 각종 시설물 유지보수 및 비상시 대응 절차를 통합적으로 다루는 과정입니다. 수변전설비부터 배관·영선 보수까지 기전 전 분야를 실무 중심으로 학습합니다.</p><p>실제 현장 고장 사례와 점검 체크리스트를 기반으로, 기전영선 업무를 폭넓게 수행할 수 있도록 구성된 실무형 과정입니다.</p>',
                 edu_method: 'MIX', edu_period: '2026-09-10 ~ 09-24', cert_price: 250000,
                 pass_criteria: { progress_rate: 80, exam_score: 60 },
@@ -257,8 +264,8 @@
                 status: 'OPEN', view_count: 356, enroll_count: 288
             },
             'cert-5': {
-                id: 'cert-5', title: '전기실무 관리사', slug: 'electrical-manager', category: '전기',
-                description: '<p>전기기사 실무 경력(2년) 충족에 어려움을 겪는 분들을 위한 과정입니다. 수배전반 등 현장에서 일하는 베테랑 전기 전문가의 밀착 지도를 통해 즉시 투입 가능한 실무를 배웁니다.</p><p>이론과 현장 실습을 병행하며, 자체 평가를 거쳐 확실한 자격을 부여받는 실무형 과정으로 구성했습니다.</p>',
+                id: 'cert-5', title: '전기 실무관리사', slug: 'electrical-manager', category: '전기 실무',
+                description: '<p>수배전반 등 현장에서 일하는 베테랑 전기 전문가의 밀착 지도를 통해 즉시 투입 가능한 실무를 배웁니다.</p><p>이론과 현장 실습을 병행하며, 자체 평가를 거쳐 확실한 자격을 부여받는 실무형 과정으로 구성했습니다.</p>',
                 edu_method: 'MIX', edu_period: '2026-09-05 ~ 09-19', cert_price: 250000,
                 pass_criteria: { progress_rate: 80, exam_score: 60 },
                 instructor_name: '정전기', instructor_bio: '수배전반 및 고압전기설비 현장 실무 17년 경력을 보유한 베테랑 전기 전문가로, 전기기사 실무 교육을 다수 진행해왔습니다.',
@@ -600,6 +607,18 @@
                         <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
                         <div class="step-box"><div class="step-num">4</div><div class="step-label">자격증 발급</div></div>
                     </div>
+                    ${course.required_field_course_count ? `
+                        <div class="notice-box mt-5" style="margin-bottom:0;">
+                            <div class="notice-icon-wrapper self-start"><i class="fas fa-hard-hat"></i></div>
+                            <div class="notice-content">
+                                <div class="notice-title">시험 응시 자격 요건</div>
+                                <ul class="notice-list">
+                                    <li>같은 분야("${course.category}")의 <a href="edu-field-list.html" class="text-[#12387a] font-bold underline">현장교육</a>에 <strong>${course.required_field_course_count}회 이상</strong> 참석하셔야 온라인 시험 응시가 가능합니다.</li>
+                                    <li>참석 처리는 각 현장교육 담당 운영진이 현장에서 확인 후 진행하며, 진행 현황은 마이페이지 &gt; 내 수강 목록에서 확인하실 수 있습니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -621,9 +640,8 @@
                         <span class="text-sm text-gray-400"><i class="fas fa-user-graduate mr-1"></i>신청 ${course.enroll_count || 0}명</span>
                     </div>
                     <h1 class="text-2xl md:text-3xl font-black text-[#0B2A5B] mb-5 leading-snug">${course.title}</h1>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 bg-gray-50 border border-gray-100 rounded-lg p-4 text-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-gray-50 border border-gray-100 rounded-lg p-4 text-sm">
                         <div><div class="text-gray-500 mb-1">분야</div><div class="font-bold text-gray-800">${course.category || '-'}</div></div>
-                        <div><div class="text-gray-500 mb-1">수강 방식</div><div class="font-bold text-gray-800">${methodLabel(course.edu_method)}</div></div>
                         <div><div class="text-gray-500 mb-1">수강 기간</div><div class="font-bold text-gray-800">${course.edu_period || '상시 수강'}</div></div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">${priceHtml(course, currentEnrollment)}</div>

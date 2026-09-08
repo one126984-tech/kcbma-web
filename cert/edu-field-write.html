@@ -1,16 +1,18 @@
-<!-- 파일명: login.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 login.html)
-     ★ 2026-09: 원래 login.html/callback.html은 파샬 시스템을 안 쓰는 독립 페이지였는데,
-     그래서 로그인 페이지에서만 상단 공통 헤더(GNB)가 안 보이는 문제가 있었음.
-     다른 페이지들과 동일하게 @include header/header-close를 적용해서 헤더가 보이도록 수정.
-     이 파일은 사이트 루트에 있어서 index.html과 동일하게 @var BASE를 빈 값으로 선언함
-     (헤더 파샬의 가 '../../' 대신 아무것도 안 붙게 = 루트 기준 상대경로). -->
+<!-- 파일명: edu-field-write.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 edu-field-write.html)
+     ★ 관리소장 누구나 접근 가능한 "현장교육 등록 신청" 폼. 관리자 전용인
+     admin-field-course-edit.html과는 별개 화면임 — 여기서 제출하면 바로
+     게시판에 뜨는 게 아니라 review_status='심사중'으로 저장되고, 운영진이
+     admin-field-course-edit.html에서 검토(승인/보완요청/반려)한 뒤에만
+     edu-field-list.html에 노출됨.
+     ?id= 파라미터가 있으면 "보완요청" 받은 내 신청건을 수정해서 재제출하는
+     모드로 동작함(본인 소유 + 심사중/보완요청/반려 상태일 때만 허용). -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
-    <meta name="google" content="notranslate" />
+<meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>간편 로그인 - 대한집합건물관리협회</title>
+    <title>현장교육 등록 신청 | 대한집합건물관리협회</title>
 
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -115,11 +117,12 @@
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
@@ -368,12 +371,35 @@
 
 
     <style>
-        /* 이 페이지(로그인) 전용 CSS */
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+        /* 이 페이지(현장교육 등록 신청) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 22px 26px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 24px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 40px; height: 40px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .notice-title { font-size: 15.5px; font-weight: 700; color: #12387a; margin-bottom: 10px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 7px; font-size: 13.3px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+
+        .reject-note-box { border: 1px solid #fecaca; border-left: 4px solid #dc2626; background: #fef2f2; padding: 18px 22px; border-radius: 6px; margin-bottom: 24px; }
+        .reject-note-box .rn-title { font-size: 14px; font-weight: 800; color: #b91c1c; margin-bottom: 6px; }
+        .reject-note-box .rn-body { font-size: 13.5px; color: #7f1d1d; line-height: 1.6; white-space: pre-wrap; }
+
+        .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 28px; }
+        .section-title { font-size: 16.5px; font-weight: 900; color: #12387a; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #e0e7ff; }
+
+        .form-table { width: 100%; border-collapse: collapse; }
+        .form-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 150px; min-width: 120px; text-align: left; padding: 14px 16px; font-size: 13.8px; vertical-align: top; border-bottom: 1px solid #f0f0f0; }
+        .form-table th .required { color: #dc2626; margin-left: 3px; }
+        .form-table td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+
+        .form-input { width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 12px; font-size: 14px; transition: border-color 0.15s; }
+        .form-input:focus { outline: none; border-color: #12387a; box-shadow: 0 0 0 2px rgba(18,56,122,0.1); }
+        textarea.form-input { resize: vertical; font-family: inherit; }
+        .form-hint { font-size: 12px; color: #94a3b8; margin-top: 4px; }
     </style>
 </head>
-
-<body class="flex flex-col h-screen overflow-hidden page-login">
+<body class="flex flex-col h-screen overflow-hidden page-cert">
 
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -387,21 +413,21 @@
         <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
 
             <!-- 1) 좌측 로고 -->
-            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='index.html'">
-            <img src="assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
             <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
-            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
-            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
-            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
-            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
-            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
 
             <!-- 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='sos/sos-request.html'" class="sos-btn nav-sos">
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn nav-sos">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
                 <span>긴급 SOS 호출</span>
             </div>
@@ -426,8 +452,8 @@
                     </div>
                 </div>
 
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='login.html'" class="login-btn">로그인</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -439,7 +465,7 @@
             </button>
         </header>
 
-    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+    <div class="w-full flex flex-col bg-white shadow-md relative z-[800] shrink-0">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 </div>
@@ -449,21 +475,21 @@
         <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
             <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
             <div class="flex items-center h-full">
-                <img src="assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+                <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
             </div>
             <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
-            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
-            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
-            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
-            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
                 <span>긴급 SOS 호출</span>
             </div>
@@ -479,9 +505,9 @@
                         0
                     </span>
                 </div>
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
     </div>
@@ -537,7 +563,7 @@
                     };
                 } else {
                     btn.textContent = '로그인';
-                    btn.onclick = () => { location.href = 'login.html'; };
+                    btn.onclick = () => { location.href = '../../login.html'; };
                 }
             });
         }
@@ -686,148 +712,255 @@
         });
     </script>
 
-<main id="page-content" class="flex-1 flex items-start justify-center overflow-y-auto px-4 pt-6 md:pt-10 pb-6">
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-[420px] p-6 sm:p-7 relative">
-        <button type="button" onclick="location.href='index.html'" class="absolute top-3 right-4 text-gray-400 hover:text-gray-800 text-[22px] transition-colors" title="메인으로">
-            <i class="fas fa-times"></i>
-        </button>
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
-        <div class="text-center mb-4 mt-1">
-            <h2 class="text-[22px] font-black text-[#0B2A5B] tracking-tight">간편 로그인</h2>
-            <p class="text-[13px] text-gray-500 mt-1">소셜 계정 또는 이메일로 안전하게 시작하세요.</p>
-        </div>
+    <main class="flex-1 overflow-y-auto max-w-[1000px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col gap-6">
 
-        <!-- 1. 소셜 로그인 영역 -->
-        <div class="flex flex-col gap-3 mb-4">
-            <button onclick="signInWithProvider('google')" class="w-full bg-[#4285F4] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#3367D6] transition-colors shadow-sm cursor-pointer">
-                <i class="fab fa-google absolute left-5 text-lg"></i> 구글계정으로 시작하기
-            </button>
-            <button onclick="startNaverLogin()" class="w-full bg-[#03c75a] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#02b351] transition-colors shadow-sm cursor-pointer">
-                <span class="absolute left-5 font-black text-lg">N</span> 네이버계정으로 시작하기
-            </button>
-            <button onclick="signInWithProvider('kakao')" class="w-full bg-[#FEE500] text-[#000000] rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#f4dc00] transition-colors shadow-sm cursor-pointer">
-                <i class="fas fa-comment absolute left-5 text-lg"></i> 카카오계정으로 시작하기
-            </button>
-        </div>
-
-        <div class="flex items-center mb-4">
-            <div class="flex-grow border-t border-gray-200"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-400 text-[13px]">또는 이메일 직접 입력</span>
-            <div class="flex-grow border-t border-gray-200"></div>
-        </div>
-
-        <!-- 2. 매직 링크 로그인 영역 -->
-        <div id="email-login-section">
-            <div id="step-1-email" class="flex flex-col gap-2">
-                <input type="email" id="email-input" placeholder="example@email.com" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-[14px] focus:outline-none focus:border-[#0B2A5B] focus:ring-1 focus:ring-[#0B2A5B]">
-                <button id="send-btn" onclick="sendMagicLink()" class="w-full bg-gray-800 text-white rounded-lg py-2.5 font-bold text-[14px] hover:bg-black transition-colors shadow-sm">
-                    로그인 링크 받기
-                </button>
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]" id="page-title">현장교육 등록 신청</div>
+                <p class="text-[13px] text-gray-500 mt-1">관리소장님이 진행하시는 현장교육 일정을 신청하시면, 운영진 검토 후 게시판에 노출됩니다.</p>
             </div>
+            <button onclick="location.href='edu-field-list.html'" class="text-gray-500 hover:text-[#12387a] font-bold text-[13.5px] whitespace-nowrap"><i class="fas fa-list mr-1"></i>목록으로</button>
+        </div>
 
-            <div id="step-2-message" class="hidden flex-col items-center justify-center py-4 bg-gray-50 rounded-xl border border-gray-100">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0B2A5B] text-xl mb-3">
-                    <i class="fas fa-envelope-open-text"></i>
-                </div>
-                <p class="text-[15px] text-gray-800 font-bold mb-1">이메일이 발송되었습니다.</p>
-                <p class="text-[13px] text-gray-500 text-center leading-relaxed">
-                    이메일함에서 <strong class="text-[#0B2A5B]">링크(Sign in)를 클릭</strong>하시면<br>자동으로 로그인됩니다.
-                </p>
-                <button onclick="resetEmailStep()" class="mt-4 text-[13px] text-gray-400 underline hover:text-gray-600">
-                    이메일 다시 입력하기
-                </button>
+        <div class="notice-box">
+            <div class="notice-icon-wrapper self-start"><i class="fas fa-clipboard-check"></i></div>
+            <div class="notice-content">
+                <div class="notice-title">등록 및 검토 절차 안내</div>
+                <ul class="notice-list">
+                    <li>신청서 제출 후에는 즉시 게시되지 않고, <strong>운영진 검토를 거쳐 승인된 건만</strong> 현장교육 게시판에 노출됩니다.</li>
+                    <li>내용에 보완이 필요한 경우 <strong>"보완요청"</strong> 상태로 사유가 함께 안내되며, 마이페이지에서 수정 후 재제출하실 수 있습니다.</li>
+                    <li>참석자 모집 및 참가비 정산 관련 안내는 승인 이후 별도로 안내드립니다.</li>
+                    <li>신청 처리 현황은 마이페이지 &gt; <a href="../mypage/my-field-courses.html" class="text-[#12387a] font-bold underline">내 현장교육 신청내역</a>에서 확인하실 수 있습니다.</li>
+                </ul>
             </div>
         </div>
 
-        <div class="text-center mt-5 text-[13px] text-gray-500 leading-relaxed">
-            <span class="text-[#0B2A5B] font-bold">로그인</span> 하면<br>
-            <a href="#" class="font-bold text-[#12387a] underline hover:text-black">이용약관</a> 및 <a href="#" class="font-bold text-[#12387a] underline hover:text-black">개인정보처리방침</a>에<br>동의하게 됩니다.
-        </div>
-    </div>
-</main>
+        <div id="reject-note-area"></div>
 
-    <!-- 페이지 경로 기준점 설정 -->
+        <form id="course-form">
+            <div class="section-card">
+                <div class="section-title">교육 정보 입력</div>
+                <table class="form-table">
+                    <tr>
+                        <th>과정명<span class="required">*</span></th>
+                        <td colspan="3"><input type="text" id="title" class="form-input" placeholder="예) 제1회 관리소장 직무능력 향상 현장교육" required></td>
+                    </tr>
+                    <tr>
+                        <th>분류<span class="required">*</span></th>
+                        <td>
+                            <select id="category" class="form-input" required>
+                                <option value="">분류 선택</option>
+                                <option value="관리소장 실무">관리소장 실무</option>
+                                <option value="경리회계 실무">경리회계 실무</option>
+                                <option value="환경미화 실무">환경미화 실무</option>
+                                <option value="기전영선 실무">기전영선 실무</option>
+                                <option value="전기 실무">전기 실무</option>
+                            </select>
+                        </td>
+                        <th>정원</th>
+                        <td><input type="number" id="capacity" min="1" class="form-input" placeholder="예) 30"></td>
+                    </tr>
+                    <tr>
+                        <th>교육 장소(현장)<span class="required">*</span></th>
+                        <td colspan="3"><input type="text" id="location" class="form-input" placeholder="예) 일산 킨텍스 제1전시장" required></td>
+                    </tr>
+                    <tr>
+                        <th>지역<span class="required">*</span></th>
+                        <td colspan="3">
+                            <input type="text" id="region" class="form-input" placeholder="예) 고양시" required>
+                            <div class="form-hint">목록 페이지의 지역 검색 필터와 매칭됩니다. 시/군/구 명칭을 포함해 입력해주세요.</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>교육 일자<span class="required">*</span></th>
+                        <td><input type="date" id="edu_date" class="form-input" required></td>
+                        <th>접수 마감일</th>
+                        <td><input type="date" id="deadline" class="form-input"></td>
+                    </tr>
+                    <tr>
+                        <th>참가비</th>
+                        <td colspan="3">
+                            <input type="text" id="price" class="form-input" placeholder="예) 30000 (무료인 경우 비워두세요)">
+                            <div class="form-hint">참가비 정산(수수료 공제 후 지급) 관련 안내는 승인 이후 운영진이 별도로 연락드립니다.</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>상세 안내<span class="required">*</span></th>
+                        <td colspan="3"><textarea id="description" class="form-input" rows="8" placeholder="교육 내용, 커리큘럼, 준비물, 문의처 등을 입력하세요." required></textarea></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="flex justify-center gap-3 mt-8">
+                <button type="button" onclick="location.href='edu-field-list.html'" class="px-8 py-3 border border-gray-300 rounded font-bold text-gray-600 hover:bg-gray-50">취소</button>
+                <button type="submit" id="submit-btn" class="px-10 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded font-bold shadow-sm">
+                    <span id="submit-btn-text">신청서 제출하기</span>
+                </button>
+            </div>
+        </form>
+    <div id="footer-container"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+    </main>
+
+</div>
+
+    <script>
+        const dummyStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
+        const DB_TABLE_NAME = 'field_courses';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+        const isEditMode = !!courseId;
+        let currentUser = null;
+        let loadedCourse = null;
+
+        function setFormValues(course) {
+            document.getElementById('title').value = course.title || '';
+            document.getElementById('category').value = course.category || '';
+            document.getElementById('capacity').value = course.capacity || '';
+            document.getElementById('location').value = course.location || '';
+            document.getElementById('region').value = course.region || '';
+            document.getElementById('edu_date').value = course.edu_date ? course.edu_date.substring(0, 10) : '';
+            document.getElementById('deadline').value = course.deadline ? course.deadline.substring(0, 10) : '';
+            document.getElementById('price').value = course.price || '';
+            document.getElementById('description').value = course.description || '';
+
+            if (course.review_status === '보완요청' || course.review_status === '반려') {
+                const area = document.getElementById('reject-note-area');
+                const label = course.review_status === '반려' ? '반려' : '보완요청';
+                area.innerHTML = `
+                    <div class="reject-note-box">
+                        <div class="rn-title"><i class="fas fa-circle-exclamation mr-1"></i>운영진 ${label} 사유</div>
+                        <div class="rn-body">${(course.review_note || '사유가 등록되지 않았습니다.').replace(/</g, '&lt;')}</div>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadCourseForEdit() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .select('*')
+                    .eq('id', courseId)
+                    .single();
+                if (error) throw error;
+                if (!data) { alert('신청 내역을 찾을 수 없습니다.'); location.href = '../mypage/my-field-courses.html'; return; }
+
+                if (data.created_by !== currentUser.id) {
+                    alert('본인이 등록한 신청건만 수정할 수 있습니다.');
+                    location.href = '../mypage/my-field-courses.html';
+                    return;
+                }
+                if (data.review_status === '승인') {
+                    alert('이미 승인되어 게시된 신청건은 이 화면에서 수정할 수 없습니다. 변경이 필요하면 운영진에게 문의해주세요.');
+                    location.href = '../mypage/my-field-courses.html';
+                    return;
+                }
+
+                loadedCourse = data;
+                setFormValues(data);
+            } catch (e) {
+                console.error('신청 내역 조회 실패:', e);
+                alert('정보를 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        function buildPayload() {
+            const priceRaw = document.getElementById('price').value.trim();
+            const capacityRaw = document.getElementById('capacity').value.trim();
+            return {
+                title: document.getElementById('title').value.trim(),
+                category: document.getElementById('category').value,
+                location: document.getElementById('location').value.trim(),
+                region: document.getElementById('region').value.trim(),
+                edu_date: document.getElementById('edu_date').value || null,
+                deadline: document.getElementById('deadline').value || null,
+                capacity: capacityRaw ? parseInt(capacityRaw, 10) : null,
+                price: priceRaw ? priceRaw.replace(/[^0-9]/g, '') : null,
+                description: document.getElementById('description').value.trim(),
+                status: 'OPEN',
+                review_status: '심사중',
+                review_note: null
+            };
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            const { data: authData } = await supabaseClient.auth.getUser();
+            currentUser = authData ? authData.user : null;
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                location.href = '../../login.html';
+                return;
+            }
+
+            const title = document.getElementById('title').value.trim();
+            const category = document.getElementById('category').value;
+            if (!title) { alert('과정명을 입력해주세요.'); return; }
+            if (!category) { alert('분류를 선택해주세요.'); return; }
+            if (!supabaseClient) { alert('데이터베이스 연결에 실패했습니다.'); return; }
+
+            const payload = buildPayload();
+            const submitBtn = document.getElementById('submit-btn');
+            const submitBtnText = document.getElementById('submit-btn-text');
+            const originalText = submitBtnText.innerText;
+            submitBtn.disabled = true;
+            submitBtnText.innerText = '제출 중...';
+
+            try {
+                let error;
+                if (isEditMode) {
+                    ({ error } = await supabaseClient
+                        .from(DB_TABLE_NAME)
+                        .update(payload)
+                        .eq('id', courseId)
+                        .eq('created_by', currentUser.id));
+                } else {
+                    ({ error } = await supabaseClient
+                        .from(DB_TABLE_NAME)
+                        .insert([{ ...payload, view_count: 0, created_by: currentUser.id }]));
+                }
+                if (error) throw error;
+
+                alert('신청서가 제출되었습니다. 운영진 검토 후 게시판에 노출됩니다.');
+                location.href = '../mypage/my-field-courses.html';
+            } catch (err) {
+                console.error('현장교육 신청 오류:', err);
+                alert('제출 중 오류가 발생했습니다: ' + (err.message || '잠시 후 다시 시도해주세요.'));
+                submitBtn.disabled = false;
+                submitBtnText.innerText = originalText;
+            }
+        }
+
+        async function init() {
+            const { data: authData } = await supabaseClient.auth.getUser();
+            currentUser = authData ? authData.user : null;
+
+            if (isEditMode) {
+                if (!currentUser) {
+                    alert('로그인이 필요합니다.');
+                    location.href = '../../login.html';
+                    return;
+                }
+                document.getElementById('page-title').textContent = '현장교육 신청 수정';
+                await loadCourseForEdit();
+            }
+
+            document.getElementById('course-form').addEventListener('submit', handleSubmit);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
     <script>
       window.BASE_PATH = '/';
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
-
-        // 구글, 카카오 로그인
-        async function signInWithProvider(providerName) {
-            if (!supabaseClient) return;
-            const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
-            const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                provider: providerName,
-                options: { redirectTo: window.location.origin + returnUrl }
-            });
-            if (error) alert("로그인 에러: " + error.message);
-        }
-
-        // 네이버 로그인 (동적 콜백 URL 적용)
-        function startNaverLogin() {
-            if (!localStorage.getItem('returnUrl')) {
-                localStorage.setItem('returnUrl', '/index.html');
-            }
-            const clientId = "QQt53ijWrcAksEFEIQcc"; 
-            
-            // 현재 접속 중인 도메인(127.0.0.1 또는 실서버)을 감지하여 콜백 주소 자동 생성
-            const currentOrigin = window.location.origin;
-            const callbackUrl = encodeURIComponent(currentOrigin + "/callback.html"); 
-            
-            const state = Math.random().toString(36).substr(2, 11);
-            window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${clientId}&redirect_uri=${callbackUrl}&state=${state}`;
-        }
-
-        // 이메일 매직 링크 발송
-        async function sendMagicLink() {
-            const emailInput = document.getElementById('email-input');
-            const sendBtn = document.getElementById('send-btn');
-            const email = emailInput.value.trim();
-
-            if(!email) {
-                alert("이메일을 입력해주세요.");
-                emailInput.focus();
-                return;
-            }
-
-            sendBtn.disabled = true;
-            sendBtn.innerText = "발송 중...";
-            sendBtn.classList.add('opacity-70');
-
-            const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
-            const { error } = await supabaseClient.auth.signInWithOtp({
-                email: email,
-                options: {
-                    emailRedirectTo: window.location.origin + returnUrl,
-                    shouldCreateUser: true
-                }
-            });
-
-            sendBtn.disabled = false;
-            sendBtn.innerText = "로그인 링크 받기";
-            sendBtn.classList.remove('opacity-70');
-
-            if (error) {
-                alert("링크 발송 실패: " + error.message);
-            } else {
-                document.getElementById('step-1-email').classList.add('hidden');
-                document.getElementById('step-2-message').classList.remove('hidden');
-                document.getElementById('step-2-message').classList.add('flex');
-            }
-        }
-
-        function resetEmailStep() {
-            document.getElementById('step-2-message').classList.add('hidden');
-            document.getElementById('step-2-message').classList.remove('flex');
-            document.getElementById('step-1-email').classList.remove('hidden');
-            document.getElementById('email-input').value = '';
-            document.getElementById('email-input').focus();
-        }
-    </script>
 </body>
 </html>

@@ -78,6 +78,7 @@
                 <div class="side-menu-tab-active">내 수강 목록</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
                 <div class="side-menu-tab">내 정보</div>
             </div>
         </aside>
@@ -122,6 +123,7 @@
         let currentTab = 'ALL';
         let passedCourseIds = new Set();
         let certificateByCourse = {};
+        let fieldCourseProgress = {}; // { [category]: attendedCount }
         const dummyEnrollments = [
             {
                 id: 'dummy-e1',
@@ -218,6 +220,28 @@
                 return map;
             } catch (e) {
                 console.error('자격증 발급 내역 조회 실패:', e);
+                return {};
+            }
+        }
+        async function fetchFieldCourseProgress() {
+            // 현장교육 참석 처리 건을 분류(category)별로 집계해서, 자격증의
+            // "현장교육 필수 이수 횟수"와 비교할 수 있게 함. field_courses 테이블의
+            // category 값과 cert_courses의 category 값이 같은 이름일 때만 매칭됨.
+            try {
+                const { data, error } = await supabaseClient
+                    .from('field_course_attendees')
+                    .select('field_courses(category)')
+                    .eq('user_id', currentUser.id);
+                if (error) throw error;
+                const map = {};
+                (data || []).forEach(row => {
+                    const cat = row.field_courses && row.field_courses.category;
+                    if (!cat) return;
+                    map[cat] = (map[cat] || 0) + 1;
+                });
+                return map;
+            } catch (e) {
+                console.error('현장교육 이수 현황 조회 실패:', e);
                 return {};
             }
         }
@@ -348,6 +372,18 @@
                         </div>
                     `;
                 }
+                const requiredCount = Number(course.required_field_course_count) || 0;
+                const attendedCount = fieldCourseProgress[course.category] || 0;
+                if (requiredCount > 0 && attendedCount < requiredCount) {
+                    return `
+                        <div class="flex flex-col items-end gap-1.5">
+                            <span class="bg-gray-200 text-gray-500 text-[12.5px] font-bold px-3 py-1.5 rounded whitespace-nowrap">
+                                <i class="fas fa-lock mr-1"></i>시험 응시 불가
+                            </span>
+                            <span class="text-[11.5px] text-gray-400 whitespace-nowrap">현장교육 이수 ${attendedCount}/${requiredCount}회</span>
+                        </div>
+                    `;
+                }
                 return `<button onclick="location.href='../cert/cert-exam.html?course_id=${courseId || ''}'" class="bg-green-600 hover:bg-green-700 text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>시험 응시</button>`;
             }
             return `<button onclick="location.href='../cert/cert-detail.html?id=${courseId || ''}'" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">과정 보기</button>`;
@@ -374,7 +410,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-2">
                                 ${statusBadge(e.status)}
-                                <span class="text-[12px] text-gray-500 font-medium">${course.category || '-'} · ${methodText(course.edu_method)}</span>
+                                <span class="text-[12px] text-gray-500 font-medium">${course.category || '-'}</span>
                             </div>
                             <div class="font-bold text-[16px] text-[#0B2A5B] mb-3 truncate">${course.title || '-'}</div>
                             <div class="progress-bar-bg mb-2">
@@ -404,6 +440,7 @@
             allEnrollments = await fetchEnrollments();
             passedCourseIds = await fetchPassedCourseIds();
             certificateByCourse = await fetchCertificatesByCourse();
+            fieldCourseProgress = await fetchFieldCourseProgress();
             renderList();
         }
         document.addEventListener('DOMContentLoaded', init);

@@ -1,4 +1,4 @@
-<!-- 파일명: notice.src.html -->
+<!-- 파일명: free-board.src.html -->
 <!-- @var PAGE_CLASS: page-community -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -8,88 +8,98 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>자유게시판 | 대한집합건물관리협회 커뮤니티</title>
-
 <!-- @include critical-css -->
-
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
-
-    <!-- ★ Supabase 연동 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../assets/js/supabase-config.js"></script>
-
 <!-- @include view-transition-css -->
-
 <!-- @include common-css -->
-
     <style>
-        /* 이 페이지(공지사항) 전용 CSS */
         html, body { overflow: hidden; height: 100%; }
+        @media (max-width: 767px) { .main-scroll-area { height: auto; overflow: visible; } }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
     </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
-
 <!-- @include header -->
-
     <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-[800] shrink-0"></div>
 <!-- @include header-close -->
-
-<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
-
-
-
-    <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
-
-        <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
-            <div class="left-scroll-content">
-                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F8FAFC]">
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 flex flex-col md:flex-row gap-8">
+        
+        <!-- 좌측 사이드바 스크롤 활성화 및 여백 축소 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-y-auto custom-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-3 p-2 flex flex-col gap-1">
                     <div class="side-menu-tab" onclick="location.href='field-experience.html'">현장경험 공유</div>
                     <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
                     <div class="side-menu-tab-active">자유게시판</div>
                     <div class="side-menu-tab" onclick="location.href='work-qna.html'">업무 Q&A</div>
                     <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
                 </div>
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-3 mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-gray-800 text-[14px]">조회기간</span>
+                        <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 px-2 py-1 text-[11px] rounded font-bold" onclick="setPeriod('all', this)">기간 전체</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 mb-4">
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1w', this)">1주</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1m', this)">1달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('2m', this)">2달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('6m', this)">6개월</button>
+                    </div>
+                    <div class="flex items-stretch gap-2">
+                        <div class="flex flex-col gap-2 flex-1">
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">부터</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                            </div>
+                        </div>
+                        <button onclick="applyFilters()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">검색</button>
+                    </div>
+                </div>
             </div>
         </aside>
 
-        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
-
-            <section class="flex-1 shrink-0 max-w-[900px] w-full pb-8">
-
-                <!-- 자유게시판 전용 안내 -->
-                <div class="guide-notice-box">
-                    <div class="guide-icon"><i class="fas fa-shield-halved"></i></div>
-                    <div class="guide-content">
-                        <h4>활발하고 건전한 자유게시판 활동을 위한 안내</h4>
-                        <ul>
-                            <li><strong>자유로운 소통 공간:</strong> 관리 업무의 고충, 일상 이야기, 취미 생활 등 자유롭게 의견을 나누고 친목을 도모하는 곳입니다.</li>
-                            <li><strong>건전한 커뮤니티 조성:</strong> 타인을 비방하거나 욕설, 과도한 논쟁을 유발하는 게시물은 <span class="text-red">사전 경고 없이 삭제</span>될 수 있습니다.</li>
-                            <li><strong>주제 제한 없음:</strong> 단, 협회 목적에 크게 어긋나거나 불법적인 내용의 공유는 엄격히 금지됩니다.</li>
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col mt-0">
+            <section class="flex-1 shrink-0 pb-8">
+                <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                    <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">자유게시판 활동 안내</h3>
+                        <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><strong>자유로운 소통 공간:</strong> 관리 업무의 고충, 일상 이야기, 취미 생활 등 자유롭게 의견을 나누는 곳입니다.</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><strong>건전한 커뮤니티 조성:</strong> 타인을 비방하거나 욕설, 과도한 논쟁 유발 시 사전 경고 없이 삭제될 수 있습니다.</span></li>
                         </ul>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-end mb-6 border-b-2 border-[#2f66e0] pb-3">
+                <div class="sticky top-0 z-50 bg-[#F8FAFC] pt-4 pb-3 mb-6 border-b-2 border-[#2f66e0] flex justify-between items-end">
                     <div>
                         <h2 class="text-2xl font-bold text-[#12387a] flex items-center gap-2">
                             <i class="fas fa-comments text-[#12387a]"></i> 자유게시판
                         </h2>
                         <p class="text-gray-500 text-sm mt-2 hidden md:block">자유롭게 의견을 나누는 공간입니다.</p>
                     </div>
-
-                    <!-- 글쓰기 버튼 -->
                     <button onclick="location.href='free-board-write.html'" class="px-5 py-2.5 bg-[#12387a] hover:bg-[#0b224f] text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fas fa-pen"></i> 글쓰기
                     </button>
                 </div>
 
-                <!-- 게시글 리스트가 동적으로 들어갈 컨테이너 -->
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-10">
                     <div class="hidden md:flex items-center px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500">
                         <div class="flex-1">제목</div>
@@ -98,94 +108,106 @@
                         <div class="w-20 text-center">조회</div>
                     </div>
                     <div id="post-list-container">
-                        <!-- 로딩 중 표시 -->
                         <div class="text-center py-20 text-gray-500">
                             <i class="fas fa-spinner fa-spin text-3xl mb-4 text-[#12387a]"></i>
                             <p>데이터베이스에서 글을 불러오는 중입니다...</p>
                         </div>
                     </div>
                 </div>
-
             </section>
-
             <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
             <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
-
         </div>
     </main>
-
-    </div>
-    <!-- 핑크박스 끝 -->
-
-    <!-- Supabase 데이터 불러오기 스크립트 -->
+</div>
     <script>
         const supabaseClient = window.sb;
+        let allPosts = [];
 
         async function loadPosts() {
-            const container = document.getElementById('post-list-container');
-
-            if (!supabaseClient) {
-                container.innerHTML = '<div class="text-center py-10 text-red-500">데이터베이스(Supabase) 연결이 필요합니다. 설정 파일을 확인해주세요.</div>';
-                return;
-            }
-
+            if (!supabaseClient) return;
             try {
-                const { data, error } = await supabaseClient
-                    .from('free_board')
-                    .select('*')
-                    .order('is_pinned', { ascending: false })
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await supabaseClient.from('free_board').select('*').order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
                 if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center py-24">
-                            <div class="text-gray-300 text-5xl mb-4"><i class="far fa-folder-open"></i></div>
-                            <p class="text-gray-600 font-medium">아직 등록된 글이 없습니다.</p>
-                            <p class="text-sm text-gray-500 mt-2">첫 번째 글을 남겨보세요!</p>
-                        </div>`;
-                    return;
-                }
-
-                let html = '';
-                data.forEach(post => {
-                    const d = new Date(post.created_at);
-                    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-                    const pinnedBadge = post.is_pinned
-                        ? '<span class="px-2 py-0.5 mr-2 bg-red-50 text-red-600 text-[11px] font-bold rounded shrink-0">공지</span>'
-                        : '';
-
-                    html += `
-                    <div class="flex flex-col md:flex-row md:items-center px-6 py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition cursor-pointer"
-                         onclick="location.href='free-board-detail.html?id=${post.id}'">
-                        <div class="flex-1 flex items-center font-medium text-gray-800 min-w-0">
-                            ${pinnedBadge}
-                            <span class="truncate">${post.title}</span>
-                        </div>
-                        <div class="flex md:contents justify-between mt-2 md:mt-0 text-xs md:text-sm text-gray-400">
-                            <span class="md:w-24 md:text-center">${post.author || '회원'}</span>
-                            <span class="md:w-32 md:text-center">${dateStr}</span>
-                            <span class="md:w-20 md:text-center">${post.views || 0}</span>
-                        </div>
-                    </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-
+                allPosts = data || [];
+                applyFilters();
             } catch (err) {
-                console.error('글 목록 불러오기 실패:', err);
-                container.innerHTML = '<div class="text-center py-10 text-red-500">데이터를 불러오는 중 오류가 발생했습니다. 개발자 도구(F12)를 확인해주세요.</div>';
+                console.error(err);
             }
         }
 
+        window.applyFilters = function() {
+            let filteredPosts = [...allPosts];
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+            if (startDateStr) {
+                const sd = new Date(startDateStr); sd.setHours(0, 0, 0, 0);
+                filteredPosts = filteredPosts.filter(c => c.created_at && new Date(c.created_at) >= sd);
+            }
+            if (endDateStr) {
+                const ed = new Date(endDateStr); ed.setHours(23, 59, 59, 999);
+                filteredPosts = filteredPosts.filter(c => c.created_at && new Date(c.created_at) <= ed);
+            }
+            renderList(filteredPosts);
+        };
+
+        window.setPeriod = function(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600');
+            });
+            if (btnElement) {
+                btnElement.classList.remove('border-gray-300', 'text-gray-600');
+                btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            }
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+            if (period === 'all') {
+                startInput.value = ''; endInput.value = '';
+            } else {
+                const end = new Date(); const start = new Date();
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+            applyFilters();
+        };
+
+        function renderList(posts) {
+            const container = document.getElementById('post-list-container');
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24">
+                        <p class="text-gray-600 font-medium">조건에 맞는 글이 없습니다.</p>
+                    </div>`;
+                return;
+            }
+            let html = '';
+            posts.forEach(post => {
+                const d = new Date(post.created_at);
+                const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+                const pinnedBadge = post.is_pinned ? '<span class="px-2 py-0.5 mr-2 bg-red-50 text-red-600 text-[11px] font-bold rounded shrink-0">공지</span>' : '';
+                html += `
+                <div class="flex flex-col md:flex-row md:items-center px-6 py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition cursor-pointer" onclick="location.href='free-board-detail.html?id=${post.id}'">
+                    <div class="flex-1 flex items-center font-medium text-gray-800 min-w-0">
+                        ${pinnedBadge}
+                        <span class="truncate">${post.title}</span>
+                    </div>
+                    <div class="flex md:contents justify-between mt-2 md:mt-0 text-xs md:text-sm text-gray-400">
+                        <span class="md:w-24 md:text-center">${post.author || '회원'}</span>
+                        <span class="md:w-32 md:text-center">${dateStr}</span>
+                        <span class="md:w-20 md:text-center">${post.views || 0}</span>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
         document.addEventListener('DOMContentLoaded', loadPosts);
     </script>
-
-    <script>
-      window.BASE_PATH = '/';
-    </script>
-
+    <script>window.BASE_PATH = '/';</script>
 </body>
 </html>

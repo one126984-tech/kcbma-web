@@ -1,16 +1,15 @@
-<!-- 파일명: login.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 login.html)
-     ★ 2026-09: 원래 login.html/callback.html은 파샬 시스템을 안 쓰는 독립 페이지였는데,
-     그래서 로그인 페이지에서만 상단 공통 헤더(GNB)가 안 보이는 문제가 있었음.
-     다른 페이지들과 동일하게 @include header/header-close를 적용해서 헤더가 보이도록 수정.
-     이 파일은 사이트 루트에 있어서 index.html과 동일하게 @var BASE를 빈 값으로 선언함
-     (헤더 파샬의 가 '../../' 대신 아무것도 안 붙게 = 루트 기준 상대경로). -->
+<!-- 파일명: my-field-courses.src.html (신규)
+     관리소장이 신청한 현장교육 건의 심사 진행 상황(심사중/보완요청/승인/반려)을
+     확인하고, 보완요청/반려 건은 edu-field-write.html로 이동해 수정 재제출할 수
+     있는 화면. mypage/의 다른 페이지들과 동일한 표준 구조(header 파샬,
+     side-menu-tab 등)를 그대로 따름. -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
-    <meta name="google" content="notranslate" />
+<meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>간편 로그인 - 대한집합건물관리협회</title>
+    <title>내 현장교육 신청내역 | 대한집합건물관리협회</title>
 
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -115,11 +114,12 @@
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../assets/js/supabase-config.js"></script>
 
     <style>
         /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
@@ -368,12 +368,32 @@
 
 
     <style>
-        /* 이 페이지(로그인) 전용 CSS */
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+        /* 이 페이지(내 현장교육 신청내역) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .fc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; transition: box-shadow 0.2s; }
+        .fc-card:hover { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+
+        .rs-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 4px; font-size: 11.5px; font-weight: bold; color: #fff; }
+        .rs-심사중 { background: #f59e0b; }
+        .rs-보완요청 { background: #ea580c; }
+        .rs-승인 { background: #16a34a; }
+        .rs-반려 { background: #dc2626; }
+
+        .fc-note-box { border: 1px solid #fecaca; border-left: 4px solid #dc2626; background: #fef2f2; padding: 12px 16px; border-radius: 6px; font-size: 13px; color: #7f1d1d; line-height: 1.6; white-space: pre-wrap; }
+
+        .empty-state { text-align: center; padding: 80px 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; color: #6b7280; }
+        .empty-state i { font-size: 40px; color: #cbd5e1; margin-bottom: 16px; display: block; }
+        .cert-loading-box { text-align: center; padding: 80px 20px; color: #6b7280; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+        .cert-spinner { width: 36px; height: 36px; border: 4px solid #dbe4f5; border-top-color: #12387a; border-radius: 50%; margin: 0 auto 14px; animation: cert-spin 0.8s linear infinite; }
+        @keyframes cert-spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-
-<body class="flex flex-col h-screen overflow-hidden page-login">
+<body class="flex flex-col min-h-screen page-mypage">
 
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -387,21 +407,21 @@
         <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
 
             <!-- 1) 좌측 로고 -->
-            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='index.html'">
-            <img src="assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
+            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
             </div>
 
             <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
             <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
-            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
-            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
-            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
-            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
-            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
+            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
+            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
 
             <!-- 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='sos/sos-request.html'" class="sos-btn nav-sos">
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn nav-sos">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
                 <span>긴급 SOS 호출</span>
             </div>
@@ -426,8 +446,8 @@
                     </div>
                 </div>
 
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='login.html'" class="login-btn">로그인</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
             <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
@@ -439,9 +459,7 @@
             </button>
         </header>
 
-    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
 </div>
 
     <!-- 모바일 메뉴 -->
@@ -449,21 +467,21 @@
         <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
             <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
             <div class="flex items-center h-full">
-                <img src="assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+                <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
             </div>
             <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
-            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
-            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
-            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
-            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
                 <span>긴급 SOS 호출</span>
             </div>
@@ -479,9 +497,9 @@
                         0
                     </span>
                 </div>
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
-            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
     </div>
@@ -537,7 +555,7 @@
                     };
                 } else {
                     btn.textContent = '로그인';
-                    btn.onclick = () => { location.href = 'login.html'; };
+                    btn.onclick = () => { location.href = '../../login.html'; };
                 }
             });
         }
@@ -686,148 +704,161 @@
         });
     </script>
 
-<main id="page-content" class="flex-1 flex items-start justify-center overflow-y-auto px-4 pt-6 md:pt-10 pb-6">
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-[420px] p-6 sm:p-7 relative">
-        <button type="button" onclick="location.href='index.html'" class="absolute top-3 right-4 text-gray-400 hover:text-gray-800 text-[22px] transition-colors" title="메인으로">
-            <i class="fas fa-times"></i>
-        </button>
+<div id="page-content" class="flex-1 flex flex-col">
 
-        <div class="text-center mb-4 mt-1">
-            <h2 class="text-[22px] font-black text-[#0B2A5B] tracking-tight">간편 로그인</h2>
-            <p class="text-[13px] text-gray-500 mt-1">소셜 계정 또는 이메일로 안전하게 시작하세요.</p>
-        </div>
-
-        <!-- 1. 소셜 로그인 영역 -->
-        <div class="flex flex-col gap-3 mb-4">
-            <button onclick="signInWithProvider('google')" class="w-full bg-[#4285F4] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#3367D6] transition-colors shadow-sm cursor-pointer">
-                <i class="fab fa-google absolute left-5 text-lg"></i> 구글계정으로 시작하기
-            </button>
-            <button onclick="startNaverLogin()" class="w-full bg-[#03c75a] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#02b351] transition-colors shadow-sm cursor-pointer">
-                <span class="absolute left-5 font-black text-lg">N</span> 네이버계정으로 시작하기
-            </button>
-            <button onclick="signInWithProvider('kakao')" class="w-full bg-[#FEE500] text-[#000000] rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#f4dc00] transition-colors shadow-sm cursor-pointer">
-                <i class="fas fa-comment absolute left-5 text-lg"></i> 카카오계정으로 시작하기
-            </button>
-        </div>
-
-        <div class="flex items-center mb-4">
-            <div class="flex-grow border-t border-gray-200"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-400 text-[13px]">또는 이메일 직접 입력</span>
-            <div class="flex-grow border-t border-gray-200"></div>
-        </div>
-
-        <!-- 2. 매직 링크 로그인 영역 -->
-        <div id="email-login-section">
-            <div id="step-1-email" class="flex flex-col gap-2">
-                <input type="email" id="email-input" placeholder="example@email.com" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-[14px] focus:outline-none focus:border-[#0B2A5B] focus:ring-1 focus:ring-[#0B2A5B]">
-                <button id="send-btn" onclick="sendMagicLink()" class="w-full bg-gray-800 text-white rounded-lg py-2.5 font-bold text-[14px] hover:bg-black transition-colors shadow-sm">
-                    로그인 링크 받기
-                </button>
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
+                <div class="side-menu-tab-active">내 현장교육 신청</div>
+                <div class="side-menu-tab">내 정보</div>
             </div>
-
-            <div id="step-2-message" class="hidden flex-col items-center justify-center py-4 bg-gray-50 rounded-xl border border-gray-100">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0B2A5B] text-xl mb-3">
-                    <i class="fas fa-envelope-open-text"></i>
+        </aside>
+        <section class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-4">
+                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">내 현장교육 신청내역</div>
+                <button onclick="location.href='../cert/edu-field-write.html'" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-[13.5px] py-2.5 px-5 rounded transition-colors shadow-sm"><i class="fas fa-plus mr-1.5"></i>새 신청서 작성</button>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-status="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-status="심사중" onclick="setTab('심사중')">심사중</div>
+                <div class="tab-item" data-status="보완요청" onclick="setTab('보완요청')">보완요청</div>
+                <div class="tab-item" data-status="승인" onclick="setTab('승인')">승인</div>
+                <div class="tab-item" data-status="반려" onclick="setTab('반려')">반려</div>
+            </div>
+            <div id="course-list">
+                <div class="cert-loading-box">
+                    <div class="cert-spinner"></div>
+                    <p>데이터를 불러오는 중입니다...</p>
                 </div>
-                <p class="text-[15px] text-gray-800 font-bold mb-1">이메일이 발송되었습니다.</p>
-                <p class="text-[13px] text-gray-500 text-center leading-relaxed">
-                    이메일함에서 <strong class="text-[#0B2A5B]">링크(Sign in)를 클릭</strong>하시면<br>자동으로 로그인됩니다.
-                </p>
-                <button onclick="resetEmailStep()" class="mt-4 text-[13px] text-gray-400 underline hover:text-gray-600">
-                    이메일 다시 입력하기
-                </button>
             </div>
-        </div>
+    <div id="footer-container"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
 
-        <div class="text-center mt-5 text-[13px] text-gray-500 leading-relaxed">
-            <span class="text-[#0B2A5B] font-bold">로그인</span> 하면<br>
-            <a href="#" class="font-bold text-[#12387a] underline hover:text-black">이용약관</a> 및 <a href="#" class="font-bold text-[#12387a] underline hover:text-black">개인정보처리방침</a>에<br>동의하게 됩니다.
-        </div>
-    </div>
-</main>
+</div>
 
-    <!-- 페이지 경로 기준점 설정 -->
     <script>
-      window.BASE_PATH = '/';
-    </script>
+        const supabaseClient = window.sb;
+        const DB_TABLE_NAME = 'field_courses';
+        let currentUser = null;
+        let allCourses = [];
+        let currentTab = 'ALL';
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
-
-        // 구글, 카카오 로그인
-        async function signInWithProvider(providerName) {
-            if (!supabaseClient) return;
-            const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
-            const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                provider: providerName,
-                options: { redirectTo: window.location.origin + returnUrl }
-            });
-            if (error) alert("로그인 에러: " + error.message);
-        }
-
-        // 네이버 로그인 (동적 콜백 URL 적용)
-        function startNaverLogin() {
-            if (!localStorage.getItem('returnUrl')) {
-                localStorage.setItem('returnUrl', '/index.html');
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
             }
-            const clientId = "QQt53ijWrcAksEFEIQcc"; 
-            
-            // 현재 접속 중인 도메인(127.0.0.1 또는 실서버)을 감지하여 콜백 주소 자동 생성
-            const currentOrigin = window.location.origin;
-            const callbackUrl = encodeURIComponent(currentOrigin + "/callback.html"); 
-            
-            const state = Math.random().toString(36).substr(2, 11);
-            window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${clientId}&redirect_uri=${callbackUrl}&state=${state}`;
         }
 
-        // 이메일 매직 링크 발송
-        async function sendMagicLink() {
-            const emailInput = document.getElementById('email-input');
-            const sendBtn = document.getElementById('send-btn');
-            const email = emailInput.value.trim();
+        function requireLogin() {
+            if (!currentUser) {
+                window.location.href = '../../login.html';
+                return false;
+            }
+            return true;
+        }
 
-            if(!email) {
-                alert("이메일을 입력해주세요.");
-                emailInput.focus();
+        async function fetchMyCourses() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .select('*')
+                    .eq('created_by', currentUser.id)
+                    .order('id', { ascending: false });
+                if (error) throw error;
+                return data || [];
+            } catch (e) {
+                console.error('내 현장교육 신청내역 조회 실패:', e);
+                return [];
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        function reviewBadge(rs) {
+            const status = rs || '심사중';
+            return `<span class="rs-badge rs-${status}">${status}</span>`;
+        }
+
+        function actionButton(item) {
+            const rs = item.review_status || '심사중';
+            if (rs === '승인') {
+                return `<button onclick="location.href='../cert/edu-field-detail.html?id=${item.id}'" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">게시글 보기</button>`;
+            }
+            return `<button onclick="location.href='../cert/edu-field-write.html?id=${item.id}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>수정 후 재제출</button>`;
+        }
+
+        function renderList() {
+            const container = document.getElementById('course-list');
+            const filtered = currentTab === 'ALL' ? allCourses : allCourses.filter(c => (c.review_status || '심사중') === currentTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p class="font-bold text-gray-500 mb-1">해당 조건의 신청 내역이 없습니다.</p>
+                        <p class="text-[13px] text-gray-400 mb-5">현장교육 프로그램을 신청해보세요.</p>
+                        <a href="../cert/edu-field-write.html" class="inline-block bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-6 rounded-lg transition-colors">현장교육 등록 신청하기</a>
+                    </div>
+                `;
                 return;
             }
 
-            sendBtn.disabled = true;
-            sendBtn.innerText = "발송 중...";
-            sendBtn.classList.add('opacity-70');
+            container.innerHTML = filtered.map(item => {
+                const rs = item.review_status || '심사중';
+                const showNote = (rs === '보완요청' || rs === '반려') && item.review_note;
+                return `
+                    <div class="fc-card">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    ${reviewBadge(rs)}
+                                    <span class="text-[12px] text-gray-500 font-medium">${item.category || '-'} · ${item.region || '-'}</span>
+                                </div>
+                                <div class="font-bold text-[16px] text-[#0B2A5B] mb-2 truncate">${item.title || '-'}</div>
+                                <div class="flex flex-wrap items-center gap-2 md:gap-4 text-[12.5px] text-gray-500">
+                                    <span>교육일자 ${formatDate(item.edu_date)}</span>
+                                    <span>신청일 ${formatDate(item.created_at)}</span>
+                                </div>
+                            </div>
+                            <div class="shrink-0">${actionButton(item)}</div>
+                        </div>
+                        ${showNote ? `<div class="fc-note-box"><b>${rs} 사유:</b> ${String(item.review_note).replace(/</g, '&lt;')}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
 
-            const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
-            const { error } = await supabaseClient.auth.signInWithOtp({
-                email: email,
-                options: {
-                    emailRedirectTo: window.location.origin + returnUrl,
-                    shouldCreateUser: true
-                }
+        function setTab(status) {
+            currentTab = status;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.status === status);
             });
-
-            sendBtn.disabled = false;
-            sendBtn.innerText = "로그인 링크 받기";
-            sendBtn.classList.remove('opacity-70');
-
-            if (error) {
-                alert("링크 발송 실패: " + error.message);
-            } else {
-                document.getElementById('step-1-email').classList.add('hidden');
-                document.getElementById('step-2-message').classList.remove('hidden');
-                document.getElementById('step-2-message').classList.add('flex');
-            }
+            renderList();
         }
 
-        function resetEmailStep() {
-            document.getElementById('step-2-message').classList.add('hidden');
-            document.getElementById('step-2-message').classList.remove('flex');
-            document.getElementById('step-1-email').classList.remove('hidden');
-            document.getElementById('email-input').value = '';
-            document.getElementById('email-input').focus();
+        async function init() {
+            await fetchUser();
+            if (!requireLogin()) return;
+            allCourses = await fetchMyCourses();
+            renderList();
         }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

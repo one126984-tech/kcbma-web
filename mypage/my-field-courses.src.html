@@ -1,0 +1,222 @@
+<!-- 파일명: my-field-courses.src.html (신규)
+     관리소장이 신청한 현장교육 건의 심사 진행 상황(심사중/보완요청/승인/반려)을
+     확인하고, 보완요청/반려 건은 edu-field-write.html로 이동해 수정 재제출할 수
+     있는 화면. mypage/의 다른 페이지들과 동일한 표준 구조(header 파샬,
+     side-menu-tab 등)를 그대로 따름. -->
+<!-- @var PAGE_CLASS: page-mypage -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>내 현장교육 신청내역 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(내 현장교육 신청내역) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .fc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; transition: box-shadow 0.2s; }
+        .fc-card:hover { box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+
+        .rs-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 4px; font-size: 11.5px; font-weight: bold; color: #fff; }
+        .rs-심사중 { background: #f59e0b; }
+        .rs-보완요청 { background: #ea580c; }
+        .rs-승인 { background: #16a34a; }
+        .rs-반려 { background: #dc2626; }
+
+        .fc-note-box { border: 1px solid #fecaca; border-left: 4px solid #dc2626; background: #fef2f2; padding: 12px 16px; border-radius: 6px; font-size: 13px; color: #7f1d1d; line-height: 1.6; white-space: pre-wrap; }
+
+        .empty-state { text-align: center; padding: 80px 20px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; color: #6b7280; }
+        .empty-state i { font-size: 40px; color: #cbd5e1; margin-bottom: 16px; display: block; }
+        .cert-loading-box { text-align: center; padding: 80px 20px; color: #6b7280; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+        .cert-spinner { width: 36px; height: 36px; border: 4px solid #dbe4f5; border-top-color: #12387a; border-radius: 50%; margin: 0 auto 14px; animation: cert-spin 0.8s linear infinite; }
+        @keyframes cert-spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
+                <div class="side-menu-tab-active">내 현장교육 신청</div>
+                <div class="side-menu-tab">내 정보</div>
+            </div>
+        </aside>
+        <section class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-4">
+                <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">내 현장교육 신청내역</div>
+                <button onclick="location.href='../cert/edu-field-write.html'" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-[13.5px] py-2.5 px-5 rounded transition-colors shadow-sm"><i class="fas fa-plus mr-1.5"></i>새 신청서 작성</button>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-status="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-status="심사중" onclick="setTab('심사중')">심사중</div>
+                <div class="tab-item" data-status="보완요청" onclick="setTab('보완요청')">보완요청</div>
+                <div class="tab-item" data-status="승인" onclick="setTab('승인')">승인</div>
+                <div class="tab-item" data-status="반려" onclick="setTab('반려')">반려</div>
+            </div>
+            <div id="course-list">
+                <div class="cert-loading-box">
+                    <div class="cert-spinner"></div>
+                    <p>데이터를 불러오는 중입니다...</p>
+                </div>
+            </div>
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+</div>
+
+    <script>
+        const supabaseClient = window.sb;
+        const DB_TABLE_NAME = 'field_courses';
+        let currentUser = null;
+        let allCourses = [];
+        let currentTab = 'ALL';
+
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
+            }
+        }
+
+        function requireLogin() {
+            if (!currentUser) {
+                window.location.href = '{{BASE}}login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function fetchMyCourses() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .select('*')
+                    .eq('created_by', currentUser.id)
+                    .order('id', { ascending: false });
+                if (error) throw error;
+                return data || [];
+            } catch (e) {
+                console.error('내 현장교육 신청내역 조회 실패:', e);
+                return [];
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        function reviewBadge(rs) {
+            const status = rs || '심사중';
+            return `<span class="rs-badge rs-${status}">${status}</span>`;
+        }
+
+        function actionButton(item) {
+            const rs = item.review_status || '심사중';
+            if (rs === '승인') {
+                return `<button onclick="location.href='../cert/edu-field-detail.html?id=${item.id}'" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">게시글 보기</button>`;
+            }
+            return `<button onclick="location.href='../cert/edu-field-write.html?id=${item.id}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>수정 후 재제출</button>`;
+        }
+
+        function renderList() {
+            const container = document.getElementById('course-list');
+            const filtered = currentTab === 'ALL' ? allCourses : allCourses.filter(c => (c.review_status || '심사중') === currentTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p class="font-bold text-gray-500 mb-1">해당 조건의 신청 내역이 없습니다.</p>
+                        <p class="text-[13px] text-gray-400 mb-5">현장교육 프로그램을 신청해보세요.</p>
+                        <a href="../cert/edu-field-write.html" class="inline-block bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-6 rounded-lg transition-colors">현장교육 등록 신청하기</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const rs = item.review_status || '심사중';
+                const showNote = (rs === '보완요청' || rs === '반려') && item.review_note;
+                return `
+                    <div class="fc-card">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    ${reviewBadge(rs)}
+                                    <span class="text-[12px] text-gray-500 font-medium">${item.category || '-'} · ${item.region || '-'}</span>
+                                </div>
+                                <div class="font-bold text-[16px] text-[#0B2A5B] mb-2 truncate">${item.title || '-'}</div>
+                                <div class="flex flex-wrap items-center gap-2 md:gap-4 text-[12.5px] text-gray-500">
+                                    <span>교육일자 ${formatDate(item.edu_date)}</span>
+                                    <span>신청일 ${formatDate(item.created_at)}</span>
+                                </div>
+                            </div>
+                            <div class="shrink-0">${actionButton(item)}</div>
+                        </div>
+                        ${showNote ? `<div class="fc-note-box"><b>${rs} 사유:</b> ${String(item.review_note).replace(/</g, '&lt;')}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setTab(status) {
+            currentTab = status;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.status === status);
+            });
+            renderList();
+        }
+
+        async function init() {
+            await fetchUser();
+            if (!requireLogin()) return;
+            allCourses = await fetchMyCourses();
+            renderList();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

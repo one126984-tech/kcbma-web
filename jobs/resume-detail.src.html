@@ -1,11 +1,4 @@
-<!-- 파일명: resume-detail.src.html
-     ★ 사용자가 원본 파일을 갖고 있지 않아 신규 작성함.
-     resume-list.html의 incrementViewAndGo()가 이동시키는 'resume-detail.html?id=...'
-     흐름과, resume-write.html에서 입력받는 필드(이름/연락처/희망직종/희망지역/
-     희망급여/근무형태/경력/학력/자격증/특기·자기소개)를 그대로 반영해서
-     job-detail.html / company-detail.html과 같은 사이트 표준 상세페이지
-     패턴(표준 헤더 + 서브헤더 + 사이드바 + 로딩스피너 + Supabase 조회 +
-     더미데이터 폴백)으로 구성했습니다. -->
+<!-- 파일명: resume-detail.src.html -->
 <!-- @var PAGE_CLASS: page-jobs -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -46,8 +39,8 @@
         .content-area { min-height: 200px; padding: 30px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 40px; white-space: pre-wrap; }
 
         .contact-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; text-align: center; margin-bottom: 30px; }
-        .btn-call-large { display: inline-block; background: #12387a; color: white; padding: 14px 36px; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(18, 56, 122, 0.2); transition: all 0.2s; }
-        .btn-call-large:hover { background: #0B2A5B; transform: translateY(-2px); }
+        .btn-call-large { display: inline-flex; align-items: center; justify-content: center; background: #12387a; color: white; padding: 14px 36px; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(18, 56, 122, 0.2); transition: all 0.2s; cursor: pointer; text-decoration: none; }
+        .btn-call-large:hover { background: #0B2A5B; transform: translateY(-2px); color: white; }
 
         .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
         .btn-list { padding: 12px 40px; background: #fff; border: 1px solid #cbd5e1; color: #333; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
@@ -64,8 +57,6 @@
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
-
-
 
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
@@ -98,7 +89,11 @@
 
                 <div class="contact-box">
                     <p class="text-gray-500 text-sm font-bold mb-4">채용 관련 문의는 아래 연락처로 직접 연락해 주세요. (채용 목적 외 사용 시 법적 제재 대상)</p>
-                    <button class="btn-call-large" id="btn-call"><i class="fas fa-phone-alt mr-2"></i> <span id="resume-phone"></span></button>
+                    
+                    <!-- 💡 수정된 부분: button을 a 태그로 변경하고 텍스트를 고정 -->
+                    <a id="btn-call" class="btn-call-large">
+                        <i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭
+                    </a>
                 </div>
 
                 <table class="info-table">
@@ -147,8 +142,6 @@
     </main>
 
     </div>
-    <!-- 핑크박스 끝 -->
-
 
     <script>
         const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
@@ -212,8 +205,17 @@
             document.getElementById('resume-region').innerText = cData.address || cData.address_short || '-';
             document.getElementById('resume-views').innerText = data.views || 0;
 
-            document.getElementById('resume-phone').innerText = cData.phone || '-';
-            document.getElementById('btn-call').onclick = () => window.location.href = `tel:${cData.phone || ''}`;
+            // 💡 수정된 부분: 전화번호 텍스트 노출을 없애고 a 태그의 href에만 전화번호 설정
+            const btnCall = document.getElementById('btn-call');
+            if (cData.phone) {
+                btnCall.href = `tel:${cData.phone}`;
+            } else {
+                // 연락처가 없는 경우 버튼 비활성화 처리
+                btnCall.innerHTML = '<i class="fas fa-phone-slash mr-2"></i> 연락처 없음';
+                btnCall.style.backgroundColor = '#9ca3af';
+                btnCall.style.cursor = 'not-allowed';
+                btnCall.removeAttribute('href');
+            }
 
             document.getElementById('info-name').innerText = cData.name || '-';
             document.getElementById('info-email').innerText = cData.email || '-';
