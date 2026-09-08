@@ -1,14 +1,4 @@
-<!-- 파일명: evote-list.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 evote-list.html)
-     "관리단 코너"의 "전자투표·총회 대행" 사이드바 탭이 가리키는 별도 페이지.
-     fee-list.html과 동일하게 board-corner.html 안의 JS 탭 전환(옛 renderEvoteComingSoon
-     placeholder)에서 완전히 독립된 페이지로 분리함. 헤더/서브헤더("관리단 코너")/
-     좌측 3단 사이드바는 board-corner.html·fee-list.html과 동일하게 유지하고,
-     사이드바에서 "위탁관리사 선정"→board-corner.html, "관리비 비교·평가"→fee-list.html로
-     이동, "전자투표·총회 대행"은 이 페이지 자신으로 location.href 이동함.
-     assembly_requests 테이블 조회는 무료 의뢰라 결제모달 없이 바로 목록에 노출되고,
-     "업체용 상세열람" 버튼을 눌러야 보이는 evote-detail.html에서만 블라인드 처리됨.
-     지역(대분류/소분류)·포함/제외 단어 검색 필터는 bid-list.html과 동일한 패턴을 재사용.
-     헤더/서브헤더/푸터는 다른 페이지와 동일하게 파샬(@include)로 조립. -->
+<!-- 파일명: evote-list.src.html -->
 <!-- @var PAGE_CLASS: page-board -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -37,13 +27,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* 이 페이지(전자투표·총회 대행 목록) 전용 CSS */
+        /* 이 페이지 전용 CSS */
         html, body { overflow: hidden; height: 100%; }
+        
+        /* 모바일에서는 사이드바가 위로 올라가므로 우측 본문 독립 스크롤 해제 */
+        @media (max-width: 767px) {
+            .main-scroll-area { height: auto; overflow: visible; }
+        }
+
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
 
-        /* 지역/단어 검색 필터 (bid-list.html과 동일한 패턴) */
+        /* 필터 테이블 CSS */
         .filter-table { width: 100%; border: 1px solid #e5e7eb; border-bottom: none; background: #fff; border-collapse: collapse; margin-bottom: 0; }
         .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 14px; padding: 14px 5px; vertical-align: middle; }
         .filter-table td { padding: 14px 20px; border-bottom: 1px dashed #e5e7eb; font-size: 13.5px; vertical-align: middle; background: #f8fafc; }
@@ -65,139 +61,166 @@
     <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-40 shrink-0 shadow-sm"></div>
 <!-- @include header-close -->
 
-<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F8FAFC]">
 
-    <!-- ★ 스크롤 영역 시작 -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar w-full relative flex flex-col bg-[#F8FAFC]">
+    <!-- ★ 독립 스크롤 레이아웃 적용 -->
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 flex flex-col md:flex-row gap-8">
 
-        <!-- 메인 콘텐츠 레이아웃 -->
-        <main class="max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 pb-12 flex flex-col md:flex-row gap-8 flex-1 items-start">
-
-            <!-- 좌측 사이드바 (LNB 삼단 배너, board-corner.html·fee-list.html과 동일) -->
-            <aside class="w-full md:w-[220px] shrink-0 h-auto z-40 relative">
-                <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm p-3 flex flex-col gap-1 sticky top-0 mt-0">
-                        <div class="side-menu-tab" onclick="location.href='board-corner.html'">
-                            <span>위탁관리사 선정</span>
-                        </div>
-                        <div class="side-menu-tab" onclick="location.href='fee-list.html'">
-                            <span>관리비 비교·평가</span>
-                        </div>
-                        <div class="side-menu-tab-active">
-                            <span>전자투표·총회 대행</span>
-                        </div>
+        <!-- 좌측 고정 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <!-- 3단 탭 메뉴 -->
+                <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm p-3 flex flex-col gap-1 mb-6">
+                    <div class="side-menu-tab" onclick="location.href='board-corner.html'">
+                        <span>위탁관리사 선정</span>
                     </div>
-            </aside>
-
-            <!-- 우측 전체 콘텐츠 영역 -->
-            <div class="flex-1 min-w-0 h-auto relative flex flex-col mt-0">
-
-                <section class="flex-1 shrink-0 pb-8">
-
-                    <!-- 총회 전문가 매칭 및 전자투표 안내 -->
-                    <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
-                        <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
-                            <i class="fas fa-users-viewfinder text-[#12387a] text-lg md:text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">총회 전문가 매칭 및 전자투표 안내</h3>
-                            <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>총회 헬퍼 무료 구인:</b> 관리인 선임, 규약 제정 등 복잡한 총회 준비를 도와줄 전문가(대행사)를 무료로 구인할 수 있습니다.</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>안전한 매칭 시스템:</b> 단지의 규모와 안건에 맞는 최적의 파트너가 매칭되어 합법적이고 원활한 총회 개최를 지원합니다.</span></li>
-                                <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전자투표 솔루션 연계:</b> 총회 당일 투표율을 높이고 법적 효력을 완벽히 갖출 수 있도록 전자투표 시스템 도입을 지원합니다.</span></li>
-                            </ul>
-                        </div>
+                    <div class="side-menu-tab" onclick="location.href='fee-list.html'">
+                        <span>관리비 비교·평가</span>
                     </div>
-
-                    <!-- 지역 검색 및 상태 필터 영역 -->
-                    <table class="filter-table shadow-sm rounded-t-md overflow-hidden" id="region-filter-section">
-                        <tbody>
-                            <tr>
-                                <th>지 역</th>
-                                <td class="p-4">
-                                    <div class="flex flex-col gap-3 w-full">
-                                        <div class="border border-gray-300 bg-white rounded p-3 w-full">
-                                            <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-100 pb-2">
-                                                대분류 <span class="text-gray-400 font-normal ml-1">(다중 선택 가능)</span>
-                                            </div>
-                                            <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-9 gap-y-2 gap-x-2" id="major-region-container">
-                                                <label class="custom-checkbox"><input type="checkbox" value="전국" class="major-checkbox"> 전국</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="서울" class="major-checkbox"> 서울</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="경기" class="major-checkbox"> 경기</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="인천" class="major-checkbox"> 인천</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="부산" class="major-checkbox"> 부산</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="대구" class="major-checkbox"> 대구</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="광주" class="major-checkbox"> 광주</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="대전" class="major-checkbox"> 대전</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="울산" class="major-checkbox"> 울산</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="세종" class="major-checkbox"> 세종</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="강원" class="major-checkbox"> 강원</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="충북" class="major-checkbox"> 충북</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="충남" class="major-checkbox"> 충남</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="전북" class="major-checkbox"> 전북</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="전남" class="major-checkbox"> 전남</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="경북" class="major-checkbox"> 경북</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="경남" class="major-checkbox"> 경남</label>
-                                                <label class="custom-checkbox"><input type="checkbox" value="제주" class="major-checkbox"> 제주</label>
-                                            </div>
-                                        </div>
-                                        <div class="border border-gray-300 bg-blue-50/30 rounded p-3 w-full min-h-[80px] overflow-hidden" id="minor-region-box" style="transition: height 0.25s ease;">
-                                            <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-200 pb-2">
-                                                소분류 <span class="text-gray-400 font-normal ml-1">(대분류 선택 시 하위 지역이 나타납니다)</span>
-                                            </div>
-                                            <div class="flex flex-col gap-3" id="minor-region-container">
-                                                <div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>상 태</th>
-                                <td>
-                                    <div class="flex items-center gap-6">
-                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="ALL" checked> 전체보기</label>
-                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="OPEN"> 진행중</label>
-                                        <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="CLOSED"> 마감</label>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- 포함/제외 단어 검색 영역 -->
-                    <div id="search-keyword-section" class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-8 border border-gray-200 shadow-sm rounded-b-md border-t-0">
-                        <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
-                        <div id="include-word-container" class="flex-1 min-w-[200px] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-blue-500">
-                            <input type="text" id="manual-word-input" placeholder="포함할 단어 (엔터 추가)">
-                        </div>
-                        <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
-                        <input type="text" id="exclude-word-input" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-blue-500 transition-colors" placeholder="제외할 단어 (쉼표 구분)">
-                        <button onclick="fetchAssemblyRequests()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] rounded lg:ml-2 whitespace-nowrap transition-colors">검 색</button>
+                    <div class="side-menu-tab-active">
+                        <span>전자투표·총회 대행</span>
                     </div>
+                </div>
 
-                    <!-- 상단 타이틀 영역 -->
-                    <div id="main-title-box" class="flex justify-between items-end pb-3 mb-6 border-b-2 border-[#2f66e0]">
-                        <h3 id="content-title" class="text-[22px] font-bold text-[#2f66e0]">총회 전문가(헬퍼) 매칭 의뢰 현황</h3>
-                        <div class="flex items-center gap-4">
-                            <div class="text-[15px] text-gray-500 pb-1">
-                                총 <span id="content-count" class="font-bold text-gray-900">0</span>건이 등록된 의뢰
+                <!-- 기간 검색 필터 -->
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-4 mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
+                        <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 px-2 py-1 text-[11px] rounded font-bold" onclick="setPeriod('all', this)">기간 전체</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 mb-4">
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1w', this)">1주</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('1m', this)">1달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('2m', this)">2달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="setPeriod('6m', this)">6개월</button>
+                    </div>
+                    <div class="flex items-stretch gap-2">
+                        <div class="flex flex-col gap-2 flex-1">
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">부터</span>
                             </div>
-                            <button onclick="location.href='evote-write.html'" class="px-4 py-2 bg-blue-600 text-white font-bold text-[14px] rounded hover:bg-blue-700 transition shadow-sm mb-1">
-                                <i class="fas fa-pen mr-1"></i> 의뢰 등록
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                            </div>
                         </div>
+                        <button onclick="applyDateFilter()" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">검색</button>
                     </div>
-
-                    <!-- 콘텐츠 리스트 영역 -->
-                    <div id="bidding-list" class="space-y-4"></div>
-                </section>
-
-                <!-- 푸터 영역 -->
-                <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
-                <script src="{{BASE}}assets/js/region-data.js"></script>
-                <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+                </div>
             </div>
-        </main>
+        </aside>
+
+        <!-- 우측 스크롤 본문 영역 -->
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col mt-0">
+
+            <section class="flex-1 shrink-0 pb-8">
+
+                <!-- 총회 전문가 매칭 및 전자투표 안내 -->
+                <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                    <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-users-viewfinder text-[#12387a] text-lg md:text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">총회 전문가 매칭 및 전자투표 안내</h3>
+                        <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>총회 헬퍼 무료 구인:</b> 관리인 선임, 규약 제정 등 복잡한 총회 준비를 도와줄 전문가(대행사)를 무료로 구인할 수 있습니다.</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>안전한 매칭 시스템:</b> 단지의 규모와 안건에 맞는 최적의 파트너가 매칭되어 합법적이고 원활한 총회 개최를 지원합니다.</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>전자투표 솔루션 연계:</b> 총회 당일 투표율을 높이고 법적 효력을 완벽히 갖출 수 있도록 전자투표 시스템 도입을 지원합니다.</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 지역 검색 및 상태 필터 영역 -->
+                <table class="filter-table shadow-sm rounded-t-md overflow-hidden" id="region-filter-section">
+                    <tbody>
+                        <tr>
+                            <th>지 역</th>
+                            <td class="p-4">
+                                <div class="flex flex-col gap-3 w-full">
+                                    <div class="border border-gray-300 bg-white rounded p-3 w-full">
+                                        <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-100 pb-2">
+                                            대분류 <span class="text-gray-400 font-normal ml-1">(다중 선택 가능)</span>
+                                        </div>
+                                        <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-9 gap-y-2 gap-x-2" id="major-region-container">
+                                            <label class="custom-checkbox"><input type="checkbox" value="전국" class="major-checkbox"> 전국</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="서울" class="major-checkbox"> 서울</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="경기" class="major-checkbox"> 경기</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="인천" class="major-checkbox"> 인천</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="부산" class="major-checkbox"> 부산</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="대구" class="major-checkbox"> 대구</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="광주" class="major-checkbox"> 광주</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="대전" class="major-checkbox"> 대전</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="울산" class="major-checkbox"> 울산</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="세종" class="major-checkbox"> 세종</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="강원" class="major-checkbox"> 강원</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="충북" class="major-checkbox"> 충북</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="충남" class="major-checkbox"> 충남</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="전북" class="major-checkbox"> 전북</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="전남" class="major-checkbox"> 전남</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="경북" class="major-checkbox"> 경북</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="경남" class="major-checkbox"> 경남</label>
+                                            <label class="custom-checkbox"><input type="checkbox" value="제주" class="major-checkbox"> 제주</label>
+                                        </div>
+                                    </div>
+                                    <div class="border border-gray-300 bg-blue-50/30 rounded p-3 w-full min-h-[80px] overflow-hidden" id="minor-region-box" style="transition: height 0.25s ease;">
+                                        <div class="text-[13px] font-bold text-[#12387a] mb-2 border-b border-gray-200 pb-2">
+                                            소분류 <span class="text-gray-400 font-normal ml-1">(대분류 선택 시 하위 지역이 나타납니다)</span>
+                                        </div>
+                                        <div class="flex flex-col gap-3" id="minor-region-container">
+                                            <div class="text-[13px] text-gray-500 py-2">대분류 지역을 먼저 선택해주세요.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>상 태</th>
+                            <td>
+                                <div class="flex items-center gap-6">
+                                    <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="ALL" checked> 전체보기</label>
+                                    <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="OPEN"> 진행중</label>
+                                    <label class="custom-radio"><input type="radio" name="status" class="status-radio" value="CLOSED"> 마감</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- 포함/제외 단어 검색 영역 -->
+                <div id="search-keyword-section" class="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-3 gap-y-2 bg-white py-2.5 px-4 mb-8 border border-gray-200 shadow-sm rounded-b-md border-t-0">
+                    <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap">포함 단어</span>
+                    <div id="include-word-container" class="flex-1 min-w-[200px] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-blue-500">
+                        <input type="text" id="manual-word-input" placeholder="포함할 단어 (엔터 추가)">
+                    </div>
+                    <span class="font-bold text-[14px] text-blue-700 whitespace-nowrap lg:ml-2">제외 단어</span>
+                    <input type="text" id="exclude-word-input" class="flex-1 min-w-[180px] border border-gray-300 rounded px-3 py-1.5 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-blue-500 transition-colors" placeholder="제외할 단어 (쉼표 구분)">
+                    <button onclick="fetchAssemblyRequests()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] rounded lg:ml-2 whitespace-nowrap transition-colors">검 색</button>
+                </div>
+
+                <!-- 상단 타이틀 영역 -->
+                <div id="main-title-box" class="sticky top-0 z-50 bg-[#F8FAFC] pt-4 pb-3 mb-6 border-b-2 border-[#2f66e0] flex justify-between items-end">
+                    <h3 id="content-title" class="text-[22px] font-bold text-[#2f66e0]">총회 전문가(헬퍼) 매칭 의뢰 현황</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="text-[15px] text-gray-500 pb-1">
+                            총 <span id="content-count" class="font-bold text-gray-900">0</span>건이 등록된 의뢰
+                        </div>
+                        <button onclick="location.href='evote-write.html'" class="px-4 py-2 bg-blue-600 text-white font-bold text-[14px] rounded hover:bg-blue-700 transition shadow-sm mb-1">
+                            <i class="fas fa-pen mr-1"></i> 의뢰 등록
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 콘텐츠 리스트 영역 -->
+                <div id="bidding-list" class="space-y-4"></div>
+            </section>
+
+            <!-- 푸터 영역 -->
+            <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+            <script src="{{BASE}}assets/js/region-data.js"></script>
+            <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </div>
+    </main>
 
     </div>
 </div>
@@ -209,6 +232,8 @@
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         /* ==== 검색 필터(지역/단어) 제어 로직 ==== */
+        let allRequests = [];
+        let filteredRequests = [];
         let selectedMajors = [];
         const minorBox = document.getElementById('minor-region-box');
         const minorContainer = document.getElementById('minor-region-container');
@@ -333,35 +358,139 @@
         async function fetchAssemblyRequests() {
             const listContainer = document.getElementById('bidding-list');
             const countSpan = document.getElementById('content-count');
+            listContainer.innerHTML = '<div class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</div>';
 
             const { data, error } = await supabaseClient
                 .from('assembly_requests')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error || !data || data.length === 0) {
-                if(error) console.error("데이터를 불러오는 중 오류가 발생했습니다:", error);
-                
-                countSpan.innerText = '0';
-                listContainer.innerHTML = `<div class="text-center text-gray-400 py-16 bg-white border border-gray-200 rounded-md shadow-sm">등록된 총회 전문가 매칭 의뢰가 아직 없습니다.</div>`;
+            if (error) {
+                console.error("데이터를 불러오는 중 오류가 발생했습니다:", error);
+                listContainer.innerHTML = '<div class="text-center py-10 text-red-500 font-bold">오류가 발생했습니다.</div>';
                 return;
             }
 
-            countSpan.innerText = data.length;
+            allRequests = data || [];
+            applyFilters();
+        }
+
+        // 필터 로직
+        window.applyFilters = function() {
+            filteredRequests = [...allRequests];
+
+            // 기간 필터
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+            if (startDateStr) {
+                const sd = new Date(startDateStr); sd.setHours(0, 0, 0, 0);
+                filteredRequests = filteredRequests.filter(c => c.created_at && new Date(c.created_at) >= sd);
+            }
+            if (endDateStr) {
+                const ed = new Date(endDateStr); ed.setHours(23, 59, 59, 999);
+                filteredRequests = filteredRequests.filter(c => c.created_at && new Date(c.created_at) <= ed);
+            }
+
+            // 지역 필터
+            const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-checkbox:checked')).map(cb => cb.value);
+            if (checkedSubRegions.length > 0) {
+                filteredRequests = filteredRequests.filter(c => {
+                    const region = c.location || '';
+                    return checkedSubRegions.some(sr => {
+                        if (sr === '전국 전체') return true;
+                        const cleanTarget = sr.replace(/(전체)$/, '').replace(/(시|군|구)$/, '').trim();
+                        return region.includes(cleanTarget);
+                    });
+                });
+            }
+
+            // 키워드 (포함 단어) 필터
+            if (searchTags.length > 0) {
+                filteredRequests = filteredRequests.filter(c => {
+                    const searchText = `${c.title || ''} ${c.location || ''} ${c.building_summary || ''}`.toLowerCase();
+                    return searchTags.every(tag => searchText.includes(tag.toLowerCase()));
+                });
+            }
+
+            // 키워드 (제외 단어) 필터
+            const excludeInput = document.getElementById('exclude-word-input').value.trim();
+            if (excludeInput) {
+                const excludeWords = excludeInput.split(',').map(w => w.trim().toLowerCase()).filter(w => w);
+                filteredRequests = filteredRequests.filter(c => {
+                    const searchText = `${c.title || ''} ${c.location || ''} ${c.building_summary || ''}`.toLowerCase();
+                    return !excludeWords.some(ew => searchText.includes(ew));
+                });
+            }
+
+            renderList();
+        };
+
+        window.applyDateFilter = function() { applyFilters(); };
+
+        window.setPeriod = function(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+                btn.classList.add('border-gray-300', 'text-gray-600');
+            });
+
+            if (btnElement) {
+                btnElement.classList.remove('border-gray-300', 'text-gray-600');
+                btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            }
+
+            const startInput = document.getElementById('start-date');
+            const endInput = document.getElementById('end-date');
+
+            if (period === 'all') {
+                startInput.value = '';
+                endInput.value = '';
+            } else {
+                const end = new Date();
+                const start = new Date();
+
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '2m') start.setMonth(start.getMonth() - 2);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+            applyFilters();
+        };
+
+        function renderList() {
+            const listContainer = document.getElementById('bidding-list');
+            const countSpan = document.getElementById('content-count');
+
+            countSpan.innerText = filteredRequests.length;
             listContainer.innerHTML = '';
 
-            data.forEach(item => {
+            if (filteredRequests.length === 0) {
+                listContainer.innerHTML = `<div class="text-center text-gray-400 py-16 bg-white border border-gray-200 rounded-md shadow-sm">조건에 맞는 의뢰가 없습니다.</div>`;
+                return;
+            }
+
+            filteredRequests.forEach(item => {
                 const statusLabel = item.status || '헬퍼 모집중';
+                
+                // 상태별 스타일 적용
+                let statusClass = 'bg-yellow-200 text-yellow-900'; // 기본 노란색 바탕
+                if (statusLabel === '마감') {
+                    statusClass = 'bg-gray-100 text-gray-600'; // 마감은 회색
+                }
                 
                 const cardHtml = `
                     <div class="bg-white border border-gray-200 rounded-md p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-300 transition shadow-sm">
                         <div>
-                            <span class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-sm mb-2.5 inline-block">${statusLabel}</span>
+                            <span class="${statusClass} text-xs font-bold px-2.5 py-1 rounded-sm mb-2.5 inline-block">${statusLabel}</span>
                             <h4 class="text-[17px] font-bold text-gray-900 mb-1.5">${item.title}</h4>
                             <p class="text-[14px] text-gray-500">${item.building_summary} <span class="text-gray-300 mx-1">|</span> 주요안건: ${item.assembly_type}</p>
                         </div>
                         <div class="flex gap-2 shrink-0">
-                            <button onclick="location.href='evote-detail.html?id=${item.id}'" class="bg-[#fde047] hover:bg-[#facc15] text-gray-900 text-[14px] font-bold px-5 py-3 rounded-md transition flex items-center gap-2">
+                            <!-- 배경 제거 및 검은색 테두리 추가 -->
+                            <button onclick="location.href='evote-detail.html?id=${item.id}'" class="bg-transparent border border-gray-800 hover:bg-gray-50 text-gray-900 text-[14px] font-bold px-5 py-2.5 rounded-md transition flex items-center gap-2">
                                 <i class="fas fa-lock"></i> 업체용 상세열람
                             </button>
                         </div>

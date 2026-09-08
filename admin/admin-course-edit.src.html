@@ -98,6 +98,15 @@
                                     <option value="배관">배관</option>
                                     <option value="행정">행정</option>
                                     <option value="환경위생">환경위생</option>
+                                    <!-- 💡 추가: 현장교육 분류와 이름을 맞춘 5종 자격증용 분류.
+                                         현장교육 필수 이수 횟수 연동(위 필드)이 정상 동작하려면
+                                         관리소장/경리회계/환경미화/기전영선/전기 5종 실무관리사는
+                                         반드시 이 중 하나로 분류를 지정해야 합니다. -->
+                                    <option value="관리소장 실무">관리소장 실무</option>
+                                    <option value="경리회계 실무">경리실무</option>
+                                    <option value="환경미화 실무">미화실무</option>
+                                    <option value="기전영선 실무">기전영선 실무</option>
+                                    <option value="전기 실무">초보자용 전기실무</option>
                                 </select>
                             </td>
                         </tr>
@@ -159,6 +168,16 @@
                                         <span class="text-sm text-gray-600">점</span>
                                     </div>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>현장교육 필수 이수 횟수</th>
+                            <td colspan="3">
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="required_field_course_count" class="form-input" style="width:100px;" placeholder="0" min="0" value="0">
+                                    <span class="text-sm text-gray-600">회</span>
+                                </div>
+                                <div class="form-hint">이 자격증의 분류(위 "분류" 값)와 동일한 현장교육에 참석 처리된 횟수가 이 숫자 이상이 되어야 시험 응시 버튼이 열립니다. 0이면 제한 없이 바로 시험 응시가 가능합니다.</div>
                             </td>
                         </tr>
                     </table>
@@ -267,6 +286,8 @@
             document.getElementById('progress_rate').value = passCriteria.progress_rate ?? 80;
             document.getElementById('exam_score').value = passCriteria.exam_score ?? 60;
 
+            document.getElementById('required_field_course_count').value = course.required_field_course_count ?? 0;
+
             document.getElementById('instructor_name').value = course.instructor_name || '';
             document.getElementById('instructor_bio').value = course.instructor_bio || '';
             document.getElementById('instructor_img').value = course.instructor_img || '';
@@ -319,6 +340,7 @@
                     progress_rate: Number(document.getElementById('progress_rate').value) || 0,
                     exam_score: Number(document.getElementById('exam_score').value) || 0
                 },
+                required_field_course_count: Number(document.getElementById('required_field_course_count').value) || 0,
                 instructor_name: document.getElementById('instructor_name').value.trim() || null,
                 instructor_bio: document.getElementById('instructor_bio').value.trim() || null,
                 instructor_img: document.getElementById('instructor_img').value.trim() || null,

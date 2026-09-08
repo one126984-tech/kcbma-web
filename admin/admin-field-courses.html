@@ -363,7 +363,7 @@
                     </div>
                 </div>
 
-                <div onclick="goToMypage()" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
                 <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
@@ -414,24 +414,9 @@
                         0
                     </span>
                 </div>
-                <div onclick="goToMypage()" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 마이페이지 로그인 안내 팝업 (비로그인 상태에서 마이페이지 클릭 시) -->
-    <div id="mypage-login-prompt" class="hidden fixed inset-0 z-[1200] bg-black/50 flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-[360px] w-full p-6 text-center">
-            <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center text-[#12387a] text-xl">
-                <i class="fas fa-user-lock"></i>
-            </div>
-            <p class="text-[15px] font-bold text-gray-800 mb-1">먼저 로그인 후 사용 가능합니다.</p>
-            <p class="text-[13px] text-gray-500 mb-6">마이페이지는 로그인한 회원만 이용할 수 있어요.</p>
-            <div class="flex gap-2">
-                <button type="button" onclick="closeMypageLoginPrompt()" class="flex-1 border border-gray-300 text-gray-600 font-bold py-2.5 rounded-lg text-[14px] hover:bg-gray-50">취소</button>
-                <button type="button" onclick="confirmMypageLogin()" class="flex-1 bg-[#12387a] text-white font-bold py-2.5 rounded-lg text-[14px] hover:bg-[#0e2b61]">로그인</button>
             </div>
         </div>
     </div>
@@ -474,29 +459,6 @@
                 );
             }
             return window.sb;
-        }
-
-        // --- 마이페이지 클릭: 로그인 상태면 바로 이동, 아니면 "마이페이지 클릭 -> 마이페이지 화면(X)"
-        //     대신 안내 팝업(로그인/취소)부터 띄운다. 마이페이지 화면이 잠깐 보였다가
-        //     사라지는 흔들림을 막기 위해, 애초에 마이페이지로 이동 자체를 안 함. ---
-        async function goToMypage() {
-            if (location.pathname.endsWith('dashboard.html')) return; // 이미 마이페이지면 아무 것도 안 함(기존과 동일)
-            const client = await ensureAuthClient();
-            const { data: { session } } = await client.auth.getSession();
-            if (session) {
-                location.href = '../../mypage/dashboard.html';
-            } else {
-                document.getElementById('mypage-login-prompt').classList.remove('hidden');
-            }
-        }
-        function closeMypageLoginPrompt() {
-            document.getElementById('mypage-login-prompt').classList.add('hidden');
-        }
-        function confirmMypageLogin() {
-            // 로그인 완료 후 다시 마이페이지로 돌아오도록 사이트 루트 기준 절대경로로 저장
-            // (login.html이 여러 깊이의 페이지에서 열릴 수 있어 ../../ 상대경로는 여기선 쓸 수 없음)
-            localStorage.setItem('returnUrl', '/mypage/dashboard.html');
-            location.href = '../../login.html';
         }
 
         function applyAuthUI(session) {
@@ -681,7 +643,19 @@
 
             <table class="filter-table shadow-sm">
                 <tr>
-                    <th style="background-color: #e0e7ff; color: #1e3a8a;">상태</th>
+                    <th style="background-color: #e0e7ff; color: #1e3a8a;">심사 상태</th>
+                    <td style="border-bottom: 2px solid #e5e7eb;">
+                        <div class="flex gap-5 flex-wrap">
+                            <label class="custom-radio"><input type="radio" name="review_filter" value="ALL" checked onchange="applyFilters()"> 전체</label>
+                            <label class="custom-radio"><input type="radio" name="review_filter" value="심사중" onchange="applyFilters()"> 심사중</label>
+                            <label class="custom-radio"><input type="radio" name="review_filter" value="보완요청" onchange="applyFilters()"> 보완요청</label>
+                            <label class="custom-radio"><input type="radio" name="review_filter" value="승인" onchange="applyFilters()"> 승인</label>
+                            <label class="custom-radio"><input type="radio" name="review_filter" value="반려" onchange="applyFilters()"> 반려</label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="background-color: #e0e7ff; color: #1e3a8a;">접수 상태</th>
                     <td style="border-bottom: 2px solid #e5e7eb;">
                         <div class="flex gap-5 flex-wrap">
                             <label class="custom-radio"><input type="radio" name="status_filter" value="ALL" checked onchange="applyFilters()"> 전체</label>
@@ -710,7 +684,9 @@
                                 <th>과정명</th>
                                 <th>분류</th>
                                 <th>지역</th>
-                                <th>상태</th>
+                                <th>신청자</th>
+                                <th>심사상태</th>
+                                <th>접수상태</th>
                                 <th>교육일자</th>
                                 <th>마감일</th>
                                 <th>조회수</th>
@@ -718,7 +694,7 @@
                             </tr>
                         </thead>
                         <tbody id="course-list-body">
-                            <tr><td colspan="9" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
+                            <tr><td colspan="11" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -756,9 +732,22 @@
             return '<span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[11px] font-bold">접수중</span>';
         }
 
+        function reviewStatusBadge(item) {
+            // 관리자가 직접 등록한 건(created_by 없음)은 심사 절차가 없으므로 배지 없이 표시
+            if (!item.created_by) return '<span class="text-gray-400 text-[11px]">-</span>';
+            const rs = item.review_status || '심사중';
+            const map = {
+                '심사중': 'bg-amber-500',
+                '보완요청': 'bg-orange-600',
+                '승인': 'bg-green-600',
+                '반려': 'bg-red-600'
+            };
+            return `<span class="${map[rs] || 'bg-gray-400'} text-white px-2 py-0.5 rounded text-[11px] font-bold">${rs}</span>`;
+        }
+
         async function fetchCourses() {
             const tbody = document.getElementById('course-list-body');
-            tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>';
 
             try {
                 const { data, error } = await supabaseClient
@@ -771,7 +760,7 @@
                 applyFilters();
             } catch (e) {
                 console.error('현장 교육 목록 조회 실패:', e);
-                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="py-14 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>';
             }
         }
 
@@ -785,12 +774,15 @@
 
         function applyFilters() {
             const status = getRadioValue('status_filter');
+            const reviewFilter = getRadioValue('review_filter');
             const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
 
             filteredCourses = allCourses.filter(item => {
                 const matchStatus = status === 'ALL' || (item.status || 'OPEN') === status;
+                const itemReviewStatus = item.created_by ? (item.review_status || '심사중') : '승인';
+                const matchReview = reviewFilter === 'ALL' || itemReviewStatus === reviewFilter;
                 const matchKeyword = !keyword || (item.title || '').toLowerCase().includes(keyword);
-                return matchStatus && matchKeyword;
+                return matchStatus && matchReview && matchKeyword;
             });
 
             renderCourses();
@@ -800,7 +792,7 @@
             const tbody = document.getElementById('course-list-body');
 
             if (!filteredCourses || filteredCourses.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-gray-400">조건에 맞는 일정이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="py-14 text-gray-400">조건에 맞는 일정이 없습니다.</td></tr>';
                 return;
             }
 
@@ -810,13 +802,15 @@
                     <td class="text-left font-bold text-[#0B2A5B]">${item.title || '-'}</td>
                     <td>${item.category || '-'}</td>
                     <td>${item.region || '-'}</td>
+                    <td>${item.created_by ? '<span class="text-[11px] text-gray-500">관리소장</span>' : '<span class="text-[11px] text-gray-400">운영진</span>'}</td>
+                    <td>${reviewStatusBadge(item)}</td>
                     <td>${statusBadge(item.status)}</td>
                     <td>${formatDate(item.edu_date)}</td>
                     <td>${formatDate(item.deadline)}</td>
                     <td>${item.view_count || 0}</td>
                     <td>
                         <div class="flex flex-wrap gap-1.5 justify-center">
-                            <span class="btn-manage btn-edit" onclick="location.href='admin-field-course-edit.html?id=${item.id}'">수정</span>
+                            <span class="btn-manage btn-edit" onclick="location.href='admin-field-course-edit.html?id=${item.id}'">${item.created_by && (item.review_status || '심사중') !== '승인' ? '심사' : '수정'}</span>
                             <span class="btn-manage btn-delete" onclick="deleteCourse('${item.id}')">삭제</span>
                         </div>
                     </td>

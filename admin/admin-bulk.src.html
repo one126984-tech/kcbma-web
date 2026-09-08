@@ -1,0 +1,475 @@
+<!-- 파일명: admin-bulk.src.html -->
+<!-- @var PAGE_CLASS: page-admin -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 대량 데이터 등록 시스템</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f1f5f9; }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 border-t-4 border-[#12387a]">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">🛠️ 관리자 전용 대량 데이터 등록 시스템</h1>
+        
+        <div class="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800 leading-relaxed">
+            <span class="font-bold text-red-500">※ DB에 빈칸(undefined)이 없도록 모든 상세 데이터가 꽉 채워져서 생성됩니다.</span>
+        </div>
+
+        <div class="space-y-4">
+            <button id="btn-generate-bid" style="background-color: #2563eb; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">🏢</span> [입찰공고 게시판] 공고 100개 완벽 자동 생성
+            </button>
+
+            <button id="btn-generate-company" style="background-color: #f59e0b; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">🤝</span> [협력업체 홍보관] 우수/일반 업체 30개 완벽 자동 생성
+            </button>
+
+            <button id="btn-generate-joint" style="background-color: #8b5cf6; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">👥</span> [우수업체 공동선정] 공동발주 30개 완벽 자동 생성
+            </button>
+
+            <button id="btn-generate-jobs" style="background-color: #10b981; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">💼</span> [구인구직 채용정보] 전국 공고 200개 완벽 자동 생성
+            </button>
+
+            <button id="btn-generate-edu" style="background-color: #0ea5e9; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">🏫</span> [현장 교육] 전국 실무 교육 데이터 70개 완벽 자동 생성
+            </button>
+
+            <button id="btn-generate-board" style="background-color: #ef4444; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">🏢</span> [위탁관리사 공고] 전국 60개 완벽 자동 생성
+            </button>
+
+            <button id="btn-generate-fee" style="background-color: #9333ea; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">📊</span> [관리비 비교·평가] 전국 의뢰 150개 완벽 자동 생성
+            </button>
+
+            <!-- 💡 추가된 전자투표·총회 대행 80개 생성 버튼 -->
+            <button id="btn-generate-evote" style="background-color: #ec4899; color: #ffffff;" class="w-full font-bold py-4 rounded-lg hover:opacity-90 transition-opacity shadow-md text-[16px] flex items-center justify-center gap-2">
+                <span class="text-xl">🗳️</span> [전자투표·총회 대행] 전국 의뢰 80개 완벽 자동 생성
+            </button>
+        </div>
+
+        <div id="status-msg" class="text-center font-bold text-[15px] h-6 mt-6"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const getRand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const getRandInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        function getOffsetDateStr(offsetDays) {
+            const date = new Date();
+            date.setDate(date.getDate() + offsetDays);
+            const offset = date.getTimezoneOffset() * 60000;
+            return new Date(date.getTime() - offset).toISOString();
+        }
+
+        document.getElementById('btn-generate-bid').addEventListener('click', async function() { await generateBids(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-company').addEventListener('click', async function() { await generateCompanies(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-joint').addEventListener('click', async function() { await generateJointBids(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-jobs').addEventListener('click', async function() { await generateJobs(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-edu').addEventListener('click', async function() { await generateEdu(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-board').addEventListener('click', async function() { await generateBoard(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-fee').addEventListener('click', async function() { await generateFee(document.getElementById('status-msg'), this); });
+        document.getElementById('btn-generate-evote').addEventListener('click', async function() { await generateEvote(document.getElementById('status-msg'), this); });
+
+        // 1. 입찰공고 100개 생성
+        async function generateBids(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#2563eb'; statusMsg.innerText = '입찰공고 데이터 100개 생성 중... ⏳';
+            try {
+                await sb.from('bids').delete().neq('id', 0);
+                
+                const dummyBids = [];
+                const regions = ['서울', '경기', '인천', '부산', '대구', '대전', '광주'];
+                const bTypes = ['아파트', '오피스텔', '지식산업센터', '주상복합'];
+                const bNames = ['푸르지오', '래미안', '자이', '힐스테이트', '더샵'];
+                
+                const bidCategories = [
+                    { cat: '공사·용역 입찰', tasks: ['외벽 도장 공사', '지하주차장 에폭시 포장', '옥상 우레탄 방수', 'CCTV 시스템 교체'] },
+                    { cat: '전문 시설관리', tasks: ['소방시설 종합정밀점검', '저수조 청소 및 수질검사', '승강기 정기 유지보수'] },
+                    { cat: '환경·위생관리', tasks: ['단지 미화 및 청소 용역', '수목 방역 및 해충 구제'] }
+                ];
+
+                for(let i=0; i<100; i++) {
+                    const region = getRand(regions);
+                    const building = `${getRand(bNames)} ${getRand(bTypes)}`;
+                    const catObj = getRand(bidCategories);
+                    const task = getRand(catObj.tasks);
+                    const startOffset = getRandInt(-60, 10);
+                    const endOffset = startOffset + getRandInt(7, 21);
+                    const startDate = getOffsetDateStr(startOffset).split('T')[0];
+                    const endDate = getOffsetDateStr(endOffset).split('T')[0];
+
+                    dummyBids.push({ 
+                        title: `[${region}] ${building} ${task} 입찰 공고`, 
+                        company_name: `${region} ${building} 관리소장`, 
+                        category: catObj.cat,
+                        region: region,
+                        start_date: startDate,
+                        end_date: endDate,
+                        description: `국토교통부 고시 「주택관리업자 및 사업자 선정지침」에 의거하여 당 단지의 [${task}] 업체를 선정하고자 공고합니다.\n\n자세한 사항은 첨부된 시방서를 확인 바랍니다.`,
+                        status: (endDate < getOffsetDateStr(0).split('T')[0]) ? 'CLOSED' : 'OPEN',
+                        views: getRandInt(10, 500)
+                    });
+                }
+                const { error } = await sb.from('bids').insert(dummyBids);
+                if (error) throw error;
+                statusMsg.style.color = '#16a34a'; statusMsg.innerText = '✅ 100개 입찰공고 완벽 등록 완료!';
+            } catch (e) {
+                statusMsg.style.color = '#dc2626'; statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 2. 협력업체 30개 생성
+        async function generateCompanies(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#f59e0b'; statusMsg.innerText = '협력업체 데이터 30개 생성 중... ⏳';
+            try {
+                await sb.from('companies').delete().neq('id', 0);
+
+                const regions = ['전국', '서울/경기', '수도권', '부산/경남', '대구/경북', '충청/대전'];
+                const categories = [
+                    { name: '소방시설 점검/보수', catch: '화재로부터 안전한 단지, 완벽 소방 점검', sum: '소방시설 종합정밀점검, 작동기능점검, 지적사항 완벽 보수 전문.' },
+                    { name: '승강기 유지보수', catch: '안전하고 부드러운 승차감, 24시간 출동', sum: '전 기종 승강기 유지보수 및 노후 교체, 갇힘 사고 24시간 긴급대응.' },
+                    { name: '전기/수배전반', catch: '단전 없는 쾌적한 아파트, 정밀 전기 진단', sum: '수배전반 정밀 안전진단, 열화상 카메라 측정, 노후 차단기 교체 전문.' },
+                    { name: '외벽 도장/방수', catch: '비 새는 곳 없는 튼튼한 외벽, 완벽 방수', sum: '아파트 외벽 균열 보수, 재도장, 옥상 우레탄 방수 책임 시공.' },
+                    { name: '환경/위생/청소', catch: '쾌적한 주거환경의 시작, 프리미엄 미화', sum: '지하주차장 대청소, 수목 방역, 코로나 소독 및 정기 미화 용역 제공.' }
+                ];
+                const companySuffix = ['이엔지', '산업', '개발', '솔루션', '네트웍스', '관리'];
+                const companyPrefix = ['제일', '대도', '우성', '태양', '미래', '한국', '동양', '현대'];
+
+                const dummyCompanies = [];
+                for(let i=0; i<30; i++) {
+                    const catObj = getRand(categories);
+                    const isPremium = i < 10; 
+                    const cName = getRand(companyPrefix) + getRand(companySuffix);
+
+                    dummyCompanies.push({
+                        company_name: cName,
+                        catchphrase: catObj.catch,
+                        service_summary: catObj.sum,
+                        category: catObj.name,
+                        region: getRand(regions),
+                        phone: `1588-${getRandInt(1000, 9999)}`,
+                        website: Math.random() > 0.3 ? `https://www.${cName}test.co.kr` : null,
+                        is_premium: isPremium
+                    });
+                }
+                const { error } = await sb.from('companies').insert(dummyCompanies);
+                if (error) throw error;
+                statusMsg.style.color = '#16a34a'; statusMsg.innerText = '✅ 30개 협력업체 데이터 완벽 등록 완료!';
+            } catch (e) {
+                statusMsg.style.color = '#dc2626'; statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 3. 공동발주 30개 생성
+        async function generateJointBids(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#8b5cf6';
+            statusMsg.innerText = '우수업체 공동선정 30개 생성 중... ⏳';
+            try {
+                await sb.from('joint_bids').delete().neq('id', 0);
+
+                const items = ['승강기 유지보수', '소방시설 종합점검', '저수조 청소', '외벽 도장 공사', '수목 소독 및 방역', '지하주차장 청소', '단지 내 LED 조명 교체'];
+                const regions = ['서울 권역', '경기 남부 권역', '인천/부천 권역', '부산/경남 권역'];
+                const dummyJointBids = [];
+
+                for(let i=0; i<30; i++) {
+                    const item = getRand(items);
+                    const region = getRand(regions);
+                    const startOffset = getRandInt(-30, 10);
+                    const endOffset = startOffset + getRandInt(14, 30);
+                    const startDate = getOffsetDateStr(startOffset).split('T')[0];
+                    const endDate = getOffsetDateStr(endOffset).split('T')[0];
+                    const status = (endDate < getOffsetDateStr(0).split('T')[0]) ? 'CLOSED' : 'OPEN';
+
+                    dummyJointBids.push({
+                        title: `[${region}] ${item} 공동발주 참여 단지 모집`,
+                        target_item: item,
+                        description: `여러 단지가 모여 발주 물량을 늘려 단가를 낮추고, 검증된 우수 업체를 공동으로 선정하기 위한 프로젝트입니다.\n\n상세 일정 및 참가 방법은 첨부 파일을 확인해 주세요.`,
+                        status: status,
+                        participants_count: getRandInt(1, 15),
+                        start_date: startDate,
+                        end_date: endDate,
+                        views: getRandInt(50, 300)
+                    });
+                }
+                const { error } = await sb.from('joint_bids').insert(dummyJointBids);
+                if (error) throw error;
+                statusMsg.style.color = '#16a34a'; statusMsg.innerText = '✅ 30개 우수업체 공동선정 완벽 등록 완료!';
+            } catch (e) {
+                console.error(e);
+                statusMsg.style.color = '#dc2626'; statusMsg.innerText = '❌ 오류 발생: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 4. 구인구직 200개 생성
+        async function generateJobs(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#10b981'; 
+            statusMsg.innerText = '전국 채용공고 데이터 200개 생성 중... ⏳';
+            try {
+                await sb.from('jobs').delete().neq('id', 0);
+                const dummyJobs = [];
+                const categories = ['관리소장', '전기과장', '전기기사', '기전직', '시설 반장', '시설기사'];
+                const realRegions = [['서울', '강남구 역삼동'], ['경기', '성남시 분당구'], ['부산', '해운대구 우동']];
+                const buildingTypes = ['빌딩', '타워', '오피스텔', '지식산업센터'];
+                const buildingNames = ['센트럴', '퍼스트', '스타', '리더스'];
+
+                for(let i=0; i < 200; i++) {
+                    const cat = getRand(categories);
+                    const regionCombo = getRand(realRegions);
+                    const fullRegion = `${regionCombo[0]} ${regionCombo[1]}`;
+                    const bName = `${getRand(buildingNames)}${getRandInt(1, 9)}${getRand(buildingTypes)}`;
+                    const startIso = getOffsetDateStr(getRandInt(-60, 0));
+                    
+                    dummyJobs.push({
+                        title: `[${regionCombo[0]}] ${bName} ${cat} 채용합니다.`,
+                        category: cat,
+                        company_name: `${bName} 관리단`,
+                        region: fullRegion,
+                        address: fullRegion,
+                        start_date: startIso.split('T')[0], 
+                        end_date: getOffsetDateStr(getRandInt(10, 40)).split('T')[0],
+                        status: 'OPEN',
+                        view_count: getRandInt(5, 2300),
+                        experience: '경력 무관',
+                        employment: '정규직', 
+                        description: `[담당업무]\n시설물 관리\n\n[자격요건]\n자격증 필수`,
+                        created_at: startIso,
+                        type: 'JOB'
+                    });
+                }
+                const { error } = await sb.from('jobs').insert(dummyJobs);
+                if (error) throw error;
+                statusMsg.style.color = '#10b981'; 
+                statusMsg.innerText = '✅ 전국 200개 채용공고 완벽 등록 완료!';
+            } catch (e) {
+                statusMsg.style.color = '#dc2626'; statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 5. 현장 교육 70개 생성
+        async function generateEdu(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#0ea5e9'; 
+            statusMsg.innerText = '현장 교육 데이터 70개 생성 중... ⏳';
+            try {
+                await sb.from('field_courses').delete().not('id', 'is', null);
+                const dummyEdu = [];
+                const regions = ['서울', '부산', '경기', '인천'];
+                const topics = ['수배전반 정기 점검 실무', '소방 작동기능 점검', '승강기 비상구출 훈련'];
+
+                for (let i = 0; i < 70; i++) {
+                    const region = getRand(regions);
+                    const eduDate = getOffsetDateStr(getRandInt(10, 60)).split('T')[0];
+                    dummyEdu.push({
+                        title: `[${region}] ${getRand(topics)}`, 
+                        category: '관리소장 실무', 
+                        region: region, 
+                        location: `${region} 센터`, 
+                        edu_date: eduDate, 
+                        deadline: eduDate, 
+                        view_count: getRandInt(15, 450), 
+                        status: 'OPEN'
+                    });
+                }
+                const { error } = await sb.from('field_courses').insert(dummyEdu);
+                if (error) throw error;
+                statusMsg.style.color = '#0ea5e9'; 
+                statusMsg.innerText = '✅ 70개 현장 교육 데이터 완벽 등록 완료!';
+            } catch (e) {
+                statusMsg.style.color = '#dc2626'; statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 6. 위탁관리사 공고 60개 생성
+        async function generateBoard(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#ef4444'; 
+            statusMsg.innerText = '위탁관리사 공고 데이터 60개 생성 중... ⏳';
+            try {
+                await sb.from('management_biddings').delete().not('id', 'is', null);
+                const dummyData = [];
+                const regions = ['서울', '경기', '인천', '부산', '대구', '대전', '광주', '세종', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+                const bTypes = ['아파트', '오피스텔', '지식산업센터', '주상복합', '상가', '메디컬빌딩'];
+                const bNames = ['푸르지오', '래미안', '자이', '힐스테이트', '더샵', '에이스', 'SK V1', '센트럴'];
+
+                for (let i = 0; i < 60; i++) {
+                    const region = getRand(regions);
+                    const bType = getRand(bTypes);
+                    const building = `${getRand(bNames)} ${bType}`;
+                    const stage = getRand(['탐색상황', '조정상황', '확정상황']);
+                    
+                    dummyData.push({
+                        title: `[${region}] ${building} 위탁관리업체 선정 공고`,
+                        location: region,
+                        building_summary: `연면적 ${(getRandInt(1, 15) * 10000).toLocaleString()} ㎡ ${bType}`,
+                        contact_person: '담당자',
+                        contact_phone: '010-1234-5678',
+                        detailed_proposal: `투명하고 효율적인 관리를 위해 전문 위탁관리업체를 모시고자 합니다.`,
+                        unlock_fee: 1000,
+                        status: stage
+                    });
+                }
+                const { error } = await sb.from('management_biddings').insert(dummyData);
+                if (error) throw error;
+                statusMsg.style.color = '#ef4444'; 
+                statusMsg.innerText = '✅ 60개 위탁관리사 공고 완벽 등록 완료!';
+            } catch (e) {
+                statusMsg.style.color = '#dc2626'; statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 7. 관리비 비교평가 의뢰 150개 생성
+        async function generateFee(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#9333ea'; 
+            statusMsg.innerText = '관리비 비교·평가 의뢰 150개 생성 중... ⏳';
+            try {
+                await sb.from('fee_evaluations').delete().not('id', 'is', null);
+                const dummyData = [];
+                const regions = ['서울', '경기', '인천', '부산', '대구', '대전', '광주', '울산', '세종', '강원', '충남', '충북', '전북', '전남', '경북', '경남', '제주'];
+                const bTypes = ['아파트', '오피스텔', '주상복합', '지식산업센터', '대형상가', '오피스빌딩'];
+                const bNames = ['래미안', '푸르지오', '더샵', '아이파크', '센트럴', '스마트', '에이스', '리더스', '퍼스트'];
+                const purposes = ['공용전기료 과다 청구 의심', '일반관리비 적정성 진단', '난방비 부과 기준 검토', '승강기 유지보수비 비교'];
+                const names = ['김', '이', '박', '최', '정'];
+
+                for (let i = 0; i < 150; i++) {
+                    const region = getRand(regions);
+                    const bType = getRand(bTypes);
+                    const building = `${getRand(bNames)} ${bType}`;
+                    
+                    dummyData.push({
+                        title: `[${region}] ${building} 관리비 객관적 진단 요청`,
+                        location: region,
+                        building_summary: `연면적 ${(getRandInt(1, 15) * 10000).toLocaleString()} ㎡ ${bType}`,
+                        client_name: `${getRand(names)}대표`,
+                        client_contact: `010-${getRandInt(2000, 9999)}-${getRandInt(1000, 9999)}`,
+                        evaluation_purpose: getRand(purposes),
+                        attachment_url: 'https://example.com/dummy-bill.pdf',
+                        status: getRand(['분석 모집중', '분석 완료']),
+                        created_at: getOffsetDateStr(getRandInt(-100, 0))
+                    });
+                }
+                const { error } = await sb.from('fee_evaluations').insert(dummyData);
+                if (error) throw error;
+                statusMsg.style.color = '#9333ea'; 
+                statusMsg.innerText = '✅ 150개 관리비 비교평가 의뢰 완벽 등록 완료!';
+            } catch (e) {
+                console.error(e);
+                statusMsg.style.color = '#dc2626'; 
+                statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // 8. 전자투표·총회 대행 의뢰 80개 자동 생성 (새로 추가)
+        async function generateEvote(statusMsg, btn) {
+            btn.disabled = true; btn.style.opacity = '0.5';
+            statusMsg.style.color = '#ec4899'; 
+            statusMsg.innerText = '총회 대행 의뢰 데이터 80개 생성 중... ⏳';
+            
+            try {
+                // 기존 데이터 삭제
+                await sb.from('assembly_requests').delete().not('id', 'is', null);
+
+                const dummyData = [];
+                const regions = ['서울 마포구', '서울 서초구', '경기 수원시', '경기 용인시', '인천 연수구', '부산 해운대구', '대구 수성구', '대전 유성구', '광주 서구', '울산 남구', '세종 나성동', '충남 천안시', '경남 창원시', '제주 제주시'];
+                const bTypes = ['지식산업센터', '오피스텔', '프라자상가', '주상복합', '메디컬빌딩', '레지던스'];
+                const bNames = ['에이스', 'SK V1', '센트럴', '리더스', '더샵', '퍼스트', '스타', '아이파크', '데시앙'];
+                
+                // 안건 목록 및 안건별 맞춤 상세 내용 템플릿 세팅
+                const detailsMap = {
+                    '관리인 선임': [
+                        '현재 분양 후 최초 관리단 집회를 준비 중입니다. 소유자 명부는 확보되었으나 소집 절차와 전자투표 병행에 대한 전문적인 도움이 필요합니다.',
+                        '기존 관리인 임기 만료로 인한 신규 관리인 선임 건입니다. 분쟁의 소지가 있어 제3의 전문가가 투명하게 대행해주기를 원합니다.',
+                        '비상대책위원회가 구성되어 기존 관리인 해임 및 신임 관리인 선임을 동시에 진행하려고 합니다. 법적 하자가 없도록 헬퍼의 지원이 시급합니다.'
+                    ],
+                    '규약 제정': [
+                        '기존 원시 규약을 우리 단지 실정에 맞게 개정하려고 합니다. 규약(안) 작성부터 서면 결의서 징구, 총회 진행까지 풀패키지로 도와줄 업체를 찾습니다.',
+                        '주차장 유료화 및 수익사업 배분 문제로 규약을 신설해야 합니다. 동의율 4분의 3을 충족하기 위해 전자투표 시스템 도입을 검토 중입니다.'
+                    ],
+                    '관리업체 변경': [
+                        '기존 시행사 위탁업체와의 계약 만료로, 새로운 위탁관리업체 선정을 위한 임시 총회를 개최하고자 합니다.',
+                        '경쟁 입찰을 통해 3개 업체를 숏리스트로 추렸으며, 최종 선정을 위한 입주자 투표를 대행해 줄 전문 업체를 구합니다.'
+                    ],
+                    '기타 안건': [
+                        '공용부분 대규모 하자보수 청구 및 소송 진행 여부를 묻는 안건입니다. 참석률이 저조할 것으로 예상되어 전자투표 도입이 시급합니다.',
+                        '건물 외벽 도장 및 승강기 전면 교체를 위한 장기수선충당금 사용 승인 건으로 총회를 개최합니다.'
+                    ]
+                };
+
+                const assemblyTypes = Object.keys(detailsMap);
+                const firstNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '오', '신', '권'];
+                const roles = ['추진위원장', '관리인', '동대표', '소장', '비대위원장'];
+
+                for (let i = 0; i < 80; i++) {
+                    const region = getRand(regions);
+                    const bType = getRand(bTypes);
+                    const bName = getRand(bNames);
+                    const building = `${bName} ${bType}`;
+                    
+                    const assemblyType = getRand(assemblyTypes);
+                    const detailedProposal = getRand(detailsMap[assemblyType]);
+                    
+                    const clientName = `${getRand(firstNames)}${getRand(roles)}`;
+                    
+                    // 최대 90일 전부터 오늘 사이로 무작위 등록 날짜 생성
+                    const createdDateObj = new Date();
+                    createdDateObj.setDate(createdDateObj.getDate() - getRandInt(0, 90));
+                    const createdIso = createdDateObj.toISOString();
+                    
+                    // 작성일 기준 30일~60일 뒤를 총회 예상일로 설정
+                    const expectedDateObj = new Date(createdDateObj);
+                    expectedDateObj.setDate(expectedDateObj.getDate() + getRandInt(30, 60));
+                    const expectedStr = `${expectedDateObj.getFullYear()}년 ${expectedDateObj.getMonth() + 1}월 중순`;
+
+                    // 총회 일정이 지났으면 '마감', 아니면 '헬퍼 모집중'
+                    const statusLabel = (expectedDateObj < new Date()) ? '마감' : '헬퍼 모집중';
+
+                    dummyData.push({
+                        title: `[${region}] ${building} ${assemblyType} 총회 대행 헬퍼 구합니다.`,
+                        location: region,
+                        building_summary: `${getRandInt(100, 1500)}세대 ${bType}`,
+                        client_name: clientName,
+                        client_contact: `010-${getRandInt(2000, 9999)}-${getRandInt(1000, 9999)}`,
+                        assembly_type: assemblyType,
+                        expected_date: expectedStr,
+                        details: detailedProposal,
+                        status: statusLabel,
+                        created_at: createdIso
+                    });
+                }
+
+                // 80개를 한 번에 Insert[cite: 7]
+                const { error } = await sb.from('assembly_requests').insert(dummyData);
+                if (error) throw error;
+                
+                statusMsg.style.color = '#ec4899'; 
+                statusMsg.innerText = '✅ 80개 총회 대행 의뢰 데이터 완벽 등록 완료!';
+            } catch (e) {
+                console.error(e);
+                statusMsg.style.color = '#dc2626'; 
+                statusMsg.innerText = '❌ 오류: ' + e.message;
+            } finally { 
+                btn.disabled = false; 
+                btn.style.opacity = '1'; 
+            }
+        }
+    </script>
+</body>
+</html>

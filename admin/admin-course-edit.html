@@ -362,7 +362,7 @@
                     </div>
                 </div>
 
-                <div onclick="goToMypage()" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
                 <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
@@ -413,24 +413,9 @@
                         0
                     </span>
                 </div>
-                <div onclick="goToMypage()" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 마이페이지 로그인 안내 팝업 (비로그인 상태에서 마이페이지 클릭 시) -->
-    <div id="mypage-login-prompt" class="hidden fixed inset-0 z-[1200] bg-black/50 flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-[360px] w-full p-6 text-center">
-            <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center text-[#12387a] text-xl">
-                <i class="fas fa-user-lock"></i>
-            </div>
-            <p class="text-[15px] font-bold text-gray-800 mb-1">먼저 로그인 후 사용 가능합니다.</p>
-            <p class="text-[13px] text-gray-500 mb-6">마이페이지는 로그인한 회원만 이용할 수 있어요.</p>
-            <div class="flex gap-2">
-                <button type="button" onclick="closeMypageLoginPrompt()" class="flex-1 border border-gray-300 text-gray-600 font-bold py-2.5 rounded-lg text-[14px] hover:bg-gray-50">취소</button>
-                <button type="button" onclick="confirmMypageLogin()" class="flex-1 bg-[#12387a] text-white font-bold py-2.5 rounded-lg text-[14px] hover:bg-[#0e2b61]">로그인</button>
             </div>
         </div>
     </div>
@@ -473,29 +458,6 @@
                 );
             }
             return window.sb;
-        }
-
-        // --- 마이페이지 클릭: 로그인 상태면 바로 이동, 아니면 "마이페이지 클릭 -> 마이페이지 화면(X)"
-        //     대신 안내 팝업(로그인/취소)부터 띄운다. 마이페이지 화면이 잠깐 보였다가
-        //     사라지는 흔들림을 막기 위해, 애초에 마이페이지로 이동 자체를 안 함. ---
-        async function goToMypage() {
-            if (location.pathname.endsWith('dashboard.html')) return; // 이미 마이페이지면 아무 것도 안 함(기존과 동일)
-            const client = await ensureAuthClient();
-            const { data: { session } } = await client.auth.getSession();
-            if (session) {
-                location.href = '../../mypage/dashboard.html';
-            } else {
-                document.getElementById('mypage-login-prompt').classList.remove('hidden');
-            }
-        }
-        function closeMypageLoginPrompt() {
-            document.getElementById('mypage-login-prompt').classList.add('hidden');
-        }
-        function confirmMypageLogin() {
-            // 로그인 완료 후 다시 마이페이지로 돌아오도록 사이트 루트 기준 절대경로로 저장
-            // (login.html이 여러 깊이의 페이지에서 열릴 수 있어 ../../ 상대경로는 여기선 쓸 수 없음)
-            localStorage.setItem('returnUrl', '/mypage/dashboard.html');
-            location.href = '../../login.html';
         }
 
         function applyAuthUI(session) {
@@ -702,6 +664,15 @@
                                     <option value="배관">배관</option>
                                     <option value="행정">행정</option>
                                     <option value="환경위생">환경위생</option>
+                                    <!-- 💡 추가: 현장교육 분류와 이름을 맞춘 5종 자격증용 분류.
+                                         현장교육 필수 이수 횟수 연동(위 필드)이 정상 동작하려면
+                                         관리소장/경리회계/환경미화/기전영선/전기 5종 실무관리사는
+                                         반드시 이 중 하나로 분류를 지정해야 합니다. -->
+                                    <option value="관리소장 실무">관리소장 실무</option>
+                                    <option value="경리회계 실무">경리실무</option>
+                                    <option value="환경미화 실무">미화실무</option>
+                                    <option value="기전영선 실무">기전영선 실무</option>
+                                    <option value="전기 실무">초보자용 전기실무</option>
                                 </select>
                             </td>
                         </tr>
@@ -763,6 +734,16 @@
                                         <span class="text-sm text-gray-600">점</span>
                                     </div>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>현장교육 필수 이수 횟수</th>
+                            <td colspan="3">
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="required_field_course_count" class="form-input" style="width:100px;" placeholder="0" min="0" value="0">
+                                    <span class="text-sm text-gray-600">회</span>
+                                </div>
+                                <div class="form-hint">이 자격증의 분류(위 "분류" 값)와 동일한 현장교육에 참석 처리된 횟수가 이 숫자 이상이 되어야 시험 응시 버튼이 열립니다. 0이면 제한 없이 바로 시험 응시가 가능합니다.</div>
                             </td>
                         </tr>
                     </table>
@@ -871,6 +852,8 @@
             document.getElementById('progress_rate').value = passCriteria.progress_rate ?? 80;
             document.getElementById('exam_score').value = passCriteria.exam_score ?? 60;
 
+            document.getElementById('required_field_course_count').value = course.required_field_course_count ?? 0;
+
             document.getElementById('instructor_name').value = course.instructor_name || '';
             document.getElementById('instructor_bio').value = course.instructor_bio || '';
             document.getElementById('instructor_img').value = course.instructor_img || '';
@@ -923,6 +906,7 @@
                     progress_rate: Number(document.getElementById('progress_rate').value) || 0,
                     exam_score: Number(document.getElementById('exam_score').value) || 0
                 },
+                required_field_course_count: Number(document.getElementById('required_field_course_count').value) || 0,
                 instructor_name: document.getElementById('instructor_name').value.trim() || null,
                 instructor_bio: document.getElementById('instructor_bio').value.trim() || null,
                 instructor_img: document.getElementById('instructor_img').value.trim() || null,

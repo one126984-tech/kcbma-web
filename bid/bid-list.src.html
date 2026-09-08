@@ -1,5 +1,5 @@
-<!-- 파일명: bid-list.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 bid-list.html) -->
-<!-- @var PAGE_CLASS: page-bid -->
+<!-- 파일명: bid-list.src.html -->
+<!-- @var PAGE_CLASS: page-admin -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
@@ -9,19 +9,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>입찰공고 | 대한집합건물관리협회</title>
 
-<!-- @include critical-css -->
+<style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 6px;
+        }
+
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            #main-header nav { display: flex; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 768px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+    </style>
 
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- @include view-transition-css -->
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 */
+        #main-header { view-transition-name: site-header; }
+        #page-content { view-transition-name: page-content; }
+        @keyframes page-content-out { to { opacity: 0; } }
+        @keyframes page-content-in { from { opacity: 0; } }
+        ::view-transition-old(page-content) { animation: 150ms ease-in both page-content-out; }
+        ::view-transition-new(page-content) { animation: 200ms ease-out both page-content-in; }
+        ::view-transition-group(page-content) { animation: none; width: 100%; height: 100%; }
+        ::view-transition-group(site-header) { animation: none; }
+        ::view-transition-old(site-header), ::view-transition-new(site-header) { animation: none; }
+        html.no-page-transition #page-content, html.no-page-transition ::view-transition-group(page-content), html.no-page-transition ::view-transition-old(page-content), html.no-page-transition ::view-transition-new(page-content) { animation: none !important; transform: none !important; }
+    </style>
 
-<!-- @include common-css -->
+
+    <style>
+        /* [COMMON-CSS] 자동 생성됨 */
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
+
+        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+        .side-menu-active-wrapper { padding: 10px; }
+
+        .left-scroll-area { direction: rtl; overflow-y: auto; height: 100%; padding-bottom: 2rem; }
+        .left-scroll-area::-webkit-scrollbar { width: 6px; }
+        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+        .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+        .main-scroll-area::-webkit-scrollbar { width: 8px; }
+        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn { background-color: #2c3e50; color: #ffffff; font-weight: 700; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; }
+        .login-btn:hover { background-color: #1a252f; }
+        .mypage-btn-mobile { background-color: #0088cc; color: #ffffff; transition: background-color 0.15s; }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+
 
     <style>
         /* 이 페이지(입찰공고 목록) 전용 CSS */
@@ -32,10 +136,15 @@
         .custom-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; user-select: none; }
         .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 13.5px; font-weight: 500; user-select: none; }
 
-        .data-table-wrapper { background: #fff; overflow-x: auto; border-top: none; }
-        .data-table { width: 100%; text-align: center; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
-        .data-table thead { border-top: 2px solid #333; border-bottom: 1px solid #d1d5db; }
-        .data-table th { padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; border-bottom: 1px solid #d1d5db; }
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
+
+        /* 💡 수정됨: 하얀색 틈 없애기 & 스크롤 고정 완벽 동기화 */
+        .data-table-wrapper { background: #fff; border-top: none; margin-top: 0 !important; padding-top: 0 !important; overflow: visible !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; min-width: 1000px; table-layout: fixed; }
+        .data-table thead { display: table-header-group; }
+        .data-table th { position: sticky; top: 0; z-index: 50; padding: 14px 10px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; }
+        
         .data-table td { padding: 14px 10px; font-size: 13.5px; color: #4b5563; border-bottom: 1px solid #f3f4f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
         .data-table tr:hover td { background-color: #f8fafc; cursor: pointer; }
 
@@ -50,27 +159,20 @@
     </style>
 </head>
 
-<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+<body class="flex flex-col h-screen overflow-hidden page-bid">
 
 <!-- @include header -->
 
-    <!-- ----------------------------------------------------
-         핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
-         페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
-         ---------------------------------------------------- -->
-    <div id="sticky-top-bar" class="w-full flex flex-col relative z-[900] shrink-0 bg-transparent">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    <div id="sticky-top-bar" class="w-full flex flex-col bg-white border-b border-gray-200 shadow-md relative z-[900] shrink-0">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
-
-
-    <!-- 하단 레이아웃 분할 -->
     <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
 
-        <!-- 좌측 사이드바: 220px 폭, hide-scrollbar -->
+        <!-- 좌측 사이드바 -->
         <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
             <div class="pr-1 pt-1">
                 <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="side-menu-container">
@@ -228,50 +330,58 @@
                 <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-8 py-1.5 font-bold text-[15px] rounded lg:ml-2 whitespace-nowrap transition-colors">검 색</button>
             </div>
 
-            <div class="flex justify-between items-end px-2 pt-2 pb-0">
-                <div class="text-[13px] text-gray-700 pb-2 pl-1">
-                    총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 공고가 있습니다. 
-                </div>
-                <div class="flex items-end gap-2 -mb-[1px] relative z-0">
-                    <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-300 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer shadow-sm">
-                        <option value="20">20개씩보기</option>
-                        <option value="50">50개씩보기</option>
-                    </select>
-                    <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0 shadow-sm">
-                        <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold cursor-pointer transition-colors">최신순</button>
-                        <button id="btn-sort-views" onclick="setSort('views')" class="bg-white text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full cursor-pointer transition-colors">조회순</button>
+            <!-- ★ 공고 등록하기 버튼이 포함된 툴바 영역 -->
+            <div class="board-toolbar-wrap mt-2">
+                <div class="flex justify-between items-end px-2 pt-2 pb-0 m-0">
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>건의 공고가 있습니다. 
+                    </div>
+                    <div class="flex items-end gap-2 -mb-[1px] relative z-10">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-400 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer shadow-sm">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0 shadow-sm">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold cursor-pointer transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="bg-white text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full cursor-pointer transition-colors">조회순</button>
+                        </div>
+                        
+                        <!-- 💡 추가된 공고 등록하기 버튼 -->
+                        <button onclick="window.location.href='bid-write.html'" class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center shadow-sm border border-b-0 border-[#2563eb]">
+                            공고 등록하기
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <div class="data-table-wrapper border border-gray-200 border-t-0 rounded-b shadow-sm relative z-20">
-                <table class="data-table">
-                    <colgroup>
-                        <col style="width: 70px;">  
-                        <col style="width: auto;">  
-                        <col style="width: 100px;"> 
-                        <col style="width: 100px;"> 
-                        <col style="width: 140px;"> 
-                        <col style="width: 90px;">  
-                        <col style="width: 90px;">  
-                        <col style="width: 60px;">  
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>상태</th>
-                            <th>공고명</th>
-                            <th>분류</th>
-                            <th>지역</th>
-                            <th>발주업체명</th>
-                            <th>공고일</th>
-                            <th>마감일</th>
-                            <th>조회수</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bid-list-body">
-                        <tr><td colspan="8" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
-                    </tbody>
-                </table>
+                <div class="data-table-wrapper border border-gray-200 border-t-0 rounded-b shadow-sm relative z-20">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 70px;">  
+                            <col style="width: auto;">  
+                            <col style="width: 100px;"> 
+                            <col style="width: 100px;"> 
+                            <col style="width: 140px;"> 
+                            <col style="width: 90px;">  
+                            <col style="width: 90px;">  
+                            <col style="width: 60px;">  
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>상태</th>
+                                <th>공고명</th>
+                                <th>분류</th>
+                                <th>지역</th>
+                                <th>발주업체명</th>
+                                <th>공고일</th>
+                                <th>마감일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bid-list-body">
+                            <tr><td colspan="8" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
@@ -585,13 +695,6 @@
         });
 
         function initRegionFilters() {
-            // ★ 대분류 체크박스는 이제 JS로 나중에 만들어 넣지 않고 build.js가
-            //   만든 정적 HTML에 이미 다 있음 (바로 위 마크업 참고). 페이지가
-            //   로드된 "다음" 시점에 JS로 항목을 채워 넣으면, 화면에 빈 박스가
-            //   한 번 보였다가 곧바로 체크박스들이 들어차면서 아래 내용이
-            //   순간적으로 밀렸다 붙었다 하는 "덜컹거림"이 생김 — 처음부터
-            //   완성된 모습으로 나오도록 정적 마크업으로 고정하고, 여기서는
-            //   이미 있는 체크박스에 이벤트만 연결한다.
             majorContainer.querySelectorAll('.major-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     if (this.checked) selectedMajors.push(this.value); else selectedMajors = selectedMajors.filter(val => val !== this.value);
@@ -601,8 +704,6 @@
         }
 
         function renderMinorRegions() {
-            // 덜컹거림 방지: 내용을 바꾸기 전 현재 박스 높이를 고정해두고,
-            // 내용을 새로 채운 뒤 실제 필요한 높이로 부드럽게 애니메이션.
             const startHeight = minorBox.getBoundingClientRect().height;
 
             minorContainer.innerHTML = '';
@@ -633,13 +734,10 @@
         }
 
         function animateMinorBoxHeight(startHeight) {
-            // 1) 시작 높이로 고정
             minorBox.style.height = startHeight + 'px';
-            // 2) 새 내용이 실제로 필요로 하는 높이 측정
             minorBox.style.height = 'auto';
             const endHeight = minorBox.getBoundingClientRect().height;
             minorBox.style.height = startHeight + 'px';
-            // 3) 강제 리플로우 후 목표 높이로 트랜지션
             void minorBox.offsetHeight;
             requestAnimationFrame(() => { minorBox.style.height = endHeight + 'px'; });
 
@@ -661,8 +759,6 @@
         function loadContent(url, element) {
             if (element && element.classList.contains('side-menu-tab-active')) return;
 
-            // 안전장치: 이 탭 전환은 같은 페이지 안에서의 콘텐츠 교체이므로
-            // View Transition 슬라이드 애니메이션이 절대 걸리지 않도록 미리 차단
             document.documentElement.classList.add('no-page-transition');
             if (document.activeViewTransition) {
                 document.activeViewTransition.skipTransition();
