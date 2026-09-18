@@ -1,8 +1,4 @@
-<!-- 파일명: notice-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는
-     notice-detail.html)
-     ★ 원본은 사이트 헤더가 아예 없는 완전 별개 화면이었음(파란 타이틀 바만 자체 구현).
-     공지사항 목록에서 클릭해 들어왔을 때 갑자기 다른 사이트처럼 보이지 않도록,
-     표준 헤더/서브헤더/좌측 사이드바를 붙임. -->
+<!-- 파일명: notice-detail.src.html -->
 <!-- @var PAGE_CLASS: page-community -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -44,17 +40,13 @@
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
-
-
     <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
 
         <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
             <div class="left-scroll-content">
                 <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab" onclick="location.href='field-experience.html'">현장경험 공유</div>
                     <div class="side-menu-tab-active">공지사항</div>
                     <div class="side-menu-tab" onclick="location.href='free-board.html'">자유게시판</div>
-                    <div class="side-menu-tab" onclick="location.href='work-qna.html'">업무 Q&A</div>
                     <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
                 </div>
             </div>
@@ -69,7 +61,6 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <!-- 글 헤더 -->
                     <div class="p-6 border-b border-gray-100">
                         <h3 id="detail-title" class="text-xl font-bold text-gray-900 mb-4">데이터를 불러오는 중입니다...</h3>
 
@@ -91,13 +82,11 @@
                         </div>
                     </div>
 
-                    <!-- 글 본문 내용 -->
                     <div class="p-6 min-h-[250px] text-gray-800 leading-relaxed whitespace-pre-wrap" id="detail-content">
                         내용을 불러오는 중입니다...
                     </div>
                 </div>
 
-                <!-- 하단 버튼 영역 -->
                 <div class="flex justify-center mt-6">
                     <button onclick="location.href='notice.html'" class="px-6 py-2.5 border border-[#1e293b] text-[#1e293b] rounded font-bold hover:bg-gray-50 transition-colors shadow-sm">목록으로</button>
                 </div>
@@ -111,7 +100,6 @@
     </main>
 
     </div>
-    <!-- 핑크박스 끝 -->
 
     <!-- Supabase 연동 스크립트 -->
     <script>
@@ -142,11 +130,11 @@
                 const date = new Date(data.created_at);
                 document.getElementById('detail-date').innerText = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 
-                document.getElementById('detail-views').innerText = data.views || 0;
+                document.getElementById('detail-views').innerText = data.view_count || 0; // ★ 수정됨
 
                 await supabaseClient
                     .from('notices')
-                    .update({ views: (data.views || 0) + 1 })
+                    .update({ view_count: (data.view_count || 0) + 1 }) // ★ 수정됨
                     .eq('id', noticeId);
 
             } catch (error) {

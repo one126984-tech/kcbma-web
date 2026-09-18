@@ -1,10 +1,11 @@
-<!-- 파일명: resume-detail.src.html -->
+<!-- 파일명: consulting-free-detail.src.html -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
+<meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>구직자 상세 | 대한집합건물관리협회</title>
+    <title>지식컨설팅 상세 | 대한집합건물관리협회</title>
 
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -105,14 +106,12 @@
             font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
         }
     </style>
-
     <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link rel="stylesheet" href="../../assets/css/tailwind.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
@@ -191,7 +190,6 @@
             transform: none !important;
         }
     </style>
-
 
 <style>
     /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
@@ -371,36 +369,13 @@
 </style>
 
     <style>
-        /* 좌측 메뉴: 아이콘을 뺀 상태로 폰트 크기(15px) 및 굵기(700) 통일 (job-list 2단 표준) */
-        .side-menu-tab { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: 700; font-size: 15px; cursor: pointer; transition: background-color .2s, color .2s; }
-        .side-menu-tab:hover { background-color: #f8fafc; }
-        .side-menu-tab-active { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
-
-        /* 이 페이지(구직자 상세) 전용 CSS */
-        html, body { overflow-y: scroll; }
-
-        .detail-header { border-bottom: 2px solid #12387a; padding-bottom: 20px; margin-bottom: 25px; }
-        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 12px; }
-        .status-badge.open { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-        .status-badge.closed { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
-        .detail-title { font-size: 24px; font-weight: 900; color: #111; margin-bottom: 12px; }
-
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #fff; border-top: 1px solid #e5e7eb; }
-        .info-table th { width: 140px; background: #f8fafc; color: #333; font-weight: bold; text-align: left; padding: 14px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
-        .info-table td { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #4b5563; }
-
-        .content-area { min-height: 200px; padding: 30px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 40px; white-space: pre-wrap; }
-
-        .contact-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; text-align: center; margin-bottom: 30px; }
-        .btn-call-large { display: inline-flex; align-items: center; justify-content: center; background: #12387a; color: white; padding: 14px 36px; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(18, 56, 122, 0.2); transition: all 0.2s; cursor: pointer; text-decoration: none; }
-        .btn-call-large:hover { background: #0B2A5B; transform: translateY(-2px); color: white; }
-
-        .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
-        .btn-list { padding: 12px 40px; background: #fff; border: 1px solid #cbd5e1; color: #333; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
-        .btn-list:hover { background: #f8fafc; border-color: #94a3b8; }
+.qna-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; letter-spacing: -0.2px; margin-right: 5px; vertical-align: middle; }
+        .badge-free { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        .badge-answered { background: #eef2ff; color: #4338ca; }
     </style>
 </head>
-<body class="flex flex-col min-h-screen page-jobs">
+
+<body class="flex flex-col h-screen overflow-hidden page-consulting">
 
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -523,9 +498,8 @@
         </button>
     </header>
 </div>
-
-    <div class="w-full flex flex-col bg-white shadow-md relative z-[800]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center h-[50px]"></div>
     </div>
 </div>
 
@@ -758,229 +732,100 @@
         });
     </script>
 
-<div id="page-content" class="flex-1 flex flex-col">
-
-    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
-        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
-            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                <div class="side-menu-tab" onclick="location.href='job-list.html'"><span>구인 (채용)</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                <div class="side-menu-tab-active" onclick="location.href='resume-list.html'"><span>구직 (인재)</span></div>
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F8FAFC]">
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden relative items-start">
+        
+        <aside class="w-full md:w-[240px] shrink-0 md:h-full overflow-y-auto hide-scrollbar pb-8">
+            <div class="pr-1 pt-1 flex flex-col gap-4">
+                <div id="consult-type-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <div class="side-menu-tab cursor-pointer" onclick="location.href='consulting-field.html'">
+                        <i class="fas fa-people-group"></i> <span>현장경험 공유하기</span>
+                    </div>
+                    <div class="side-menu-tab-active cursor-pointer" onclick="location.href='consulting-free.html'">
+                        <i class="fas fa-comment-dots"></i> <span>무보상 질문하기</span>
+                    </div>
+                    <div class="side-menu-tab cursor-pointer" onclick="location.href='consulting-paid.html'">
+                        <i class="fas fa-user-tie"></i> <span>내공걸고 질문하기</span>
+                    </div>
+                </div>
             </div>
         </aside>
 
-        <section class="flex-1 min-w-0 bg-white p-6 md:p-8 border border-gray-200 rounded shadow-sm">
-            <div id="loading-spinner" class="text-center py-20 text-gray-500 font-bold">
-                데이터를 불러오는 중입니다...
+        <section class="content-area flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
+            
+            <div class="border-b-2 border-[#12387a] pb-5 mb-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="qna-badge badge-free">무료</span>
+                    <span class="qna-badge badge-answered">답변완료</span>
+                    <span class="text-[13.5px] text-gray-500 font-bold ml-2">전기 실무 / 인천 연수구</span>
+                </div>
+                
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-snug">수배전반 정기점검 주기, 법정 기준이 어떻게 되나요</h2>
+                
+                <div class="flex flex-wrap justify-between items-center text-[13.5px] text-gray-500 bg-gray-50 px-4 py-3 rounded">
+                    <div class="flex items-center gap-5">
+                        <span class="font-bold text-gray-700"><i class="fas fa-user-circle text-gray-400 mr-1.5 text-lg align-middle"></i> 박*영 소장</span>
+                        <span><i class="far fa-clock mr-1.5"></i> 2026-08-28 09:00</span>
+                    </div>
+                    <div class="flex items-center gap-5 mt-2 sm:mt-0">
+                        <span><i class="far fa-eye mr-1.5"></i> 조회 211</span>
+                        <span><i class="far fa-heart mr-1.5"></i> 관심 18</span>
+                    </div>
+                </div>
             </div>
 
-            <div id="detail-container" style="display: none;">
-                <div class="detail-header">
-                    <span id="resume-status" class="status-badge open">구직중</span>
-                    <h1 class="detail-title">
-                        <span id="resume-title"></span>
-                    </h1>
-                    <div class="flex gap-3 text-sm text-gray-500 font-bold">
-                        <span id="resume-job-category" class="text-blue-700"></span>
-                        <span>|</span>
-                        <span id="resume-region"></span>
-                        <span>|</span>
-                        <span><i class="fas fa-eye mr-1"></i><span id="resume-views">0</span></span>
+            <!-- 본문 내용 -->
+            <div class="py-4 text-[15.5px] leading-loose text-gray-800 min-h-[250px] border-b border-gray-200 mb-8 whitespace-pre-line">
+                단지 내 수배전반 정기점검 주기를 매월 진행해야 하는지 분기별로 해도 무방한지 의견이 분분합니다.
+                전기안전관리법상 명확한 점검 주기와 필수 점검 항목 가이드라인을 아시는 분이 계시면 답변 부탁드립니다.
+            </div>
+
+            <div class="flex justify-between items-center mb-12">
+                <button onclick="location.href='consulting-free.html'" class="px-6 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-700 hover:bg-gray-50 transition-colors"><i class="fas fa-list mr-1"></i> 목록으로</button>
+                <div class="flex gap-2">
+                    <button class="px-5 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-600 hover:bg-gray-50">수정</button>
+                    <button class="px-5 py-2.5 border border-red-300 text-red-500 rounded text-[14px] font-bold hover:bg-red-50">삭제</button>
+                </div>
+            </div>
+
+            <!-- 답변 영역 -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
+                <h3 class="text-lg font-bold text-[#12387a] mb-6">등록된 답변 <span class="text-red-500 ml-1">1</span></h3>
+                
+                <div class="bg-white border border-gray-200 rounded p-6 mb-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-lg">최</div>
+                        <div>
+                            <div class="font-bold text-gray-800 text-[15px]">최*환 기사</div>
+                            <div class="text-[12.5px] text-gray-400 mt-0.5">2026-08-28 13:20</div>
+                        </div>
+                    </div>
+                    <div class="text-[14.5px] text-gray-700 leading-loose whitespace-pre-line">
+                        전기안전관리법 시행규칙 제30조 제2항에 따르면 수전설비 용량에 따라 점검 주기가 다릅니다.
+                        일반적으로 1000kW 이상 아파트의 경우 '월 1회 이상' 직무고시에 따른 점검을 실시해야 합니다. 
+                        
+                        열화상 카메라 측정 및 절연저항 측정은 반기 1회 실시 후 기록을 반드시 남겨두셔야 과태료 처분을 피할 수 있습니다.
                     </div>
                 </div>
 
-                <div class="contact-box">
-                    <p class="text-gray-500 text-sm font-bold mb-4">채용 관련 문의는 아래 연락처로 직접 연락해 주세요. (채용 목적 외 사용 시 법적 제재 대상)</p>
-                    <a id="btn-call" class="btn-call-large">
-                        <i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭
-                    </a>
+                <div class="bg-white border border-gray-300 rounded p-1 mb-2 focus-within:border-[#12387a]">
+                    <textarea class="w-full px-4 py-3 h-32 text-[14px] resize-none outline-none leading-relaxed" placeholder="답변을 입력해주세요. 따뜻한 지식 나눔에 감사드립니다."></textarea>
                 </div>
-
-                <table class="info-table">
-                    <tbody>
-                        <tr>
-                            <th>이름</th>
-                            <td id="info-name"></td>
-                            <th>이메일</th>
-                            <td id="info-email"></td>
-                        </tr>
-                        <tr>
-                            <th>현재 거주지</th>
-                            <td id="info-address"></td>
-                            <th>희망 근무 형태</th>
-                            <td id="info-employment-type"></td>
-                        </tr>
-                        <tr>
-                            <th>희망 급여</th>
-                            <td id="info-salary"></td>
-                            <th>총 경력</th>
-                            <td id="info-experience"></td>
-                        </tr>
-                        <tr>
-                            <th>최종 학력</th>
-                            <td id="info-education"></td>
-                            <th>출근 가능일</th>
-                            <td id="info-immediate-start"></td>
-                        </tr>
-                        <tr>
-                            <th>보유 자격증</th>
-                            <td colspan="3" id="info-certification"></td>
-                        </tr>
-                        <tr>
-                            <th>기타 우대사항</th>
-                            <td colspan="3" id="info-skills"></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3 class="text-[17px] font-bold text-gray-800 mb-3 ml-1">자기소개 및 상세 경력</h3>
-                <div id="resume-content" class="content-area"></div>
-
-                <div class="btn-wrap">
-                    <button class="btn-list" onclick="location.href='resume-list.html'">목록으로 돌아가기</button>
+                <div class="flex justify-end">
+                    <button class="px-8 py-3 bg-[#12387a] text-white font-bold rounded text-[14px] hover:bg-[#0a2046] transition-colors">답변 등록하기</button>
                 </div>
             </div>
-    <div id="footer-container"></div>
-    <script src="../../assets/js/footer.js?v=1.3"></script>
+            
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+            
         </section>
     </main>
+</div>
 
-    </div>
+<script src="../../assets/js/footer.js?v=1.3"></script>
+<script>
+    window.BASE_PATH = '/';
+</script>
 
-    <script>
-        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-        const DB_TABLE_NAME = 'master_board'; // ★ 테이블 이름을 'master_board'로 수정
-
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchResumeDetail();
-        });
-
-        async function fetchResumeDetail() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const resumeId = urlParams.get('id');
-
-            if (!resumeId || !supabaseClient) {
-                renderMockData();
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from(DB_TABLE_NAME)
-                    .select('*')
-                    .eq('id', resumeId)
-                    .eq('board_type', 'RESUME') // ★ board_type 조건 추가
-                    .single();
-
-                if (error) throw error;
-                if (!data) throw new Error('Data not found');
-
-                renderResumeDetail(data);
-
-                supabaseClient
-                    .from(DB_TABLE_NAME)
-                    .update({ views: (data.views || 0) + 1 })
-                    .eq('id', resumeId)
-                    .then(() => {})
-                    .catch(e => console.error('조회수 업데이트 실패:', e));
-
-            } catch (error) {
-                console.error(error);
-                renderMockData();
-            }
-        }
-
-        // ★ 조회수 안정적 생성을 위한 해시 함수 (목록 페이지와 동일 로직)
-        function getDisplayViews(resume) {
-            if (resume.views && resume.views > 0) return resume.views;
-            const idStr = String(resume.id || Math.random());
-            let hash = 0;
-            for (let i = 0; i < idStr.length; i++) {
-                hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            return (Math.abs(hash) % 95) + 5;
-        }
-
-        function renderResumeDetail(data) {
-            document.getElementById('loading-spinner').style.display = 'none';
-            document.getElementById('detail-container').style.display = 'block';
-
-            const cData = typeof data.custom_data === 'string' ? JSON.parse(data.custom_data) : (data.custom_data || {});
-            const isOpen = data.status === 'OPEN' || !data.status;
-
-            const statusEl = document.getElementById('resume-status');
-            statusEl.textContent = isOpen ? '구직중' : '취업완료';
-            statusEl.className = isOpen ? 'status-badge open' : 'status-badge closed';
-
-            document.getElementById('resume-title').innerText = data.title || '-';
-            document.getElementById('resume-job-category').innerText = cData.job_category || '-';
-            document.getElementById('resume-region').innerText = cData.address || cData.address_short || '-';
-            document.getElementById('resume-views').innerText = getDisplayViews(data);
-
-            const btnCall = document.getElementById('btn-call');
-            // ★ 연락처 노출 방식(phone_display)이 'exposed'일 경우 전화번호를 바로 보여줌
-            if (cData.phone) {
-                if (cData.phone_display === 'exposed') {
-                    btnCall.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${cData.phone}`;
-                } else {
-                    btnCall.innerHTML = '<i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭';
-                }
-                btnCall.href = `tel:${cData.phone}`;
-                btnCall.style.backgroundColor = '#12387a';
-                btnCall.style.cursor = 'pointer';
-            } else {
-                btnCall.innerHTML = '<i class="fas fa-phone-slash mr-2"></i> 연락처 없음';
-                btnCall.style.backgroundColor = '#9ca3af';
-                btnCall.style.cursor = 'not-allowed';
-                btnCall.removeAttribute('href');
-            }
-
-            document.getElementById('info-name').innerText = cData.name || '-';
-            document.getElementById('info-email').innerText = cData.email || '-';
-            document.getElementById('info-address').innerText = cData.address || '-';
-            document.getElementById('info-employment-type').innerText = cData.employment_type || '무관';
-            document.getElementById('info-salary').innerText = cData.desired_salary || '-';
-            document.getElementById('info-experience').innerText = cData.experience || '-';
-            document.getElementById('info-education').innerText = cData.education || '-';
-            document.getElementById('info-immediate-start').innerText = cData.immediate_start || '-'; // ★ 출근 가능일 추가
-            document.getElementById('info-certification').innerText = cData.certification || '-';
-            document.getElementById('info-skills').innerText = cData.skills || '-';
-
-            document.getElementById('resume-content').innerText = data.content || '작성된 내용이 없습니다.';
-        }
-
-        function renderMockData() {
-            const mockData = {
-                id: 9999,
-                title: '10년 경력의 성실한 시설기사 구직합니다',
-                status: 'OPEN',
-                views: 42,
-                content: '■ 주요 경력 사항\n- OO오피스텔 시설관리 (2018.03 ~ 2023.10)\n- XX아파트 전기기사 (2015.01 ~ 2018.02)\n\n■ 주요 업무 내용\n- 공용부 시설물 유지보수 및 영선 업무\n- 전기/소방 설비 안전 점검\n- 세대 민원 처리\n\n■ 자기소개\n책임감이 강하고 성실하게 근무하는 편입니다. 입사하게 된다면 내 집처럼 생각하고 꼼꼼히 관리하겠습니다.',
-                custom_data: {
-                    name: '홍길동',
-                    phone: '010-0000-0000',
-                    phone_display: 'hidden',
-                    email: 'abc@email.com',
-                    address: '경기 고양시 덕양구',
-                    job_category: '시설기사',
-                    desired_location: '고양, 파주, 김포 전지역',
-                    desired_salary: '월 300만원 (협의)',
-                    employment_type: '정규직',
-                    immediate_start: '즉시가능',
-                    experience: '10년 이상',
-                    education: '고등학교 졸업',
-                    certification: '전기기사, 소방안전관리자 1급',
-                    skills: '1종 보통 운전면허 소지, 엑셀 활용 능숙'
-                }
-            };
-            renderResumeDetail(mockData);
-        }
-    </script>
-    <script>
-      window.BASE_PATH = '/';
-    </script>
 </body>
 </html>

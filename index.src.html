@@ -1,4 +1,5 @@
 <!-- 파일명: index.src.html -->
+<!-- @var BASE:  -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
@@ -20,10 +21,14 @@
 
     <style>
         /* 이 페이지(홈) 전용 CSS */
-        html, body { height: 100%; margin: 0; }
+        /* ★ 수정사항: 미세한 흰색 테두리가 보이지 않게 html, body에도 배경색 추가 적용 */
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            background-color: #0f1c33; 
+        }
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #23344e;
             color: #333;
             overflow-y: hidden;
             overflow-x: hidden;
@@ -88,6 +93,16 @@
 <body class="flex flex-col h-screen page-home">
 
 <!-- @include header -->
+
+    <!-- ★ 2026-09: 이 페이지(홈)에서는 헤더 바로 아래 청색 바를 보이지 않게 함
+         (히어로 이미지가 헤더 바로 아래에서 시작하는 편이 자연스럽다는 요청).
+         다른 페이지들은 header-close 파샬을 그대로 쓰므로 영향 없음 —
+         이 wrapper 자체가 index.src.html 안에만 있는 코드라서 style="display:none"만
+         주면 이 페이지에서만 숨겨짐. -->
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative" style="display:none;">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+<!-- @include header-close -->
 
     <div id="page-content" class="w-full flex flex-col relative min-h-0 flex-1">
         <main class="hero-banner flex-1">

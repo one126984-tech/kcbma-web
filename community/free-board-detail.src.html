@@ -1,7 +1,4 @@
-<!-- 파일명: free-board-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는
-     free-board-detail.html)
-     ★ 원본은 사이트 헤더가 아예 없는 완전 별개 화면이었음. 표준 헤더/서브헤더/
-     좌측 사이드바를 붙여서 나머지 페이지들과 통일함. -->
+<!-- 파일명: free-board-detail.src.html -->
 <!-- @var PAGE_CLASS: page-community -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -43,17 +40,13 @@
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
-
-
     <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
 
         <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
             <div class="left-scroll-content">
                 <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab" onclick="location.href='field-experience.html'">현장경험 공유</div>
                     <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
                     <div class="side-menu-tab-active">자유게시판</div>
-                    <div class="side-menu-tab" onclick="location.href='work-qna.html'">업무 Q&A</div>
                     <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
                 </div>
             </div>
@@ -68,7 +61,6 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <!-- 글 헤더 -->
                     <div class="p-6 border-b border-gray-100">
                         <h3 id="post-title" class="text-xl font-bold text-gray-900 mb-4">데이터를 불러오는 중입니다...</h3>
 
@@ -90,10 +82,8 @@
                         </div>
                     </div>
 
-                    <!-- 글 본문 내용 -->
                     <div class="p-6 min-h-[250px] text-gray-800 leading-relaxed whitespace-pre-wrap" id="post-content"></div>
 
-                    <!-- 댓글 영역 -->
                     <div class="p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-lg">
                         <h4 class="font-bold text-gray-800 mb-4 text-sm">댓글 <span id="comment-count" class="text-[#12387a]">0</span></h4>
 
@@ -109,7 +99,6 @@
                     </div>
                 </div>
 
-                <!-- 하단 버튼 영역 (수정/삭제 버튼) -->
                 <div class="flex justify-between items-center mt-6">
                     <div class="flex gap-2">
                         <button id="edit-btn" class="hidden px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50 transition-colors">수정</button>
@@ -127,7 +116,6 @@
     </main>
 
     </div>
-    <!-- 핑크박스 끝 -->
 
     <!-- Supabase 연동 로직 -->
     <script>
@@ -152,8 +140,8 @@
 
                 postPassword = post.password || '';
 
-                const newViews = (post.views || 0) + 1;
-                await supabaseClient.from('free_board').update({ views: newViews }).eq('id', currentPostId);
+                const newViews = (post.view_count || 0) + 1; // ★ 수정됨
+                await supabaseClient.from('free_board').update({ view_count: newViews }).eq('id', currentPostId); // ★ 수정됨
 
                 document.getElementById('post-title').innerText = post.title;
                 document.getElementById('post-author').innerText = post.author || '회원';

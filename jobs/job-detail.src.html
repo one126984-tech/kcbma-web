@@ -76,8 +76,6 @@
 
 <div id="page-content" class="flex-1 flex flex-col">
 
-
-
     <main class="flex-1 w-full py-10 px-4">
     <div class="max-w-[1000px] mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200">
 
@@ -158,8 +156,9 @@
                         <span id="detail-employment-type" class="info-value">-</span>
                     </div>
                     <div class="info-list-row pl-1">
+                        <!-- ★ UI ID 변경 -->
                         <span class="info-label">근무형태</span>
-                        <span id="detail-work-schedule" class="info-value">-</span>
+                        <span id="detail-work-type" class="info-value">-</span>
                     </div>
                 </div>
             </div>
@@ -318,7 +317,10 @@
             document.getElementById('detail-career').innerText = data.career_level || '무관';
             document.getElementById('detail-education').innerText = data.education_level || '무관';
             document.getElementById('detail-employment-type').innerText = data.employment_type || '-';
-            document.getElementById('detail-work-schedule').innerText = data.work_schedule || '-';
+            
+            // ★ 이전 데이터(work_schedule)와 새 데이터(work_type)를 모두 지원하도록 수정
+            document.getElementById('detail-work-type').innerText = data.work_type || data.work_schedule || '-';
+            
             document.getElementById('detail-salary').innerText = data.salary || '-';
             document.getElementById('detail-region').innerText = data.region || data.location || '-';
             document.getElementById('detail-insurance').innerText = data.insurance_benefits || '-';

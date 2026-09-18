@@ -1,0 +1,148 @@
+<!-- 파일명: consulting-paid-detail.src.html -->
+<!-- @var PAGE_CLASS: page-consulting -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>지식컨설팅 상세 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+
+    <style>
+.qna-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; letter-spacing: -0.2px; margin-right: 5px; vertical-align: middle; }
+        .badge-paid { background: #fff5f5; color: #dc2626; border: 1px solid #feb2b2; }
+        .badge-waiting { background: #f1f5f9; color: #64748b; }
+        .badge-answered { background: #eef2ff; color: #4338ca; }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center h-[50px]"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F8FAFC]">
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden relative items-start">
+        
+        <aside class="w-full md:w-[240px] shrink-0 md:h-full overflow-y-auto hide-scrollbar pb-8">
+            <div class="pr-1 pt-1 flex flex-col gap-4">
+                <div id="consult-type-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <div class="side-menu-tab cursor-pointer" onclick="location.href='consulting-field.html'">
+                        <i class="fas fa-people-group"></i> <span>현장경험 공유하기</span>
+                    </div>
+                    <div class="side-menu-tab cursor-pointer" onclick="location.href='consulting-free.html'">
+                        <i class="fas fa-comment-dots"></i> <span>무보상 질문하기</span>
+                    </div>
+                    <div class="side-menu-tab-active cursor-pointer" onclick="location.href='consulting-paid.html'">
+                        <i class="fas fa-user-tie"></i> <span>내공걸고 질문하기</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="content-area flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
+            
+            <div class="border-b-2 border-[#12387a] pb-5 mb-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="qna-badge badge-paid">💰 유료 10,000P</span>
+                    <span class="qna-badge badge-waiting">답변대기</span>
+                    <span class="text-[13.5px] text-gray-500 font-bold ml-2">기전영선 실무 / 부산 동래구</span>
+                </div>
+                
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-snug">엘리베이터 교체 시 관리단 결의 요건 상세 문의</h2>
+                
+                <div class="flex flex-wrap justify-between items-center text-[13.5px] text-gray-500 bg-gray-50 px-4 py-3 rounded">
+                    <div class="flex items-center gap-5">
+                        <span class="font-bold text-gray-700"><i class="fas fa-user-circle text-gray-400 mr-1.5 text-lg align-middle"></i> 최*호 소장</span>
+                        <span><i class="far fa-clock mr-1.5"></i> 2026-08-20 10:30</span>
+                    </div>
+                    <div class="flex items-center gap-5 mt-2 sm:mt-0">
+                        <span><i class="far fa-eye mr-1.5"></i> 조회 340</span>
+                        <span><i class="far fa-heart mr-1.5"></i> 관심 12</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 본문 내용 -->
+            <div class="py-4 text-[15.5px] leading-loose text-gray-800 min-h-[250px] border-b border-gray-200 mb-8 whitespace-pre-line">
+                저희 단지는 준공 20년 차로 엘리베이터 노후화가 심각하여 전면 교체를 검토 중입니다.
+                현재 장기수선충당금은 어느 정도 확보되어 있으나, 집합건물법상 관리단 집회를 통해 결의를 받아야 하는 것으로 알고 있습니다.
+
+                1. 정확한 의결 정족수 (세대수 기준인지 면적 기준인지)
+                2. 서면 결의(동의서 징구)로 갈음할 때 주의해야 할 사항이나 필수 첨부 서류
+                3. 교체 공사 기간 중 입주민 민 최소화를 위한 안내문 양식이나 노하우
+
+                위 세 가지에 대해 경험 있으신 선배 소장님들의 조언 부탁드립니다.
+                확실한 도움을 주신 분께 내공 1만 포인트 채택하겠습니다!
+            </div>
+
+            <div class="flex justify-between items-center mb-12">
+                <button onclick="location.href='consulting-paid.html'" class="px-6 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-700 hover:bg-gray-50 transition-colors"><i class="fas fa-list mr-1"></i> 목록으로</button>
+                <div class="flex gap-2">
+                    <button class="px-5 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-600 hover:bg-gray-50">수정</button>
+                    <button class="px-5 py-2.5 border border-red-300 text-red-500 rounded text-[14px] font-bold hover:bg-red-50">삭제</button>
+                </div>
+            </div>
+
+            <!-- 답변 영역 -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
+                <h3 class="text-lg font-bold text-[#12387a] mb-6">등록된 답변 <span class="text-red-500 ml-1">1</span></h3>
+                
+                <!-- 개별 답변 아이템 -->
+                <div class="bg-white border border-gray-200 rounded p-6 mb-8 shadow-sm">
+                    <div class="flex flex-wrap justify-between items-start mb-4 border-b border-gray-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-lg">김</div>
+                            <div>
+                                <div class="font-bold text-gray-800 text-[15px]">김*성 소장</div>
+                                <div class="text-[12.5px] text-gray-400 mt-0.5">2026-08-20 11:15</div>
+                            </div>
+                        </div>
+                        <button class="text-[13px] font-bold border border-[#0B2A5B] text-[#0B2A5B] px-4 py-1.5 rounded hover:bg-blue-50 transition-colors">내공 채택하기</button>
+                    </div>
+                    <div class="text-[14.5px] text-gray-700 leading-loose whitespace-pre-line">
+                        소장님 고생이 많으십니다. 작년에 엘리베이터 전면 교체를 진행했던 경험을 바탕으로 답변드립니다.
+
+                        1. 엘리베이터 전면 교체는 공용부분의 중대한 변경에 해당하므로 집합건물법 제15조에 따라 관리단집회에서 **구분소유자의 3분의 2 이상 및 의결권(면적비율)의 3분의 2 이상의 결의**가 필요합니다. 둘 다 충족해야 합니다.
+                        2. 서면 결의 시에는 구분소유자의 신분증 사본이 원칙이나, 현실적으로 어려우므로 '서면결의서' 양식에 자필 서명과 연락처를 명확히 기재받고 동대표님들이 입회하여 확인하는 절차를 거치는 것이 안전합니다.
+                        3. 민원 최소화를 위해서는 최소 한 달 전부터 층별 게시판, 엘리베이터 내부, 안내방송을 통해 '공사 기간 중 계단 이용의 불가피함'을 지속적으로 홍보해야 합니다. 특히 고층 노약자 세대는 별도로 파악하여 사전 안내를 드리는 것이 좋습니다.
+                    </div>
+                </div>
+
+                <!-- 새 답변 등록 폼 -->
+                <div class="bg-white border border-gray-300 rounded p-1 mb-2 focus-within:border-[#12387a]">
+                    <textarea class="w-full px-4 py-3 h-32 text-[14px] resize-none outline-none leading-relaxed" placeholder="지식과 경험을 나누어 주세요. 채택 시 내공 포인트를 획득할 수 있습니다."></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button class="px-8 py-3 bg-[#12387a] text-white font-bold rounded text-[14px] hover:bg-[#0a2046] transition-colors">답변 등록하기</button>
+                </div>
+            </div>
+            
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+            
+        </section>
+    </main>
+</div>
+
+<script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+<script>
+    window.BASE_PATH = '/';
+</script>
+
+</body>
+</html>

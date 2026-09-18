@@ -6,19 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>구직(이력서) 등록 | 대한집합건물관리협회</title>
-
     <link rel="icon" href="data:,">
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link rel="stylesheet" href="../../assets/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -118,7 +114,6 @@
             font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
         }
     </style>
-
     <style>
         /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
            _partials/view-transition-css.html 파일만 고치고 build.js를 다시
@@ -197,176 +192,184 @@
         }
     </style>
 
+<style>
+    /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
+       _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
+       절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
+
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+    #main-header { background-color: #ffffff; }
+    #sub-header-bar { background-color: #12387a; height: 6px; }
+
+    /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
+    .side-menu-tab {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+        font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+    }
+    .side-menu-tab:hover { background-color: #f8fafc; }
+    .side-menu-tab-active {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+        font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    }
+
+    /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
+       패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
+       (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
+    .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+    .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+    .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+    .side-menu-active-wrapper { padding: 10px; }
+
+    /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
+    .left-scroll-area {
+        direction: rtl;
+        overflow-y: auto;
+        height: 100%;
+        padding-bottom: 2rem;
+    }
+    .left-scroll-area::-webkit-scrollbar { width: 6px; }
+    .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+    .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+    /* ★ 우측 본문 영역 독립 스크롤 */
+    .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+    .main-scroll-area::-webkit-scrollbar { width: 8px; }
+    .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+    .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+    /* 커스텀 스크롤바 */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+    /* 스크롤바 숨김 유틸리티 */
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* ★ 브라우저 기본 스크롤바 완전 숨김 처리 (모든 페이지 공통 적용)
+       (기능은 살려두고, 시각적인 기본 스크롤바 막대와 화살표만 제거하여
+       내부의 커스텀 얇은 스크롤바만 예쁘게 보이도록 함) */
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none !important;
+    }
+    ::-webkit-scrollbar-button { 
+        display: none !important; 
+    }
+
+    /* -------------------------------------
+       공통 헤더 관련 스타일
+       ------------------------------------- */
+    .sos-btn {
+        background-color: transparent;
+        color: #dc2626;
+        border: none;
+        cursor: pointer;
+        padding: 5px 8px;
+        margin-left: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s;
+    }
+    .sos-btn:hover { color: #991b1b; }
+    .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+    .login-btn {
+        background-color: #2c3e50;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        transition: background-color 0.15s;
+    }
+    .login-btn:hover { background-color: #1a252f; }
+
+    .mypage-btn-mobile {
+        background-color: #0088cc;
+        color: #ffffff;
+        transition: background-color 0.15s;
+    }
+    .mypage-btn-mobile:hover { background-color: #0077b3; }
+
+    /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
+       community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
+       개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
+       페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
+    .guide-notice-box {
+        display: flex;
+        background-color: #f8f9fb;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #143b86;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 30px;
+        font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    }
+    .guide-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        background-color: #e6edfa;
+        color: #143b86;
+        border-radius: 50%;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .guide-content {
+        flex-grow: 1;
+    }
+    .guide-content h4 {
+        color: #143b86;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 16px 0;
+    }
+    .guide-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .guide-content li {
+        position: relative;
+        padding-left: 12px;
+        margin-bottom: 10px;
+        font-size: 14.5px;
+        color: #555;
+        line-height: 1.6;
+    }
+    .guide-content li::before {
+        content: "-";
+        position: absolute;
+        left: 0;
+        color: #555;
+    }
+    .guide-content li strong {
+        color: #333;
+        font-weight: 600;
+    }
+    .text-red {
+        color: #d32f2f;
+        font-weight: bold;
+    }
+</style>
 
     <style>
-        /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
-           _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
-           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
-
-        html, body { overflow-x: hidden; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
-
-        #main-header { background-color: #ffffff; }
-        #sub-header-bar { background-color: #12387a; height: 6px; }
-
-        /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
-        .side-menu-tab {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
-            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
-        }
-        .side-menu-tab:hover { background-color: #f8fafc; }
-        .side-menu-tab-active {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
-            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
-        }
-
-        /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
-           패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
-           (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
-        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
-        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
-        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
-        .side-menu-active-wrapper { padding: 10px; }
-
-        /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
-        .left-scroll-area {
-            direction: rtl;
-            overflow-y: auto;
-            height: 100%;
-            padding-bottom: 2rem;
-        }
-        .left-scroll-area::-webkit-scrollbar { width: 6px; }
-        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
-        .left-scroll-content { direction: ltr; padding-left: 12px; }
-
-        /* ★ 우측 본문 영역 독립 스크롤 */
-        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
-        .main-scroll-area::-webkit-scrollbar { width: 8px; }
-        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
-        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
-
-        /* 커스텀 스크롤바 */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
-
-        /* 스크롤바 숨김 유틸리티 */
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* -------------------------------------
-           공통 헤더 관련 스타일
-           ------------------------------------- */
-        .sos-btn {
-            background-color: transparent;
-            color: #dc2626;
-            border: none;
-            cursor: pointer;
-            padding: 5px 8px;
-            margin-left: 8px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.15s;
-        }
-        .sos-btn:hover { color: #991b1b; }
-        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
-
-        .login-btn {
-            background-color: #2c3e50;
-            color: #ffffff;
-            font-weight: 700;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: background-color 0.15s;
-        }
-        .login-btn:hover { background-color: #1a252f; }
-
-        .mypage-btn-mobile {
-            background-color: #0088cc;
-            color: #ffffff;
-            transition: background-color 0.15s;
-        }
-        .mypage-btn-mobile:hover { background-color: #0077b3; }
-
-        /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
-           community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
-           개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
-           페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
-        .guide-notice-box {
-            display: flex;
-            background-color: #f8f9fb;
-            border: 1px solid #e2e8f0;
-            border-left: 4px solid #143b86;
-            border-radius: 4px;
-            padding: 24px;
-            margin-bottom: 30px;
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-        }
-        .guide-icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 40px;
-            height: 40px;
-            background-color: #e6edfa;
-            color: #143b86;
-            border-radius: 50%;
-            margin-right: 20px;
-            flex-shrink: 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .guide-content {
-            flex-grow: 1;
-        }
-        .guide-content h4 {
-            color: #143b86;
-            font-size: 18px;
-            font-weight: bold;
-            margin: 0 0 16px 0;
-        }
-        .guide-content ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .guide-content li {
-            position: relative;
-            padding-left: 12px;
-            margin-bottom: 10px;
-            font-size: 14.5px;
-            color: #555;
-            line-height: 1.6;
-        }
-        .guide-content li::before {
-            content: "-";
-            position: absolute;
-            left: 0;
-            color: #555;
-        }
-        .guide-content li strong {
-            color: #333;
-            font-weight: 600;
-        }
-        .text-red {
-            color: #d32f2f;
-            font-weight: bold;
-        }
-    </style>
-
-
-    <style>
-        /* 이 페이지(구직 이력서 등록) 전용 CSS — 이 페이지만의 고유한 폰트/색상 테마 */
         :root {
             --primary: #3730a3;
             --primary-focus: rgba(55, 48, 163, 0.15);
@@ -378,233 +381,158 @@
             --danger: #ef4444;
         }
 
-        body {
-            font-family: 'Pretendard', sans-serif;
-            color: var(--text-main);
-        }
-
-        .form-page-bg {
-            background: var(--bg-gradient);
-            min-height: 0;
-        }
-
-        .form-wrapper {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03);
-            overflow: hidden;
-            border-top: 6px solid var(--primary);
-        }
-
-        .form-header {
-            background: #ffffff;
-            padding: 30px 40px;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-header h2 {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
-            margin: 0;
-        }
-
+        body { font-family: 'Pretendard', sans-serif; color: var(--text-main); }
+        .form-page-bg { background: var(--bg-gradient); min-height: 0; }
+        .form-wrapper { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 6px solid var(--primary); }
+        .form-header { padding: 30px 40px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .form-header h2 { font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin: 0; }
         .form-body { padding: 40px; }
-
-        .section-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f1f5f9;
-            margin-top: 40px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .section-title { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #f1f5f9; margin-top: 40px; display: flex; align-items: center; gap: 8px; }
         .section-title:first-child { margin-top: 0; }
         .section-title.no-border { border-bottom: none; margin-bottom: 10px; padding-bottom: 0; color: #1e293b; font-size: 16px;}
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px 32px;
-        }
-
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 32px; }
         .form-group { display: flex; flex-direction: column; }
-
-        .form-group label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #334155;
-            font-size: 14px;
-        }
-
-        .form-group label i {
-            color: var(--primary);
-            font-size: 14px;
-        }
-
-        .required::after {
-            content: " *";
-            color: var(--danger);
-        }
-
-        .sub-label {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-top: -4px;
-            margin-bottom: 12px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 15px;
-            font-family: inherit;
-            background-color: var(--input-bg);
-            color: var(--text-main);
-            transition: all 0.2s ease;
-        }
-
-        .form-control::placeholder { color: #94a3b8; }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px var(--primary-focus);
-        }
-
-        select.form-control {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            background-size: 16px;
-        }
-
+        .form-group label { display: flex; align-items: center; gap: 6px; font-weight: 700; margin-bottom: 10px; color: #334155; font-size: 14px; }
+        .form-group label i { color: var(--primary); font-size: 14px; }
+        .required::after { content: " *"; color: var(--danger); }
+        .sub-label { font-size: 13px; color: var(--text-sub); margin-top: -4px; margin-bottom: 12px; }
+        .form-control { width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 15px; font-family: inherit; background-color: var(--input-bg); transition: all 0.2s ease; }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-focus); }
+        select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
         textarea.form-control { line-height: 1.6; resize: vertical; min-height: 220px; font-size: 14px; }
-
         .flex-row { display: flex; gap: 10px; width: 100%; }
         .flex-row input { flex: 2; }
         .flex-row select { flex: 1; }
-
-        .form-footer {
-            padding: 30px 40px 40px 40px;
-            background: #ffffff;
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            font-size: 15px;
-            font-weight: 700;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 120px;
-        }
-
+        .form-footer { padding: 30px 40px 40px 40px; display: flex; justify-content: center; gap: 16px; }
+        .btn { padding: 14px 32px; font-size: 15px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
         .btn-delete { border: 1px solid var(--danger); color: var(--danger); background: #ffffff; }
-        .btn-delete:hover { background: #fef2f2; }
-
         .btn-outline { border: 1px solid #cbd5e1; color: #475569; background: #ffffff; }
-        .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
-
         .btn-primary { border: 1px solid #0f172a; background: #0f172a; color: white; }
-        .btn-primary:hover { background: #1e293b; }
-
-        @media (max-width: 768px) {
-            .grid-2 { grid-template-columns: 1fr; gap: 24px; }
-            .form-header, .form-body, .form-footer { padding: 24px 20px; }
-            .flex-row { flex-direction: column; }
-            .form-footer { flex-direction: column; }
-            .btn { width: 100%; }
-        }
     </style>
 </head>
 
 <body class="flex flex-col min-h-screen page-jobs">
-
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
-         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). -->
+<style>
+  /* 1. 페이지 길이에 따른 좌우 흔들림(우측 스크롤바 생성/소멸) 원천 차단 */
+  html {
+    overflow-y: scroll !important;
+  }
 
-         이 버전은 여러 페이지에 흩어져 있던 기능을 하나로 합친 것:
-         - data-menu 속성 + 현재 페이지 메뉴 파란색 강조 (원래 bid-list.html에만 있던 기능)
-         - 같은 페이지 클릭 시 새로고침 방지 가드 (원래 job-list.html에만 있던 기능)
-         이제 모든 페이지에서 두 기능 다 적용됨. -->
-    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
-        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+  /* 2. 헤더 내비게이션(GNB) 간섭 방지 */
+  #main-header .gnb-item {
+    margin: 0 !important;
+    padding: 0 0 4px 0 !important;
+    line-height: 1.5 !important;
+    transform: none !important;
+    font-size: inherit !important;
+  }
 
-            <!-- 1) 좌측 로고 -->
-            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
-            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
-            </div>
+  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  #main-header .login-btn {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    padding: 7px 20px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    height: auto !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.15s;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 0 0 4px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+  #main-header .login-btn:hover {
+    background-color: #1e293b !important;
+  }
 
-            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
-            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
-            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
-            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
-            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
-            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
-            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+  /* 4. 긴급 SOS 호출 버튼 스타일 보호 (견적의뢰 페이지 등에서 위로 움직이는 현상 방지) */
+  #main-header .sos-btn {
+    color: #ef4444 !important;
+    font-weight: bold !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 0 0 8px !important;
+    padding: 0 0 4px 0 !important;
+    font-size: 15px !important; 
+    line-height: 1.5 !important;
+    transform: none !important; 
+  }
+  @media (min-width: 1280px) {
+    #main-header .sos-btn {
+      font-size: 16px !important;
+    }
+  }
+  #main-header .sos-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+  }
+</style>
+
+<div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header" style="box-sizing: border-box !important;">
+    <header class="flex justify-between items-center px-4 md:px-6 max-w-[1400px] mx-auto w-full h-[70px]" style="margin: 0 auto !important; padding-top: 0 !important; padding-bottom: 0 !important;">
+
+        <!-- 1) 좌측 로고 (흔들림 방지) -->
+        <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
+        </div>
+
+        <!-- 2) 중앙 메인 GNB (PC 메뉴 - 강제 중앙 정렬 및 정렬축 고정) -->
+        <nav class="hidden lg:flex flex-1 justify-center items-center gap-6 xl:gap-9 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="justify-content: center !important; align-items: center !important; padding: 0 !important; margin: 0 !important;">
+            <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
+            <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="board" onclick="location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
+            <div data-menu="consulting" onclick="location.href='../../consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
+            <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
 
             <!-- 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn nav-sos">
-                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+            <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-2">
+                <i class="fa-solid fa-phone-volume"></i>
                 <span>긴급 SOS 호출</span>
             </div>
-            </nav>
+        </nav>
 
-            <!-- 3) 우측 유틸리티 영역 -->
-            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
-                <!-- 알림 종소리 및 드롭다운 컨테이너 -->
-                <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
-                    <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
-                    <!-- 알림 개수 뱃지 (초기 숨김) -->
-                    <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
-                        0
-                    </span>
-
-                    <!-- 알림 목록 드롭다운 창 (초기 숨김) -->
-                    <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
-                        <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
-                        <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default">
-                            <!-- JS를 통해 여기에 알림 내역이 들어갑니다 -->
-                        </ul>
-                    </div>
+        <!-- 3) 우측 유틸리티 영역 (마이페이지/로그인 간격 및 크기 보호) -->
+        <div class="hidden lg:flex items-center gap-4 shrink-0 ml-6 whitespace-nowrap font-medium text-gray-700" style="align-items: center !important; margin-top: 0 !important; margin-bottom: 0 !important;">
+            <!-- 알림 종소리 및 드롭다운 컨테이너 -->
+            <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인" style="margin: 0 !important;">
+                <i class="fa-regular fa-bell text-gray-700 text-[20px]" style="margin: 0 !important;"></i>
+                <!-- 알림 개수 뱃지 -->
+                <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white" style="margin: 0 !important; padding: 0 !important;">
+                    0
+                </span>
+                <!-- 알림 목록 드롭다운 창 -->
+                <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
+                    <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
+                    <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default"></ul>
                 </div>
-
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
-            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[15px] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-login-btn" data-auth-btn="true" onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+        </div>
+
+        <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기" style="margin-right: 0 !important; padding: 8px !important;">
             <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
-            </button>
-        </header>
-
+        </button>
+    </header>
+</div>
     <div id="sticky-top-bar" class="sticky top-0 w-full flex flex-col bg-white shadow-md relative z-[900] shrink-0">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
@@ -623,10 +551,11 @@
             <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
             <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
             <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
             <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('consulting-list.html')) location.href='../../consulting/consulting-list.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
+            <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='../../community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
             <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
@@ -665,13 +594,6 @@
             }
         }
 
-        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
-        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
-        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
-        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
-        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
-        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
-        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
         async function ensureAuthClient() {
             if (window.sb) return window.sb;
             if (!window.supabase) {
@@ -718,7 +640,6 @@
 
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
             if (!window.sb) {
                 return;
             }
@@ -740,7 +661,6 @@
                 return;
             }
 
-            // ★ 원인 파악을 위한 디버깅 로그 추가 ★
             console.log("알림 개수:", count, "로그인 유저:", user.id);
 
             const pcBadge = document.getElementById('notification-badge');
@@ -803,7 +723,6 @@
             });
         }
 
-        // 현재 페이지에 해당하는 GNB 메뉴 파란색 강조 및 알림 이벤트 초기화
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname.toLowerCase();
             document.querySelectorAll('.gnb-item').forEach(item => {
@@ -824,16 +743,13 @@
                 ro.observe(headerEl);
             }
 
-            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
             initAuthUI().then(fetchUnreadCount).catch(console.error);
 
-            // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');
             const dropdown = document.getElementById('notification-dropdown');
             
             if (bellContainer && dropdown) {
                 bellContainer.addEventListener('click', (e) => {
-                    // 드롭다운 내부 클릭 시 닫히지 않도록 방지
                     if(e.target.closest('#notification-dropdown')) return;
                     
                     dropdown.classList.toggle('hidden');
@@ -842,7 +758,6 @@
                     }
                 });
 
-                // 빈 화면 클릭 시 드롭다운 닫기
                 document.addEventListener('click', (e) => {
                     if (!bellContainer.contains(e.target)) {
                         dropdown.classList.add('hidden');
@@ -853,11 +768,10 @@
     </script>
 
 <div id="page-content" class="flex-1 flex flex-col">
-
     <main class="w-full form-page-bg pt-8 pb-12 px-4 flex-1">
-        
         <div class="max-w-[1400px] mx-auto w-full flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
             
+            <!-- 왼쪽 사이드바 영역 -->
             <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
                 <div class="pr-1 pt-1">
                     <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-4 flex flex-col gap-2">
@@ -868,46 +782,16 @@
                             <i class="fas fa-edit text-lg"></i> 구직 (인재)
                         </button>
                     </div>
-
-                    <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
-                            <span class="text-gray-400 text-xs cursor-pointer">▼</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5 mb-4">
-                            <button class="border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 py-1.5 text-xs rounded font-bold col-span-2">기간 전체</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">1주</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">1달</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">2달</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">6개월</button>
-                        </div>
-                        <div class="flex items-stretch gap-2">
-                            <div class="flex flex-col gap-2 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <input type="text" placeholder="시작일자" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input type="text" placeholder="종료일자" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
-                                </div>
-                            </div>
-                            <button class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">검<br>색</button>
-                        </div>
-                    </div>
                 </div>
             </aside>
 
             <div class="flex-1 min-w-0">
                 <div class="form-wrapper" style="margin: 0;">
                     <form id="resumePostForm">
-
-                        <div class="form-header">
-                            <h2>구직(이력서) 등록</h2>
-                        </div>
-
+                        <div class="form-header"><h2>구직(이력서) 등록</h2></div>
                         <input type="hidden" id="board_type" value="RESUME">
 
                         <div class="form-body">
-
                             <div class="form-group" style="margin-bottom: 40px;">
                                 <label class="required"><i class="fas fa-heading"></i> 이력서 제목</label>
                                 <input type="text" id="title" class="form-control" style="font-size: 18px; font-weight: bold; padding: 18px 16px;" required placeholder="예 : 10년 경력의 성실한 시설기사 구직합니다">
@@ -922,22 +806,6 @@
                                 <div class="form-group">
                                     <label class="required"> 연락처</label>
                                     <input type="text" id="custom_phone" class="form-control" required placeholder="예: 010-0000-0000">
-                                    
-                                    <!-- 💡 추가된 부분: 연락처 노출 방식 선택 UI -->
-                                    <div class="mt-3 bg-gray-50 p-3 rounded border border-gray-200">
-                                        <p class="text-[13px] font-bold text-gray-700 mb-2">연락처 노출 방식 선택</p>
-                                        <div class="flex flex-col gap-2 sm:flex-row sm:gap-4">
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="radio" name="phone_display" value="hidden" class="mr-2" checked>
-                                                <span class="text-[13px] text-gray-700">버튼으로 가림 (클릭 시 연결)</span>
-                                            </label>
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="radio" name="phone_display" value="exposed" class="mr-2">
-                                                <span class="text-[13px] text-gray-700">정확한 번호 노출</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- 추가 끝 -->
                                 </div>
                                 <div class="form-group">
                                     <label> 이메일</label>
@@ -972,9 +840,11 @@
                                     <div class="flex-row">
                                         <input type="text" id="custom_desired_salary" class="form-control" placeholder="예: 월 300만원">
                                         <select id="custom_salary_condition" class="form-control">
-                                            <option value="협의">회사내규에 따름</option>
+                                            <option value="정도">정도</option>
                                             <option value="이상">이상</option>
-                                            <option value="고정">고정</option>
+                                            <option value="협의">협의</option>
+                                            <option value="내규">내규</option>
+                                            <option value="미정">미정</option>
                                         </select>
                                     </div>
                                 </div>
@@ -986,6 +856,14 @@
                                         <option value="계약직">계약직</option>
                                         <option value="일근직">일근직</option>
                                         <option value="교대직">교대직(격일제 등)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label> 즉시 출근 여부</label>
+                                    <select id="custom_immediate_start" class="form-control">
+                                        <option value="가능함">가능함</option>
+                                        <option value="협의">협의</option>
+                                        <option value="기타">기타</option>
                                     </select>
                                 </div>
                             </div>
@@ -1020,14 +898,11 @@
                                 <i class="fas fa-file-alt" style="color:var(--primary)"></i> 자기소개 및 상세 경력
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <div class="sub-label">주요 업무 경험, 본인의 장점 등 자신을 어필할 수 있는 내용을 자유롭게 적어주세요.</div>
                                 <textarea id="content" class="form-control" required></textarea>
                             </div>
-
                         </div>
 
                         <div class="form-footer">
-                            <button type="button" class="btn btn-delete" onclick="alert('삭제 기능은 준비중입니다.')">삭제하기</button>
                             <button type="button" class="btn btn-outline" onclick="window.location.href='resume-list.html'">목록으로</button>
                             <button type="submit" class="btn btn-primary">이력서 등록하기</button>
                         </div>
@@ -1035,12 +910,7 @@
                 </div>
             </div>
         </div>
-
     </main>
-
-    <div class="w-full bg-white shrink-0 mt-auto border-t border-gray-200">
-        <div id="footer-container" class="pt-6"></div>
-    </div>
 </div>
 
 <script src="../../assets/js/footer.js"></script>
@@ -1052,55 +922,25 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
 const DB_TABLE_NAME = 'master_board';
 
-const contentArea = document.getElementById('content');
-const exampleText = "[작성 예시]\n■ 주요 경력 사항\n- OO오피스텔 시설관리 (2018.03 ~ 2023.10)\n- XX아파트 전기기사 (2015.01 ~ 2018.02)\n\n■ 주요 업무 내용\n- 공용부 시설물 유지보수 및 영선 업무\n- 전기/소방 설비 안전 점검\n- 세대 민원 처리\n\n■ 자기소개\n책임감이 강하고 성실하게 근무하는 편입니다. 입사하게 된다면 내 집처럼 생각하고 꼼꼼히 관리하겠습니다.";
-const templateText = "■ 주요 경력 사항\n- \n\n■ 주요 업무 내용\n- \n\n■ 자기소개\n";
-
-contentArea.value = exampleText;
-
-contentArea.addEventListener('focus', function() {
-    if (this.value === exampleText) {
-        this.value = templateText;
-    }
-});
-
-contentArea.addEventListener('blur', function() {
-    if (this.value === templateText || this.value.trim() === '') {
-        this.value = exampleText;
-    }
-});
-
 document.getElementById('resumePostForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-
-    if (contentArea.value === exampleText || contentArea.value === templateText) {
-        alert("자기소개 및 경력 내용을 직접 작성해 주세요.");
-        contentArea.focus();
-        return;
-    }
 
     const salaryAmount = document.getElementById('custom_desired_salary').value.trim();
     const salaryCondition = document.getElementById('custom_salary_condition').value;
     const finalSalary = salaryAmount ? `${salaryAmount} (${salaryCondition})` : salaryCondition;
 
-    // 💡 추가된 부분: 라디오 버튼에서 선택된 값을 가져옴
-    const phoneDisplayValue = document.querySelector('input[name="phone_display"]:checked').value;
-
+    // 즉시 출근 여부 데이터 추가 수집
     const customDataObj = {
         name: document.getElementById('custom_name').value,
         phone: document.getElementById('custom_phone').value,
-        
-        // 💡 추가된 부분: custom_data에 노출 방식 값 추가
-        phone_display: phoneDisplayValue,
-        
+        phone_display: 'hidden',
         email: document.getElementById('custom_email').value,
         address: document.getElementById('custom_address').value,
-
         job_category: document.getElementById('custom_job_category').value,
         desired_location: document.getElementById('custom_desired_location').value,
         desired_salary: finalSalary,
         employment_type: document.getElementById('custom_employment_type').value,
-
+        immediate_start: document.getElementById('custom_immediate_start').value,
         experience: document.getElementById('custom_experience').value,
         education: document.getElementById('custom_education').value,
         certification: document.getElementById('custom_certification').value,
@@ -1123,30 +963,19 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
     }
 
     const submitBtn = document.querySelector('#resumePostForm button[type="submit"]');
-    const originalBtnText = submitBtn.innerText;
-    submitBtn.disabled = true;
     submitBtn.innerText = '등록 중...';
 
     try {
-        const { data, error } = await supabaseClient
-            .from(DB_TABLE_NAME)
-            .insert([postData])
-            .select();
-
+        const { data, error } = await supabaseClient.from(DB_TABLE_NAME).insert([postData]).select();
         if (error) throw error;
-
-        alert('🎉 이력서가 성공적으로 등록되었습니다!');
-        const newId = data && data[0] && data[0].id;
-        window.location.href = newId ? `resume-detail.html?id=${newId}` : 'resume-list.html';
+        alert('이력서가 성공적으로 등록되었습니다!');
+        window.location.href = data[0] && data[0].id ? `resume-detail.html?id=${data[0].id}` : 'resume-list.html';
     } catch (err) {
-        console.error('이력서 등록 오류:', err);
         alert('이력서 등록 중 문제가 발생했습니다: ' + (err.message || '잠시 후 다시 시도해주세요.'));
-        submitBtn.disabled = false;
-        submitBtn.innerText = originalBtnText;
+        submitBtn.innerText = '이력서 등록하기';
     }
 });
 </script>
-
 <script>
     window.BASE_PATH = '../../';
 </script>

@@ -23,6 +23,11 @@
 <!-- @include common-css -->
 
     <style>
+        /* 좌측 메뉴: 아이콘을 뺀 상태로 폰트 크기(15px) 및 굵기(700) 통일 (job-list 2단 표준) */
+        .side-menu-tab { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: 700; font-size: 15px; cursor: pointer; transition: background-color .2s, color .2s; }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
         /* 이 페이지(구직자 상세) 전용 CSS */
         html, body { overflow-y: scroll; }
 
@@ -60,7 +65,7 @@
 
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
-            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab" onclick="location.href='job-list.html'"><span>구인 (채용)</span></div>
                 <div class="h-px bg-gray-100 mx-2 my-1"></div>
                 <div class="side-menu-tab-active" onclick="location.href='resume-list.html'"><span>구직 (인재)</span></div>
@@ -89,8 +94,6 @@
 
                 <div class="contact-box">
                     <p class="text-gray-500 text-sm font-bold mb-4">채용 관련 문의는 아래 연락처로 직접 연락해 주세요. (채용 목적 외 사용 시 법적 제재 대상)</p>
-                    
-                    <!-- 💡 수정된 부분: button을 a 태그로 변경하고 텍스트를 고정 -->
                     <a id="btn-call" class="btn-call-large">
                         <i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭
                     </a>
@@ -119,11 +122,15 @@
                         <tr>
                             <th>최종 학력</th>
                             <td id="info-education"></td>
-                            <th>보유 자격증</th>
-                            <td id="info-certification"></td>
+                            <th>출근 가능일</th>
+                            <td id="info-immediate-start"></td>
                         </tr>
                         <tr>
-                            <th>기타 특기/우대사항</th>
+                            <th>보유 자격증</th>
+                            <td colspan="3" id="info-certification"></td>
+                        </tr>
+                        <tr>
+                            <th>기타 우대사항</th>
                             <td colspan="3" id="info-skills"></td>
                         </tr>
                     </tbody>
@@ -148,7 +155,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
         const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-        const DB_TABLE_NAME = 'master_board';
+        const DB_TABLE_NAME = 'master_board'; // ★ 테이블 이름을 'master_board'로 수정
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchResumeDetail();
@@ -168,7 +175,7 @@
                     .from(DB_TABLE_NAME)
                     .select('*')
                     .eq('id', resumeId)
-                    .eq('board_type', 'RESUME')
+                    .eq('board_type', 'RESUME') // ★ board_type 조건 추가
                     .single();
 
                 if (error) throw error;
@@ -189,6 +196,17 @@
             }
         }
 
+        // ★ 조회수 안정적 생성을 위한 해시 함수 (목록 페이지와 동일 로직)
+        function getDisplayViews(resume) {
+            if (resume.views && resume.views > 0) return resume.views;
+            const idStr = String(resume.id || Math.random());
+            let hash = 0;
+            for (let i = 0; i < idStr.length; i++) {
+                hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return (Math.abs(hash) % 95) + 5;
+        }
+
         function renderResumeDetail(data) {
             document.getElementById('loading-spinner').style.display = 'none';
             document.getElementById('detail-container').style.display = 'block';
@@ -203,14 +221,20 @@
             document.getElementById('resume-title').innerText = data.title || '-';
             document.getElementById('resume-job-category').innerText = cData.job_category || '-';
             document.getElementById('resume-region').innerText = cData.address || cData.address_short || '-';
-            document.getElementById('resume-views').innerText = data.views || 0;
+            document.getElementById('resume-views').innerText = getDisplayViews(data);
 
-            // 💡 수정된 부분: 전화번호 텍스트 노출을 없애고 a 태그의 href에만 전화번호 설정
             const btnCall = document.getElementById('btn-call');
+            // ★ 연락처 노출 방식(phone_display)이 'exposed'일 경우 전화번호를 바로 보여줌
             if (cData.phone) {
+                if (cData.phone_display === 'exposed') {
+                    btnCall.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${cData.phone}`;
+                } else {
+                    btnCall.innerHTML = '<i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭';
+                }
                 btnCall.href = `tel:${cData.phone}`;
+                btnCall.style.backgroundColor = '#12387a';
+                btnCall.style.cursor = 'pointer';
             } else {
-                // 연락처가 없는 경우 버튼 비활성화 처리
                 btnCall.innerHTML = '<i class="fas fa-phone-slash mr-2"></i> 연락처 없음';
                 btnCall.style.backgroundColor = '#9ca3af';
                 btnCall.style.cursor = 'not-allowed';
@@ -224,6 +248,7 @@
             document.getElementById('info-salary').innerText = cData.desired_salary || '-';
             document.getElementById('info-experience').innerText = cData.experience || '-';
             document.getElementById('info-education').innerText = cData.education || '-';
+            document.getElementById('info-immediate-start').innerText = cData.immediate_start || '-'; // ★ 출근 가능일 추가
             document.getElementById('info-certification').innerText = cData.certification || '-';
             document.getElementById('info-skills').innerText = cData.skills || '-';
 
@@ -232,6 +257,7 @@
 
         function renderMockData() {
             const mockData = {
+                id: 9999,
                 title: '10년 경력의 성실한 시설기사 구직합니다',
                 status: 'OPEN',
                 views: 42,
@@ -239,12 +265,14 @@
                 custom_data: {
                     name: '홍길동',
                     phone: '010-0000-0000',
+                    phone_display: 'hidden',
                     email: 'abc@email.com',
                     address: '경기 고양시 덕양구',
                     job_category: '시설기사',
                     desired_location: '고양, 파주, 김포 전지역',
                     desired_salary: '월 300만원 (협의)',
                     employment_type: '정규직',
+                    immediate_start: '즉시가능',
                     experience: '10년 이상',
                     education: '고등학교 졸업',
                     certification: '전기기사, 소방안전관리자 1급',

@@ -8,27 +8,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>구직(이력서) 등록 | 대한집합건물관리협회</title>
-
     <link rel="icon" href="data:,">
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <!-- @include critical-css -->
-
 <!-- @include view-transition-css -->
-
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(구직 이력서 등록) 전용 CSS — 이 페이지만의 고유한 폰트/색상 테마 */
         :root {
             --primary: #3730a3;
             --primary-focus: rgba(55, 48, 163, 0.15);
@@ -40,182 +33,48 @@
             --danger: #ef4444;
         }
 
-        body {
-            font-family: 'Pretendard', sans-serif;
-            color: var(--text-main);
-        }
-
-        .form-page-bg {
-            background: var(--bg-gradient);
-            min-height: 0;
-        }
-
-        .form-wrapper {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03);
-            overflow: hidden;
-            border-top: 6px solid var(--primary);
-        }
-
-        .form-header {
-            background: #ffffff;
-            padding: 30px 40px;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-header h2 {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
-            margin: 0;
-        }
-
+        body { font-family: 'Pretendard', sans-serif; color: var(--text-main); }
+        .form-page-bg { background: var(--bg-gradient); min-height: 0; }
+        .form-wrapper { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 6px solid var(--primary); }
+        .form-header { padding: 30px 40px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+        .form-header h2 { font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin: 0; }
         .form-body { padding: 40px; }
-
-        .section-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f1f5f9;
-            margin-top: 40px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .section-title { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #f1f5f9; margin-top: 40px; display: flex; align-items: center; gap: 8px; }
         .section-title:first-child { margin-top: 0; }
         .section-title.no-border { border-bottom: none; margin-bottom: 10px; padding-bottom: 0; color: #1e293b; font-size: 16px;}
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px 32px;
-        }
-
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 32px; }
         .form-group { display: flex; flex-direction: column; }
-
-        .form-group label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #334155;
-            font-size: 14px;
-        }
-
-        .form-group label i {
-            color: var(--primary);
-            font-size: 14px;
-        }
-
-        .required::after {
-            content: " *";
-            color: var(--danger);
-        }
-
-        .sub-label {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-top: -4px;
-            margin-bottom: 12px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 15px;
-            font-family: inherit;
-            background-color: var(--input-bg);
-            color: var(--text-main);
-            transition: all 0.2s ease;
-        }
-
-        .form-control::placeholder { color: #94a3b8; }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px var(--primary-focus);
-        }
-
-        select.form-control {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            background-size: 16px;
-        }
-
+        .form-group label { display: flex; align-items: center; gap: 6px; font-weight: 700; margin-bottom: 10px; color: #334155; font-size: 14px; }
+        .form-group label i { color: var(--primary); font-size: 14px; }
+        .required::after { content: " *"; color: var(--danger); }
+        .sub-label { font-size: 13px; color: var(--text-sub); margin-top: -4px; margin-bottom: 12px; }
+        .form-control { width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 15px; font-family: inherit; background-color: var(--input-bg); transition: all 0.2s ease; }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px var(--primary-focus); }
+        select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
         textarea.form-control { line-height: 1.6; resize: vertical; min-height: 220px; font-size: 14px; }
-
         .flex-row { display: flex; gap: 10px; width: 100%; }
         .flex-row input { flex: 2; }
         .flex-row select { flex: 1; }
-
-        .form-footer {
-            padding: 30px 40px 40px 40px;
-            background: #ffffff;
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            font-size: 15px;
-            font-weight: 700;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 120px;
-        }
-
+        .form-footer { padding: 30px 40px 40px 40px; display: flex; justify-content: center; gap: 16px; }
+        .btn { padding: 14px 32px; font-size: 15px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
         .btn-delete { border: 1px solid var(--danger); color: var(--danger); background: #ffffff; }
-        .btn-delete:hover { background: #fef2f2; }
-
         .btn-outline { border: 1px solid #cbd5e1; color: #475569; background: #ffffff; }
-        .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
-
         .btn-primary { border: 1px solid #0f172a; background: #0f172a; color: white; }
-        .btn-primary:hover { background: #1e293b; }
-
-        @media (max-width: 768px) {
-            .grid-2 { grid-template-columns: 1fr; gap: 24px; }
-            .form-header, .form-body, .form-footer { padding: 24px 20px; }
-            .flex-row { flex-direction: column; }
-            .form-footer { flex-direction: column; }
-            .btn { width: 100%; }
-        }
     </style>
 </head>
 
 <body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
-
 <!-- @include header -->
-
     <div id="sticky-top-bar" class="sticky top-0 w-full flex flex-col bg-white shadow-md relative z-[900] shrink-0">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
-
     <main class="w-full form-page-bg pt-8 pb-12 px-4 flex-1">
-        
         <div class="max-w-[1400px] mx-auto w-full flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
             
+            <!-- 왼쪽 사이드바 영역 -->
             <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
                 <div class="pr-1 pt-1">
                     <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-4 flex flex-col gap-2">
@@ -226,46 +85,16 @@
                             <i class="fas fa-edit text-lg"></i> 구직 (인재)
                         </button>
                     </div>
-
-                    <div class="bg-white border border-gray-200 rounded shadow-sm p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="font-bold text-gray-800 text-[15px]">조회기간</span>
-                            <span class="text-gray-400 text-xs cursor-pointer">▼</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-1.5 mb-4">
-                            <button class="border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 py-1.5 text-xs rounded font-bold col-span-2">기간 전체</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">1주</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">1달</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">2달</button>
-                            <button class="border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded">6개월</button>
-                        </div>
-                        <div class="flex items-stretch gap-2">
-                            <div class="flex flex-col gap-2 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <input type="text" placeholder="시작일자" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input type="text" placeholder="종료일자" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
-                                </div>
-                            </div>
-                            <button class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">검<br>색</button>
-                        </div>
-                    </div>
                 </div>
             </aside>
 
             <div class="flex-1 min-w-0">
                 <div class="form-wrapper" style="margin: 0;">
                     <form id="resumePostForm">
-
-                        <div class="form-header">
-                            <h2>구직(이력서) 등록</h2>
-                        </div>
-
+                        <div class="form-header"><h2>구직(이력서) 등록</h2></div>
                         <input type="hidden" id="board_type" value="RESUME">
 
                         <div class="form-body">
-
                             <div class="form-group" style="margin-bottom: 40px;">
                                 <label class="required"><i class="fas fa-heading"></i> 이력서 제목</label>
                                 <input type="text" id="title" class="form-control" style="font-size: 18px; font-weight: bold; padding: 18px 16px;" required placeholder="예 : 10년 경력의 성실한 시설기사 구직합니다">
@@ -280,22 +109,6 @@
                                 <div class="form-group">
                                     <label class="required"> 연락처</label>
                                     <input type="text" id="custom_phone" class="form-control" required placeholder="예: 010-0000-0000">
-                                    
-                                    <!-- 💡 추가된 부분: 연락처 노출 방식 선택 UI -->
-                                    <div class="mt-3 bg-gray-50 p-3 rounded border border-gray-200">
-                                        <p class="text-[13px] font-bold text-gray-700 mb-2">연락처 노출 방식 선택</p>
-                                        <div class="flex flex-col gap-2 sm:flex-row sm:gap-4">
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="radio" name="phone_display" value="hidden" class="mr-2" checked>
-                                                <span class="text-[13px] text-gray-700">버튼으로 가림 (클릭 시 연결)</span>
-                                            </label>
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="radio" name="phone_display" value="exposed" class="mr-2">
-                                                <span class="text-[13px] text-gray-700">정확한 번호 노출</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <!-- 추가 끝 -->
                                 </div>
                                 <div class="form-group">
                                     <label> 이메일</label>
@@ -330,9 +143,11 @@
                                     <div class="flex-row">
                                         <input type="text" id="custom_desired_salary" class="form-control" placeholder="예: 월 300만원">
                                         <select id="custom_salary_condition" class="form-control">
-                                            <option value="협의">회사내규에 따름</option>
+                                            <option value="정도">정도</option>
                                             <option value="이상">이상</option>
-                                            <option value="고정">고정</option>
+                                            <option value="협의">협의</option>
+                                            <option value="내규">내규</option>
+                                            <option value="미정">미정</option>
                                         </select>
                                     </div>
                                 </div>
@@ -344,6 +159,14 @@
                                         <option value="계약직">계약직</option>
                                         <option value="일근직">일근직</option>
                                         <option value="교대직">교대직(격일제 등)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label> 즉시 출근 여부</label>
+                                    <select id="custom_immediate_start" class="form-control">
+                                        <option value="가능함">가능함</option>
+                                        <option value="협의">협의</option>
+                                        <option value="기타">기타</option>
                                     </select>
                                 </div>
                             </div>
@@ -378,14 +201,11 @@
                                 <i class="fas fa-file-alt" style="color:var(--primary)"></i> 자기소개 및 상세 경력
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <div class="sub-label">주요 업무 경험, 본인의 장점 등 자신을 어필할 수 있는 내용을 자유롭게 적어주세요.</div>
                                 <textarea id="content" class="form-control" required></textarea>
                             </div>
-
                         </div>
 
                         <div class="form-footer">
-                            <button type="button" class="btn btn-delete" onclick="alert('삭제 기능은 준비중입니다.')">삭제하기</button>
                             <button type="button" class="btn btn-outline" onclick="window.location.href='resume-list.html'">목록으로</button>
                             <button type="submit" class="btn btn-primary">이력서 등록하기</button>
                         </div>
@@ -393,12 +213,7 @@
                 </div>
             </div>
         </div>
-
     </main>
-
-    <div class="w-full bg-white shrink-0 mt-auto border-t border-gray-200">
-        <div id="footer-container" class="pt-6"></div>
-    </div>
 </div>
 
 <script src="{{BASE}}assets/js/footer.js"></script>
@@ -410,55 +225,25 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storage: dummyStorage } }) : null;
 const DB_TABLE_NAME = 'master_board';
 
-const contentArea = document.getElementById('content');
-const exampleText = "[작성 예시]\n■ 주요 경력 사항\n- OO오피스텔 시설관리 (2018.03 ~ 2023.10)\n- XX아파트 전기기사 (2015.01 ~ 2018.02)\n\n■ 주요 업무 내용\n- 공용부 시설물 유지보수 및 영선 업무\n- 전기/소방 설비 안전 점검\n- 세대 민원 처리\n\n■ 자기소개\n책임감이 강하고 성실하게 근무하는 편입니다. 입사하게 된다면 내 집처럼 생각하고 꼼꼼히 관리하겠습니다.";
-const templateText = "■ 주요 경력 사항\n- \n\n■ 주요 업무 내용\n- \n\n■ 자기소개\n";
-
-contentArea.value = exampleText;
-
-contentArea.addEventListener('focus', function() {
-    if (this.value === exampleText) {
-        this.value = templateText;
-    }
-});
-
-contentArea.addEventListener('blur', function() {
-    if (this.value === templateText || this.value.trim() === '') {
-        this.value = exampleText;
-    }
-});
-
 document.getElementById('resumePostForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-
-    if (contentArea.value === exampleText || contentArea.value === templateText) {
-        alert("자기소개 및 경력 내용을 직접 작성해 주세요.");
-        contentArea.focus();
-        return;
-    }
 
     const salaryAmount = document.getElementById('custom_desired_salary').value.trim();
     const salaryCondition = document.getElementById('custom_salary_condition').value;
     const finalSalary = salaryAmount ? `${salaryAmount} (${salaryCondition})` : salaryCondition;
 
-    // 💡 추가된 부분: 라디오 버튼에서 선택된 값을 가져옴
-    const phoneDisplayValue = document.querySelector('input[name="phone_display"]:checked').value;
-
+    // 즉시 출근 여부 데이터 추가 수집
     const customDataObj = {
         name: document.getElementById('custom_name').value,
         phone: document.getElementById('custom_phone').value,
-        
-        // 💡 추가된 부분: custom_data에 노출 방식 값 추가
-        phone_display: phoneDisplayValue,
-        
+        phone_display: 'hidden',
         email: document.getElementById('custom_email').value,
         address: document.getElementById('custom_address').value,
-
         job_category: document.getElementById('custom_job_category').value,
         desired_location: document.getElementById('custom_desired_location').value,
         desired_salary: finalSalary,
         employment_type: document.getElementById('custom_employment_type').value,
-
+        immediate_start: document.getElementById('custom_immediate_start').value,
         experience: document.getElementById('custom_experience').value,
         education: document.getElementById('custom_education').value,
         certification: document.getElementById('custom_certification').value,
@@ -481,30 +266,19 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
     }
 
     const submitBtn = document.querySelector('#resumePostForm button[type="submit"]');
-    const originalBtnText = submitBtn.innerText;
-    submitBtn.disabled = true;
     submitBtn.innerText = '등록 중...';
 
     try {
-        const { data, error } = await supabaseClient
-            .from(DB_TABLE_NAME)
-            .insert([postData])
-            .select();
-
+        const { data, error } = await supabaseClient.from(DB_TABLE_NAME).insert([postData]).select();
         if (error) throw error;
-
-        alert('🎉 이력서가 성공적으로 등록되었습니다!');
-        const newId = data && data[0] && data[0].id;
-        window.location.href = newId ? `resume-detail.html?id=${newId}` : 'resume-list.html';
+        alert('이력서가 성공적으로 등록되었습니다!');
+        window.location.href = data[0] && data[0].id ? `resume-detail.html?id=${data[0].id}` : 'resume-list.html';
     } catch (err) {
-        console.error('이력서 등록 오류:', err);
         alert('이력서 등록 중 문제가 발생했습니다: ' + (err.message || '잠시 후 다시 시도해주세요.'));
-        submitBtn.disabled = false;
-        submitBtn.innerText = originalBtnText;
+        submitBtn.innerText = '이력서 등록하기';
     }
 });
 </script>
-
 <script>
     window.BASE_PATH = '{{BASE}}';
 </script>

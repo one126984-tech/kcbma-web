@@ -1,15 +1,11 @@
-<!-- 파일명: data-room.src.html
-     ★ "페이지 준비 중" 플레이스홀더를 실제 서식/자료실 콘텐츠로 교체.
-     원본은 완전히 독립된 HTML(자체 body 배경/폰트/컨테이너)이었음 —
-     표준 헤더/서브헤더/사이드바 셸에 통합하고, 아코디언(details/summary)
-     UI와 Malgun Gothic 서식 스타일은 이 페이지만의 개성으로 유지. -->
+<!-- 파일명: data-room.src.html -->
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
-<meta name="google" content="notranslate" />
+    <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>서식/자료실 | 대한집합건물관리협회 커뮤니티</title>
+    <title>서식/자료실 | 대한집합건물관리협회</title>
 
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -199,262 +195,337 @@
     </style>
 
 
+<style>
+    /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
+       _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
+       절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
+
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+    #main-header { background-color: #ffffff; }
+    #sub-header-bar { background-color: #12387a; height: 6px; }
+
+    /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
+    .side-menu-tab {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+        font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+    }
+    .side-menu-tab:hover { background-color: #f8fafc; }
+    .side-menu-tab-active {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+        font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    }
+
+    /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
+       패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
+       (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
+    .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+    .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+    .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+    .side-menu-active-wrapper { padding: 10px; }
+
+    /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
+    .left-scroll-area {
+        direction: rtl;
+        overflow-y: auto;
+        height: 100%;
+        padding-bottom: 2rem;
+    }
+    .left-scroll-area::-webkit-scrollbar { width: 6px; }
+    .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+    .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+    /* ★ 우측 본문 영역 독립 스크롤 */
+    .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+    .main-scroll-area::-webkit-scrollbar { width: 8px; }
+    .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+    .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+    /* 커스텀 스크롤바 */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+    /* 스크롤바 숨김 유틸리티 */
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* ★ 브라우저 기본 스크롤바 완전 숨김 처리 (모든 페이지 공통 적용)
+       (기능은 살려두고, 시각적인 기본 스크롤바 막대와 화살표만 제거하여
+       내부의 커스텀 얇은 스크롤바만 예쁘게 보이도록 함) */
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none !important;
+    }
+    ::-webkit-scrollbar-button { 
+        display: none !important; 
+    }
+
+    /* -------------------------------------
+       공통 헤더 관련 스타일
+       ------------------------------------- */
+    .sos-btn {
+        background-color: transparent;
+        color: #dc2626;
+        border: none;
+        cursor: pointer;
+        padding: 5px 8px;
+        margin-left: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s;
+    }
+    .sos-btn:hover { color: #991b1b; }
+    .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+    .login-btn {
+        background-color: #2c3e50;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        transition: background-color 0.15s;
+    }
+    .login-btn:hover { background-color: #1a252f; }
+
+    .mypage-btn-mobile {
+        background-color: #0088cc;
+        color: #ffffff;
+        transition: background-color 0.15s;
+    }
+    .mypage-btn-mobile:hover { background-color: #0077b3; }
+
+    /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
+       community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
+       개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
+       페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
+    .guide-notice-box {
+        display: flex;
+        background-color: #f8f9fb;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #143b86;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 30px;
+        font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    }
+    .guide-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        background-color: #e6edfa;
+        color: #143b86;
+        border-radius: 50%;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .guide-content {
+        flex-grow: 1;
+    }
+    .guide-content h4 {
+        color: #143b86;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 16px 0;
+    }
+    .guide-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .guide-content li {
+        position: relative;
+        padding-left: 12px;
+        margin-bottom: 10px;
+        font-size: 14.5px;
+        color: #555;
+        line-height: 1.6;
+    }
+    .guide-content li::before {
+        content: "-";
+        position: absolute;
+        left: 0;
+        color: #555;
+    }
+    .guide-content li strong {
+        color: #333;
+        font-weight: 600;
+    }
+    .text-red {
+        color: #d32f2f;
+        font-weight: bold;
+    }
+</style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
-           _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
-           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
-
-        html, body { overflow-x: hidden; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
-
-        #main-header { background-color: #ffffff; }
-        #sub-header-bar { background-color: #12387a; height: 6px; }
-
-        /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
-        .side-menu-tab {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
-            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
-        }
-        .side-menu-tab:hover { background-color: #f8fafc; }
-        .side-menu-tab-active {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
-            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
-        }
-
-        /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
-           패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
-           (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
-        .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
-        .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
-        .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
-        .side-menu-active-wrapper { padding: 10px; }
-
-        /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
-        .left-scroll-area {
-            direction: rtl;
-            overflow-y: auto;
-            height: 100%;
-            padding-bottom: 2rem;
-        }
-        .left-scroll-area::-webkit-scrollbar { width: 6px; }
-        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
-        .left-scroll-content { direction: ltr; padding-left: 12px; }
-
-        /* ★ 우측 본문 영역 독립 스크롤 */
-        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
-        .main-scroll-area::-webkit-scrollbar { width: 8px; }
-        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
-        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
-
-        /* 커스텀 스크롤바 */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
-
-        /* 스크롤바 숨김 유틸리티 */
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* -------------------------------------
-           공통 헤더 관련 스타일
-           ------------------------------------- */
-        .sos-btn {
-            background-color: transparent;
-            color: #dc2626;
-            border: none;
-            cursor: pointer;
-            padding: 5px 8px;
-            margin-left: 8px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.15s;
-        }
-        .sos-btn:hover { color: #991b1b; }
-        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
-
-        .login-btn {
-            background-color: #2c3e50;
-            color: #ffffff;
-            font-weight: 700;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: background-color 0.15s;
-        }
-        .login-btn:hover { background-color: #1a252f; }
-
-        .mypage-btn-mobile {
-            background-color: #0088cc;
-            color: #ffffff;
-            transition: background-color 0.15s;
-        }
-        .mypage-btn-mobile:hover { background-color: #0077b3; }
-
-        /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
-           community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
-           개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
-           페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
-        .guide-notice-box {
-            display: flex;
-            background-color: #f8f9fb;
-            border: 1px solid #e2e8f0;
-            border-left: 4px solid #143b86;
-            border-radius: 4px;
-            padding: 24px;
-            margin-bottom: 30px;
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-        }
-        .guide-icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 40px;
-            height: 40px;
-            background-color: #e6edfa;
-            color: #143b86;
-            border-radius: 50%;
-            margin-right: 20px;
-            flex-shrink: 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .guide-content {
-            flex-grow: 1;
-        }
-        .guide-content h4 {
-            color: #143b86;
-            font-size: 18px;
-            font-weight: bold;
-            margin: 0 0 16px 0;
-        }
-        .guide-content ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .guide-content li {
-            position: relative;
-            padding-left: 12px;
-            margin-bottom: 10px;
-            font-size: 14.5px;
-            color: #555;
-            line-height: 1.6;
-        }
-        .guide-content li::before {
-            content: "-";
-            position: absolute;
-            left: 0;
-            color: #555;
-        }
-        .guide-content li strong {
-            color: #333;
-            font-weight: 600;
-        }
-        .text-red {
-            color: #d32f2f;
-            font-weight: bold;
-        }
-    </style>
-
-
-    <style>
-        /* 이 페이지(서식/자료실) 전용 CSS */
+        /* 이 페이지 전용 CSS */
         html, body { overflow: hidden; height: 100%; }
+        
+        @media (max-width: 767px) {
+            .main-scroll-area { height: auto; overflow: visible; }
+        }
 
-        #data-room-content { font-family: 'Malgun Gothic', sans-serif; color: #333; }
-        /* #data-room-content h2, .info-text 규칙은 표준 헤더로 교체되며 더 이상 사용하지 않음 (2026-09 제거) */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
 
+#data-room-content { font-family: 'Malgun Gothic', sans-serif; color: #333; }
         #data-room-content .category-group { margin-bottom: 36px; }
-        #data-room-content .category-title { font-size: 18px; color: #2c5282; border-bottom: 2px solid #2c5282; padding-bottom: 10px; margin-bottom: 18px; font-weight: bold; }
-
+        #data-room-content .category-title { color: #2c5282; border-bottom: 2px solid #2c5282; padding-bottom: 10px; margin-bottom: 18px; font-weight: bold; display: flex; align-items: baseline; gap: 6px; }
         #data-room-content details { margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; background-color: #fff; }
         #data-room-content summary { background-color: #f8fafc; padding: 16px 18px; font-size: 15px; color: #2d3748; cursor: pointer; outline: none; transition: background 0.3s; list-style: none; display: flex; align-items: flex-start; flex-wrap: wrap; }
         #data-room-content summary::-webkit-details-marker { display: none; }
         #data-room-content summary:hover { background-color: #edf2f7; }
-
         #data-room-content .form-title { font-weight: bold; color: #1a202c; min-width: 230px; }
         #data-room-content .form-desc { color: #718096; font-size: 13.5px; margin-left: 10px; font-weight: normal; }
-
         #data-room-content .form-content { padding: 24px; background-color: #fff; border-top: 1px solid #e2e8f0; font-family: 'Batang', serif; line-height: 1.75; font-size: 14.5px; white-space: pre-wrap; color: #333; }
         #data-room-content .form-note { background: #ebf8ff; color: #2b6cb0; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13.5px; font-family: 'Malgun Gothic', sans-serif; font-weight: bold; }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden page-community">
+<body class="flex flex-col h-screen overflow-hidden page-board">
 
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
-         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). -->
+<style>
+  /* 1. 페이지 길이에 따른 좌우 흔들림(우측 스크롤바 생성/소멸) 원천 차단 */
+  html {
+    overflow-y: scroll !important;
+  }
 
-         이 버전은 여러 페이지에 흩어져 있던 기능을 하나로 합친 것:
-         - data-menu 속성 + 현재 페이지 메뉴 파란색 강조 (원래 bid-list.html에만 있던 기능)
-         - 같은 페이지 클릭 시 새로고침 방지 가드 (원래 job-list.html에만 있던 기능)
-         이제 모든 페이지에서 두 기능 다 적용됨. -->
-    <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header">
-        <header class="flex justify-between items-center px-4 md:px-8 max-w-[1400px] mx-auto w-full h-[70px]">
+  /* 2. 헤더 내비게이션(GNB) 간섭 방지 */
+  #main-header .gnb-item {
+    margin: 0 !important;
+    padding: 0 0 4px 0 !important;
+    line-height: 1.5 !important;
+    transform: none !important;
+    font-size: inherit !important;
+  }
 
-            <!-- 1) 좌측 로고 -->
-            <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'">
-            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회">
-            </div>
+  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  #main-header .login-btn {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    padding: 7px 20px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    height: auto !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.15s;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 0 0 4px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+  #main-header .login-btn:hover {
+    background-color: #1e293b !important;
+  }
 
-            <!-- 2) 중앙 메인 GNB (PC 메뉴) -->
-            <nav class="hidden lg:flex flex-1 justify-center lg:justify-between items-center px-6 xl:px-12 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap">
-            <div data-menu="about" onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
-            <div data-menu="jobs" onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
-            <div data-menu="bid" onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-            <div data-menu="cert" onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
-            <div data-menu="board" onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단 코너</div>
-            <div data-menu="community" onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
+  /* 4. 긴급 SOS 호출 버튼 스타일 보호 (견적의뢰 페이지 등에서 위로 움직이는 현상 방지) */
+  #main-header .sos-btn {
+    color: #ef4444 !important;
+    font-weight: bold !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 0 0 8px !important;
+    padding: 0 0 4px 0 !important;
+    font-size: 15px !important; 
+    line-height: 1.5 !important;
+    transform: none !important; 
+  }
+  @media (min-width: 1280px) {
+    #main-header .sos-btn {
+      font-size: 16px !important;
+    }
+  }
+  #main-header .sos-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+  }
+</style>
+
+<div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header" style="box-sizing: border-box !important;">
+    <header class="flex justify-between items-center px-4 md:px-6 max-w-[1400px] mx-auto w-full h-[70px]" style="margin: 0 auto !important; padding-top: 0 !important; padding-bottom: 0 !important;">
+
+        <!-- 1) 좌측 로고 (흔들림 방지) -->
+        <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
+            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
+        </div>
+
+        <!-- 2) 중앙 메인 GNB (PC 메뉴 - 강제 중앙 정렬 및 정렬축 고정) -->
+        <nav class="hidden lg:flex flex-1 justify-center items-center gap-6 xl:gap-9 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="justify-content: center !important; align-items: center !important; padding: 0 !important; margin: 0 !important;">
+            <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
+            <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="board" onclick="location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
+            <div data-menu="consulting" onclick="location.href='../../consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
+            <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
 
             <!-- 긴급 SOS 호출 -->
-            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn nav-sos">
-                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+            <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-2">
+                <i class="fa-solid fa-phone-volume"></i>
                 <span>긴급 SOS 호출</span>
             </div>
-            </nav>
+        </nav>
 
-            <!-- 3) 우측 유틸리티 영역 -->
-            <div class="hidden sm:flex items-center gap-3 shrink-0 ml-2 whitespace-nowrap font-medium text-gray-700">
-                <!-- 알림 종소리 및 드롭다운 컨테이너 -->
-                <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인">
-                    <i class="fa-regular fa-bell text-gray-700 text-[18px]"></i>
-                    <!-- 알림 개수 뱃지 (초기 숨김) -->
-                    <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
-                        0
-                    </span>
-
-                    <!-- 알림 목록 드롭다운 창 (초기 숨김) -->
-                    <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
-                        <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
-                        <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default">
-                            <!-- JS를 통해 여기에 알림 내역이 들어갑니다 -->
-                        </ul>
-                    </div>
+        <!-- 3) 우측 유틸리티 영역 (마이페이지/로그인 간격 및 크기 보호) -->
+        <div class="hidden lg:flex items-center gap-4 shrink-0 ml-6 whitespace-nowrap font-medium text-gray-700" style="align-items: center !important; margin-top: 0 !important; margin-bottom: 0 !important;">
+            <!-- 알림 종소리 및 드롭다운 컨테이너 -->
+            <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인" style="margin: 0 !important;">
+                <i class="fa-regular fa-bell text-gray-700 text-[20px]" style="margin: 0 !important;"></i>
+                <!-- 알림 개수 뱃지 -->
+                <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white" style="margin: 0 !important; padding: 0 !important;">
+                    0
+                </span>
+                <!-- 알림 목록 드롭다운 창 -->
+                <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
+                    <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
+                    <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default"></ul>
                 </div>
-
-                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[14px] hover:text-[#0088cc]">마이페이지</div>
-                <div id="header-login-btn" data-auth-btn="true" onclick="if(!location.pathname.endsWith('login.html')) location.href='../../login.html'" class="login-btn">로그인</div>
             </div>
 
-            <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기">
+            <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[15px] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-login-btn" data-auth-btn="true" onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+        </div>
+
+        <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기" style="margin-right: 0 !important; padding: 8px !important;">
             <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
-            </button>
-        </header>
+        </button>
+    </header>
+</div>
 
-    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-[800] shrink-0"></div>
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
 </div>
 
     <!-- 모바일 메뉴 -->
@@ -470,10 +541,11 @@
             <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
             <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
             <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
             <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='../../community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('consulting-list.html')) location.href='../../consulting/consulting-list.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
+            <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='../../community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
             <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
@@ -512,13 +584,6 @@
             }
         }
 
-        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
-        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
-        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
-        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
-        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
-        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
-        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
         async function ensureAuthClient() {
             if (window.sb) return window.sb;
             if (!window.supabase) {
@@ -565,7 +630,6 @@
 
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
             if (!window.sb) {
                 return;
             }
@@ -587,7 +651,6 @@
                 return;
             }
 
-            // ★ 원인 파악을 위한 디버깅 로그 추가 ★
             console.log("알림 개수:", count, "로그인 유저:", user.id);
 
             const pcBadge = document.getElementById('notification-badge');
@@ -650,7 +713,6 @@
             });
         }
 
-        // 현재 페이지에 해당하는 GNB 메뉴 파란색 강조 및 알림 이벤트 초기화
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname.toLowerCase();
             document.querySelectorAll('.gnb-item').forEach(item => {
@@ -671,16 +733,13 @@
                 ro.observe(headerEl);
             }
 
-            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
             initAuthUI().then(fetchUnreadCount).catch(console.error);
 
-            // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');
             const dropdown = document.getElementById('notification-dropdown');
             
             if (bellContainer && dropdown) {
                 bellContainer.addEventListener('click', (e) => {
-                    // 드롭다운 내부 클릭 시 닫히지 않도록 방지
                     if(e.target.closest('#notification-dropdown')) return;
                     
                     dropdown.classList.toggle('hidden');
@@ -689,7 +748,6 @@
                     }
                 });
 
-                // 빈 화면 클릭 시 드롭다운 닫기
                 document.addEventListener('click', (e) => {
                     if (!bellContainer.contains(e.target)) {
                         dropdown.classList.add('hidden');
@@ -699,52 +757,51 @@
         });
     </script>
 
-<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F8FAFC]">
 
+    <!-- 독립 스크롤 레이아웃 적용 (입찰공고 클래스 완벽 동기화) -->
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
 
-
-    <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden">
-
-        <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
-            <div class="left-scroll-content">
-                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab" onclick="location.href='field-experience.html'">현장경험 공유</div>
+        <!-- 좌측 고정 사이드바 (220px 규격 통일) -->
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <!-- 3단 탭 메뉴 -->
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="side-menu-container">
                     <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
                     <div class="side-menu-tab" onclick="location.href='free-board.html'">자유게시판</div>
-                    <div class="side-menu-tab" onclick="location.href='work-qna.html'">업무 Q&A</div>
                     <div class="side-menu-tab-active">서식/자료실</div>
                 </div>
             </div>
         </aside>
 
-        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
+        <!-- 우측 메인 영역 -->
+        <section id="main-content" class="flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
 
-            <section class="flex-1 shrink-0 pb-8">
-                <!-- 서식/자료실 전용 안내 -->
-                <div class="guide-notice-box">
-                    <div class="guide-icon"><i class="fas fa-shield-halved"></i></div>
-                    <div class="guide-content">
-                        <h4>서식/자료실 이용 안내</h4>
-                        <ul>
-                            <li><strong>실무 자료 공유:</strong> 업무에 필요한 각종 문서 양식, 규정집, 매뉴얼 등을 등록하고 다운로드할 수 있는 게시판입니다.</li>
-                            <li><strong>저작권 및 보안 준수:</strong> 타인의 저작권을 침해하는 자료나, 타 기관의 민감한 내부 문서(기밀)는 무단으로 공유하지 않도록 각별히 유의해 주세요.</li>
-                            <li><strong>자료 설명 첨부:</strong> 자료를 업로드하실 때는 다른 회원들이 쉽게 이해할 수 있도록 자료의 용도와 출처를 간략히 설명해 주시기 바랍니다.</li>
-                        </ul>
-                    </div>
+            <!-- 서식/자료실 전용 안내 (이미지에 맞게 텍스트 수정) -->
+            <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-comment-dots text-[#12387a] text-lg md:text-xl"></i>
                 </div>
+                <div class="flex-1">
+                    <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">서식/자료실 이용 안내</h3>
+                    <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>실무 자료 공유:</b> 업무에 필요한 각종 문서 양식, 규정집, 매뉴얼 등을 등록하고 다운로드할 수 있는 게시판입니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>저작권 및 보안 준수:</b> 타인의 저작권을 침해하는 자료나, 내부 문서(기밀)는 무단으로 공유하지 않도록 해 주세요.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>자료 이용방법 :</b> 항목을 클릭하면 양식이 펼쳐집니다. 내용을 드래그하여 복사한 후 빈 한글(hwp) 파일에 붙여넣어 사용하세요.</span></li>
+                    </ul>
+                </div>
+            </div>
 
-                <div id="data-room-content" class="bg-white border border-gray-200 rounded-lg shadow-sm px-6 py-8 md:px-10 md:py-10">
+            <div id="data-room-content" class="bg-white border border-gray-200 rounded-lg shadow-sm px-6 py-8 md:px-10 md:py-10">
 
-                    <div class="w-full flex flex-wrap items-center gap-x-4 gap-y-1 mb-6">
-                        <h2 class="text-2xl font-bold text-[#12387a] flex items-center gap-2 whitespace-nowrap">📥 서식/자료실</h2>
-                        <p class="text-gray-500 text-sm">항목을 클릭하면 실무에 바로 사용할 수 있는 양식이 펼쳐집니다.<br>내용을 드래그하여 복사한 후 빈 한글(hwp) 파일에 붙여넣어 사용하세요.</p>
+                <div class="category-group">
+                    <div class="category-title">
+                        <span class="text-[20px]">1. 관리단 집회 및 구성</span> 
+                        <span class="text-[15px] font-normal text-[#2c5282]">(가장 민감하고 중요한 법적 서식)</span>
                     </div>
 
-                    <div class="category-group">
-                        <div class="category-title">1. 관리단 집회 및 구성 (가장 민감하고 중요한 법적 서식)</div>
-
-                        <details><summary><span class="form-title">01. 관리단집회 소집통지서:</span> <span class="form-desc">집회 목적, 일시, 장소를 명시한 법정 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">01. 관리단집회 소집통지서:</span> <span class="form-desc">집회 목적, 일시, 장소를 명시한 법정 양식</span></summary>
+                    <div class="form-content">
 [양식] 관리단집회 소집통지서
 
 수 신 : 풍무 오피스텔 구분소유자 님
@@ -769,10 +826,10 @@
 2026년 O월 O일
 
 풍무 오피스텔 관리인 (직인생략)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">02. 서면결의서:</span> <span class="form-desc">총회 불참 시 안건에 대한 찬반을 표시하는 법적 효력 문서</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">02. 서면결의서:</span> <span class="form-desc">총회 불참 시 안건에 대한 찬반을 표시하는 법적 효력 문서</span></summary>
+                    <div class="form-content">
 [양식] 서면결의서
 
 본인은 「집합건물의 소유 및 관리에 관한 법률」 제38조 및 관리규약 제OO조에 따라 2026년 O월 O일 개최되는 관리단집회에 참석하지 못하므로, 아래의 안건에 대하여 서면으로 의결권을 행사합니다.
@@ -795,10 +852,10 @@
 2026년 O월 O일
 
 구분소유자 성명 :               (서명 또는 날인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">03. 위임장:</span> <span class="form-desc">대리인 참석 시 권한을 위임하는 양식 (가족, 세입자 대리 등 케이스별 포함)</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">03. 위임장:</span> <span class="form-desc">대리인 참석 시 권한을 위임하는 양식 (가족, 세입자 대리 등 케이스별 포함)</span></summary>
+                    <div class="form-content">
 [양식] 위임장
 
 ■ 위임하는 사람 (구분소유자)
@@ -820,10 +877,10 @@
 2026년 O월 O일
 
 위임인(구분소유자) :               (서명 또는 날인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">04. 관리단집회 의사록:</span> <span class="form-desc">총회 진행 과정과 결과를 기록하는 표준 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">04. 관리단집회 의사록:</span> <span class="form-desc">총회 진행 과정과 결과를 기록하는 표준 양식</span></summary>
+                    <div class="form-content">
 [양식] 관리단집회 의사록
 
 1. 회의명 : 풍무 오피스텔 제O기 정기(임시) 관리단집회
@@ -842,10 +899,10 @@
 
 2026년 O월 O일
 의 장 (관리인) : O O O (인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">05. 관리단 규약 (제·개정안) 설정 동의서:</span> <span class="form-desc">규약 제정 및 개정 시 서면 동의를 받는 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">05. 관리단 규약 (제·개정안) 설정 동의서:</span> <span class="form-desc">규약 제정 및 개정 시 서면 동의를 받는 양식</span></summary>
+                    <div class="form-content">
 <div class="form-note">※ 규약 전문은 방대하므로, 실무에서 소유자들의 동의를 받을 때 사용하는 '규약 설정/변경 동의서' 양식입니다.</div>
 [양식] 관리단 규약 (설정·변경) 서면 동의서
 
@@ -859,10 +916,10 @@
 
 2026년 O월 O일
 소유자(위임자) 서명 또는 날인 : (인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">06. 관리인(위원) 후보자 등록 신청서:</span> <span class="form-desc">선거 시 필요한 이력 및 등록 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">06. 관리인(위원) 후보자 등록 신청서:</span> <span class="form-desc">선거 시 필요한 이력 및 등록 양식</span></summary>
+                    <div class="form-content">
 [양식] 관리인(관리위원) 후보자 등록 신청서
 
 1. 후보자 인적사항
@@ -880,14 +937,16 @@
 
 2026년 O월 O일
 신청인 : O O O (서명 또는 날인)
-                        </div></details>
+                    </div></details>
+                </div>
+
+                <div class="category-group">
+                    <div class="category-title">
+                        <span class="text-[20px]">2. 관리소 운영 및 회계 행정</span>
                     </div>
 
-                    <div class="category-group">
-                        <div class="category-title">2. 관리소 운영 및 회계 행정</div>
-
-                        <details><summary><span class="form-title">07. 표준 관리비 부과 내역서 (안내문):</span> <span class="form-desc">부과 내역서 표지에 들어갈 월별 안내 텍스트</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">07. 표준 관리비 부과 내역서 (안내문):</span> <span class="form-desc">부과 내역서 표지에 들어갈 월별 안내 텍스트</span></summary>
+                    <div class="form-content">
 [양식] O월분 관리비 부과 안내문
 
 안녕하십니까, 입주민 여러분.
@@ -902,10 +961,10 @@
 
 관리사무소는 투명하고 효율적인 관리를 위해 최선을 다하겠습니다.
 문의사항 : 관리사무소 (02-000-0000)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">08. 관리비 장기체납자 독촉장:</span> <span class="form-desc">안내용(1차)과 법적조치 예고용(내용증명) 2가지 분리</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">08. 관리비 장기체납자 독촉장:</span> <span class="form-desc">안내용(1차)과 법적조치 예고용(내용증명) 2가지 분리</span></summary>
+                    <div class="form-content">
 <div class="form-note">[양식 1] 관리비 체납 일반 독촉장 (1~2개월 체납 시 세대 우편함/문자 발송용)</div>
 제 목 : 관리비 미납에 따른 납부 안내
 OOO호 입주민 귀하.
@@ -921,10 +980,10 @@ OOO호 입주민 귀하.
 1. 귀하가 소유(또는 점유)하고 있는 OOO호의 관리비가 2026년 O월 기준 현재 총 O개월 분, 금 OOO,OOO 원(연체료 포함)이 체납되어 있습니다.
 2. 2026년 O월 O일까지 위 체납액 전액을 지정된 계좌로 납부하여 주시기 바랍니다.
 3. 기한까지 납부하지 않을 경우, 당 건물 관리규약 및 집합건물법에 의거하여 단전·단수 조치는 물론 법원에 지급명령 신청, 가압류 등 법적 조치를 취할 수밖에 없으며, 이에 소요되는 모든 법적 비용 또한 귀하에게 청구됨을 알려드립니다.
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">09. 장기수선계획서 총괄표:</span> <span class="form-desc">건축물 내구연한에 따른 수선 주기 및 비용 계획</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">09. 장기수선계획서 총괄표:</span> <span class="form-desc">건축물 내구연한에 따른 수선 주기 및 비용 계획</span></summary>
+                    <div class="form-content">
 [양식] 장기수선계획 총괄표
 
 1. 단지 개요
@@ -944,10 +1003,10 @@ OOO호 입주민 귀하.
 
 2026년 O월 O일
 관리소장 : (인) / 관리단 대표 : (인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">10. 장기수선충당금 사용계획서:</span> <span class="form-desc">법적 절차에 맞춰 충당금을 집행하기 위한 결재 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">10. 장기수선충당금 사용계획서:</span> <span class="form-desc">법적 절차에 맞춰 충당금을 집행하기 위한 결재 양식</span></summary>
+                    <div class="form-content">
 [양식] 장기수선충당금 사용계획서
 
 1. 공사(용역) 명 : 옥상 방수 및 외벽 도장 공사
@@ -964,10 +1023,10 @@ OOO호 입주민 귀하.
 2026년 O월 O일
 작 성 자 (관리소장) : O O O (인)
 승 인 자 (관리단대표) : O O O (인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">11. 구분소유자 및 입주자 명부:</span> <span class="form-desc">소유주와 실거주자를 분리하여 관리하는 비상 연락망</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">11. 구분소유자 및 입주자 명부:</span> <span class="form-desc">소유주와 실거주자를 분리하여 관리하는 비상 연락망</span></summary>
+                    <div class="form-content">
 <div class="form-note">※ 개인정보보호법에 따라 수집 목적과 파기 기한을 명시하는 것이 중요합니다.</div>
 [양식] 입주자 및 소유자 명부 (개인정보 수집 동의서 포함)
 
@@ -988,14 +1047,17 @@ OOO호 입주민 귀하.
 
 2026년 O월 O일
 작성자 : (서명 또는 날인)
-                        </div></details>
+                    </div></details>
+                </div>
+
+                <div class="category-group">
+                    <div class="category-title">
+                        <span class="text-[20px]">3. 입찰 및 계약서</span> 
+                        <span class="text-[15px] font-normal text-[#2c5282]">(투명성 확보)</span>
                     </div>
 
-                    <div class="category-group">
-                        <div class="category-title">3. 입찰 및 계약서 (투명성 확보)</div>
-
-                        <details><summary><span class="form-title">12. 공사 및 용역 입찰 공고문:</span> <span class="form-desc">제한경쟁, 일반경쟁 등 조건에 맞춘 표준 공고 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">12. 공사 및 용역 입찰 공고문:</span> <span class="form-desc">제한경쟁, 일반경쟁 등 조건에 맞춘 표준 공고 양식</span></summary>
+                    <div class="form-content">
 [양식] 공사/용역 사업자 선정 입찰 공고
 
 당 단지의 공사(용역) 사업자를 선정하기 위하여 아래와 같이 공고합니다.
@@ -1019,10 +1081,10 @@ OOO호 입주민 귀하.
 
 2026년 O월 O일
 관리단 (직인생략)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">13. 위탁관리계약서 표준안:</span> <span class="form-desc">관리단과 관리대행사 간의 업무 범위와 책임을 명시</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">13. 위탁관리계약서 표준안:</span> <span class="form-desc">관리단과 관리대행사 간의 업무 범위와 책임을 명시</span></summary>
+                    <div class="form-content">
 <div class="form-note">※ 전체 계약서는 10장이 넘어가므로 계약의 핵심인 '표지 및 요약조항' 양식입니다.</div>
 [양식] 집합건물 위·수탁 관리계약서
 
@@ -1040,10 +1102,10 @@ OOO호 입주민 귀하.
 2026년 O월 O일
 (갑) 위탁자 : 관리단 대표 O O O (인)
 (을) 수탁자 : 주식회사 OOOO 대표이사 O O O (인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">14. 시설물 유지보수 공사계약서:</span> <span class="form-desc">방수, 도장 등 단발성 공사 진행 시 사용하는 계약서</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">14. 시설물 유지보수 공사계약서:</span> <span class="form-desc">방수, 도장 등 단발성 공사 진행 시 사용하는 계약서</span></summary>
+                    <div class="form-content">
 [양식] 시설물 유지보수 공사 표준계약서
 
 발주자 관리단(이하 "갑")과 시공자 OOOO건설(이하 "을")은 아래와 같이 공사 계약을 체결한다.
@@ -1057,10 +1119,10 @@ OOO호 입주민 귀하.
 2026년 O월 O일
 (갑) 발주자 : 관리인 (인)
 (을) 시공자 : OOOO건설 대표 (인)
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">15. 경비·미화 등 용역계약서:</span> <span class="form-desc">인력 파견 및 용역비 지급 기준이 명시된 계약서</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">15. 경비·미화 등 용역계약서:</span> <span class="form-desc">인력 파견 및 용역비 지급 기준이 명시된 계약서</span></summary>
+                    <div class="form-content">
 [양식] 경비(미화) 도급 용역 계약서
 
 1. 용 역 명 : 경비 및 미화 용역
@@ -1072,14 +1134,17 @@ OOO호 입주민 귀하.
 2026년 O월 O일
 발주처(갑) : 
 도급업체(을) : 
-                        </div></details>
+                    </div></details>
+                </div>
+
+                <div class="category-group">
+                    <div class="category-title">
+                        <span class="text-[20px]">4. 시설 관리 및 안전 점검</span> 
+                        <span class="text-[15px] font-normal text-[#2c5282]">(현장 실무)</span>
                     </div>
 
-                    <div class="category-group">
-                        <div class="category-title">4. 시설 관리 및 안전 점검 (현장 실무)</div>
-
-                        <details><summary><span class="form-title">16. 소방계획서 및 자체점검표:</span> <span class="form-desc">소방안전관리자 1급 기준 일상 점검 폼</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">16. 소방계획서 및 자체점검표:</span> <span class="form-desc">소방안전관리자 1급 기준 일상 점검 폼</span></summary>
+                    <div class="form-content">
 [양식] 소방시설 일상 외관 점검표
 
 점검일자 : 2026년 O월 O일
@@ -1097,10 +1162,10 @@ OOO호 입주민 귀하.
    - 유도등 점등 및 배터리 상태 : [ 양호 / 불량 ]
 
 ※ 불량(지적) 사항 및 조치 결과 : 
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">17. 전기설비 및 수배전반 일일 점검일지:</span> <span class="form-desc">전기기사 직무 고시에 맞춘 필수 점검 기록부</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">17. 전기설비 및 수배전반 일일 점검일지:</span> <span class="form-desc">전기기사 직무 고시에 맞춘 필수 점검 기록부</span></summary>
+                    <div class="form-content">
 [양식] 수배전반 및 전기설비 일일 점검일지
 
 점검일자 : 2026년 O월 O일
@@ -1117,10 +1182,10 @@ OOO호 입주민 귀하.
    - 주간 무부하 운전 테스트 (매주 금요일) : [ 완료 / 미실시 ]
 
 특기사항 : 
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">18. 건축/기계설비 유지관리 점검표:</span> <span class="form-desc">펌프, 공조기 등 주요 기계설비 운전 대장</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">18. 건축/기계설비 유지관리 점검표:</span> <span class="form-desc">펌프, 공조기 등 주요 기계설비 운전 대장</span></summary>
+                    <div class="form-content">
 [양식] 기계실 및 펌프실 일일 점검 대장
 
 점검일자 : 2026년 O월 O일
@@ -1135,10 +1200,10 @@ OOO호 입주민 귀하.
    - 소음 및 진동 상태 : [ 양호 / 이상 ]
 
 조치사항 : 
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">19. 승강기 고장 수리 및 일상점검 대장:</span> <span class="form-desc">유지보수업체 방문 기록 및 고장 이력 대장</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">19. 승강기 고장 수리 및 일상점검 대장:</span> <span class="form-desc">유지보수업체 방문 기록 및 고장 이력 대장</span></summary>
+                    <div class="form-content">
 [양식] 승강기 운행 및 점검 유지보수 대장
 
 관리번호 : 1호기~4호기
@@ -1153,10 +1218,10 @@ OOO호 입주민 귀하.
    - 접수 일시 : O월 O일 OO:OO
    - 호기 및 고장 내용 : 3호기, 7층에서 문 안 닫힘
    - 조치 내역 : OOO엘리베이터 기사 출동 (OO:OO). 정상 운행 재개.
-                        </div></details>
+                    </div></details>
 
-                        <details><summary><span class="form-title">20. 세대 인테리어 공사 서약서:</span> <span class="form-desc">소음, 분진, 공용부 훼손에 대한 책임 소지 명확화 양식</span></summary>
-                        <div class="form-content">
+                    <details><summary><span class="form-title">20. 세대 인테리어 공사 서약서:</span> <span class="form-desc">소음, 분진, 공용부 훼손에 대한 책임 소지 명확화 양식</span></summary>
+                    <div class="form-content">
 <div class="form-note">[양식 1] 입주민(소유자)용 세대 내부 공사 신고서 및 서약서</div>
 본인은 위 세대의 인테리어 공사를 진행함에 있어 다음 사항을 준수할 것을 서약합니다.
 1. 관리소의 사전 승인 없이 비내력벽 철거 및 발코니 확장을 하지 않겠습니다.
@@ -1170,15 +1235,18 @@ OOO호 입주민 귀하.
 1. 소음 공사(철거, 드릴 등) 시간 엄수 : 평일 09:00 ~ 17:00
 2. 공용부품(타일, 승강기 거울 등) 훼손 시 원상 복구 배상
 2026년 O월 O일 / 시공업체 책임자 : (인)
-                        </div></details>
+                    </div></details>
+                </div>
+
+                <div class="category-group">
+                    <div class="category-title" style="color: #c53030; border-bottom-color: #c53030;">
+                        <span class="text-[20px]">5. 산업안전보건 필수 서류</span> 
+                        <span class="text-[15px] font-normal text-[#c53030]">(🚨 점검 누락 시 과태료 주의)</span>
                     </div>
 
-                    <div class="category-group">
-                        <div class="category-title" style="color: #c53030; border-bottom-color: #c53030;">5. 산업안전보건 필수 서류 (🚨 점검 누락 시 과태료 주의)</div>
-
-                        <details>
-                            <summary><span class="form-title">21. 보호구 지급 대장:</span> <span class="form-desc">안전모, 안전대 등 법정 보호구 지급 및 서명 대장</span></summary>
-                            <div class="form-content">
+                    <details>
+                        <summary><span class="form-title">21. 보호구 지급 대장:</span> <span class="form-desc">안전모, 안전대 등 법정 보호구 지급 및 서명 대장</span></summary>
+                        <div class="form-content">
 <div class="form-note" style="background:#fff5f5; color:#c53030; border:1px solid #feb2b2;">
 <strong>[🚨 미작성/미비치 시 처분 내용]</strong>
 - 관련법: 산업안전보건법 제38조 및 제74조
@@ -1201,12 +1269,12 @@ OOO호 입주민 귀하.
 | 1 | 안전모 (KCs인증) | 1ea | 2026. 01. 10 | 홍 길 동 | (서명) |
 | 2 | 안전대 | 1ea | 2026. 01. 10 | 김 철 수 | (서명) |
 | 3 | 절연장갑 | 1set | 2026. 03. 15 | 이 영 희 | (서명) |
-                            </div>
-                        </details>
+                        </div>
+                    </details>
 
-                        <details>
-                            <summary><span class="form-title">22. MSDS (물질안전보건자료) 관리대장:</span> <span class="form-desc">락스, 세정제, 윤활유 등 화학물질 취급 및 경고 표지 기록</span></summary>
-                            <div class="form-content">
+                    <details>
+                        <summary><span class="form-title">22. MSDS (물질안전보건자료) 관리대장:</span> <span class="form-desc">락스, 세정제, 윤활유 등 화학물질 취급 및 경고 표지 기록</span></summary>
+                        <div class="form-content">
 <div class="form-note" style="background:#fff5f5; color:#c53030; border:1px solid #feb2b2;">
 <strong>[🚨 미작성/미비치 시 처분 내용]</strong>
 - 관련법: 산업안전보건법 제114조
@@ -1226,12 +1294,12 @@ OOO호 입주민 귀하.
 | 1 | 유한락스 레귤러 | (주)유한크로락스 | 부식성, 급성독성 | 지하 미화창고 | 2026.01.10 |
 | 2 | 윈글라스 (유리세정제) | (주)에이케이 | 인화성, 자극성 | 지하 미화창고 | 2026.01.10 |
 | 3 | 스티커/껌 제거제 | 대영상사 | 인화성, 고압가스 | 기전실 | 2026.04.15 |
-                            </div>
-                        </details>
+                        </div>
+                    </details>
 
-                        <details>
-                            <summary><span class="form-title">23. 위험성평가 실시규정 및 결과표:</span> <span class="form-desc">작업 현장의 유해/위험 요인 파악 및 개선 조치 기록</span></summary>
-                            <div class="form-content">
+                    <details>
+                        <summary><span class="form-title">23. 위험성평가 실시규정 및 결과표:</span> <span class="form-desc">작업 현장의 유해/위험 요인 파악 및 개선 조치 기록</span></summary>
+                        <div class="form-content">
 <div class="form-note" style="background:#fff5f5; color:#c53030; border:1px solid #feb2b2;">
 <strong>[🚨 미작성/미비치 시 처분 내용]</strong>
 - 관련법: 산업안전보건법 제36조
@@ -1264,12 +1332,12 @@ OOO호 입주민 귀하.
    - 위험도 (빈도 1 x 강도 2) = 2 (위험도 감소 달성)
 
 확인자 : 관리감독자 OOO (서명) / 현장소장 OOO (서명)
-                            </div>
-                        </details>
+                        </div>
+                    </details>
 
-                        <details>
-                            <summary><span class="form-title">24. 현장 구급함 점검 리스트 (유통기한 관리):</span> <span class="form-desc">응급처치용 구급용구 비치 및 유통기한 현행화 대장</span></summary>
-                            <div class="form-content">
+                    <details>
+                        <summary><span class="form-title">24. 현장 구급함 점검 리스트 (유통기한 관리):</span> <span class="form-desc">응급처치용 구급용구 비치 및 유통기한 현행화 대장</span></summary>
+                        <div class="form-content">
 <div class="form-note" style="background:#fff5f5; color:#c53030; border:1px solid #feb2b2;">
 <strong>[🚨 미작성/미비치 시 처분 내용]</strong>
 - 관련법: 산업안전보건기준에 관한 규칙 제82조
@@ -1295,23 +1363,23 @@ OOO호 입주민 귀하.
 | 4 | 식염포도당 | 권장 | 1 | 2026. 11. 30 | 요교체 |
 | 5 | 의료용 핀셋 / 가위 | 필수 | 1 | 해당없음(N/A) | 양호 |
 | 6 | 멸균거즈 / 일회용밴드 | 필수 | 1 | 2028. 01. 20 | 양호 |
-                            </div>
-                        </details>
-                    </div>
-
+                        </div>
+                    </details>
                 </div>
-            </section>
 
-            <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
-            <script src="../../assets/js/footer.js?v=1.3"></script>
+            </div>
 
-        </div>
+            <!-- 자유게시판과 동일한 위치에 footer 연결 -->
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+        </section>
+        
     </main>
 
-    </div>
-    <!-- 핑크박스 끝 -->
-    <script>
-      window.BASE_PATH = '/';
-    </script>
+</div>
+
+<script src="../../assets/js/footer.js?v=1.3"></script>
+<script>
+    window.BASE_PATH = '/';
+</script>
 </body>
 </html>
