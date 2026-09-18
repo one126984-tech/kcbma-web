@@ -2,292 +2,747 @@
 <!-- @var PAGE_CLASS: page-bid -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
+    <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>협력업체 홍보관 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
-<!-- @include view-transition-css -->
-
     <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- @include view-transition-css -->
+
 <!-- @include common-css -->
 
     <style>
-        /* [협력업체 홍보관 전용 CSS] */
-        html, body { overflow: hidden; height: 100%; }
+        /* 게시판 전용 CSS */
+        .custom-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #4b5563; font-size: 14px; user-select: none; }
+        .custom-checkbox input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
 
-        .premium-card { background: #ffffff; border: 2px solid #12387a; border-radius: 12px; box-shadow: 0 4px 15px -3px rgba(18, 56, 122, 0.15); transition: border-color 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; height: 100%; }
-        .premium-card:hover { border-color: #2563eb; box-shadow: 0 0 0 2px #2563eb, 0 8px 20px -4px rgba(37, 99, 235, 0.25); }
+        .data-table-wrapper { background: #fff; border-top: none; margin-top: 0 !important; padding-top: 0 !important; overflow-x: auto !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; table-layout: fixed; min-width: 900px; }
+        .data-table thead { display: table-header-group; }
         
-        .premium-badge { display: inline-flex; align-items: center; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); letter-spacing: 0.5px; margin-left: auto; }
+        .data-table th { position: sticky; top: 0; z-index: 50; padding: 12px 6px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; white-space: nowrap; }
+        .data-table td { padding: 12px 6px; font-size: 13px; color: #4b5563; border-bottom: 1px solid #f3f4f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+        .data-table tr:hover td { background-color: #f8fafc; cursor: pointer; }
 
-        .p-card-top-strip { display: flex; align-items: center; padding: 6px 16px; min-height: 32px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-
-        .trust-badge-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; }
-        .t-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 800; letter-spacing: -0.3px; display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.25); color: #fff; border: 1px solid rgba(255,255,255,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-
-        .p-card-content { padding: 18px 20px; flex: 1; display: flex; flex-direction: column; }
-        
-        .p-card-title { font-size: 19px; font-weight: 900; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .p-catchphrase { font-size: 14.5px; font-weight: 800; color: #b45309; margin-bottom: 10px; word-break: keep-all; line-height: 1.4; }
-        .p-card-desc { font-size: 13.5px; color: #475569; margin-bottom: 16px; line-height: 1.5; }
-
-        .p-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 16px 20px; border-top: 1px solid #f1f5f9; background: #fafafa; margin-top: auto; }
-        .btn-p-action { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 0; border-radius: 6px; font-size: 13.5px; font-weight: bold; transition: all 0.2s; cursor: pointer; }
-        
-        .btn-p-quote { background: #fff7ed; color: #dc2626; border: 1px solid #f97316; grid-column: 1 / -1; }
-        .btn-p-quote:hover { background: #ffedd5; border-color: #ea580c; }
-        
-        .btn-p-call { background: #eff6ff; color: #1e3a8a; border: 1px solid #12387a; }
-        .btn-p-call:hover { background: #dbeafe; }
-        
-        .btn-p-web { background: white; color: #334155; border: 1px solid #cbd5e1; }
-        .btn-p-web:hover { background: #f8fafc; border-color: #94a3b8; }
-
-        .general-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; height: 100%; transition: border-color 0.2s, box-shadow 0.2s; }
-        .general-card:hover { border-color: #2563eb; box-shadow: 0 0 0 2px #2563eb; }
-
-        .g-card-content { padding: 18px; flex: 1; display: flex; flex-direction: column; }
-        .g-card-title { font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        
-        /* 💡 수정: 일반 업체 캐치프레이즈 배경을 파스텔 연두색(#f0fdf4)으로 변경 */
-        .g-catchphrase { font-size: 13.5px; font-weight: 700; color: #2563eb; margin-bottom: 12px; line-height: 1.4; word-break: keep-all; background: #f0fdf4; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #3b82f6; }
-
-        .g-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 12px 18px; border-top: 1px dashed #e2e8f0; background: #f8fafc; margin-top: auto; }
-        .btn-g-action { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; border-radius: 4px; font-size: 12px; font-weight: bold; transition: all 0.2s; cursor: pointer; background: white; border: 1px solid #cbd5e1; color: #475569; }
-        .btn-g-action:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
-
-        .badge-tag { display: inline-block; padding: 4px 8px; background-color: #f1f5f9; color: #475569; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 38px; padding: 4px 8px; cursor: text; }
+        .tag-input-container input { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; background: transparent; }
+        .tag-chip { display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 2px 8px; border-radius: 9999px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+        .tag-remove { color: #64748b; cursor: pointer; font-size: 11px; font-weight: bold; padding: 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .tag-remove:hover { color: #ef4444; }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<body class="flex flex-col h-screen overflow-hidden page-bid">
 
 <!-- @include header -->
 
-    <div class="w-full flex flex-col bg-white shadow-md relative z-[800] shrink-0">
+    <div id="sticky-top-bar" class="w-full flex flex-col bg-white border-b border-gray-200 shadow-md relative z-[900] shrink-0">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
-    <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
 
-        <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-8 overflow-hidden">
-            
-            <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area">
-                <div class="left-scroll-content">
-                    <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                        <div class="side-menu-tab" onclick="location.href='bid-list.html'">견적 및 입찰 정보</div>
-                        <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                        <div class="side-menu-tab-active" onclick="location.href='company-ads.html'">협력업체 홍보관</div>
-                        <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                        <div class="side-menu-tab" onclick="location.href='joint-bid.html'">우수업체 공동선정</div>
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
+
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="side-menu-container">
+                    <div class="side-menu-tab" onclick="loadContent('bid-list.html', this)">용역·공사 공고</div>
+                    <div class="side-menu-tab-active" onclick="loadContent('company-ads.html', this)">협력업체 홍보관</div>
+                    <div class="side-menu-tab" onclick="loadContent('joint-bid.html', this)">우수업체 공동선정</div>
+                </div>
+            </div>
+        </aside>
+
+        <section id="main-content" class="flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
+
+            <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-handshake text-[#12387a] text-lg md:text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">협력업체 광고 입점 및 이용 안내</h3>
+                    <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3 break-keep">
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>협력업체 소개 :</b> 협회와 제휴계약을 맺은 유지보수 대행업체 및 공사 전문업체를 소개하오니 많은 이용바랍니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>계약 전 확인 :</b> 실제 공사 및 용역 계약 시에는 <span class="text-red-600 font-bold">반드시 믿을 수 있는 업체인지 꼼꼼히 살펴보시고 계약</span>하시기 바랍니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>책임 한계 :</b> 본 협회는 회원 간 정보교류 및 중개역할만 제공하므로 당사자간의 계약에 대해 어떠한 법적책임을 지지 않습니다.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="desktop-top-filter" class="bg-white border border-gray-300 rounded-lg shadow-sm mb-6 px-5 py-4 relative z-[100]">
+
+                <div class="flex items-center mb-4">
+                    <span class="w-[90px] mr-3 font-bold text-[14px] text-gray-800 shrink-0 text-center">검색어</span>
+                    <div class="flex flex-1 items-center gap-3 pr-4">
+                        <div id="include-word-container" class="flex-[4] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-[#12387a]">
+                            <input type="text" id="manual-word-input" placeholder="업체명, 핵심서비스, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로 ">
+                        </div>
+                        <input type="text" id="exclude-word-input" class="flex-[1] min-w-[160px] border border-gray-300 rounded px-3 py-2 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-red-400 transition-colors" placeholder="제외할 단어 입력 후 엔터">
                     </div>
+                    <button onclick="window.applyFilters()" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white px-8 py-2.5 font-bold text-[15px] transition-colors rounded shadow-sm shrink-0">검색</button>
+                </div>
 
-                    <div class="bg-[#f8fafc] border border-[#e2e8f0] rounded p-4 text-center shadow-sm">
-                        <i class="fas fa-bullhorn text-2xl text-[#3b82f6] mb-2"></i>
-                        <h3 class="font-bold text-[14px] text-gray-800 mb-1">협력업체 등록 안내</h3>
-                        <p class="text-[12px] text-gray-500 mb-4 leading-relaxed">우수 협력업체로 등록하시고<br>전국의 단지와 연결되세요.</p>
-                        <button class="w-full py-2 bg-[#ffffff] border border-[#3b82f6] text-[#3b82f6] rounded font-bold text-[13px] hover:bg-blue-50 transition-colors shadow-sm" onclick="location.href='company-write.html'">등록 문의하기</button>
+                <div class="flex items-center relative">
+                    <span class="w-[90px] mr-3 font-bold text-[14px] text-gray-800 shrink-0 text-center">상세조건</span>
+
+                    <div class="flex flex-1 gap-3 max-w-[600px]">
+
+                        <div class="relative z-[40]" style="flex: 1.2;">
+                            <button type="button" onclick="window.toggleFilterDropdown('company-region-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">지역 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-region-popup" class="hidden absolute top-full left-0 mt-1 w-[340px] max-w-[90vw] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-white shrink-0">
+                                    <span class="font-bold text-[14px] text-[#12387a]">
+                                        <span class="text-purple-600">대분류</span> 지역 선택
+                                    </span>
+                                </div>
+                                <div class="flex flex-col w-full" id="company-region-popup-inner">
+                                    <div id="company-region-major-section" class="flex flex-col">
+                                        <div class="p-4 overflow-y-auto custom-scroll" style="height: 240px;">
+                                            <div class="grid grid-cols-4 gap-y-3 gap-x-2" id="major-region-container">
+                                                <label class="custom-checkbox"><input type="checkbox" value="전국" class="major-checkbox"> 전국</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="서울" class="major-checkbox"> 서울</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경기" class="major-checkbox"> 경기</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="인천" class="major-checkbox"> 인천</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="부산" class="major-checkbox"> 부산</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="대구" class="major-checkbox"> 대구</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="광주" class="major-checkbox"> 광주</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="대전" class="major-checkbox"> 대전</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="울산" class="major-checkbox"> 울산</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="세종" class="major-checkbox"> 세종</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="강원" class="major-checkbox"> 강원</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="충북" class="major-checkbox"> 충북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="충남" class="major-checkbox"> 충남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="전북" class="major-checkbox"> 전북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="전남" class="major-checkbox"> 전남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경북" class="major-checkbox"> 경북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경남" class="major-checkbox"> 경남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="제주" class="major-checkbox"> 제주</label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                            <button type="button" onclick="window.openRegionMinorView()" class="w-full border border-[#12387a] text-[#12387a] bg-blue-50 hover:bg-blue-100 font-bold px-4 py-2 rounded text-[13px] transition-colors shadow-sm">
+                                                소분류 넣기
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="company-region-minor-section" class="hidden flex-col">
+                                        <div class="px-4 py-3 bg-white border-b border-gray-200 flex justify-between items-center shrink-0">
+                                            <span class="font-bold text-[14px] text-[#12387a]">소분류 </span>
+                                            <button type="button" onclick="window.closeRegionMinorView()" class="text-[11px] text-gray-600 hover:text-black font-medium hover:underline bg-white border border-gray-300 px-2 py-1 rounded">대분류 다시보기</button>
+                                        </div>
+                                        <div class="p-4 overflow-y-auto custom-scroll" style="height: 240px;" id="minor-region-container"></div>
+                                        <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                            <button type="button" onclick="document.getElementById('company-region-popup').classList.add('hidden')" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-[30]" style="flex: 1.2;">
+                            <button type="button" onclick="window.toggleFilterDropdown('company-category-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">업종 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-category-popup" class="hidden absolute top-full left-0 mt-1 w-[400px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-5 py-4 border-b border-gray-200 bg-white shrink-0">
+                                    <span class="font-bold text-[16px] text-[#12387a]">업종</span>
+                                </div>
+                                <div class="p-5">
+                                    <div class="grid grid-cols-2 gap-y-4 gap-x-6 w-full">
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="전체 보기"> <span class="text-[14px]">전체 보기</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="전기"> <span class="text-[14px]">전기</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="소방"> <span class="text-[14px]">소방</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="승강기"> <span class="text-[14px]">승강기</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="기계설비"> <span class="text-[14px]">기계설비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="배관설비"> <span class="text-[14px]">배관설비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="위생설비"> <span class="text-[14px]">위생설비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="인테리어"> <span class="text-[14px]">인테리어</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="토목건축"> <span class="text-[14px]">토목건축</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="기타"> <span class="text-[14px]">기타</span></label>
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                    <button type="button" onclick="document.getElementById('company-category-popup').classList.add('hidden')" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-[25]" style="flex: 1.2;">
+                            <button type="button" onclick="window.toggleFilterDropdown('company-period-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">조회기간 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-period-popup" class="hidden absolute top-full left-0 mt-1 w-[320px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-5 py-4 border-b border-gray-200 bg-white shrink-0">
+                                    <span class="font-bold text-[16px] text-[#12387a]">조회기간 선택</span>
+                                </div>
+                                <div id="period-box" class="p-5 flex flex-col gap-4">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button class="period-btn px-2 py-2 border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 text-[13.5px] rounded font-bold transition-colors" onclick="window.setPeriod('all', this)">기간 전체</button>
+                                        <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="window.setPeriod('1w', this)">1주일</button>
+                                        <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="window.setPeriod('1m', this)">1개월</button>
+                                        <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="window.setPeriod('6m', this)">6개월</button>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600 focus:border-[#12387a]">
+                                        <span class="text-gray-400 font-bold">~</span>
+                                        <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600 focus:border-[#12387a]">
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                    <button type="button" onclick="document.getElementById('company-period-popup').classList.add('hidden'); window.applyFilters();" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-[20]" style="flex: 1;">
+                            <button type="button" onclick="window.toggleFilterDropdown('company-type-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">업체구분</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-type-popup" class="hidden absolute top-full right-0 lg:left-0 mt-1 w-[160px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-4 py-3 border-b border-gray-200 bg-white shrink-0">
+                                    <span class="font-bold text-[14px] text-[#12387a] tracking-tight">구분</span>
+                                </div>
+                                <div class="p-4 flex flex-col gap-3">
+                                    <label class="custom-checkbox"><input type="checkbox" class="type-cb" value="전체"> <span class="text-[14px]">전체</span></label>
+                                    <label class="custom-checkbox"><input type="checkbox" class="type-cb" value="위탁관리"> <span class="text-[14px]">위탁관리</span></label>
+                                    <label class="custom-checkbox"><input type="checkbox" class="type-cb" value="공사업체"> <span class="text-[14px]">공사업체</span></label>
+                                </div>
+                                <div class="p-2 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                    <button type="button" onclick="document.getElementById('company-type-popup').classList.add('hidden')" class="w-full bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold py-1.5 rounded text-[12px] transition-colors shadow-sm">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-            </aside>
-
-            <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
-                <section class="flex-1 shrink-0 pb-8">
-
-                    <div class="bg-white border border-gray-200 border-l-[6px] border-l-[#12387a] rounded-xl p-6 md:p-8 mb-10 shadow-sm flex flex-col md:flex-row gap-4 md:gap-5 items-start">
-                        <div class="text-[#12387a] text-[32px] shrink-0 mt-0.5">
-                            <i class="fas fa-handshake"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h2 class="text-[18px] font-extrabold text-[#12387a] mb-4">우수 협력업체 광고 입점 및 이용 안내</h2>
-                            <ul class="space-y-2 text-[14px] text-gray-700 break-keep leading-relaxed">
-                                <li><strong class="text-gray-900">우수 협력업체 :</strong> 협회와 제휴된 유지보수 및 공사 전문업체를 소개합니다.</li>
-                                <li><strong class="text-gray-900">광고 게재 안내 :</strong> 본 게시판에 업체를 홍보하기 위한 광고 게재 시 소정의 광고비가 발생합니다.</li>
-                                <li><strong class="text-gray-900">광고 문의 :</strong> 업체 등록 및 광고 관련 문의를 주시면 담당자가 소상하게 안내해 드립니다.</li>
-                                <li><strong class="text-gray-900">계약 전 확인 :</strong> 실제 공사 및 용역 계약 시에는 <span class="text-red-600 font-bold">반드시 업체의 최신 등록 면허, 실적, 보증서 발행 여부를 상호 확인</span>하시기 바랍니다.</li>
-                            </ul>
-                            <div class="mt-4 pt-3 border-t border-gray-100 text-[13px] text-gray-500">
-                                본 게시판은 업체와 회원사 간의 단순 정보 제공을 위한 공간으로, 협회는 당사자 간의 계약에 대해 어떠한 법적 책임도 지지 않습니다.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-12">
-                        <div class="flex justify-between items-end mb-5 border-b-2 border-gray-800 pb-2">
-                            <h2 class="text-[20px] font-black text-gray-900 flex items-center gap-2">
-                                <i class="fas fa-gem text-[#f59e0b] text-xl"></i> 프리미엄 파트너스
-                            </h2>
-                        </div>
-
-                        <div id="premium-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div class="col-span-full py-10 text-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> 데이터를 불러오는 중입니다...</div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between items-end mb-4 border-b border-gray-300 pb-2">
-                            <h2 class="text-[17px] font-bold text-gray-700 flex items-center gap-2">
-                                <i class="fas fa-list-ul text-gray-400"></i> 일반 등록 업체
-                            </h2>
-                            <div class="text-[13px] text-gray-500">
-                                총 <span id="general-count" class="text-gray-800 font-bold">0</span>개의 업체
-                            </div>
-                        </div>
-
-                        <div id="general-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                        </div>
-                    </div>
-
-                </section>
             </div>
-        </main>
+
+            <div class="board-toolbar-wrap mt-2">
+                <div class="flex justify-between items-end px-2 pt-2 pb-0 m-0">
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>개의 업체가 있습니다. 
+                    </div>
+                    <div class="flex items-end gap-2 -mb-[1px] relative z-10">
+                        <select id="per-page-select" onchange="window.setPerPage(this)" class="border border-gray-400 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer shadow-sm">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0 shadow-sm">
+                            <button id="btn-sort-latest" onclick="window.setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold cursor-pointer transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="window.setSort('views')" class="bg-white text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full cursor-pointer transition-colors">조회순</button>
+                        </div>
+                        
+                        <button onclick="window.location.href='company-write.html'" class="bg-orange-50 hover:bg-orange-100 text-red-600 font-bold px-4 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center shadow-sm border border-b-0 border-red-500">
+                            등록 문의하기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper border border-gray-200 border-t-0 rounded-b shadow-sm relative z-20">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 50px;">   
+                            <col style="width: 160px;">  <!-- 업체명 -->
+                            <col style="width: auto;">   
+                            <col style="width: 100px;">  <!-- 업종 -->
+                            <col style="width: 130px;">  <!-- 지역 -->
+                            <col style="width: 100px;">  
+                            <col style="width: 70px;">   
+                            <col style="width: 70px;">   
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>업체명</th>
+                                <th class="text-left pl-6">홍보 내용</th>
+                                <th>업종</th>
+                                <th>서비스지역</th>
+                                <th>업체구분</th>
+                                <th>뱃지</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-list-body">
+                            <tr><td colspan="8" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+        </section>
+    </main>
+
     </div>
 
+    <script src="../../assets/js/region-data.js"></script>
     <script src="../../assets/js/footer.js?v=1.3"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    (function() {
+        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+
+        let allCompanies = [];
+        let filteredCompanies = [];
+        let currentPage = 1;
+        let itemsPerPage = 20;
+        let currentSort = 'latest';
+        let tags = [];
+        const DB_TABLE_NAME = 'companies';
+
+        function initApp() {
             fetchCompanies();
-        });
-
-        function getIconForCategory(category) {
-            const cat = category || '';
-            if (cat.includes('소방')) return 'fa-fire-extinguisher text-red-500';
-            if (cat.includes('전기')) return 'fa-bolt text-yellow-500';
-            if (cat.includes('승강기')) return 'fa-sort-amount-up text-blue-500';
-            if (cat.includes('기계') || cat.includes('건축') || cat.includes('보수') || cat.includes('설비')) return 'fa-tools text-slate-500';
-            if (cat.includes('위생') || cat.includes('청소') || cat.includes('방역')) return 'fa-broom text-cyan-500';
-            if (cat.includes('보안') || cat.includes('경비')) return 'fa-shield-alt text-slate-600';
-            return 'fa-building text-indigo-500';
-        }
-
-        function getGradientForCategory(category) {
-            const cat = category || '';
-            if (cat.includes('소방')) return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'; 
-            if (cat.includes('청소') || cat.includes('위생') || cat.includes('방역')) return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; 
-            if (cat.includes('기계') || cat.includes('건축') || cat.includes('보수') || cat.includes('설비') || cat.includes('도장') || cat.includes('방수')) return 'linear-gradient(135deg, #10b981 0%, #059669 100%)'; 
-            if (cat.includes('전기')) return 'linear-gradient(135deg, #eab308 0%, #d97706 100%)'; 
-            if (cat.includes('승강기')) return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'; 
-            if (cat.includes('보안') || cat.includes('경비')) return 'linear-gradient(135deg, #64748b 0%, #475569 100%)'; 
-            return 'linear-gradient(135deg, #12387a 0%, #1e40af 100%)'; 
-        }
-
-        function requestQuote(e, companyName) {
-            e.stopPropagation();
-            alert(`[${companyName}] 업체로 단지 기본 정보와 함께 간편 견적 요청이 전송되었습니다.\n(※ 관리자 확인 후 상세 안내 예정입니다.)`);
-        }
-
-        function createPremiumCard(c) {
-            const iconClass = getIconForCategory(c.category);
-            const topGradientStyle = `background: ${getGradientForCategory(c.category)};`;
-            
-            let trustBadges = `<span class="t-badge cert"><i class="fas fa-check-circle"></i> 정식면허</span>`;
-            if (c.id % 2 === 0) trustBadges += `<span class="t-badge guarantee"><i class="fas fa-file-contract"></i> 하자보증서</span>`;
-            if (c.id % 3 === 0) trustBadges += `<span class="t-badge emergency"><i class="fas fa-truck-fast"></i> 24h 출동</span>`;
-
-            return `
-            <div class="premium-card cursor-pointer" onclick="location.href='company-detail.html?id=${c.id}'">
-                
-                <div class="p-card-top-strip" style="${topGradientStyle}">
-                    <div class="trust-badge-wrap">${trustBadges}</div>
-                </div>
-                
-                <div class="p-card-content">
-                    <h3 class="p-card-title">
-                        <i class="fas ${iconClass} text-[24px]"></i> 
-                        ${c.company_name || '업체명 없음'}
-                        <span class="premium-badge">PREMIUM</span>
-                    </h3>
-                    
-                    <div class="p-catchphrase line-clamp-2">"${c.catchphrase || '최상의 서비스를 제공합니다.'}"</div>
-                    <p class="p-card-desc line-clamp-2">${c.service_summary || '자세한 서비스 내용은 상세 페이지에서 확인하세요.'}</p>
-                    
-                    <div class="flex flex-wrap mt-auto pt-3">
-                        <span class="badge-tag"><i class="fas fa-tag text-gray-400 mr-1"></i>${c.category || '기타'}</span>
-                        <span class="badge-tag"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${c.region || '전국'}</span>
-                    </div>
-                </div>
-                
-                <div class="p-card-actions">
-                    <button class="btn-p-action btn-p-quote" onclick="requestQuote(event, '${c.company_name}')"><i class="fas fa-bolt"></i> 원클릭 간편 견적</button>
-                    <button class="btn-p-action btn-p-call" onclick="event.stopPropagation(); window.location.href='tel:${c.phone}'"><i class="fas fa-phone-alt"></i> 전화연결</button>
-                    ${c.website 
-                        ? `<button class="btn-p-action btn-p-web" onclick="event.stopPropagation(); window.open('${c.website}', '_blank')"><i class="fas fa-globe"></i> 웹사이트</button>` 
-                        : `<button class="btn-p-action btn-p-web" onclick="event.stopPropagation(); location.href='company-detail.html?id=${c.id}'"><i class="fas fa-info-circle"></i> 상세정보</button>`}
-                </div>
-            </div>`;
-        }
-
-        function createGeneralCard(c) {
-            const iconClass = getIconForCategory(c.category);
-            return `
-            <div class="general-card cursor-pointer" onclick="location.href='company-detail.html?id=${c.id}'">
-                <div class="g-card-content">
-                    <h3 class="g-card-title line-clamp-2"><i class="fas ${iconClass} text-[20px]"></i> ${c.company_name || '업체명 없음'}</h3>
-                    <div class="g-catchphrase line-clamp-2">"${c.catchphrase || '성실하게 책임 시공합니다.'}"</div>
-                    <div class="flex flex-wrap mt-auto pt-2">
-                        <span class="badge-tag">${c.category || '기타'}</span><span class="badge-tag">${c.region || '전국'}</span>
-                    </div>
-                </div>
-                <div class="g-card-actions">
-                    <button class="btn-g-action" onclick="event.stopPropagation(); window.location.href='tel:${c.phone}'"><i class="fas fa-phone-alt text-blue-600"></i> 통화</button>
-                    <button class="btn-g-action" onclick="event.stopPropagation(); location.href='company-detail.html?id=${c.id}'"><i class="fas fa-info-circle text-gray-500"></i> 상세</button>
-                </div>
-            </div>`;
+            const sd = document.getElementById('start-date');
+            const ed = document.getElementById('end-date');
+            if(sd) sd.addEventListener('change', applyFilters);
+            if(ed) ed.addEventListener('change', applyFilters);
         }
 
         async function fetchCompanies() {
-            const premiumContainer = document.getElementById('premium-container');
-            const generalContainer = document.getElementById('general-container');
-            const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
-            const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
-            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-            const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
-
-            if (!supabaseClient) {
-                premiumContainer.innerHTML = '<div class="col-span-full py-10 text-center text-red-500 font-bold">Supabase 클라이언트를 로드할 수 없습니다.</div>';
-                return;
+            if(!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from(DB_TABLE_NAME).select('*').order('id', { ascending: false });
+                if (error) throw error;
+                allCompanies = data || [];
+                applyFilters(); 
+            } catch (error) {
+                document.getElementById('company-list-body').innerHTML = '<tr><td colspan="8" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</td></tr>';
             }
-
-            const { data, error } = await supabaseClient.from('companies').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('업체 데이터를 불러오는 중 오류 발생:', error);
-                premiumContainer.innerHTML = `<div class="col-span-full py-10 text-center text-red-500 font-bold bg-red-50 border border-red-200 rounded-lg">데이터베이스 오류가 발생했습니다.<br><span class="text-sm font-normal text-gray-600">${error.message}</span></div>`;
-                generalContainer.innerHTML = '';
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                premiumContainer.innerHTML = '<div class="col-span-full py-10 text-center text-gray-500 border border-gray-200 rounded-lg bg-gray-50">등록된 프리미엄 업체가 없습니다.</div>';
-                generalContainer.innerHTML = '<div class="col-span-full py-10 text-center text-gray-500 border border-gray-200 rounded-lg bg-gray-50">등록된 일반 업체가 없습니다.</div>';
-                document.getElementById('general-count').innerText = '0';
-                return;
-            }
-
-            const premiumCompanies = data.filter(c => c.is_premium);
-            const generalCompanies = data.filter(c => !c.is_premium);
-
-            document.getElementById('general-count').innerText = generalCompanies.length;
-
-            premiumContainer.innerHTML = premiumCompanies.length ? premiumCompanies.map(createPremiumCard).join('') : '<div class="col-span-full py-10 text-center text-gray-500 border border-gray-200 rounded-lg bg-gray-50">등록된 프리미엄 업체가 없습니다.</div>';
-            generalContainer.innerHTML = generalCompanies.length ? generalCompanies.map(createGeneralCard).join('') : '<div class="col-span-full py-10 text-center text-gray-500 border border-gray-200 rounded-lg bg-gray-50">등록된 일반 업체가 없습니다.</div>';
         }
+
+        function applyFilters() {
+            filteredCompanies = [...allCompanies]; 
+            
+            const checkedCategories = Array.from(document.querySelectorAll('.category-cb:checked')).map(cb => cb.value).filter(v => v !== '전체 보기');
+            if (checkedCategories.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => checkedCategories.includes(c.category));
+            }
+
+            const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-checkbox:checked')).map(cb => cb.value);
+            if (checkedSubRegions.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const region = c.region || '';
+                    return checkedSubRegions.some(sr => region.includes(sr.replace(/(시|군|구)$/, '')));
+                });
+            }
+
+            const checkedTypes = Array.from(document.querySelectorAll('.type-cb:checked')).map(cb => cb.value).filter(v => v !== '전체');
+            if (checkedTypes.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const cType = c.company_type || c.type || c.category || '';
+                    return checkedTypes.some(ct => cType.includes(ct));
+                });
+            }
+
+            const startDateStr = document.getElementById('start-date') ? document.getElementById('start-date').value : '';
+            const endDateStr = document.getElementById('end-date') ? document.getElementById('end-date').value : '';
+            if (startDateStr) { 
+                const sd = new Date(startDateStr); sd.setHours(0,0,0,0); 
+                filteredCompanies = filteredCompanies.filter(c => c.created_at && new Date(c.created_at) >= sd); 
+            }
+            if (endDateStr) { 
+                const ed = new Date(endDateStr); ed.setHours(23,59,59,999); 
+                filteredCompanies = filteredCompanies.filter(c => c.created_at && new Date(c.created_at) <= ed); 
+            }
+
+            if (tags.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const searchText = `${c.company_name || ''} ${c.catchphrase || ''} ${c.region || ''} ${c.category || ''} ${c.company_type || ''}`.toLowerCase();
+                    return tags.every(tag => searchText.includes(tag.toLowerCase()));
+                });
+            }
+
+            const excludeInput = document.getElementById('exclude-word-input');
+            if (excludeInput && excludeInput.value.trim()) {
+                const excludeWords = excludeInput.value.split(',').map(w => w.trim().toLowerCase()).filter(w => w !== '');
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const searchText = `${c.company_name || ''} ${c.catchphrase || ''} ${c.region || ''} ${c.category || ''}`.toLowerCase();
+                    return !excludeWords.some(ew => searchText.includes(ew));
+                });
+            }
+
+            filteredCompanies.sort((a, b) => {
+                const aPremium = a.is_premium ? 1 : 0;
+                const bPremium = b.is_premium ? 1 : 0;
+                if (aPremium !== bPremium) return bPremium - aPremium; 
+
+                if (currentSort === 'latest') {
+                    return b.id - a.id; 
+                } else if (currentSort === 'views') {
+                    return (b.view_count || 0) - (a.view_count || 0); // ★ 수정됨
+                }
+                return 0;
+            });
+
+            currentPage = 1; 
+            updateDisplay();
+        }
+
+        window.applyFilters = applyFilters;
+
+        function updateDisplay() {
+            const tc = document.getElementById('total-count');
+            if (tc) tc.innerText = filteredCompanies.length;
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedCompanies = filteredCompanies.slice(startIndex, startIndex + itemsPerPage);
+            
+            renderCompanyList(paginatedCompanies, filteredCompanies.length, startIndex);
+            renderPagination(filteredCompanies.length);
+        }
+
+        function renderCompanyList(companies, totalCount, startIndex) {
+            const tbody = document.getElementById('company-list-body'); 
+            if (!tbody) return;
+            tbody.innerHTML = ''; 
+            
+            if (companies.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 font-bold text-gray-500">조건에 맞는 업체가 없습니다.</td></tr>'; 
+                return; 
+            }
+
+            companies.forEach((c, index) => {
+                const no = totalCount - startIndex - index;
+                const companyName = c.company_name || '업체명 없음';
+                const catchphrase = c.catchphrase || '';
+                
+                // ★ 대분류 소분류 매핑
+                let regionStr = String(c.region || c.location || c.address || '-').trim();
+                if (regionStr !== '-') {
+                    const parts = regionStr.split(' ').filter(p => !p.includes('아파트') && !p.includes('주상복합') && !p.includes('타워') && !p.includes('단지'));
+                    if (parts.length >= 2) {
+                        regionStr = `${parts[0]} ${parts[1]}`;
+                    } else {
+                        regionStr = parts[0];
+                    }
+                }
+
+                // ★ 분류코드 매핑
+                let category = String(c.category || c.type || '-').trim();
+                if (category.includes('위생') || category.includes('환경') || category.includes('청소') || category.includes('소독') || category.includes('미화') || category.includes('방역')) category = '위생설비';
+                else if (category.includes('전기')) category = '전기';
+                else if (category.includes('소방')) category = '소방';
+                else if (category.includes('승강기') || category.includes('엘리베이터')) category = '승강기';
+                else if (category.includes('기계')) category = '기계설비';
+                else if (category.includes('배관')) category = '배관설비';
+                else if (category.includes('인테리어') || category.includes('리모델링')) category = '인테리어';
+                else if (category.includes('토목') || category.includes('건축') || category.includes('방수') || category.includes('도장')) category = '토목건축';
+                else if (category !== '-') category = '기타';
+
+                const companyType = c.company_type || '-'; 
+
+                let badgeHtml = '';
+                if (c.is_premium) {
+                    badgeHtml = `<span style="display:inline-block; background: #eab308; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11.5px; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">특별</span>`;
+                } else {
+                    badgeHtml = `<span style="display:inline-block; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 2px 10px; border-radius: 4px; font-size: 11.5px; font-weight: bold;">일반</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => window.incrementViewAndGo(c.id, c.view_count || 0); // ★ 수정됨
+                
+                tr.innerHTML = `
+                    <td>${no}</td>
+                    <td class="font-bold text-[#0B2A5B] truncate" title="${companyName}">${companyName}</td>
+                    <td class="text-left pl-6 text-gray-800 hover:underline font-medium truncate" title="${catchphrase}">${catchphrase}</td>
+                    <td class="text-gray-700">${category}</td>
+                    <td class="text-gray-600">${regionStr}</td>
+                    <td class="text-gray-600">${companyType}</td>
+                    <td>${badgeHtml}</td>
+                    <td>${c.view_count || 0}</td> <!-- ★ 수정됨 -->
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const container = document.getElementById('pagination-container'); 
+            if (!container) return;
+            
+            let html = `<button onclick="window.changePage(${Math.max(1, currentPage - 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs">${i}</button>`;
+                } else {
+                    html += `<button onclick="window.changePage(${i})" class="w-8 h-8 border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">${i}</button>`;
+                }
+            }
+            
+            html += `<button onclick="window.changePage(${Math.min(totalPages, currentPage + 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&gt;</button>`;
+            container.innerHTML = html;
+        }
+
+        window.changePage = function(page) { currentPage = page; updateDisplay(); }
+
+        window.incrementViewAndGo = function(id, currentViews) {
+            if(supabaseClient) {
+                supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).then(); // ★ 수정됨
+            }
+            window.location.href = `company-detail.html?id=${id}`;
+        }
+
+        window.setSort = function(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+            if(!btnLatest || !btnViews) return;
+
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold cursor-pointer transition-colors";
+                btnViews.className = "bg-white text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full cursor-pointer transition-colors";
+            } else {
+                btnLatest.className = "bg-white text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full cursor-pointer transition-colors";
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-[#333] flex items-center justify-center h-full font-bold cursor-pointer transition-colors";
+            }
+            applyFilters();
+        }
+
+        window.setPerPage = function(element) { itemsPerPage = parseInt(element.value); currentPage = 1; updateDisplay(); }
+
+        window.setPeriod = function(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold'));
+            if (btnElement) btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            
+            const startInput = document.getElementById('start-date'); 
+            const endInput = document.getElementById('end-date');
+            
+            if (period === 'all') { 
+                if(startInput) startInput.value = ''; 
+                if(endInput) endInput.value = ''; 
+            } else {
+                const end = new Date(); const start = new Date();
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                
+                const offset = start.getTimezoneOffset() * 60000;
+                if(startInput) startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                if(endInput) endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+            applyFilters();
+        }
+
+        window.toggleFilterDropdown = function(targetId) {
+            const targetMenu = document.getElementById(targetId);
+            const allMenus = ['company-region-popup', 'company-category-popup', 'company-period-popup', 'company-type-popup'];
+            const isHidden = targetMenu.classList.contains('hidden');
+
+            allMenus.forEach(menuId => {
+                const menu = document.getElementById(menuId);
+                if (menu) menu.classList.add('hidden');
+            });
+
+            if (isHidden) {
+                targetMenu.classList.remove('hidden');
+            }
+        };
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#desktop-top-filter')) {
+                document.getElementById('company-region-popup')?.classList.add('hidden');
+                document.getElementById('company-category-popup')?.classList.add('hidden');
+                document.getElementById('company-period-popup')?.classList.add('hidden');
+                document.getElementById('company-type-popup')?.classList.add('hidden');
+            }
+        });
+
+        const includeContainer = document.getElementById('include-word-container');
+        const manualInput = document.getElementById('manual-word-input');
+
+        function renderTags() {
+            if(!includeContainer) return;
+            includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
+            tags.forEach(word => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                includeContainer.insertBefore(chip, manualInput);
+            });
+            if(manualInput) manualInput.placeholder = tags.length > 0 ? "" : "업체명, 핵심서비스, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로";
+        }
+
+        function addTag(word) {
+            const trimmed = word.trim();
+            if (trimmed && !tags.includes(trimmed)) {
+                tags.push(trimmed); renderTags(); applyFilters(); 
+            }
+        }
+
+        function removeTag(word) {
+            tags = tags.filter(t => t !== word);
+            const checkboxes = document.querySelectorAll(`input[type="checkbox"][value="${word}"]`);
+            checkboxes.forEach(cb => { cb.checked = false; });
+            renderTags(); applyFilters(); 
+        }
+
+        if(includeContainer) {
+            includeContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.tag-remove')) { removeTag(e.target.closest('.tag-remove').dataset.word); } 
+                else if (manualInput) { manualInput.focus(); }
+            });
+        }
+
+        if(manualInput) {
+            manualInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    manualInput.value.split(',').forEach(w => addTag(w));
+                    manualInput.value = '';
+                } else if (e.key === 'Backspace' && manualInput.value === '' && tags.length > 0) {
+                    removeTag(tags[tags.length - 1]);
+                }
+            });
+        }
+
+        document.addEventListener('change', (e) => {
+            const target = e.target;
+            if (target.matches('.category-cb, .sub-region-checkbox, .type-cb')) {
+                if (target.checked) addTag(target.value); else removeTag(target.value);
+            }
+        });
+
+        window.openRegionMinorView = function() {
+            const checkedMajors = Array.from(document.querySelectorAll('#major-region-container .major-checkbox:checked')).map(cb => cb.value);
+
+            if (checkedMajors.length === 0) {
+                alert('먼저 1개 이상의 대분류(지역)를 체크해주세요.');
+                return;
+            }
+
+            document.getElementById('company-region-major-section').classList.add('hidden');
+            document.getElementById('company-region-minor-section').classList.remove('hidden');
+            document.getElementById('company-region-minor-section').classList.add('flex');
+
+            const container = document.getElementById('minor-region-container');
+            if(!container) return;
+            let html = '';
+
+            checkedMajors.forEach(major => {
+                html += `
+                <div class="mb-5">
+                    <div class="font-bold text-[#12387a] mb-2 text-[14px] border-b border-gray-200 pb-1">[${major}]</div>
+                    <div class="grid grid-cols-3 gap-x-1 gap-y-2.5">
+                `;
+
+                if (major === '전국') {
+                    const isChecked = tags.includes('전국 전체') ? 'checked' : '';
+                    html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="전국 전체" class="sub-region-checkbox w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">지역무관</span></label>`;
+                } else {
+                    const majorAllVal = `${major} 전체`;
+                    const isAllChecked = tags.includes(majorAllVal) ? 'checked' : '';
+                    html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${majorAllVal}" class="sub-region-checkbox w-3.5 h-3.5 cursor-pointer" ${isAllChecked}> <span class="font-bold text-[#12387a] truncate">${majorAllVal}</span></label>`;
+
+                    if (typeof subRegionData !== 'undefined' && subRegionData[major]) {
+                        subRegionData[major].forEach(minor => {
+                            if (minor.replace(/\s+/g, '') !== `${major}전체`) {
+                                const isChecked = tags.includes(minor) ? 'checked' : '';
+                                html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${minor}" class="sub-region-checkbox w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">${minor}</span></label>`;
+                            }
+                        });
+                    }
+                }
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        };
+
+        window.closeRegionMinorView = function() {
+            document.getElementById('company-region-minor-section').classList.remove('flex');
+            document.getElementById('company-region-minor-section').classList.add('hidden');
+            document.getElementById('company-region-major-section').classList.remove('hidden');
+        };
+
+        // 최초 실행
+        initApp();
+    })();
+
+    const mainContent = document.getElementById('main-content');
+    if (!window.__tabSwitcherInitCompAds) {
+        window.__tabSwitcherInitCompAds = true;
+        (function wrapOwnContent() {
+            if(!mainContent) return;
+            const ownPanel = document.createElement('div'); ownPanel.className = 'tab-panel'; ownPanel.dataset.tabUrl = 'company-ads.html';
+            while (mainContent.firstChild) { ownPanel.appendChild(mainContent.firstChild); }
+            mainContent.appendChild(ownPanel);
+        })();
+
+        window.loadContent = function(url, element) {
+            if (element && element.classList.contains('side-menu-tab-active')) return;
+
+            document.documentElement.classList.add('no-page-transition');
+            if (document.activeViewTransition) { document.activeViewTransition.skipTransition(); }
+            window.scrollTo(0, 0);
+
+            const activateMenu = () => {
+                const menuContainer = document.getElementById('side-menu-container');
+                if (menuContainer) { menuContainer.querySelectorAll('div').forEach(menu => { menu.className = 'side-menu-tab'; }); }
+                if (element) element.className = 'side-menu-tab-active';
+                window.history.pushState({ path: url }, '', url);
+            };
+
+            const existingPanel = mainContent.querySelector(`[data-tab-url="${url}"]`);
+            if (existingPanel) {
+                mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+                existingPanel.style.display = ''; activateMenu();
+                requestAnimationFrame(() => requestAnimationFrame(() => { document.documentElement.classList.remove('no-page-transition'); }));
+                return;
+            }
+
+            fetch(url).then(response => { if (!response.ok) throw new Error('Network response was not ok'); return response.text(); })
+                .then(html => {
+                    const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); const newContent = doc.getElementById('main-content');
+                    if (!newContent) { location.href = url; return; }
+                    mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+                    const newPanel = document.createElement('div'); newPanel.className = 'tab-panel'; newPanel.dataset.tabUrl = url; newPanel.innerHTML = newContent.innerHTML;
+                    mainContent.appendChild(newPanel); activateMenu();
+
+                    const SHARED_SCRIPT_PATTERN = /header\.js|footer\.js|region-data\.js|tailwindcss\.com|supabase-js/;
+                    const alreadyLoadedSrcs = Array.from(document.scripts).map(s => s.src).filter(Boolean);
+                    doc.querySelectorAll('script').forEach(oldScript => {
+                        if (oldScript.src) {
+                            const resolvedSrc = new URL(oldScript.getAttribute('src'), document.baseURI).href;
+                            if (alreadyLoadedSrcs.includes(resolvedSrc) || SHARED_SCRIPT_PATTERN.test(resolvedSrc)) return;
+                            const s = document.createElement('script'); s.src = resolvedSrc; document.body.appendChild(s);
+                        } else {
+                            try { const s = document.createElement('script'); s.textContent = oldScript.textContent; document.body.appendChild(s); s.remove(); } catch (err) {}
+                        }
+                    });
+
+                    requestAnimationFrame(() => requestAnimationFrame(() => { document.documentElement.classList.remove('no-page-transition'); }));
+                }).catch(error => { location.href = url; });
+        }
+        window.addEventListener('popstate', function(event) { location.reload(); });
+    }
     </script>
     <script>
       window.BASE_PATH = '/';
     </script>
-
 </body>
 </html>

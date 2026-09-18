@@ -1,9 +1,4 @@
-<!-- 파일명: joint-bid-detail.src.html
-     ★ 2026-09: joint_bids/joint_bid_participants 테이블과 실제 연동됨.
-     URL의 ?id=값으로 공고 1건을 조회해 상단 정보/과업 내용/참여현황/사이드 패널을
-     채우고, "우리 단지 참여하기" 모달 제출 시 join_bid_participation RPC로
-     참여 등록 + joint_bids.current_count 증가를 함께 처리함.
-     "문의 게시판" 탭은 아직 별도 게시판 기능이 없어 정적 안내 문구만 유지. -->
+<!-- 파일명: joint-bid-detail.src.html -->
 <!-- @var PAGE_CLASS: page-bid-detail -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
@@ -23,19 +18,18 @@
     <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
 
 <!-- @include view-transition-css -->
-
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(우수업체 공동선정 상세) 전용 CSS */
+        /* 이 페이지 전용 CSS */
         html, body { overflow-y: scroll; scroll-behavior: smooth; }
 
-        .detail-header { border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 20px; }
+        .detail-header { border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 24px; }
         .j-badge { display: inline-flex; align-items: center; justify-content: center; padding: 5px 12px; border-radius: 4px; font-size: 13px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 12px; }
         .j-badge.recruit { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
         .detail-title { font-size: 26px; font-weight: 900; color: #111; line-height: 1.4; word-break: keep-all; }
 
-        .tab-nav { display: flex; border-bottom: 1px solid #cbd5e1; margin-bottom: 30px; position: sticky; top: 90px; background: #F8FAFC; z-index: 30; }
+        .tab-nav { display: flex; border-bottom: 1px solid #cbd5e1; margin-bottom: 30px; position: sticky; top: 76px; background: #F8FAFC; z-index: 30; }
         .tab-btn { padding: 14px 24px; font-size: 16px; font-weight: bold; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; flex: 1; text-align: center; }
         .tab-btn:hover { color: #1e293b; }
         .tab-btn.active { color: #12387a; border-bottom-color: #12387a; }
@@ -56,18 +50,7 @@
         .p-name { font-weight: bold; font-size: 15px; color: #1e293b; }
         .p-spec { font-size: 13.5px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 4px; }
 
-        .sticky-panel { background: #fff; border: 2px solid #12387a; border-radius: 8px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(18, 56, 122, 0.15); position: sticky; top: 110px; }
-        .panel-price-title { font-size: 13px; font-weight: bold; color: #64748b; margin-bottom: 4px; }
-        .panel-price { font-size: 28px; font-weight: 900; color: #dc2626; margin-bottom: 20px; line-height: 1.1; }
-
-        .progress-box { background: #f8fafc; padding: 16px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        .progress-text { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #1e293b; }
-        .progress-bar-bg { width: 100%; height: 10px; background-color: #cbd5e1; border-radius: 99px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 99px; width: 60%; }
-
-        .btn-join { width: 100%; background: #12387a; color: white; border: none; padding: 16px; border-radius: 6px; font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(18, 56, 122, 0.3); }
-        .btn-join:hover { background: #0B2A5B; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18, 56, 122, 0.4); }
-
+        /* 모달 스타일 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: translateY(20px); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
@@ -103,20 +86,18 @@
 
 <div id="page-content" class="flex-1 flex flex-col">
 
-
-
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
 
+        <!-- 좌측 사이드바 -->
         <aside class="w-full md:w-[220px] shrink-0 hidden md:block h-fit z-40">
-            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab" onclick="location.href='bid-list.html'"><span>견적 및 입찰 정보</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
                 <div class="side-menu-tab" onclick="location.href='company-ads.html'"><span>협력업체 홍보관</span></div>
-                <div class="h-px bg-gray-100 mx-2 my-1"></div>
                 <div class="side-menu-tab-active" onclick="location.href='joint-bid.html'"><span>우수업체 공동선정</span></div>
             </div>
         </aside>
 
+        <!-- 중앙 메인 콘텐츠 (우측 사이드바 제거됨) -->
         <section class="flex-1 min-w-0">
 
             <div class="detail-header">
@@ -124,21 +105,65 @@
                 <span id="detail-dday" class="ml-2 text-sm font-bold text-red-600 bg-red-50 px-2 py-1 rounded"></span>
                 <h1 id="detail-title" class="detail-title mt-2">불러오는 중...</h1>
                 <div class="flex gap-4 mt-3 text-[14px] text-gray-500 font-medium">
-                    <span><i class="fas fa-map-marker-alt"></i> <span id="detail-region"></span></span>
-                    <span><i class="fas fa-tag"></i> <span id="detail-category"></span></span>
+                    <span><i class="fas fa-map-marker-alt text-blue-600"></i> 서비스 지역: <strong id="detail-region" class="text-gray-800"></strong></span>
+                    <span><i class="fas fa-tag text-blue-600"></i> 업종: <strong id="detail-category" class="text-gray-800"></strong></span>
                 </div>
             </div>
 
+            <!-- 통합된 대시보드 (진행상태 + 혜택 + 버튼) -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-sm">
+                <div class="flex justify-between items-end mb-4">
+                    <h3 class="font-black text-[18px] text-[#12387a]">참여 건물별 혜택 단계</h3>
+                </div>
+                
+                <!-- 동적 혜택 구간 (가로 배치) -->
+                <div id="detail-benefit-tiers" class="flex flex-col md:flex-row gap-3 mb-6">
+                    <!-- JS에서 주입 -->
+                </div>
+
+                <!-- 진행 상태 바 -->
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-6">
+                    <div class="flex justify-between text-[14px] font-bold text-gray-800 mb-2">
+                        <span>현재 모인 건물</span>
+                        <span id="progress-count" class="text-blue-600">0 / 0 곳</span>
+                    </div>
+                    <div class="w-full h-3 bg-gray-300 rounded-full overflow-hidden mb-2">
+                        <div id="progress-bar-fill" class="h-full bg-blue-600 transition-all duration-500" style="width: 0%;"></div>
+                    </div>
+                    <div id="progress-message" class="text-center text-[13.5px] text-gray-600 font-medium mt-2"></div>
+                </div>
+
+                <!-- 안내사항 및 액션 버튼 -->
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div class="text-[13px] text-gray-600 leading-relaxed flex-1 w-full">
+                        <ul class="pl-4 list-disc marker:text-gray-400">
+                            <li>참여 신청은 무료입니다.</li>
+                            <li>업체 견적 확인 후 최종 계약은 개별 건물의 자유로운 결정에 따릅니다.</li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto shrink-0">
+                        <button class="bg-[#12387a] hover:bg-[#0B2A5B] text-white font-bold py-3 px-8 rounded shadow-sm transition" onclick="openModal()">
+                            <i class="fas fa-hand-paper mr-2"></i> 우리 건물 참여하기
+                        </button>
+                        <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 px-6 rounded shadow-sm transition">
+                            <i class="fas fa-share-alt mr-2"></i> 주변 소장님께 공유
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탭 네비게이션 -->
             <div class="tab-nav">
                 <div class="tab-btn active" onclick="switchTab('tab-info', this)">공고 상세 (과업 지시)</div>
-                <div class="tab-btn" onclick="switchTab('tab-list', this)">참여 단지 현황 <span id="detail-participant-count" class="text-blue-600 font-bold ml-1">0</span></div>
+                <div class="tab-btn" onclick="switchTab('tab-list', this)">참여 건물 현황 <span id="detail-participant-count" class="text-blue-600 font-bold ml-1">0</span></div>
                 <div class="tab-btn" onclick="switchTab('tab-qna', this)">문의 게시판</div>
             </div>
 
+            <!-- 탭: 공고 상세 -->
             <div id="tab-info" class="tab-content active">
                 <div class="content-section">
                     <h3 class="content-title">연합 입찰 개요</h3>
-                    <p id="detail-benefit-desc" class="text-[15px] leading-relaxed text-gray-700 mb-4"></p>
+                    <p id="detail-benefit-desc" class="text-[15px] leading-relaxed text-gray-700 mb-4">참여하는 건물이 늘어날수록 할인율 혜택이 커지는 공동구매 입찰입니다.</p>
                     <table class="info-table">
                         <tbody>
                             <tr>
@@ -151,11 +176,11 @@
                             </tr>
                             <tr>
                                 <th>입찰 진행 방식</th>
-                                <td>목표 단지 모집 완료 즉시 협회 우수업체 대상 블라인드 견적 요청</td>
+                                <td>목표 건물 모집 완료 즉시 협회 우수업체 대상 블라인드 견적 요청</td>
                             </tr>
                             <tr>
                                 <th>최종 업체 선정</th>
-                                <td>참여 단지 관리소장 투표를 통해 최다 득표 업체 1곳 선정 (이후 개별 계약 진행)</td>
+                                <td>참여 건물 관리소장 투표를 통해 최다 득표 업체 1곳 선정 (이후 개별 계약 진행)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -165,7 +190,6 @@
                     <h3 class="content-title">과업 개요 및 필수 포함 사항</h3>
                     <div id="detail-task-description" class="bg-gray-50 border border-gray-200 rounded p-5 text-[14px] text-gray-700 leading-loose whitespace-pre-line mb-4"></div>
 
-                    <!-- ★ 첨부파일 다운로드 버튼 영역 -->
                     <div id="detail-attachment-container" class="hidden">
                         <a id="detail-attachment-link" href="#" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-700 shadow-sm transition-colors">
                             <i class="fas fa-file-download text-blue-600 text-lg"></i> 표준 과업지시서 열기 / 다운로드
@@ -174,10 +198,11 @@
                 </div>
             </div>
 
+            <!-- 탭: 참여 건물 현황 -->
             <div id="tab-list" class="tab-content">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="content-title mb-0">현재 참여 단지 목록</h3>
-                    <span class="text-sm text-gray-500">참여가 확정된 단지는 익명으로 표시됩니다.</span>
+                    <h3 class="content-title mb-0">현재 참여 건물 목록</h3>
+                    <span class="text-sm text-gray-500">참여가 확정된 건물은 익명으로 표시됩니다.</span>
                 </div>
 
                 <ul id="participant-list" class="participant-list">
@@ -186,6 +211,7 @@
                 <div id="participant-summary" class="mt-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 text-sm font-bold text-center rounded"></div>
             </div>
 
+            <!-- 탭: 문의 게시판 -->
             <div id="tab-qna" class="tab-content">
                 <h3 class="content-title">이 공동선정에 대한 문의</h3>
                 <div class="text-center py-20 text-gray-500 font-bold border border-dashed border-gray-300 rounded">
@@ -193,47 +219,15 @@
                 </div>
             </div>
 
-            <div id="footer-container"></div>
-
         </section>
-
-        <aside class="w-full md:w-[320px] shrink-0 relative">
-            <div class="sticky-panel">
-                <div class="panel-price-title">목표 달성 시 예상 혜택</div>
-                <div id="detail-benefit" class="panel-price text-2xl">-</div>
-
-                <div class="progress-box">
-                    <div class="progress-text">
-                        <span>현재 모인 단지</span>
-                        <span id="progress-count" class="text-blue-600">0 / 0 곳</span>
-                    </div>
-                    <div class="progress-bar-bg mb-2">
-                        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
-                    </div>
-                    <div id="progress-message" class="text-center text-[12.5px] text-gray-500 mt-2 font-medium"></div>
-                </div>
-
-                <div class="text-[13px] text-gray-600 mb-6 bg-gray-50 p-3 rounded leading-relaxed">
-                    <ul class="pl-4 list-disc marker:text-gray-400">
-                        <li>참여 신청은 무료입니다.</li>
-                        <li>업체 견적 확인 후 최종 계약은 개별 단지의 자유로운 결정에 따릅니다.</li>
-                    </ul>
-                </div>
-
-                <button class="btn-join" onclick="openModal()">
-                    <i class="fas fa-hand-paper mr-2"></i> 우리 단지 참여하기
-                </button>
-
-                <button class="w-full mt-3 py-3 text-[14px] font-bold text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition">
-                    <i class="fas fa-share-alt mr-1"></i> 주변 단지 소장님께 공유
-                </button>
-            </div>
-        </aside>
     </main>
 
-    </div>
-    <!-- 핑크박스 끝 -->
+    <!-- ★ 푸터가 메인 영역 바깥에 위치하여 화면 전체 너비를 차지하도록 이동됨 -->
+    <div id="footer-container" class="w-full mt-auto"></div>
 
+</div>
+
+    <!-- 모달 영역 -->
     <div id="join-modal" class="modal-overlay" onclick="closeModalOnBg(event)">
         <div class="modal-content">
             <div class="modal-header">
@@ -247,7 +241,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">건물명 (단지명)</label>
+                    <label class="form-label">건물명</label>
                     <input type="text" id="join-building-name" class="form-input" placeholder="예: 일산 센트럴 오피스텔">
                 </div>
 
@@ -353,16 +347,15 @@
 
         function renderBid(bid) {
             document.getElementById('detail-dday').innerText = ddayText(bid.deadline);
-            document.getElementById('detail-title').innerText = `${bid.title} (${bid.target_count}개 단지 목표)`;
-            document.getElementById('detail-region').innerText = bid.region;
-            document.getElementById('detail-category').innerText = bid.category;
-            document.getElementById('detail-benefit-desc').innerText = bid.task_description || '';
-            document.getElementById('info-region').innerText = bid.region;
+            document.getElementById('detail-title').innerText = bid.title;
+            
+            document.getElementById('detail-region').innerText = bid.region || '전국';
+            document.getElementById('info-region').innerText = bid.region || '전국';
+            document.getElementById('detail-category').innerText = bid.category || '-';
+
             document.getElementById('info-period').innerText = `${formatDate(bid.created_at)} ~ ${formatDate(bid.deadline)} (${ddayText(bid.deadline)})`;
             document.getElementById('detail-task-description').innerText = bid.task_description || '등록된 과업 내용이 없습니다.';
-            document.getElementById('detail-benefit').innerText = bid.benefit_text || '-';
 
-            // ★ 첨부파일 유무에 따라 다운로드 버튼 노출 처리
             const attachmentContainer = document.getElementById('detail-attachment-container');
             const attachmentLink = document.getElementById('detail-attachment-link');
             if (bid.attachment_url) {
@@ -372,17 +365,48 @@
                 if (attachmentContainer) attachmentContainer.classList.add('hidden');
             }
 
+            const currentCount = bid.current_count || 0;
+            let maxTarget = bid.target_count || 1;
+            let benefitHtml = '';
 
-            const current = bid.current_count || 0;
-            const target = bid.target_count || 1;
-            const percent = Math.min(100, Math.round((current / target) * 100));
-            document.getElementById('progress-count').innerText = `${current} / ${target} 곳`;
-            document.getElementById('progress-bar-fill').style.width = percent + '%';
-            const remaining = target - current;
+            try {
+                const tiers = JSON.parse(bid.benefit_text);
+                if (Array.isArray(tiers) && tiers.length > 0) {
+                    tiers.sort((a, b) => a.target - b.target);
+                    maxTarget = tiers[tiers.length - 1].target;
+                    
+                    // 혜택 단계를 가로형 박스로 렌더링
+                    benefitHtml = tiers.map(t => {
+                        const isReached = currentCount >= t.target;
+                        return `
+                            <div class="flex-1 flex flex-col justify-center items-center py-4 px-2 rounded-lg ${isReached ? 'bg-red-50 border-2 border-red-400 shadow-sm' : 'bg-white border border-gray-200'}">
+                                <span class="text-[13px] font-bold ${isReached ? 'text-red-600' : 'text-gray-500'} mb-1">${t.target}곳 이상 모집 시</span>
+                                <span class="text-[18px] font-black ${isReached ? 'text-red-600' : 'text-gray-800'}">${t.rate} 혜택</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    throw new Error("Invalid tier format");
+                }
+            } catch(e) {
+                benefitHtml = `<div class="text-lg font-black text-red-600">${bid.benefit_text || '-'}</div>`;
+            }
+
+            document.getElementById('detail-benefit-tiers').innerHTML = benefitHtml;
+
+            const percent = Math.min(100, Math.round((currentCount / maxTarget) * 100));
+            document.getElementById('progress-count').innerText = `${currentCount} / ${maxTarget} 곳 (최대 목표)`;
+            
+            setTimeout(() => {
+                document.getElementById('progress-bar-fill').style.width = percent + '%';
+            }, 100);
+            
+            const remaining = maxTarget - currentCount;
             document.getElementById('progress-message').innerText = remaining > 0
-                ? `${remaining}개 단지만 더 모이면 입찰이 시작됩니다!`
-                : '목표 단지 수를 달성했습니다!';
-            document.getElementById('detail-participant-count').innerText = current;
+                ? `최대 혜택까지 ${remaining}개 건물 남았습니다!`
+                : '최대 목표 건물 수를 달성했습니다!';
+                
+            document.getElementById('detail-participant-count').innerText = currentCount;
         }
 
         function renderParticipants(list) {
@@ -390,7 +414,7 @@
             const summary = document.getElementById('participant-summary');
 
             if (!list || list.length === 0) {
-                ul.innerHTML = '<li class="participant-item text-gray-400">아직 참여한 단지가 없습니다. 첫 번째로 참여해보세요!</li>';
+                ul.innerHTML = '<li class="participant-item text-gray-400">아직 참여한 건물이 없습니다. 첫 번째로 참여해보세요!</li>';
                 summary.innerText = '';
                 return;
             }
@@ -421,7 +445,7 @@
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error('참여 단지 조회 오류:', error);
+                console.error('참여 건물 조회 오류:', error);
                 return;
             }
             renderParticipants(data);
@@ -464,7 +488,7 @@
 
             const buildingName = document.getElementById('join-building-name').value.trim();
             if (!buildingName) {
-                alert('건물명(단지명)을 입력해주세요.');
+                alert('건물명을 입력해주세요.');
                 return;
             }
 
@@ -504,7 +528,7 @@
                 return;
             }
 
-            alert('참여 신청이 완료되었습니다! 목표 단지 수가 모집되면 블라인드 입찰이 시작됩니다.');
+            alert('참여 신청이 완료되었습니다! 목표 건물 수가 모집되면 블라인드 입찰이 시작됩니다.');
             closeModal();
             document.getElementById('join-building-name').value = '';
             document.getElementById('join-area-sqm').value = '';
@@ -523,6 +547,5 @@
     <script>
       window.BASE_PATH = '/';
     </script>
-
 </body>
 </html>

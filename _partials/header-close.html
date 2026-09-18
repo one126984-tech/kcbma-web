@@ -13,10 +13,11 @@
             <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
             <div onclick="if(!location.pathname.endsWith('about.html')) location.href='{{BASE}}about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
             <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='{{BASE}}jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
-            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='{{BASE}}bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='{{BASE}}bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
             <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='{{BASE}}cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='{{BASE}}board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('field-experience.html')) location.href='{{BASE}}community/field-experience.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+            <div onclick="if(!location.pathname.endsWith('consulting-list.html')) location.href='{{BASE}}consulting/consulting-list.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
+            <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='{{BASE}}community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
             <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='{{BASE}}sos/sos-request.html'" class="sos-btn sos-btn-mobile">
@@ -55,13 +56,6 @@
             }
         }
 
-        // --- 로그인 상태에 따라 헤더의 로그인/로그아웃 버튼을 갱신 ---
-        // (예전엔 header.js가 이 역할을 했으나, header.js를 걷어내면서
-        //  이 로직이 통째로 사라졌던 문제 수정. 페이지마다 따로 만든
-        //  supabase 클라이언트(dummyStorage 사용 등)와 충돌하지 않도록,
-        //  세션 확인용 클라이언트는 window.sb 하나만 공유해서 씀 —
-        //  assets/js/supabase-config.js를 먼저 불러온 페이지는 그 window.sb를
-        //  그대로 재사용하고, 없으면 여기서 한 번만 만듦.)
         async function ensureAuthClient() {
             if (window.sb) return window.sb;
             if (!window.supabase) {
@@ -108,7 +102,6 @@
 
         // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
         async function fetchUnreadCount() {
-            // 로그인 상태가 아니면(=window.sb가 아직 없으면) 종료 (에러 방지)
             if (!window.sb) {
                 return;
             }
@@ -130,7 +123,6 @@
                 return;
             }
 
-            // ★ 원인 파악을 위한 디버깅 로그 추가 ★
             console.log("알림 개수:", count, "로그인 유저:", user.id);
 
             const pcBadge = document.getElementById('notification-badge');
@@ -193,7 +185,6 @@
             });
         }
 
-        // 현재 페이지에 해당하는 GNB 메뉴 파란색 강조 및 알림 이벤트 초기화
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname.toLowerCase();
             document.querySelectorAll('.gnb-item').forEach(item => {
@@ -214,16 +205,13 @@
                 ro.observe(headerEl);
             }
 
-            // 로그인/로그아웃 버튼 상태 갱신 후, 알림 개수 불러오기 실행
             initAuthUI().then(fetchUnreadCount).catch(console.error);
 
-            // PC 알림 종소리 클릭 이벤트 (드롭다운 토글)
             const bellContainer = document.getElementById('bell-container');
             const dropdown = document.getElementById('notification-dropdown');
             
             if (bellContainer && dropdown) {
                 bellContainer.addEventListener('click', (e) => {
-                    // 드롭다운 내부 클릭 시 닫히지 않도록 방지
                     if(e.target.closest('#notification-dropdown')) return;
                     
                     dropdown.classList.toggle('hidden');
@@ -232,7 +220,6 @@
                     }
                 });
 
-                // 빈 화면 클릭 시 드롭다운 닫기
                 document.addEventListener('click', (e) => {
                     if (!bellContainer.contains(e.target)) {
                         dropdown.classList.add('hidden');

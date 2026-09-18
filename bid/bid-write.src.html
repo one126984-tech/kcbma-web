@@ -78,19 +78,7 @@
         #main-header { background-color: #ffffff; }
         #sub-header-bar { background-color: #12387a; height: 6px; }
 
-        .side-menu-tab {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
-            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
-        }
-        .side-menu-tab:hover { background-color: #f8fafc; }
-        .side-menu-tab-active {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
-            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
-        }
-
-        .sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+.sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
         .sos-btn:hover { color: #991b1b; }
         .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
 
@@ -171,11 +159,17 @@
                             </td>
                             <th>분류 <span class="req">*</span></th>
                             <td>
+                                <!-- 💡 분류 선택 항목이 리스트 페이지와 동일하게 변경되었습니다 -->
                                 <select id="f-category" class="input-select" required>
                                     <option value="">분류 선택</option>
-                                    <option value="공사·용역 입찰">공사·용역 입찰</option>
-                                    <option value="전문 시설관리">전문 시설관리</option>
-                                    <option value="환경·위생관리">환경·위생관리</option>
+                                    <option value="전기">전기</option>
+                                    <option value="소방">소방</option>
+                                    <option value="승강기">승강기</option>
+                                    <option value="기계설비">기계설비</option>
+                                    <option value="배관설비">배관설비</option>
+                                    <option value="위생설비">위생설비</option>
+                                    <option value="인테리어">인테리어</option>
+                                    <option value="토목건축">토목건축</option>
                                     <option value="기타">기타</option>
                                 </select>
                             </td>

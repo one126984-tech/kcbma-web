@@ -24,8 +24,6 @@
 
     <style>
         /* 이 페이지(업체 상세) 전용 CSS */
-        html, body { overflow-y: scroll; }
-
         .detail-header { border-bottom: 2px solid #12387a; padding-bottom: 20px; margin-bottom: 25px; }
         .catchphrase-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px 20px; border-radius: 4px; font-size: 18px; font-weight: 800; color: #1d4ed8; margin-bottom: 15px; }
         .detail-title { font-size: 26px; font-weight: 900; color: #111; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
@@ -59,8 +57,6 @@
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col">
-
-
 
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
         <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
@@ -123,8 +119,6 @@
     </main>
 
     </div>
-    <!-- 핑크박스 끝 -->
-
 
     <script>
         const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };

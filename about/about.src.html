@@ -25,13 +25,11 @@
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(협회소개) 전용 CSS */
-
-        /* 이 페이지만의 스크롤바 디자인 (공통 .custom-scroll과 다름, 폭/색 다름) */
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        /* 이 페이지(협회소개) 전용 CSS - 다른 페이지와 동일한 가늘고 연한 스크롤바(.custom-scroll 스타일) 적용 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-button { display: none !important; }
         .scroll-smooth { scroll-behavior: smooth; }
     </style>
 </head>
@@ -40,18 +38,12 @@
 
 <!-- @include header -->
 
-    <!-- ----------------------------------------------------
-         핑크박스: 헤더 아래 전체 영역 (서브헤더+사이드바+콘텐츠)
-         페이지 이동 시 이 영역 전체가 View Transition으로 전환됨
-         ---------------------------------------------------- -->
     <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
 <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
-
-
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden relative items-start">
@@ -63,7 +55,6 @@
 
                     <!-- 인사말 메뉴 버튼 -->
                     <div id="menu-greeting" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all bg-[#274bce] text-white shadow-sm rounded" onclick="scrollToSection('greeting')">
-                        <i class="fas fa-handshake"></i>
                         <span>인사말</span>
                     </div>
 
@@ -71,7 +62,6 @@
 
                     <!-- 협회연혁 메뉴 버튼 -->
                     <div id="menu-history" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all text-[#4b5563] hover:bg-[#f8fafc] hover:text-[#12387a] rounded" onclick="scrollToSection('history')">
-                        <i class="fas fa-history"></i>
                         <span>협회연혁</span>
                     </div>
 
@@ -80,7 +70,6 @@
         </aside>
 
         <!-- 우측 콘텐츠 및 푸터 통합 스크롤 영역 -->
-        <!-- 인사말 -> 연혁 -> 푸터 순서로 나열됨 -->
         <div id="scroll-area" class="flex-1 h-full overflow-y-auto custom-scrollbar scroll-smooth flex flex-col pr-2 pb-6 min-w-0">
 
             <!-- 1. 인사말 섹션 -->
@@ -152,14 +141,13 @@
                 </div>
             </section>
 
-            <!-- 3. 푸터 영역 (연혁 바로 아래 위치) -->
+            <!-- 3. 푸터 영역 -->
             <div id="footer-container" class="w-full shrink-0 mt-auto rounded overflow-hidden"></div>
 
         </div>
     </main>
 
     </div>
-    <!-- 핑크박스 끝 -->
 
     <!-- 푸터 스크립트 -->
     <script src="/assets/js/footer.js"></script>
@@ -167,19 +155,15 @@
     <!-- 섹션 이동 및 메뉴 스타일 변경 스크립트 -->
     <script>
         function scrollToSection(sectionId) {
-            // 1. 해당 섹션으로 부드럽게 스크롤
             const targetElement = document.getElementById(sectionId);
             if(targetElement) {
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
-            // 2. 좌측 메뉴 스타일(활성화 상태) 업데이트
             const menuGreeting = document.getElementById('menu-greeting');
             const menuHistory = document.getElementById('menu-history');
 
-            // 기본 비활성 스타일 클래스
             const inactiveClasses = "text-[#4b5563] hover:bg-[#f8fafc] hover:text-[#12387a]".split(" ");
-            // 활성 스타일 클래스
             const activeClasses = "bg-[#274bce] text-white shadow-sm".split(" ");
 
             if (sectionId === 'greeting') {
@@ -198,7 +182,6 @@
         }
     </script>
     
-    <!-- 페이지 경로 기준점 설정 (루트 기준) 및 헤더/인증 스크립트 불러오기 -->
     <script>
       window.BASE_PATH = '/';
     </script>

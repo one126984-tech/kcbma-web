@@ -2,198 +2,839 @@
 <!-- @var PAGE_CLASS: page-joint-bid -->
 <!-- @var BASE: ../../ -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
+    <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>우수업체 공동선정 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
-<!-- @include view-transition-css -->
-
     <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- @include view-transition-css -->
+
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(우수업체 공동선정) 전용 CSS */
-        .side-menu-tab { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold; font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s; }
-        .side-menu-tab:hover { background-color: #f8fafc; }
-        .side-menu-tab-active { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+        /* 게시판 전용 CSS */
+        .custom-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #4b5563; font-size: 13px; user-select: none; }
+        .board-toolbar-wrap { display: flex; flex-direction: column; margin: 0; padding: 0; }
+        .board-toolbar-wrap > * { margin: 0 !important; }
 
-        .left-scroll-area { direction: rtl; overflow-y: auto; height: 100%; padding-bottom: 2rem; }
-        .left-scroll-area::-webkit-scrollbar { width: 6px; }
-        .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
-        .left-scroll-content { direction: ltr; padding-left: 12px; }
+        .data-table-wrapper { background: #fff; border-top: none; margin-top: 0 !important; padding-top: 0 !important; overflow-x: auto !important; }
+        .data-table { width: 100%; text-align: center; border-collapse: collapse; border-spacing: 0; margin: 0; table-layout: fixed; min-width: 900px; }
+        .data-table thead { display: table-header-group; }
+        
+        .data-table th { position: sticky; top: 0; z-index: 50; padding: 12px 4px; font-size: 13.5px; font-weight: bold; color: #374151; background: #f9fafb; box-shadow: inset 0 2px 0 0 #0B2A5B, inset 0 -1px 0 0 #d1d5db; vertical-align: middle; white-space: nowrap; }
+        .data-table td { padding: 12px 4px; font-size: 13px; color: #4b5563; border-bottom: 1px solid #f3f4f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+        .data-table tr:hover td { background-color: #f8fafc; cursor: pointer; }
 
-        .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
-        .main-scroll-area::-webkit-scrollbar { width: 8px; }
-        .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
-        .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
-
-        /* 💡 공동선정 카드 호버 시 테두리가 선명하고 굵게 보이도록 (레이아웃이
-           흔들리지 않게 transform 대신 box-shadow로 두꺼운 테두리를 표현) */
-        .joint-bid-card { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .joint-bid-card:hover { border-color: #2563eb; box-shadow: 0 0 0 2px #2563eb; }
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 38px; padding: 4px 8px; cursor: text; }
+        .tag-input-container input { border: none; outline: none; flex: 1; min-width: 80px; font-size: 13px; background: transparent; }
+        .tag-chip { display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 2px 8px; border-radius: 9999px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+        .tag-remove { color: #64748b; cursor: pointer; font-size: 11px; font-weight: bold; padding: 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .tag-remove:hover { color: #ef4444; }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<body class="flex flex-col h-screen overflow-hidden page-joint-bid">
 
 <!-- @include header -->
 
-    <div class="w-full flex flex-col bg-white shadow-md relative z-[800] shrink-0">
+    <div id="sticky-top-bar" class="w-full flex flex-col bg-white border-b border-gray-200 shadow-md relative z-[900] shrink-0">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
     </div>
 <!-- @include header-close -->
 
-    <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
-        <main class="flex-1 max-w-[1400px] mx-auto w-full pl-4 md:pl-5 pr-4 md:pr-8 pt-7 flex flex-col md:flex-row gap-8 overflow-hidden">
-            
-            <!-- 사이드바 -->
-            <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area">
-                <div class="left-scroll-content">
-                    <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                        <div class="side-menu-tab" onclick="location.href='bid-list.html'">견적 및 입찰 정보</div>
-                        <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                        <div class="side-menu-tab" onclick="location.href='company-ads.html'">협력업체 홍보관</div>
-                        <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                        <div class="side-menu-tab-active" onclick="location.href='joint-bid.html'">우수업체 공동선정</div>
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
+
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1" id="side-menu-container">
+                    <div class="side-menu-tab" onclick="loadContent('bid-list.html', this)">용역·공사 공고</div>
+                    <div class="side-menu-tab" onclick="loadContent('company-ads.html', this)">협력업체 홍보관</div>
+                    <div class="side-menu-tab-active" onclick="loadContent('joint-bid.html', this)">우수업체 공동선정</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 -->
+        <section id="main-content" class="flex-1 min-w-0 md:h-full overflow-visible md:overflow-y-auto custom-scroll pr-2 pb-10">
+
+            <!-- 우수업체 공동선정 안내 문구 -->
+            <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-handshake text-[#12387a] text-lg md:text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">우수업체 공동선정 및 이용 안내</h3>
+                    <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3 break-keep">
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>비용 절감 :</b> 여러 빌딩의 공동구매 참여로 개별 부담 비용을 대폭 낮췄습니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>검증된 업체 :</b> 우수한 평판과 긴급사태 대응력이 검증된 신뢰할 수 있는 업체를 엄선했습니다.</span></li>
+                        <li class="flex gap-2"><span class="text-gray-400">-</span><span><b>최상의 서비스 :</b> 단체 이용의 가격 혜택과 최고 수준의 건물 관리를 지금 함께 누려보세요.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 데스크탑 전용 상단 통합 필터 -->
+            <div id="desktop-top-filter" class="bg-white border border-gray-300 rounded-lg shadow-sm mb-6 px-5 py-4 relative z-[100]">
+
+                <!-- 1. 검색어 라인 -->
+                <div class="flex items-center mb-4">
+                    <span class="w-[90px] mr-3 font-bold text-[14px] text-gray-800 shrink-0 text-center">검색어</span>
+                    <div class="flex flex-1 items-center gap-3 pr-4">
+                        <div id="include-word-container" class="flex-[4] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-[#12387a]">
+                            <input type="text" id="manual-word-input" placeholder="업체명, 핵심서비스, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로 ">
+                        </div>
+                        <input type="text" id="exclude-word-input" class="flex-[1] min-w-[160px] border border-gray-300 rounded px-3 py-2 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-red-400 transition-colors" placeholder="제외할 단어 입력 후 엔터">
+                    </div>
+                    <button onclick="applyFilters()" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white px-8 py-2.5 font-bold text-[15px] transition-colors rounded shadow-sm shrink-0">검색</button>
+                </div>
+
+                <!-- 2. 상세조건 라인 -->
+                <div class="flex items-center relative">
+                    <span class="w-[90px] mr-3 font-bold text-[14px] text-gray-800 shrink-0 text-center">상세조건</span>
+
+                    <div class="flex flex-1 gap-3 max-w-[600px]">
+
+                        <!-- 2-1. 지역 선택 -->
+                        <div class="relative z-[40]" style="flex: 1.2;">
+                            <button type="button" onclick="toggleFilterDropdown('company-region-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">지역 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-region-popup" class="hidden absolute top-full left-0 mt-1 w-[340px] max-w-[90vw] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                    <span class="font-bold text-[13px] text-[#12387a]">
+                                        <span class="text-purple-600">대분류</span> 지역 선택
+                                    </span>
+                                    <button type="button" onclick="document.getElementById('company-region-popup').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="flex flex-col w-full" id="company-region-popup-inner">
+                                    <div id="company-region-major-section" class="flex flex-col">
+                                        <div class="p-3 overflow-y-auto custom-scroll" style="height: 240px;">
+                                            <div class="grid grid-cols-4 gap-y-2 gap-x-2" id="major-region-container">
+                                                <label class="custom-checkbox"><input type="checkbox" value="전국" class="major-checkbox"> 전국</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="서울" class="major-checkbox"> 서울</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경기" class="major-checkbox"> 경기</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="인천" class="major-checkbox"> 인천</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="부산" class="major-checkbox"> 부산</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="대구" class="major-checkbox"> 대구</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="광주" class="major-checkbox"> 광주</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="대전" class="major-checkbox"> 대전</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="울산" class="major-checkbox"> 울산</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="세종" class="major-checkbox"> 세종</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="강원" class="major-checkbox"> 강원</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="충북" class="major-checkbox"> 충북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="충남" class="major-checkbox"> 충남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="전북" class="major-checkbox"> 전북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="전남" class="major-checkbox"> 전남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경북" class="major-checkbox"> 경북</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="경남" class="major-checkbox"> 경남</label>
+                                                <label class="custom-checkbox"><input type="checkbox" value="제주" class="major-checkbox"> 제주</label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                            <button type="button" onclick="openRegionMinorView()" class="w-full border border-[#12387a] text-[#12387a] bg-blue-50 hover:bg-blue-100 font-bold px-4 py-2 rounded text-[13px] transition-colors shadow-sm">
+                                                소분류 넣기
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div id="company-region-minor-section" class="hidden flex-col">
+                                        <div class="px-4 py-2 bg-[#f8fafc] border-b border-gray-200 flex justify-between items-center shrink-0">
+                                            <span class="font-bold text-[13px] text-[#12387a]">소분류 <span class="text-gray-500 font-normal ml-1 text-[11px]">(원하는 지역 체크)</span></span>
+                                            <button type="button" onclick="closeRegionMinorView()" class="text-[11px] text-gray-600 hover:text-black font-medium hover:underline bg-white border border-gray-300 px-2 py-1 rounded"><i class="fas fa-undo mr-1"></i>대분류 다시보기</button>
+                                        </div>
+                                        <div class="p-3 overflow-y-auto custom-scroll" style="height: 240px;" id="minor-region-container"></div>
+                                        <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                            <button type="button" onclick="document.getElementById('company-region-popup').classList.add('hidden')" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2-2. 업종 선택 -->
+                        <div class="relative z-[30]" style="flex: 1.2;">
+                            <button type="button" onclick="toggleFilterDropdown('company-category-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">업종 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-category-popup" class="hidden absolute top-full left-0 mt-1 w-[380px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                    <span class="font-bold text-[14px] text-[#12387a]">업종 <span class="text-gray-500 font-normal text-[12px] ml-1">(다중 선택)</span></span>
+                                    <button type="button" onclick="document.getElementById('company-category-popup').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="grid grid-cols-2 gap-y-3 gap-x-6 w-full">
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="전체 보기"> <span class="text-[13px]">전체 보기</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="전기"> <span class="text-[13px]">전기</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="소방"> <span class="text-[13px]">소방</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="승강기"> <span class="text-[13px]">승강기</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="기계설비"> <span class="text-[13px]">기계설비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="배관설비"> <span class="text-[13px]">배관설비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="위생설비"> <span class="text-[13px]">위생설비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="인테리어"> <span class="text-[13px]">인테리어</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="토목건축"> <span class="text-[13px]">토목건축</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="category-cb" value="기타"> <span class="text-[13px]">기타</span></label>
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                    <button type="button" onclick="document.getElementById('company-category-popup').classList.add('hidden')" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2-3. 조회기간 선택 -->
+                        <div class="relative z-[25]" style="flex: 1.2;">
+                            <button type="button" onclick="toggleFilterDropdown('company-period-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">조회기간 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-period-popup" class="hidden absolute top-full left-0 mt-1 w-[320px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                    <span class="font-bold text-[14px] text-[#12387a]">조회기간 선택</span>
+                                    <button type="button" onclick="document.getElementById('company-period-popup').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div id="period-box" class="p-4 flex flex-col gap-4">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button class="period-btn px-2 py-2 border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 text-[13.5px] rounded font-bold transition-colors" onclick="setPeriod('all', this)">기간 전체</button>
+                                        <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="setPeriod('1w', this)">1주일</button>
+                                        <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="setPeriod('1m', this)">1개월</button>
+                                        <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="setPeriod('6m', this)">6개월</button>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <input type="date" id="start-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600 focus:border-[#12387a]">
+                                        <span class="text-gray-400 font-bold">~</span>
+                                        <input type="date" id="end-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600 focus:border-[#12387a]">
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                    <button type="button" onclick="document.getElementById('company-period-popup').classList.add('hidden'); applyFilters();" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2-4. 업체구분 (라디오 버튼) -->
+                        <div class="relative z-[20]" style="flex: 1;">
+                            <button type="button" onclick="toggleFilterDropdown('company-type-popup')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">업체구분</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="company-type-popup" class="hidden absolute top-full right-0 lg:left-0 mt-1 w-[160px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                <div class="flex justify-between items-center px-3 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                    <span class="font-bold text-[13px] text-[#12387a] tracking-tight">구분</span>
+                                    <button type="button" onclick="document.getElementById('company-type-popup').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-sm leading-none"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="p-3 flex flex-col gap-2.5">
+                                    <label class="custom-checkbox"><input type="radio" name="company_type" class="type-rb" value="전체" checked> <span class="text-[13px]">전체</span></label>
+                                    <label class="custom-checkbox"><input type="radio" name="company_type" class="type-rb" value="위탁관리"> <span class="text-[13px]">위탁관리</span></label>
+                                    <label class="custom-checkbox"><input type="radio" name="company_type" class="type-rb" value="공사업체"> <span class="text-[13px]">공사업체</span></label>
+                                </div>
+                                <div class="p-2 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                    <button type="button" onclick="document.getElementById('company-type-popup').classList.add('hidden'); applyFilters();" class="w-full bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold py-1.5 rounded text-[12px] transition-colors shadow-sm">적용하기</button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-            </aside>
-
-            <!-- 메인 컨텐츠 -->
-            <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col">
-                <section class="flex-1 shrink-0 pb-8">
-                    
-                    <div class="flex items-center gap-2 mb-6">
-                        <i class="fas fa-list-ul text-[#f59e0b] text-xl"></i>
-                        <h2 class="text-xl font-bold text-gray-800">진행 중인 공동선정 연합 공고</h2>
-                    </div>
-
-                    <!-- 카드 리스트 컨테이너 -->
-                    <div id="joint-bid-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                        <div class="col-span-full py-10 text-center text-gray-500">데이터를 불러오는 중입니다...</div>
-                    </div>
-
-                </section>
             </div>
-        </main>
+
+            <!-- 게시판 리스트 영역 -->
+            <div class="board-toolbar-wrap mt-2">
+                <div class="flex justify-between items-end px-2 pt-2 pb-0 m-0">
+                    <div class="text-[13px] text-gray-700 pb-2 pl-1">
+                        총 <span id="total-count" class="text-red-600 font-bold">0</span>개의 우수업체 공고가 있습니다. 
+                    </div>
+                    <div class="flex items-end gap-2 -mb-[1px] relative z-10">
+                        <select id="per-page-select" onchange="setPerPage(this)" class="border border-gray-400 rounded-t px-2 h-[34px] text-xs outline-none text-gray-700 bg-white border-b-0 cursor-pointer shadow-sm">
+                            <option value="20">20개씩보기</option>
+                            <option value="50">50개씩보기</option>
+                        </select>
+                        <div class="flex border border-gray-400 rounded-t overflow-hidden text-xs bg-white h-[34px] border-b-0 shadow-sm">
+                            <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold cursor-pointer transition-colors">최신순</button>
+                            <button id="btn-sort-views" onclick="setSort('views')" class="bg-white text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full cursor-pointer transition-colors">조회순</button>
+                        </div>
+                        
+                        <button onclick="window.location.href='joint-bid-write.html'" class="bg-orange-50 hover:bg-orange-100 text-red-600 font-bold px-4 h-[34px] rounded-t text-[13px] transition-colors ml-1 flex items-center justify-center shadow-sm border border-b-0 border-red-500">
+                            우수업체 신청하기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper border border-gray-200 border-t-0 rounded-b shadow-sm relative z-20">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 38px;">   
+                            <col style="width: 140px;">  <!-- 업체명 -->
+                            <col style="width: auto;">   
+                            <col style="width: 100px;">  <!-- 업종 -->
+                            <col style="width: 110px;">  <!-- 서비스지역 -->
+                            <col style="width: 110px;">  
+                            <col style="width: 80px;">   
+                            <col style="width: 75px;">   
+                            <col style="width: 65px;">   
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>업체명</th>
+                                <th class="text-left pl-6">공동선정 홍보 내용</th>
+                                <th>업종</th>
+                                <th>서비스지역</th>
+                                <th>할인율</th>
+                                <th>부족숫자</th>
+                                <th>D-day</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-list-body">
+                            <tr><td colspan="9" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-10"></div>
+            <div id="footer-container" class="mt-10 border-t border-gray-200 pt-6"></div>
+        </section>
+    </main>
+
     </div>
+
+    <script src="../../assets/js/region-data.js"></script>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetchJointBids();
+            initApp();
         });
 
-        // D-Day 계산 함수
-        function getDdayText(endDateStr) {
-            if (!endDateStr) return '마감 미정';
-            const today = new Date(); today.setHours(0,0,0,0);
-            const endDate = new Date(endDateStr);
-            if (isNaN(endDate.getTime())) return '마감 미정';
-            endDate.setHours(0,0,0,0);
+        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+
+        let allCompanies = [];
+        let filteredCompanies = [];
+        let currentPage = 1;
+        let itemsPerPage = 20;
+        let currentSort = 'latest';
+        let tags = [];
+        const DB_TABLE_NAME = 'joint_bids';
+
+        function initApp() {
+            fetchCompanies();
             
-            const diffTime = endDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays < 0) return '마감됨';
-            if (diffDays === 0) return 'D-Day';
-            return `마감 D-${diffDays}`;
+            document.getElementById('start-date').addEventListener('change', applyFilters);
+            document.getElementById('end-date').addEventListener('change', applyFilters);
         }
 
-        async function fetchJointBids() {
-            const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
-            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-            const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} }}}) : null;
+        async function fetchCompanies() {
+            if(!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from(DB_TABLE_NAME).select('*').order('id', { ascending: false });
+                if (error) throw error;
+                allCompanies = data || [];
+                applyFilters(); 
+            } catch (error) {
+                document.getElementById('company-list-body').innerHTML = '<tr><td colspan="9" class="text-center py-10 text-red-500 font-bold">데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</td></tr>';
+            }
+        }
 
-            if (!sb) return;
+        function applyFilters() {
+            // ★ 승인대기 상태인 공고는 리스트 노출에서 제외
+            filteredCompanies = allCompanies.filter(c => c.status !== '승인대기'); 
+            
+            // 업종 필터
+            const checkedCategories = Array.from(document.querySelectorAll('.category-cb:checked')).map(cb => cb.value).filter(v => v !== '전체 보기');
+            if (checkedCategories.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => checkedCategories.includes(c.category));
+            }
 
-            const { data, error } = await sb.from('joint_bids').select('*').order('created_at', { ascending: false });
-            const container = document.getElementById('joint-bid-container');
+            // 지역 필터
+            const checkedSubRegions = Array.from(document.querySelectorAll('.sub-region-checkbox:checked')).map(cb => cb.value);
+            if (checkedSubRegions.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const region = c.region || '';
+                    return checkedSubRegions.some(sr => region.includes(sr.replace(/(시|군|구)$/, '')));
+                });
+            }
 
-            if (error || !data || data.length === 0) {
-                container.innerHTML = '<div class="col-span-full py-10 text-center text-gray-500 border border-gray-200 bg-gray-50 rounded-lg">등록된 공동발주 공고가 없습니다.</div>';
+            // 기간 필터
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+            if (startDateStr) { 
+                const sd = new Date(startDateStr); sd.setHours(0,0,0,0); 
+                filteredCompanies = filteredCompanies.filter(c => c.created_at && new Date(c.created_at) >= sd); 
+            }
+            if (endDateStr) { 
+                const ed = new Date(endDateStr); ed.setHours(23,59,59,999); 
+                filteredCompanies = filteredCompanies.filter(c => c.created_at && new Date(c.created_at) <= ed); 
+            }
+
+            // ★ 업체구분 라디오 필터 
+            const checkedType = document.querySelector('.type-rb:checked');
+            if (checkedType && checkedType.value !== '전체') {
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const cType = String(c.company_type || c.type || c.category || '').toLowerCase();
+                    const cTitle = String(c.title || '').toLowerCase();
+                    return cType.includes(checkedType.value) || cTitle.includes(checkedType.value);
+                });
+            }
+
+            // 검색어 태그
+            if (tags.length > 0) {
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const searchText = `${c.title || ''} ${c.company_name || ''} ${c.region || ''} ${c.category || ''}`.toLowerCase();
+                    return tags.every(tag => searchText.includes(tag.toLowerCase()));
+                });
+            }
+
+            // 제외어
+            const excludeInput = document.getElementById('exclude-word-input').value;
+            if (excludeInput.trim()) {
+                const excludeWords = excludeInput.split(',').map(w => w.trim().toLowerCase()).filter(w => w !== '');
+                filteredCompanies = filteredCompanies.filter(c => {
+                    const searchText = `${c.title || ''} ${c.company_name || ''} ${c.region || ''} ${c.category || ''}`.toLowerCase();
+                    return !excludeWords.some(ew => searchText.includes(ew));
+                });
+            }
+
+            // 정렬
+            filteredCompanies.sort((a, b) => {
+                if (currentSort === 'latest') {
+                    return b.id - a.id; 
+                } else if (currentSort === 'views') {
+                    return (b.views || b.view_count || 0) - (a.views || a.view_count || 0);
+                }
+                return 0;
+            });
+
+            currentPage = 1; 
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('total-count').innerText = filteredCompanies.length;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedCompanies = filteredCompanies.slice(startIndex, startIndex + itemsPerPage);
+            
+            renderCompanyList(paginatedCompanies, filteredCompanies.length, startIndex);
+            renderPagination(filteredCompanies.length);
+        }
+
+        function renderCompanyList(companies, totalCount, startIndex) {
+            const tbody = document.getElementById('company-list-body'); 
+            tbody.innerHTML = ''; 
+            
+            if (companies.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-20 font-bold text-gray-500">조건에 맞는 공고가 없습니다.</td></tr>'; 
+                return; 
+            }
+
+            companies.forEach((c, index) => {
+                const no = totalCount - startIndex - index;
+                
+                // ★ 동적으로 생성된 업체명 불러오기 (값이 없으면 '우수업체 연합'으로 대체)
+                const companyName = c.company_name || '우수업체 연합';
+                const catchphrase = c.title || '';
+                
+                // 지역 매핑
+                let regionStr = String(c.region || c.location || c.address || '-').trim();
+                if (regionStr !== '-') {
+                    const parts = regionStr.split(' ').filter(p => !p.includes('권역') && !p.includes('아파트') && !p.includes('주상복합'));
+                    if (parts.length >= 2) {
+                        regionStr = `${parts[0]} ${parts[1]}`;
+                    } else {
+                        regionStr = parts[0];
+                    }
+                }
+
+                // 분류 매핑
+                let category = String(c.category || c.type || '-').trim();
+                if (category.includes('위생') || category.includes('환경') || category.includes('청소') || category.includes('소독') || category.includes('미화') || category.includes('방역')) category = '위생설비';
+                else if (category.includes('전기')) category = '전기';
+                else if (category.includes('소방')) category = '소방';
+                else if (category.includes('승강기') || category.includes('엘리베이터')) category = '승강기';
+                else if (category.includes('기계')) category = '기계설비';
+                else if (category.includes('배관')) category = '배관설비';
+                else if (category.includes('인테리어') || category.includes('리모델링')) category = '인테리어';
+                else if (category.includes('토목') || category.includes('건축') || category.includes('방수') || category.includes('도장')) category = '토목건축';
+                else if (category !== '-') category = '기타';
+
+                // 할인율 및 부족숫자 계산
+                const pCount = c.participants_count || c.current_count || 0;
+                let discountText = "10% --> 20%";
+                let deficitCount = "3개"; 
+
+                try {
+                    const tiers = JSON.parse(c.benefit_text);
+                    if (Array.isArray(tiers) && tiers.length > 0) {
+                        tiers.sort((a, b) => a.target - b.target);
+                        
+                        let currentTierRate = "0%";
+                        let nextTierTarget = null;
+                        let nextTierRate = null;
+                        
+                        for (let i = 0; i < tiers.length; i++) {
+                            if (pCount >= tiers[i].target) {
+                                currentTierRate = tiers[i].rate;
+                            } else {
+                                nextTierTarget = tiers[i].target;
+                                nextTierRate = tiers[i].rate;
+                                break;
+                            }
+                        }
+                        
+                        if (nextTierTarget !== null) {
+                            discountText = `${currentTierRate} --> ${nextTierRate}`;
+                            deficitCount = `${nextTierTarget - pCount}개`;
+                        } else {
+                            discountText = `${currentTierRate} (최대)`;
+                            deficitCount = "0개";
+                        }
+                    } else {
+                        throw new Error("Invalid tier format");
+                    }
+                } catch (e) {
+                    if (c.discount_rate) {
+                        discountText = c.discount_rate;
+                    } else {
+                        if (pCount >= 20) {
+                            discountText = "20% (최대)";
+                            deficitCount = "0개";
+                        } else if (pCount >= 10) {
+                            discountText = "10% --> 20%";
+                            deficitCount = `${20 - pCount}개`;
+                        } else if (pCount >= 5) {
+                            discountText = "5% --> 10%";
+                            deficitCount = `${10 - pCount}개`;
+                        } else {
+                            discountText = "0% --> 5%";
+                            deficitCount = `${5 - pCount}개`;
+                        }
+                    }
+                }
+
+                if (c.missing_count !== undefined && c.missing_count !== null) {
+                    deficitCount = `${c.missing_count}개`;
+                }
+
+                // D-day 계산
+                let dDayDisplay = 'D-7';
+                if (c.d_day || c.dday) {
+                    const rawDday = String(c.d_day || c.dday).trim();
+                    dDayDisplay = rawDday.toUpperCase().startsWith('D') ? rawDday : `D-${rawDday}`;
+                } else if (c.end_date || c.deadline) {
+                    const today = new Date();
+                    const endDate = new Date(c.end_date || c.deadline);
+                    const diffTime = endDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays > 0) dDayDisplay = `D-${diffDays}`;
+                    else if (diffDays === 0) dDayDisplay = 'D-Day';
+                    else dDayDisplay = '마감';
+                }
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => incrementViewAndGo(c.id, c.views || c.view_count || 0);
+                
+                tr.innerHTML = `
+                    <td>${no}</td>
+                    <td class="font-bold text-[#0B2A5B] truncate" title="${companyName}">${companyName}</td>
+                    <td class="text-left pl-6 text-gray-800 hover:underline font-medium truncate" title="${catchphrase}">${catchphrase}</td>
+                    <td class="text-gray-700">${category}</td>
+                    <td class="text-gray-600">${regionStr}</td>
+                    <td class="font-bold text-red-600">${discountText}</td>
+                    <td><span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 text-xs">${deficitCount}</span></td>
+                    <td class="font-bold text-[#d97706]">${dDayDisplay}</td>
+                    <td>${c.views || c.view_count || 0}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            const container = document.getElementById('pagination-container'); 
+            if (!container) return;
+            
+            let html = `<button onclick="changePage(${Math.max(1, currentPage - 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-8 h-8 border border-[#0B2A5B] bg-[#0B2A5B] text-white font-bold rounded text-xs">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">${i}</button>`;
+                }
+            }
+            
+            html += `<button onclick="changePage(${Math.min(totalPages, currentPage + 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&gt;</button>`;
+            container.innerHTML = html;
+        }
+
+        function changePage(page) { currentPage = page; updateDisplay(); }
+
+        function incrementViewAndGo(id, currentViews) {
+            if(supabaseClient) {
+                // DB 스키마에 맞게 views 업데이트
+                supabaseClient.from(DB_TABLE_NAME).update({ views: parseInt(currentViews) + 1 }).eq('id', id).then(); 
+            }
+            window.location.href = `joint-bid-detail.html?id=${id}`;
+        }
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            const btnLatest = document.getElementById('btn-sort-latest');
+            const btnViews = document.getElementById('btn-sort-views');
+            
+            if(sortType === 'latest') {
+                btnLatest.className = "bg-[#333] text-white px-3 flex items-center justify-center h-full font-bold cursor-pointer transition-colors";
+                btnViews.className = "bg-white text-gray-600 hover:bg-gray-50 px-3 border-l border-gray-300 flex items-center justify-center h-full cursor-pointer transition-colors";
+            } else {
+                btnLatest.className = "bg-white text-gray-600 hover:bg-gray-50 px-3 flex items-center justify-center h-full cursor-pointer transition-colors";
+                btnViews.className = "bg-[#333] text-white px-3 border-l border-[#333] flex items-center justify-center h-full font-bold cursor-pointer transition-colors";
+            }
+            applyFilters();
+        }
+
+        function setPerPage(element) { itemsPerPage = parseInt(element.value); currentPage = 1; updateDisplay(); }
+
+        function setPeriod(period, btnElement) {
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold'));
+            if (btnElement) btnElement.classList.add('border-[#3b5bdb]', 'text-[#3b5bdb]', 'bg-blue-50', 'font-bold');
+            
+            const startInput = document.getElementById('start-date'); 
+            const endInput = document.getElementById('end-date');
+            
+            if (period === 'all') { 
+                startInput.value = ''; endInput.value = ''; 
+            } else {
+                const end = new Date(); const start = new Date();
+                if (period === '1w') start.setDate(start.getDate() - 7);
+                else if (period === '1m') start.setMonth(start.getMonth() - 1);
+                else if (period === '6m') start.setMonth(start.getMonth() - 6);
+                
+                const offset = start.getTimezoneOffset() * 60000;
+                startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
+                endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
+            }
+            applyFilters();
+        }
+
+        window.toggleFilterDropdown = function(targetId) {
+            const targetMenu = document.getElementById(targetId);
+            const allMenus = ['company-region-popup', 'company-category-popup', 'company-period-popup', 'company-type-popup'];
+            const isHidden = targetMenu.classList.contains('hidden');
+
+            allMenus.forEach(menuId => {
+                const menu = document.getElementById(menuId);
+                if (menu) menu.classList.add('hidden');
+            });
+
+            if (isHidden) {
+                targetMenu.classList.remove('hidden');
+            }
+        };
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#desktop-top-filter')) {
+                document.getElementById('company-region-popup')?.classList.add('hidden');
+                document.getElementById('company-category-popup')?.classList.add('hidden');
+                document.getElementById('company-period-popup')?.classList.add('hidden');
+                document.getElementById('company-type-popup')?.classList.add('hidden');
+            }
+        });
+
+        const includeContainer = document.getElementById('include-word-container');
+        const manualInput = document.getElementById('manual-word-input');
+
+        function renderTags() {
+            includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
+            tags.forEach(word => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                includeContainer.insertBefore(chip, manualInput);
+            });
+            manualInput.placeholder = tags.length > 0 ? "" : "업체명, 핵심서비스, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로";
+        }
+
+        function addTag(word) {
+            const trimmed = word.trim();
+            if (trimmed && !tags.includes(trimmed)) {
+                tags.push(trimmed); renderTags(); applyFilters(); 
+            }
+        }
+
+        function removeTag(word) {
+            tags = tags.filter(t => t !== word);
+            
+            const checkboxes = document.querySelectorAll(`input[type="checkbox"][value="${word}"]`);
+            checkboxes.forEach(cb => { cb.checked = false; });
+            
+            const radios = document.querySelectorAll(`input[type="radio"][value="${word}"]`);
+            radios.forEach(rb => {
+                if (rb.checked) {
+                    const defaultRadio = document.querySelector('input[name="status"][value="ALL"]');
+                    if (defaultRadio) defaultRadio.checked = true;
+                }
+            });
+            
+            renderTags(); applyFilters(); 
+        }
+
+        includeContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.tag-remove')) { removeTag(e.target.closest('.tag-remove').dataset.word); } 
+            else { manualInput.focus(); }
+        });
+
+        manualInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                manualInput.value.split(',').forEach(w => addTag(w));
+                manualInput.value = '';
+            } else if (e.key === 'Backspace' && manualInput.value === '' && tags.length > 0) {
+                removeTag(tags[tags.length - 1]);
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            const target = e.target;
+            
+            if (target.matches('.category-cb, .sub-region-checkbox')) {
+                if (target.checked) addTag(target.value); else removeTag(target.value);
+            }
+            if (target.matches('.type-rb')) {
+                applyFilters();
+            }
+        });
+
+        window.openRegionMinorView = function() {
+            const checkedMajors = Array.from(document.querySelectorAll('#major-region-container .major-checkbox:checked')).map(cb => cb.value);
+
+            if (checkedMajors.length === 0) {
+                alert('먼저 1개 이상의 대분류(지역)를 체크해주세요.');
                 return;
             }
 
-            container.innerHTML = data.map(bid => {
-                const badgeItem = bid.target_item || '분류 미지정';
-                const title = bid.title || '제목 없음';
-                const pCount = bid.participants_count || 0;
-                
-                // 마감일 계산
-                const dDayBadge = getDdayText(bid.end_date);
-                const isClosed = dDayBadge === '마감됨';
-                const badgeColor = isClosed ? 'bg-gray-500' : 'bg-red-500';
+            document.getElementById('company-region-major-section').classList.add('hidden');
+            document.getElementById('company-region-minor-section').classList.remove('hidden');
+            document.getElementById('company-region-minor-section').classList.add('flex');
 
-                // 할인율 및 목표 진행도 계산 로직
-                let currentDiscount = 0;
-                let nextTarget = 5;
-                let nextDiscount = 5;
+            const container = document.getElementById('minor-region-container');
+            let html = '';
 
-                if (pCount >= 20) {
-                    currentDiscount = 20;
-                } else if (pCount >= 10) {
-                    currentDiscount = 10;
-                    nextTarget = 20;
-                    nextDiscount = 20;
-                } else if (pCount >= 5) {
-                    currentDiscount = 5;
-                    nextTarget = 10;
-                    nextDiscount = 10;
-                }
-
-                // 상태 텍스트
-                const statusText = pCount >= 20 
-                    ? `<span class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> 최대 할인율(20%) 달성!</span>`
-                    : `<span class="text-gray-500 text-[13px]"><b class="text-blue-600">${nextTarget - pCount}개</b> 단지 추가 시 <b class="text-red-500">${nextDiscount}%</b> 할인</span>`;
-
-                return `
-                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md joint-bid-card flex flex-col h-full relative overflow-hidden">
-                    <div class="flex justify-between items-start mb-4">
-                        <!-- 💡 카테고리 뱃지를 주황색 테마로 변경 -->
-                        <span class="bg-orange-50 text-orange-600 text-[12px] font-bold px-3 py-1 rounded border border-orange-200">${badgeItem}</span>
-                        <span class="${badgeColor} text-white text-[12px] font-bold px-3 py-1 rounded shadow-sm">${dDayBadge}</span>
-                    </div>
-                    
-                    <h3 class="text-[17px] font-extrabold text-gray-900 mb-5 leading-snug line-clamp-2">${title}</h3>
-                    
-                    <!-- 💡 박스 배경색 연한 파란색(bg-blue-50)으로 변경 -->
-                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 flex-1 mb-5 flex flex-col justify-center gap-3">
-                        <div class="flex justify-between items-end">
-                            <div class="font-bold text-slate-700 text-[14px]">
-                                현재 <span class="text-blue-700 text-[16px]">${pCount}</span>개 단지 참여
-                            </div>
-                            <div class="font-black text-red-600 text-[16px]">
-                                현재 ${currentDiscount}% 할인
-                            </div>
-                        </div>
-                        
-                        <div class="text-right mt-1">
-                            ${statusText}
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2.5 mt-auto">
-                        <button class="bg-[#f8fafc] text-[#475569] border border-[#e2e8f0] hover:bg-[#f1f5f9] hover:border-[#cbd5e1] font-bold py-3 rounded-lg text-[14px] transition-colors">
-                            상세 정보 보기
-                        </button>
-                        <button class="bg-[#f0f9ff] text-[#0284c7] border border-[#e0f2fe] hover:bg-[#e0f2fe] hover:border-[#bae6fd] font-bold py-3 rounded-lg text-[14px] transition-colors shadow-sm">
-                            참여 현황 보기
-                        </button>
-                    </div>
-                </div>
+            checkedMajors.forEach(major => {
+                html += `
+                <div class="mb-5">
+                    <div class="font-bold text-[#12387a] mb-2 text-[14px] border-b border-gray-200 pb-1">[${major}]</div>
+                    <div class="grid grid-cols-3 gap-x-1 gap-y-2.5">
                 `;
-            }).join('');
+
+                if (major === '전국') {
+                    const isChecked = tags.includes('전국 전체') ? 'checked' : '';
+                    html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="전국 전체" class="sub-region-checkbox w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">지역무관</span></label>`;
+                } else {
+                    const majorAllVal = `${major} 전체`;
+                    const isAllChecked = tags.includes(majorAllVal) ? 'checked' : '';
+                    html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${majorAllVal}" class="sub-region-checkbox w-3.5 h-3.5 cursor-pointer" ${isAllChecked}> <span class="font-bold text-[#12387a] truncate">${majorAllVal}</span></label>`;
+
+                    if (typeof subRegionData !== 'undefined' && subRegionData[major]) {
+                        subRegionData[major].forEach(minor => {
+                            if (minor.replace(/\s+/g, '') !== `${major}전체`) {
+                                const isChecked = tags.includes(minor) ? 'checked' : '';
+                                html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${minor}" class="sub-region-checkbox w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">${minor}</span></label>`;
+                            }
+                        });
+                    }
+                }
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        };
+
+        window.closeRegionMinorView = function() {
+            document.getElementById('company-region-minor-section').classList.remove('flex');
+            document.getElementById('company-region-minor-section').classList.add('hidden');
+            document.getElementById('company-region-major-section').classList.remove('hidden');
+        };
+
+        const mainContent = document.getElementById('main-content');
+        (function wrapOwnContent() {
+            const ownPanel = document.createElement('div'); ownPanel.className = 'tab-panel'; ownPanel.dataset.tabUrl = 'joint-bid.html';
+            while (mainContent.firstChild) { ownPanel.appendChild(mainContent.firstChild); }
+            mainContent.appendChild(ownPanel);
+        })();
+
+        function loadContent(url, element) {
+            if (element && element.classList.contains('side-menu-tab-active')) return;
+
+            document.documentElement.classList.add('no-page-transition');
+            if (document.activeViewTransition) {
+                document.activeViewTransition.skipTransition();
+            }
+
+            window.scrollTo(0, 0);
+
+            const activateMenu = () => {
+                const menuContainer = document.getElementById('side-menu-container');
+                if (menuContainer) { menuContainer.querySelectorAll('div').forEach(menu => { menu.className = 'side-menu-tab'; }); }
+                element.className = 'side-menu-tab-active';
+                window.history.pushState({ path: url }, '', url);
+            };
+
+            const existingPanel = mainContent.querySelector(`[data-tab-url="${url}"]`);
+            if (existingPanel) {
+                mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+                existingPanel.style.display = ''; activateMenu();
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    document.documentElement.classList.remove('no-page-transition');
+                }));
+                return;
+            }
+
+            fetch(url).then(response => { if (!response.ok) throw new Error('Network response was not ok'); return response.text(); })
+                .then(html => {
+                    const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); const newContent = doc.getElementById('main-content');
+                    if (!newContent) { location.href = url; return; }
+                    mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
+                    const newPanel = document.createElement('div'); newPanel.className = 'tab-panel'; newPanel.dataset.tabUrl = url; newPanel.innerHTML = newContent.innerHTML;
+                    mainContent.appendChild(newPanel); activateMenu();
+
+                    const SHARED_SCRIPT_PATTERN = /header\.js|footer\.js|region-data\.js|tailwindcss\.com|supabase-js/;
+                    const alreadyLoadedSrcs = Array.from(document.scripts).map(s => s.src).filter(Boolean);
+                    doc.querySelectorAll('script').forEach(oldScript => {
+                        if (oldScript.src) {
+                            const resolvedSrc = new URL(oldScript.getAttribute('src'), document.baseURI).href;
+                            if (alreadyLoadedSrcs.includes(resolvedSrc) || SHARED_SCRIPT_PATTERN.test(resolvedSrc)) return;
+                            const s = document.createElement('script'); s.src = resolvedSrc; document.body.appendChild(s);
+                        } else {
+                            try { const s = document.createElement('script'); s.textContent = oldScript.textContent; document.body.appendChild(s); s.remove(); } catch (err) {}
+                        }
+                    });
+
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        document.documentElement.classList.remove('no-page-transition');
+                    }));
+                }).catch(error => { location.href = url; });
         }
+        window.addEventListener('popstate', function(event) { location.reload(); });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
     </script>
 </body>
 </html>
