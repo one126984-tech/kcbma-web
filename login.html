@@ -861,7 +861,11 @@
         const naverLoginSdk = new naver.LoginWithNaverId({
             clientId: "QQt53ijWrcAksEFEIQcc",
             callbackUrl: window.location.origin + "/callback.html",
-            isPopup: false
+            isPopup: false,
+            // ★ 이 옵션이 없으면 SDK가 버튼 자체를 안 그리는 경우가 있어서 명시적으로 지정.
+            //   실제로는 우리 버튼 위에 투명하게 겹쳐서 안 보이지만, SDK가 뭔가를
+            //   그려야 클릭 가능한 영역이 생김.
+            loginButton: { color: "green", type: 3, height: 60 }
         });
         naverLoginSdk.init();
         document.getElementById('naverIdLogin').addEventListener('click', function () {
@@ -869,6 +873,12 @@
                 localStorage.setItem('returnUrl', '/index.html');
             }
         });
+        // ★ 디버그용: 0.5초 뒤 SDK가 실제로 버튼(a 태그)을 만들었는지 콘솔에 기록.
+        //   문제가 재발하면 콘솔에서 이 로그만 봐도 SDK 자체 실패인지 바로 알 수 있음.
+        setTimeout(function () {
+            const created = !!document.querySelector('#naverIdLogin a');
+            console.log('[네이버 로그인 SDK] 버튼 생성됨:', created);
+        }, 500);
 
         // 이메일 매직 링크 발송
         async function sendMagicLink() {
