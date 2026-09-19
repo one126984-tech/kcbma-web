@@ -18,9 +18,13 @@
       const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
       // 2. 네이버 정보 받아오기 세팅
+      // ★ 로그인 버튼(login.src.html의 startNaverLogin)이 현재 접속 도메인 기준으로
+      //   콜백 주소를 동적으로 만들어 네이버에 보내는데, 여기서는 항상 운영 도메인으로
+      //   고정되어 있어서 로컬(127.0.0.1:5500 등)에서 테스트하면 주소가 서로 어긋나
+      //   네이버 로그인이 아예 시작되지 않는 문제가 있었음. 동일하게 동적으로 맞춤.
       const naverLogin = new naver.LoginWithNaverId({
         clientId: "QQt53ijWrcAksEFEIQcc",
-        callbackUrl: "https://www.kcbma.org/callback.html", 
+        callbackUrl: window.location.origin + "/callback.html",
         isPopup: false
       });
       naverLogin.init();

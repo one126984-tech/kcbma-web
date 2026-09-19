@@ -64,6 +64,12 @@
             <button onclick="startNaverLogin()" class="w-full bg-[#03c75a] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#02b351] transition-colors shadow-sm cursor-pointer">
                 <span class="absolute left-5 font-black text-lg">N</span> 네이버계정으로 시작하기
             </button>
+            <!-- ★ 2026-09: 네이버 공식 SDK가 만드는 진짜 로그인 버튼(화면엔 숨김).
+                 callback.html도 같은 SDK로 로그인 상태를 확인하는데, 예전엔 이 버튼 없이
+                 주소를 직접 조립해서 보내다 보니 SDK가 "자기가 시작한 요청이 아니다"라고
+                 판단해 client info invalid 에러를 냈음. 이제 이 숨은 버튼을 대신 클릭시켜서
+                 SDK가 직접 요청을 시작하도록 통일함. -->
+            <div id="naverIdLogin" style="display:none"></div>
             <button onclick="signInWithProvider('kakao')" class="w-full bg-[#FEE500] text-[#000000] rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#f4dc00] transition-colors shadow-sm cursor-pointer">
                 <i class="fas fa-comment absolute left-5 text-lg"></i> 카카오계정으로 시작하기
             </button>
@@ -110,36 +116,52 @@
       window.BASE_PATH = '/';
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 네이버 로그인 공식 SDK (callback.html과 동일한 SDK로 통일) -->
+    <script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
+
     <script>
-        const supabaseUrl = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+        // ★ 2026-09: 이 페이지가 예전엔 자기만의 별도 supabase 클라이언트(supabaseClient)를
+        //   새로 만들어 썼는데, header-close 파샬이 이미 window.sb라는 클라이언트를 하나
+        //   만들어두는 상태라 로그인 페이지에서 클라이언트가 두 개 동시에 뜨는 상황이었음.
+        //   구글 로그인처럼 리다이렉트로 돌아오는 흐름에서 클라이언트가 여러 개면 인증 코드
+        //   교환(로그인 처리)이 깨지는, assets/js/supabase-config.js에도 문서화된 기존 버그와
+        //   같은 원인이라 판단해 여기서도 header-close의 ensureAuthClient()로 만든
+        //   window.sb 하나만 재사용하도록 통일함(별도 클라이언트 생성 제거).
 
         // 구글, 카카오 로그인
         async function signInWithProvider(providerName) {
-            if (!supabaseClient) return;
+            const client = await ensureAuthClient();
+            if (!client) return;
             const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
-            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            const { data, error } = await client.auth.signInWithOAuth({
                 provider: providerName,
                 options: { redirectTo: window.location.origin + returnUrl }
             });
             if (error) alert("로그인 에러: " + error.message);
         }
 
-        // 네이버 로그인 (동적 콜백 URL 적용)
+        // 네이버 로그인 (공식 SDK 사용, 동적 콜백 URL 적용)
+        // ★ 예전엔 response_type=token 으로 주소를 직접 조립해 네이버로 보냈는데,
+        //   callback.html은 네이버 SDK로 로그인 상태를 확인하는 방식이라 서로 안 맞아
+        //   "client info invalid" 에러가 났음. 이제 SDK가 만드는 숨은 버튼을 대신
+        //   클릭시켜서, SDK가 직접(내부적으로 code 방식으로) 요청을 시작하도록 통일함.
+        const naverLoginSdk = new naver.LoginWithNaverId({
+            clientId: "QQt53ijWrcAksEFEIQcc",
+            callbackUrl: window.location.origin + "/callback.html",
+            isPopup: false
+        });
+        naverLoginSdk.init();
+
         function startNaverLogin() {
             if (!localStorage.getItem('returnUrl')) {
                 localStorage.setItem('returnUrl', '/index.html');
             }
-            const clientId = "QQt53ijWrcAksEFEIQcc"; 
-            
-            // 현재 접속 중인 도메인(127.0.0.1 또는 실서버)을 감지하여 콜백 주소 자동 생성
-            const currentOrigin = window.location.origin;
-            const callbackUrl = encodeURIComponent(currentOrigin + "/callback.html"); 
-            
-            const state = Math.random().toString(36).substr(2, 11);
-            window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${clientId}&redirect_uri=${callbackUrl}&state=${state}`;
+            const hiddenBtn = document.querySelector('#naverIdLogin a');
+            if (hiddenBtn) {
+                hiddenBtn.click();
+            } else {
+                alert("네이버 로그인 준비 중입니다. 잠시 후 다시 시도해주세요.");
+            }
         }
 
         // 이메일 매직 링크 발송
@@ -158,8 +180,9 @@
             sendBtn.innerText = "발송 중...";
             sendBtn.classList.add('opacity-70');
 
+            const client = await ensureAuthClient();
             const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
-            const { error } = await supabaseClient.auth.signInWithOtp({
+            const { error } = await client.auth.signInWithOtp({
                 email: email,
                 options: {
                     emailRedirectTo: window.location.origin + returnUrl,
