@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
+<meta name="google" content="notranslate" />
     <meta charset="UTF-8">
     <title>네이버 로그인 처리중...</title>
+    <!-- 네이버 및 Supabase SDK -->
     <script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div style="margin-top: 100px; text-align: center;">
-        <h3>로그인 처리 중입니다. 잠시만 기다려주세요...</h3>
-    </div>
+    <p>로그인 처리 중입니다. 잠시만 기다려주세요...</p>
 
     <script>
       // 1. Supabase 세팅
@@ -18,63 +18,67 @@
       const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
       // 2. 네이버 정보 받아오기 세팅
+      // ★ 로그인 버튼(login.src.html의 startNaverLogin)이 현재 접속 도메인 기준으로
+      //   콜백 주소를 동적으로 만들어 네이버에 보내는데, 여기서는 항상 운영 도메인으로
+      //   고정되어 있어서 로컬(127.0.0.1:5500 등)에서 테스트하면 주소가 서로 어긋나
+      //   네이버 로그인이 아예 시작되지 않는 문제가 있었음. 동일하게 동적으로 맞춤.
       const naverLogin = new naver.LoginWithNaverId({
-        clientId: "VD2UEjPCJu9cGeA6Ywdr",
+        clientId: "VD2UEjPCJu9cGeA6Ywdr", // ★ 2026-09: 새 네이버 앱으로 교체 (기존 앱 client info invalid 문제)
         callbackUrl: window.location.origin + "/callback.html",
         isPopup: false
       });
       naverLogin.init();
 
-      // 3. 로그인 정보 처리
+      // 3. 로그인 정보 처리 및 원래 페이지로 돌려보내기
+      // ★ 2026-09: 예전엔 "네이버아이디를 비밀번호처럼" 써서 Supabase에 직접
+      //   signIn/signUp을 시도했는데, 같은 이메일로 이미 다른 방식(매직링크 등)
+      //   가입이 되어 있으면 계정이 충돌해 로그인이 조용히 실패하는 문제가 있었음.
+      //   지금은 서버 함수(naver-login Edge Function, 관리자 권한)가 "이 이메일로
+      //   로그인 가능한 1회용 링크"를 내려주고, 그 링크를 브라우저에서 바로
+      //   소비(verifyOtp)하는 방식으로 바꿔서 — 이메일이 어떤 경로로 가입됐든
+      //   항상 같은 계정으로 로그인되도록 통합함.
       window.addEventListener('load', function () {
         naverLogin.getLoginStatus(async function (status) {
+          try {
           if (status) {
             const email = naverLogin.user.getEmail();
-            const naverId = naverLogin.user.getId(); 
             const name = naverLogin.user.getName();
-            
-            try {
-                // (1) 먼저 로그인을 시도합니다.
-                const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
-                    email: email, 
-                    password: naverId 
-                });
 
-                // (2) 로그인 실패 시 (가입된 적이 없거나 정보가 다를 때) 회원가입을 시도합니다.
-                if (signInError) {
-                    const { data: signUpData, error: signUpError } = await _supabase.auth.signUp({
-                        email: email, 
-                        password: naverId, 
-                        options: { data: { full_name: name } }
-                    });
+            const { data: fnData, error: fnError } = await _supabase.functions.invoke('naver-login', {
+              body: { email, name }
+            });
 
-                    if (signUpError) {
-                        console.error("회원가입 에러:", signUpError.message);
-                        alert("로그인 처리 중 문제가 발생했습니다.");
-                        window.location.replace('index.html');
-                        return;
-                    }
-                    
-                    // 회원가입 직후 세션이 없다면 Supabase 설정 문제입니다. (2단계에서 해결)
-                    if (!signUpData.session) {
-                        alert("회원가입은 성공했으나, Supabase의 '이메일 인증(Confirm Email)' 설정이 켜져 있어 로그인이 보류되었습니다.");
-                        window.location.replace('index.html');
-                        return;
-                    }
-                }
-
-                // (3) 처리가 끝나면 원래 페이지(또는 메인 페이지)로 자연스럽게 돌아갑니다.
-                const returnUrl = localStorage.getItem('returnUrl') || 'index.html';
-                localStorage.removeItem('returnUrl');
-                window.location.replace(returnUrl); 
-
-            } catch (e) {
-                console.error("처리 중 예외 발생:", e);
-                window.location.replace('index.html');
+            if (fnError || !fnData || fnData.error) {
+              // ★★ 임시 진단 코드 — 정상화되면 이 alert는 지우고 조용히 재시도/안내로 바꿀 예정 ★★
+              alert("계정 연동 서버 함수 오류:\n" + (fnData?.error || fnError?.message || "알 수 없는 오류"));
+              window.location.href = '/login.html';
+              return;
             }
+
+            const { data: verifyData, error: verifyError } = await _supabase.auth.verifyOtp({
+              token_hash: fnData.token_hash,
+              type: 'magiclink'
+            });
+
+            if (verifyError || !verifyData?.session) {
+              // ★★ 임시 진단 코드 ★★
+              alert("로그인 세션 생성 실패:\n" + (verifyError?.message || "세션 없음"));
+              window.location.href = '/login.html';
+              return;
+            }
+
+            // 처리가 끝났으므로, 처음에 저장해둔 원래 페이지(예: 구인구직) 주소를 꺼내서 그곳으로 이동시킵니다.
+            const returnUrl = localStorage.getItem('returnUrl') || '/';
+            localStorage.removeItem('returnUrl'); // 쓴 주소는 청소
+            window.location.href = returnUrl; 
           } else {
              alert("네이버 로그인에 실패했습니다.");
-             window.location.replace('index.html');
+             window.location.href = '/';
+          }
+          } catch (e) {
+            // ★★ 임시 진단 코드 — 조용히 죽는 예외를 잡아서 보여줌 ★★
+            alert("처리 중 예외 발생:\n" + e.message);
+            console.error(e);
           }
         });
       });
