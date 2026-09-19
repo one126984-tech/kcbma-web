@@ -46,6 +46,7 @@
             });
 
             // ★★ 임시 진단 코드 — 원인 파악되면 삭제 예정 ★★
+            alert("signInWithPassword 결과\n에러: " + (error ? error.message : "없음") + "\n세션 있음?: " + (!!data?.session) + "\nuser 있음?: " + (!!data?.user) + "\nuser confirmed?: " + (data?.user ? !!data.user.email_confirmed_at : "N/A"));
             if (error) {
               console.log('[네이버→Supabase 로그인] signIn 에러:', error);
             } else {
