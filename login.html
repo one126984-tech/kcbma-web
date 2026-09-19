@@ -768,13 +768,17 @@
                 <button class="w-full bg-[#03c75a] text-white rounded-lg py-2.5 flex items-center justify-center font-bold text-[14px] relative hover:bg-[#02b351] transition-colors shadow-sm cursor-pointer">
                     <span class="absolute left-5 font-black text-lg">N</span> 네이버계정으로 시작하기
                 </button>
-                <div id="naverIdLogin" class="absolute inset-0 opacity-0 overflow-hidden"></div>
+                <div id="naverIdLogin" class="absolute inset-0 overflow-hidden" style="opacity:0 !important; z-index:2;"></div>
                 <style>
                     /* SDK가 넣는 실제 버튼(a, img)이 기본 크기로 작게 렌더링되므로,
-                       클릭 가능한 영역이 우리 버튼 전체를 덮도록 강제로 꽉 채움 */
-                    #naverIdLogin, #naverIdLogin a, #naverIdLogin img {
+                       클릭 가능한 영역이 우리 버튼 전체를 덮도록 강제로 꽉 채움.
+                       ★ opacity는 부모(#naverIdLogin)에서 이미 강제하지만, 혹시 몰라
+                       자식 요소에도 한 번 더 강제해서 SDK 버튼 글씨(예: "네이버 아이디로
+                       로그인")가 우리 버튼 위에 그대로 보이던 문제를 확실히 막음. */
+                    #naverIdLogin, #naverIdLogin a, #naverIdLogin img, #naverIdLogin span {
                         width: 100% !important;
                         height: 100% !important;
+                        opacity: 0 !important;
                         display: block !important;
                         cursor: pointer;
                     }
