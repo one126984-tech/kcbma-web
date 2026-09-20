@@ -397,9 +397,21 @@
         .custom-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; font-weight: 500; white-space: nowrap; }
         .custom-checkbox input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
 
-        .cert-showcase-wrap { position: relative; overflow: hidden; border-radius: 20px; padding: 40px 28px; margin-top: 22px; background: linear-gradient(135deg, #0B2A5B 0%, #12387a 55%, #1a2f5c 100%); }
-        .cert-showcase-wrap::before { content: ''; position: absolute; top: -90px; right: -90px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%); pointer-events: none; }
-        .cert-showcase-wrap::after { content: ''; position: absolute; bottom: -110px; left: -70px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,0.14), transparent 70%); pointer-events: none; }
+        /* 수정된 부분: 파란색 배경을 삭제하고 노란색 사진을 배경으로 지정 */
+        .cert-showcase-wrap { 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 20px; 
+            padding: 40px 28px; 
+            margin-top: 22px; 
+            background-image: url('chenspec-yellow.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+        }
+        
+        .cert-showcase-wrap::before { content: ''; position: absolute; top: -90px; right: -90px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%); pointer-events: none; }
+        .cert-showcase-wrap::after { content: ''; position: absolute; bottom: -110px; left: -70px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 70%); pointer-events: none; }
 
         .cert-premium-card { position: relative; z-index: 1; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px -14px rgba(0,0,0,0.4); display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: box-shadow 0.25s ease; }
         .cert-premium-card:hover { box-shadow: 0 24px 46px -10px rgba(0,0,0,0.5), 0 0 0 2px #d4af37; }
@@ -678,7 +690,7 @@
                 return; 
             }
 
-            const { count, error } = await supabase
+            const { count, error } = await window.sb
                 .from('notifications')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
