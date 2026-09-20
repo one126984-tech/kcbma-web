@@ -51,6 +51,40 @@
 
         .chat-row td { background: #f9fafb; text-align: left; padding: 16px; }
         .chat-box { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px; }
+
+        /* SOS 상단 탭 (접수 목록 / 전문가 관리) */
+        .sos-tab { padding: 10px 20px; font-size: 14px; font-weight: bold; color: #6b7280; border-bottom: 3px solid transparent; cursor: pointer; transition: all .15s; }
+        .sos-tab:hover { color: #1e3a8a; }
+        .sos-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; }
+
+        .btn-primary-sm { display: inline-flex; align-items: center; gap: 6px; background: #12387a; color: #fff; font-weight: bold; font-size: 13px; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: background .15s; }
+        .btn-primary-sm:hover { background: #0d2a5c; }
+
+        .badge-avail-y { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: bold; }
+        .badge-avail-n { background: #f3f4f6; color: #9ca3af; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: bold; }
+
+        /* 모달 공통 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: #fff; border-radius: 12px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+        .modal-box h3 { font-size: 17px; font-weight: 900; color: #0B2A5B; margin-bottom: 16px; }
+        .modal-field { margin-bottom: 12px; }
+        .modal-field label { display: block; font-size: 12px; font-weight: bold; color: #6b7280; margin-bottom: 4px; }
+        .modal-field input[type="text"], .modal-field input[type="tel"], .modal-field select, .modal-field textarea {
+            width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 10px; font-size: 13.5px; box-sizing: border-box;
+        }
+        .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { outline: none; border-color: #12387a; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+        .modal-actions button { flex: 1; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13.5px; cursor: pointer; }
+        .modal-btn-cancel { background: #f3f4f6; color: #374151; }
+        .modal-btn-save { background: #12387a; color: #fff; }
+
+        /* 전문가 배정 모달의 후보 카드 */
+        .expert-pick-card { display: flex; align-items: center; gap: 10px; border: 2px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all .15s; margin-bottom: 8px; }
+        .expert-pick-card:hover { border-color: #93c5fd; }
+        .expert-pick-card.selected { border-color: #12387a; background: #eff6ff; }
+        .expert-pick-card .name { font-weight: bold; font-size: 14px; color: #1f2937; }
+        .expert-pick-card .meta { font-size: 11.5px; color: #6b7280; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -77,6 +111,14 @@
 
         <section class="flex-1 min-w-0 flex flex-col gap-6">
             <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">긴급 SOS 관리</div>
+
+            <div class="flex border-b border-gray-200">
+                <div class="sos-tab active" id="tab-btn-requests" onclick="switchTab('requests')">접수 목록</div>
+                <div class="sos-tab" id="tab-btn-experts" onclick="switchTab('experts')">전문가 관리</div>
+            </div>
+
+            <!-- ================= 탭1: 접수 목록 ================= -->
+            <div id="tab-requests">
 
             <table class="filter-table shadow-sm">
                 <tr>
@@ -123,8 +165,119 @@
                     </table>
                 </div>
             </div>
+
+            </div>
+            <!-- ================= /탭1 ================= -->
+
+            <!-- ================= 탭2: 전문가 관리 ================= -->
+            <div id="tab-experts" class="hidden flex-col gap-4">
+
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-500">등록된 전문가는 접수 건 배정 시 목록에서 바로 선택할 수 있습니다.</p>
+                    <div class="btn-primary-sm" onclick="openExpertForm()"><i class="fa-solid fa-user-plus"></i> 신규 전문가 등록</div>
+                </div>
+
+                <div class="section-card">
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>연락처</th>
+                                    <th>전문분야</th>
+                                    <th>활동지역</th>
+                                    <th>응답가능</th>
+                                    <th>누적처리</th>
+                                    <th>평균별점</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expert-list-body">
+                                <tr><td colspan="8" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ================= /탭2 ================= -->
+
         </section>
     </main>
+
+    <!-- ================= 전문가 등록/수정 모달 ================= -->
+    <div id="expert-form-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="expert-form-title">신규 전문가 등록</h3>
+            <input type="hidden" id="expert-form-id">
+            <div class="modal-field">
+                <label>이름 <span class="text-red-500">*</span></label>
+                <input type="text" id="expert-form-name" placeholder="예: 홍길동">
+            </div>
+            <div class="modal-field">
+                <label>연락처 <span class="text-red-500">*</span></label>
+                <input type="tel" id="expert-form-phone" placeholder="예: 010-1234-5678">
+            </div>
+            <div class="modal-field">
+                <label>전문분야 <span class="text-red-500">*</span></label>
+                <select id="expert-form-category">
+                    <option value="화재">화재 / 소방</option>
+                    <option value="누수">누수 / 배관</option>
+                    <option value="전기">정전 / 전기</option>
+                    <option value="승강기">승강기 고장</option>
+                    <option value="가스">가스 누출</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label>활동지역 (대분류)</label>
+                <input type="text" id="expert-form-region-main" placeholder="예: 서울특별시">
+            </div>
+            <div class="modal-field">
+                <label>활동지역 (소분류)</label>
+                <input type="text" id="expert-form-region-sub" placeholder="예: 강남구">
+            </div>
+            <div class="modal-field">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="expert-form-available" style="width:16px;height:16px;" checked>
+                    <span class="text-sm font-bold text-gray-700">현재 응답 가능</span>
+                </label>
+            </div>
+            <div class="modal-field">
+                <label>메모 (자격증, 특이사항 등)</label>
+                <textarea id="expert-form-memo" rows="2" placeholder="선택 입력"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn-cancel" onclick="closeExpertForm()">취소</button>
+                <button class="modal-btn-save" onclick="saveExpert()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 전문가 배정 모달 ================= -->
+    <div id="assign-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>전문가 배정</h3>
+            <p id="assign-modal-category" class="text-xs text-gray-500 mb-3"></p>
+            <div id="assign-expert-candidates"></div>
+            <div class="border-t border-gray-200 mt-3 pt-3">
+                <p class="text-xs text-gray-400 mb-2">등록된 전문가 중 마땅한 분이 없다면 직접 입력할 수 있습니다.</p>
+                <div class="modal-field">
+                    <label>직접 입력 — 이름</label>
+                    <input type="text" id="assign-manual-name" placeholder="등록되지 않은 전문가 이름">
+                </div>
+                <div class="modal-field">
+                    <label>직접 입력 — 연락처</label>
+                    <input type="tel" id="assign-manual-phone" placeholder="010-0000-0000">
+                </div>
+            </div>
+            <input type="hidden" id="assign-request-id">
+            <div class="modal-actions">
+                <button class="modal-btn-cancel" onclick="closeAssignModal()">취소</button>
+                <button class="modal-btn-save" onclick="confirmAssign()">배정 확정</button>
+            </div>
+        </div>
+    </div>
 
     <div id="footer-container"></div>
     <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
@@ -132,7 +285,19 @@
     <script>
         const supabaseClient = window.sb;
         let allRequests = [], allMatches = [], filteredRequests = [];
+        let allExperts = [];
         let openChatRequestId = null;
+        let selectedAssignExpertId = null;
+
+        function switchTab(tab) {
+            const isReq = tab === 'requests';
+            document.getElementById('tab-requests').classList.toggle('hidden', !isReq);
+            document.getElementById('tab-experts').classList.toggle('hidden', isReq);
+            document.getElementById('tab-experts').classList.toggle('flex', !isReq);
+            document.getElementById('tab-btn-requests').classList.toggle('active', isReq);
+            document.getElementById('tab-btn-experts').classList.toggle('active', !isReq);
+            if (!isReq) fetchExperts();
+        }
 
         async function checkAdmin() {
             const { data: { user } } = await supabaseClient.auth.getUser();
@@ -319,27 +484,244 @@
             loadChat(requestId);
         }
 
-        async function assignExpert(requestId) {
-            const name = prompt('배정할 전문가 이름을 입력하세요');
-            if (!name) return;
-            const phone = prompt('전문가 연락처를 입력하세요 (예: 010-1234-5678)');
-            if (!phone) return;
+        // ================= 전문가 관리 (sos_experts) =================
 
-            const { error } = await supabaseClient
-                .from('sos_matches')
-                .insert([{
-                    request_id: requestId,
-                    expert_id: crypto.randomUUID(),
-                    expert_name: name,
-                    expert_phone: phone
-                }]);
+        async function fetchExperts() {
+            const tbody = document.getElementById('expert-list-body');
+            const { data, error } = await supabaseClient
+                .from('sos_experts')
+                .select('*')
+                .order('is_available', { ascending: false })
+                .order('name', { ascending: true });
 
             if (error) {
-                console.error('전문가 배정 오류:', error);
-                alert('전문가 배정 중 오류가 발생했습니다. (sos_matches에 expert_name/expert_phone 컬럼이 있는지 확인해 주세요)');
+                console.error('전문가 목록 조회 오류:', error);
+                tbody.innerHTML = '<tr><td colspan="8" class="py-14 text-red-500">전문가 목록을 불러오지 못했습니다. (sos_experts 테이블이 생성되어 있는지 확인해 주세요)</td></tr>';
+                return;
+            }
+            allExperts = data || [];
+            renderExpertList();
+        }
+
+        function renderExpertList() {
+            const tbody = document.getElementById('expert-list-body');
+            if (allExperts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="py-14 text-gray-400">등록된 전문가가 없습니다. "신규 전문가 등록"으로 추가해 주세요.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = allExperts.map(e => {
+                const region = [e.region_main, e.region_sub].filter(Boolean).join(' ') || '-';
+                const rating = e.avg_rating ? `★ ${Number(e.avg_rating).toFixed(1)}` : '-';
+                return `
+                    <tr>
+                        <td class="font-bold">${escapeHtml(e.name)}</td>
+                        <td class="whitespace-nowrap">${escapeHtml(e.phone)}</td>
+                        <td>${escapeHtml(e.category)}</td>
+                        <td class="text-left">${escapeHtml(region)}</td>
+                        <td>
+                            <span class="${e.is_available ? 'badge-avail-y' : 'badge-avail-n'} cursor-pointer" onclick="toggleExpertAvailability('${e.id}', ${e.is_available})">
+                                ${e.is_available ? '가능' : '불가'}
+                            </span>
+                        </td>
+                        <td>${e.total_cases || 0}건</td>
+                        <td>${rating}</td>
+                        <td class="whitespace-nowrap">
+                            <button class="btn-manage btn-assign" onclick="openExpertForm('${e.id}')">수정</button>
+                            <button class="btn-manage btn-chat" onclick="deactivateExpert('${e.id}')">비활성화</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function openExpertForm(expertId) {
+            const isEdit = !!expertId;
+            document.getElementById('expert-form-title').innerText = isEdit ? '전문가 정보 수정' : '신규 전문가 등록';
+            document.getElementById('expert-form-id').value = expertId || '';
+
+            if (isEdit) {
+                const e = allExperts.find(x => x.id === expertId);
+                if (!e) return;
+                document.getElementById('expert-form-name').value = e.name || '';
+                document.getElementById('expert-form-phone').value = e.phone || '';
+                document.getElementById('expert-form-category').value = e.category || '화재';
+                document.getElementById('expert-form-region-main').value = e.region_main || '';
+                document.getElementById('expert-form-region-sub').value = e.region_sub || '';
+                document.getElementById('expert-form-available').checked = !!e.is_available;
+                document.getElementById('expert-form-memo').value = e.memo || '';
+            } else {
+                document.getElementById('expert-form-name').value = '';
+                document.getElementById('expert-form-phone').value = '';
+                document.getElementById('expert-form-category').value = '화재';
+                document.getElementById('expert-form-region-main').value = '';
+                document.getElementById('expert-form-region-sub').value = '';
+                document.getElementById('expert-form-available').checked = true;
+                document.getElementById('expert-form-memo').value = '';
+            }
+            document.getElementById('expert-form-modal').classList.add('open');
+        }
+
+        function closeExpertForm() {
+            document.getElementById('expert-form-modal').classList.remove('open');
+        }
+
+        async function saveExpert() {
+            const id = document.getElementById('expert-form-id').value;
+            const name = document.getElementById('expert-form-name').value.trim();
+            const phone = document.getElementById('expert-form-phone').value.trim();
+            const category = document.getElementById('expert-form-category').value;
+            const region_main = document.getElementById('expert-form-region-main').value.trim() || null;
+            const region_sub = document.getElementById('expert-form-region-sub').value.trim() || null;
+            const is_available = document.getElementById('expert-form-available').checked;
+            const memo = document.getElementById('expert-form-memo').value.trim() || null;
+
+            if (!name || !phone) {
+                alert('이름과 연락처는 필수입니다.');
                 return;
             }
 
+            const payload = { name, phone, category, region_main, region_sub, is_available, memo, last_active_at: new Date().toISOString() };
+
+            const { error } = id
+                ? await supabaseClient.from('sos_experts').update(payload).eq('id', id)
+                : await supabaseClient.from('sos_experts').insert([payload]);
+
+            if (error) {
+                console.error('전문가 저장 오류:', error);
+                alert('전문가 정보 저장 중 오류가 발생했습니다. (sos_experts 테이블/RLS 설정을 확인해 주세요)');
+                return;
+            }
+
+            closeExpertForm();
+            await fetchExperts();
+        }
+
+        async function toggleExpertAvailability(expertId, current) {
+            const { error } = await supabaseClient
+                .from('sos_experts')
+                .update({ is_available: !current, last_active_at: new Date().toISOString() })
+                .eq('id', expertId);
+
+            if (error) {
+                console.error('상태 변경 오류:', error);
+                alert('응답가능 상태 변경 중 오류가 발생했습니다.');
+                return;
+            }
+            await fetchExperts();
+        }
+
+        async function deactivateExpert(expertId) {
+            if (!confirm('이 전문가를 비활성화하시겠습니까? (배정 후보 목록에서 더 이상 보이지 않습니다)')) return;
+            const { error } = await supabaseClient
+                .from('sos_experts')
+                .update({ is_active: false, is_available: false })
+                .eq('id', expertId);
+
+            if (error) {
+                console.error('비활성화 오류:', error);
+                alert('비활성화 중 오류가 발생했습니다.');
+                return;
+            }
+            await fetchExperts();
+        }
+
+        // ================= 전문가 배정 (sos_matches) =================
+
+        async function assignExpert(requestId) {
+            const req = allRequests.find(r => r.id === requestId);
+            if (!allExperts.length) await fetchExperts();
+
+            selectedAssignExpertId = null;
+            document.getElementById('assign-request-id').value = requestId;
+            document.getElementById('assign-manual-name').value = '';
+            document.getElementById('assign-manual-phone').value = '';
+            document.getElementById('assign-modal-category').innerText = req ? `상황: ${req.category} / 위치: ${req.region || '-'}` : '';
+
+            const candidates = allExperts.filter(e => e.is_active !== false && e.category === (req && req.category));
+            const others = allExperts.filter(e => e.is_active !== false && e.category !== (req && req.category));
+            const list = [...candidates, ...others];
+
+            const box = document.getElementById('assign-expert-candidates');
+            if (list.length === 0) {
+                box.innerHTML = '<p class="text-xs text-gray-400 mb-2">등록된 전문가가 없습니다. 아래에서 직접 입력해 주세요.</p>';
+            } else {
+                box.innerHTML = list.map(e => {
+                    const region = [e.region_main, e.region_sub].filter(Boolean).join(' ') || '지역 미등록';
+                    const rating = e.avg_rating ? `★${Number(e.avg_rating).toFixed(1)}` : '평점없음';
+                    const sameCat = req && e.category === req.category;
+                    return `
+                        <div class="expert-pick-card" id="pick-${e.id}" onclick="selectExpertCandidate('${e.id}')">
+                            <div class="flex-1 min-w-0">
+                                <div class="name">${escapeHtml(e.name)} ${sameCat ? '<span class="text-blue-600 text-[11px] font-bold">(분야일치)</span>' : ''}</div>
+                                <div class="meta">${escapeHtml(e.category)} · ${escapeHtml(region)} · ${rating} · 누적 ${e.total_cases || 0}건</div>
+                            </div>
+                            <div>${e.is_available ? '<span class="badge-avail-y">응답가능</span>' : '<span class="badge-avail-n">응답불가</span>'}</div>
+                        </div>`;
+                }).join('');
+            }
+
+            document.getElementById('assign-modal').classList.add('open');
+        }
+
+        function selectExpertCandidate(expertId) {
+            selectedAssignExpertId = (selectedAssignExpertId === expertId) ? null : expertId;
+            document.querySelectorAll('.expert-pick-card').forEach(el => el.classList.remove('selected'));
+            if (selectedAssignExpertId) {
+                document.getElementById(`pick-${selectedAssignExpertId}`).classList.add('selected');
+                document.getElementById('assign-manual-name').value = '';
+                document.getElementById('assign-manual-phone').value = '';
+            }
+        }
+
+        function closeAssignModal() {
+            document.getElementById('assign-modal').classList.remove('open');
+        }
+
+        async function confirmAssign() {
+            const requestId = document.getElementById('assign-request-id').value;
+            const manualName = document.getElementById('assign-manual-name').value.trim();
+            const manualPhone = document.getElementById('assign-manual-phone').value.trim();
+
+            let matchPayload;
+            if (selectedAssignExpertId) {
+                const e = allExperts.find(x => x.id === selectedAssignExpertId);
+                if (!e) { alert('선택한 전문가 정보를 찾을 수 없습니다.'); return; }
+                matchPayload = {
+                    request_id: requestId,
+                    expert_id: e.id,
+                    sos_expert_id: e.id,
+                    expert_name: e.name,
+                    expert_phone: e.phone
+                };
+            } else if (manualName && manualPhone) {
+                matchPayload = {
+                    request_id: requestId,
+                    expert_id: crypto.randomUUID(),
+                    expert_name: manualName,
+                    expert_phone: manualPhone
+                };
+            } else {
+                alert('등록된 전문가를 선택하거나, 직접 입력란에 이름/연락처를 채워주세요.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('sos_matches').insert([matchPayload]);
+
+            if (error) {
+                console.error('전문가 배정 오류:', error);
+                alert('전문가 배정 중 오류가 발생했습니다. (sos_matches 테이블/컬럼 구성을 확인해 주세요)');
+                return;
+            }
+
+            // 등록된 전문가로 배정한 경우 누적건수/최근활동시각 갱신 (실패해도 배정 자체는 이미 완료된 것으로 처리)
+            if (selectedAssignExpertId) {
+                const e = allExperts.find(x => x.id === selectedAssignExpertId);
+                await supabaseClient
+                    .from('sos_experts')
+                    .update({ total_cases: (e.total_cases || 0) + 1, last_active_at: new Date().toISOString() })
+                    .eq('id', selectedAssignExpertId);
+            }
+
+            closeAssignModal();
             await fetchAll();
         }
 
@@ -364,6 +746,7 @@
             const ok = await checkAdmin();
             if (!ok) return;
             fetchAll();
+            fetchExperts();
             setInterval(fetchAll, 20000);
         })();
     </script>
