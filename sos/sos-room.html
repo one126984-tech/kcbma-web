@@ -852,8 +852,12 @@
                             <i class="fa-solid fa-user-gear text-lg"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="font-bold text-gray-800 text-sm">전문가가 배정되었습니다</p>
+                            <p id="match-expert-name" class="font-bold text-gray-800 text-sm">전문가가 배정되었습니다</p>
                             <p id="match-ref" class="text-xs text-gray-500">배정번호 -</p>
+                        </div>
+                        <div id="match-expert-rating" class="hidden shrink-0 text-right">
+                            <p class="text-xs font-black text-yellow-500">★ -</p>
+                            <p class="text-[10px] text-gray-400">누적 -건</p>
                         </div>
                     </div>
 
@@ -861,7 +865,12 @@
                     <div id="rating-card" class="hidden bg-white rounded-xl p-5 shadow-sm border border-gray-200 text-center flex-col items-center gap-3">
                         <p class="font-bold text-gray-800">서비스에 만족하셨나요?</p>
                         <div id="rating-stars" class="flex gap-2 text-3xl text-gray-300"></div>
-                        <p id="rating-thanks" class="hidden text-sm text-green-600 font-bold">소중한 평가 감사합니다.</p>
+                        <textarea id="rating-review-input" rows="2" placeholder="이용 후기를 남겨주시면 다른 이용자에게 도움이 됩니다 (선택)" class="hidden w-full border-2 border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition resize-none"></textarea>
+                        <button id="rating-submit-btn" class="hidden bg-red-600 text-white font-bold text-sm px-5 py-2 rounded-full hover:bg-red-700 transition">후기 남기기</button>
+                        <div id="rating-done" class="hidden w-full text-left bg-gray-50 rounded-lg p-3">
+                            <p class="text-sm text-green-600 font-bold mb-1">소중한 평가 감사합니다.</p>
+                            <p id="rating-done-text" class="text-sm text-gray-700 break-keep"></p>
+                        </div>
                     </div>
 
                     <!-- 전문가와의 채팅 -->
@@ -956,17 +965,47 @@
     function renderMatchCard(match) {
       currentMatch = match;
       const card = document.getElementById('match-info-card');
-      if (match) {
-        card.classList.remove('hidden');
-        card.classList.add('flex');
-        document.getElementById('match-ref').innerText = `배정번호 #${match.id.slice(0, 8).toUpperCase()}`;
-      } else {
+      const nameEl = document.getElementById('match-expert-name');
+      const ratingBox = document.getElementById('match-expert-rating');
+
+      if (!match) {
         card.classList.add('hidden');
         card.classList.remove('flex');
+        return Promise.resolve();
       }
+
+      card.classList.remove('hidden');
+      card.classList.add('flex');
+      document.getElementById('match-ref').innerText = `배정번호 #${match.id.slice(0, 8).toUpperCase()}`;
+
+      if (!match.sos_expert_id) {
+        nameEl.innerText = '전문가가 배정되었습니다';
+        ratingBox.classList.add('hidden');
+        return Promise.resolve();
+      }
+
+      // 등록된 전문가(sos_experts)와 연결된 배정이면 이름/평점/누적건수를 함께 보여줌
+      return supabaseClient
+        .from('sos_experts')
+        .select('name, avg_rating, total_cases')
+        .eq('id', match.sos_expert_id)
+        .maybeSingle()
+        .then(({ data: expert, error }) => {
+          if (error || !expert) {
+            nameEl.innerText = '전문가가 배정되었습니다';
+            ratingBox.classList.add('hidden');
+            return;
+          }
+          nameEl.innerText = `${expert.name} 전문가가 배정되었습니다`;
+          ratingBox.classList.remove('hidden');
+          ratingBox.querySelectorAll('p')[0].innerText = expert.avg_rating ? `★ ${Number(expert.avg_rating).toFixed(1)}` : '★ 신규';
+          ratingBox.querySelectorAll('p')[1].innerText = `누적 ${expert.total_cases || 0}건`;
+        });
     }
 
     // --- 만족도 평가 (작업완료 + 미평가 상태일 때만 노출) ---
+    let selectedRatingScore = 0;
+
     function renderRatingWidget(status, match) {
       const card = document.getElementById('rating-card');
       if (status !== '완료' || !match) {
@@ -978,34 +1017,99 @@
       card.classList.add('flex');
 
       const starsEl = document.getElementById('rating-stars');
-      starsEl.innerHTML = '';
+      const textarea = document.getElementById('rating-review-input');
+      const submitBtn = document.getElementById('rating-submit-btn');
+      const doneBox = document.getElementById('rating-done');
       const already = !!match.satisfaction_score;
+
+      selectedRatingScore = already ? match.satisfaction_score : 0;
+      starsEl.innerHTML = '';
 
       for (let i = 1; i <= 5; i++) {
         const star = document.createElement('i');
-        star.className = 'fa-star cursor-pointer transition ' + (already && i <= match.satisfaction_score ? 'fa-solid text-yellow-400' : (already ? 'fa-regular text-gray-300' : 'fa-regular text-gray-300 hover:text-yellow-300'));
+        star.className = 'fa-star cursor-pointer transition ' + (i <= selectedRatingScore
+          ? 'fa-solid text-yellow-400'
+          : ('fa-regular text-gray-300' + (already ? '' : ' hover:text-yellow-300')));
         if (!already) {
-          star.addEventListener('click', () => submitRating(i));
+          star.dataset.score = i;
+          star.addEventListener('click', () => {
+            selectedRatingScore = i;
+            renderStarHighlight();
+          });
         }
         starsEl.appendChild(star);
       }
-      document.getElementById('rating-thanks').classList.toggle('hidden', !already);
+
+      if (already) {
+        textarea.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+        doneBox.classList.remove('hidden');
+        doneBox.classList.add('block');
+        document.getElementById('rating-done-text').innerText = match.review_text || '';
+      } else {
+        textarea.classList.remove('hidden');
+        submitBtn.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.innerText = '후기 남기기';
+        doneBox.classList.add('hidden');
+      }
     }
 
-    async function submitRating(score) {
+    function renderStarHighlight() {
+      document.querySelectorAll('#rating-stars i').forEach(star => {
+        const i = Number(star.dataset.score);
+        star.className = 'fa-star cursor-pointer transition ' + (i <= selectedRatingScore ? 'fa-solid text-yellow-400' : 'fa-regular text-gray-300 hover:text-yellow-300');
+      });
+    }
+
+    async function submitRating() {
+      if (!selectedRatingScore) {
+        alert('별점을 선택해 주세요.');
+        return;
+      }
+      const reviewText = document.getElementById('rating-review-input').value.trim();
+      const submitBtn = document.getElementById('rating-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '저장 중...';
+
       const { error } = await supabaseClient
         .from('sos_matches')
-        .update({ satisfaction_score: score })
+        .update({ satisfaction_score: selectedRatingScore, review_text: reviewText || null })
         .eq('id', currentMatch.id);
 
       if (error) {
         console.error('평가 저장 오류:', error);
-        alert('평가 저장 중 오류가 발생했습니다.');
+        alert('평가 저장 중 오류가 발생했습니다. (sos_matches에 review_text 컬럼이 있는지 확인해 주세요)');
+        submitBtn.disabled = false;
+        submitBtn.innerText = '후기 남기기';
         return;
       }
-      currentMatch.satisfaction_score = score;
+
+      currentMatch.satisfaction_score = selectedRatingScore;
+      currentMatch.review_text = reviewText;
+
+      // 등록된 전문가(sos_experts)와 연결된 배정이면 평균 별점을 다시 계산해 반영
+      if (currentMatch.sos_expert_id) {
+        const { data: pastMatches } = await supabaseClient
+          .from('sos_matches')
+          .select('satisfaction_score')
+          .eq('sos_expert_id', currentMatch.sos_expert_id)
+          .not('satisfaction_score', 'is', null);
+
+        if (pastMatches && pastMatches.length > 0) {
+          const avg = pastMatches.reduce((sum, m) => sum + m.satisfaction_score, 0) / pastMatches.length;
+          await supabaseClient
+            .from('sos_experts')
+            .update({ avg_rating: Math.round(avg * 100) / 100 })
+            .eq('id', currentMatch.sos_expert_id);
+        }
+      }
+
       renderRatingWidget('완료', currentMatch);
+      renderMatchCard(currentMatch); // 방금 갱신된 평점을 매칭 카드에도 반영
     }
+
+    document.getElementById('rating-submit-btn').addEventListener('click', submitRating);
 
     // --- 채팅 ---
     function renderMessages(messages) {
@@ -1108,7 +1212,7 @@
       }
 
       const match = await loadMatch();
-      renderMatchCard(match);
+      await renderMatchCard(match);
       renderStatus(data.status, !!match);
       renderRatingWidget(data.status, match);
       loadMessages();
@@ -1145,7 +1249,7 @@
           .eq('id', requestId)
           .single();
         const latestMatch = await loadMatch();
-        renderMatchCard(latestMatch);
+        await renderMatchCard(latestMatch);
         if (latest) {
           renderStatus(latest.status, !!latestMatch);
           renderRatingWidget(latest.status, latestMatch);
