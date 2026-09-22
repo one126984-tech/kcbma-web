@@ -42,20 +42,21 @@
     <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
         <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
 
-            <!-- 상단 배너 -->
-            <div id="partner-top-banner" class="text-white py-6 shadow-sm shrink-0 flex flex-col items-center justify-center relative z-20">
-                <button onclick="history.back()" class="absolute left-4 top-6 hover:bg-gray-700 p-2 rounded-full transition">
+            <!-- 상단 배너 (크기 축소 및 버튼 중앙 정렬) -->
+            <div id="partner-top-banner" class="text-white py-4 shadow-sm shrink-0 flex flex-col items-center justify-center relative z-20">
+                <!-- 뒤로가기 버튼: 무조건 이전 페이지로 이동 -->
+                <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-gray-700 p-2 rounded-full transition z-30 cursor-pointer">
                     <i class="fa-solid fa-arrow-left text-lg"></i>
                 </button>
-                <h1 class="text-[20px] font-black tracking-wider text-center break-keep mt-2">
+                <h1 class="text-[20px] font-black tracking-wider text-center break-keep">
                     SOS 서비스 공급자<br><span class="text-yellow-400">파트너 전문가 모집</span>
                 </h1>
             </div>
 
-            <!-- 본문 양식 -->
-            <div class="flex-1 flex flex-col bg-gray-50">
+            <!-- 본문 양식 (배너 크기 조정에 맞춰 둥근 모서리 및 겹침 속성 제거) -->
+            <div class="flex-1 flex flex-col bg-gray-50 relative z-30">
                 <div class="p-5 flex-1 space-y-6 pb-8">
-                    <div class="bg-blue-50 border border-blue-200 py-4 px-4 rounded-xl text-center">
+                    <div class="bg-blue-50 border border-blue-200 py-4 px-4 rounded-xl text-center shadow-sm">
                         <p class="font-bold text-blue-900 text-sm leading-relaxed break-keep">
                         정보를 입력해주시면 <strong class="text-blue-700">관리자 심사 후 개별 연락</strong>을 드리며, 최종 승인 시 파트너 전문가로 활동하실 수 있습니다.
                         </p>
@@ -64,40 +65,45 @@
                     <form id="partner-form" class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">1. 이름 또는 상호명 <span class="text-red-500">*</span></label>
-                            <input type="text" required placeholder="예: 홍길동 또는 한국설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <input type="text" required placeholder=" 예 : 홍길동 또는 한국설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">2. 전문 분야 (복수 선택 가능) <span class="text-red-500">*</span></label>
                             <div class="grid grid-cols-2 gap-2 text-sm font-bold text-gray-600">
-                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 화재/소방
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>화재/소방</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 누수/배관
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>누수/배관</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 정전/전기
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>정전/전기</span>
                                 </label>
-                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 승강기
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>화장실 기기</span>
                                 </label>
+                                <!-- 기타 직접입력란 -->
+                                <div class="flex items-center gap-2 p-2.5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition focus-within:border-[#818cf8] focus-within:bg-indigo-50 bg-white col-span-2 sm:col-span-1">
+                                    <input type="checkbox" id="cat-other" class="w-4 h-4 text-blue-600 rounded cursor-pointer ml-0.5">
+                                    <input type="text" placeholder="기타(직접작성)" class="w-full bg-transparent outline-none text-sm font-bold text-gray-600 placeholder-gray-400" onfocus="document.getElementById('cat-other').checked = true;">
+                                </div>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 활동 지역 <span class="text-red-500">*</span></label>
-                            <input type="text" required placeholder="예: 서울 강남구, 서초구 일대" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <input type="text" required placeholder=" 예 : 서울 강남구, 서초구 일대" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">4. 연락처 <span class="text-red-500">*</span></label>
-                            <input type="tel" required placeholder="예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <input type="tel" required placeholder=" 예 : 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">5. 경력 및 자격사항 <span class="text-gray-400 font-normal">(선택)</span></label>
-                            <textarea rows="3" placeholder="보유 자격증, 경력 년수 등을 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                            <textarea rows="3" placeholder="  보유 자격증, 경력 년수, 기타 본인소개 등을 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
                         </div>
 
                         <div>
@@ -122,7 +128,7 @@
     document.getElementById('submit-partner-btn').addEventListener('click', function(e) {
         e.preventDefault();
         
-        // 간단한 폼 유효성 검사 모의 로직
+        // 간단한 폼 유효성 검사
         const inputs = document.querySelectorAll('#partner-form input[required]');
         let isValid = true;
         inputs.forEach(input => {
@@ -140,7 +146,7 @@
 
         setTimeout(() => {
             alert('파트너 제휴 신청이 완료되었습니다.\n관리자 심사 후 기재해주신 연락처로 개별 안내해 드리겠습니다.');
-            window.location.href = 'index.html'; // 신청 완료 후 메인 등 원하는 곳으로 리다이렉트
+            window.location.href = 'index.html'; 
         }, 1500);
     });
 </script>

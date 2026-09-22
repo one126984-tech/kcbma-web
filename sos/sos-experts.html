@@ -769,6 +769,8 @@
                     <option value="화재">화재/소방</option>
                     <option value="누수">누수/배관</option>
                     <option value="전기">정전/전기</option>
+                    <option value="화장실">화장실 기기</option>
+                    <option value="가스">가스 누출</option>
                 </select>
                 <select id="filter-region" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm font-bold text-gray-700 focus:border-blue-500 outline-none">
                     <option value="">전체 지역</option>
@@ -781,6 +783,21 @@
             <!-- 전문가 리스트 -->
             <div class="flex-1 bg-gray-50 p-4 space-y-4" id="expert-list">
                 <!-- 전문가 카드가 JS를 통해 렌더링 됩니다 -->
+            </div>
+
+            <!-- 파트너 전문가 제휴 신청 배너 -->
+            <div class="bg-gray-50 px-4 pb-8">
+                <div class="bg-gray-800 rounded-2xl p-5 text-center shadow-md border border-gray-700">
+                    <h3 class="text-white font-black text-[16px] mb-1">
+                        <i class="fa-solid fa-handshake text-yellow-400 mr-1"></i> 건물 관리/수리 전문가이신가요?
+                    </h3>
+                    <p class="text-gray-300 text-[13px] mb-4 break-keep">
+                        SOS 파트너 전문가로 등록하고, 주변의 긴급 출동 요청을 직접 받아보세요!
+                    </p>
+                    <button onclick="location.href='sos-partner-apply.html'" class="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-[15px] py-3.5 rounded-xl transition shadow-sm">
+                        SOS 파트너 전문가 지원하기
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -820,6 +837,7 @@
         { id: 1, name: "김*수", category: "누수", region: "서울 강남구", rating: 4.9, cases: 128, available: true, fee: "기본 30,000원~", img: "fa-user-tie" },
         { id: 2, name: "이*진", category: "전기", region: "서울 서초구", rating: 4.7, cases: 85, available: true, fee: "기본 40,000원~", img: "fa-user-gear" },
         { id: 3, name: "박*훈", category: "화재", region: "경기 성남시", rating: 5.0, cases: 312, available: false, fee: "기본 50,000원~", img: "fa-helmet-safety" },
+        { id: 4, name: "최*철", category: "화장실", region: "서울 송파구", rating: 4.8, cases: 210, available: true, fee: "기본 35,000원~", img: "fa-wrench" },
     ];
 
     function renderExperts() {
