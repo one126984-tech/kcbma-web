@@ -1,0 +1,181 @@
+<!-- 파일명: sos-experts.src.html -->
+<!-- @var PAGE_CLASS: page-sos-experts -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS 전문가 찾기 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+  <style>
+      #sos-top-banner { background-color: #12387a; } /* 검색 페이지는 파란색 테마 */
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  
+  <!-- 카카오톡 SDK -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+    .break-keep { word-break: keep-all; }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
+
+            <!-- 상단 배너 -->
+            <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
+                <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-blue-800 p-2 rounded-full transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
+                    전문가 직접 찾기
+                </h1>
+            </div>
+
+            <!-- 카카오톡 공유 버튼 영역 -->
+            <div class="p-4 bg-yellow-50 border-b border-yellow-200 shrink-0">
+                <p class="text-[13px] text-yellow-800 font-bold mb-2 text-center break-keep">원하는 전문가가 없나요? 내 상황을 카톡으로 보내고 대기중인 전문가들의 지원을 받아보세요.</p>
+                <button id="kakao-share-btn" class="w-full bg-[#FEE500] hover:bg-[#ebd300] text-[#000000] font-black text-[15px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-comment"></i> 카카오톡으로 SOS 요청 보내기
+                </button>
+            </div>
+
+            <!-- 필터 영역 -->
+            <div class="p-4 border-b border-gray-200 shrink-0 flex gap-2 bg-white">
+                <select id="filter-category" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm font-bold text-gray-700 focus:border-blue-500 outline-none">
+                    <option value="">전체 분야</option>
+                    <option value="화재">화재/소방</option>
+                    <option value="누수">누수/배관</option>
+                    <option value="전기">정전/전기</option>
+                </select>
+                <select id="filter-region" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm font-bold text-gray-700 focus:border-blue-500 outline-none">
+                    <option value="">전체 지역</option>
+                    <option value="서울">서울</option>
+                    <option value="경기">경기</option>
+                    <option value="인천">인천</option>
+                </select>
+            </div>
+
+            <!-- 전문가 리스트 -->
+            <div class="flex-1 bg-gray-50 p-4 space-y-4" id="expert-list">
+                <!-- 전문가 카드가 JS를 통해 렌더링 됩니다 -->
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // 카카오 SDK 초기화 (본인의 카카오 JavaScript 키 입력 필요)
+    Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); 
+
+    document.getElementById('kakao-share-btn').addEventListener('click', function() {
+        Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: '🚨 긴급 SOS 지원 요청',
+                description: '지금 즉시 출동 가능한 전문가를 찾고 있습니다. 프로필을 확인하시고 지원해 주세요!',
+                imageUrl: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=SOS+Request', // 실제 서비스 로고로 교체
+                link: {
+                    mobileWebUrl: 'https://your-domain.com/sos-request.html',
+                    webUrl: 'https://your-domain.com/sos-request.html',
+                },
+            },
+            buttons: [
+                {
+                    title: '지원하기 / 자세히 보기',
+                    link: {
+                        mobileWebUrl: 'https://your-domain.com/sos-request.html',
+                        webUrl: 'https://your-domain.com/sos-request.html',
+                    },
+                },
+            ],
+        });
+    });
+
+    // 가상의 대기 중인 전문가 데이터
+    const mockExperts = [
+        { id: 1, name: "김*수", category: "누수", region: "서울 강남구", rating: 4.9, cases: 128, available: true, fee: "기본 30,000원~", img: "fa-user-tie" },
+        { id: 2, name: "이*진", category: "전기", region: "서울 서초구", rating: 4.7, cases: 85, available: true, fee: "기본 40,000원~", img: "fa-user-gear" },
+        { id: 3, name: "박*훈", category: "화재", region: "경기 성남시", rating: 5.0, cases: 312, available: false, fee: "기본 50,000원~", img: "fa-helmet-safety" },
+    ];
+
+    function renderExperts() {
+        const listEl = document.getElementById('expert-list');
+        const catFilter = document.getElementById('filter-category').value;
+        const regFilter = document.getElementById('filter-region').value;
+
+        listEl.innerHTML = '';
+
+        const filtered = mockExperts.filter(e => {
+            return (catFilter === '' || e.category === catFilter) && 
+                   (regFilter === '' || e.region.includes(regFilter));
+        });
+
+        if(filtered.length === 0) {
+            listEl.innerHTML = '<div class="text-center py-10 text-gray-500 font-bold">조건에 맞는 대기중인 전문가가 없습니다.</div>';
+            return;
+        }
+
+        filtered.forEach(expert => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3';
+            card.innerHTML = `
+                <div class="flex gap-4">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center shrink-0 border border-gray-200">
+                        <i class="fa-solid ${expert.img} text-2xl text-gray-400"></i>
+                    </div>
+                    <div class="flex-1 text-[13px] space-y-1">
+                        <div class="flex items-center justify-between">
+                            <p class="font-black text-gray-900 text-[16px]">${expert.name} <span class="text-xs font-normal text-gray-500">전문가</span></p>
+                            ${expert.available ? '<span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">즉시가능</span>' : '<span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">작업중</span>'}
+                        </div>
+                        <p class="text-gray-600 font-bold">${expert.category} · ${expert.region}</p>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="text-yellow-500 font-bold">★ ${expert.rating.toFixed(1)}</span>
+                            <span class="text-gray-400">|</span>
+                            <span class="text-gray-600">누적 ${expert.cases}건 해결</span>
+                        </div>
+                        <p class="text-fuchsia-600 font-bold mt-1 text-[12px]">예상: ${expert.fee}</p>
+                    </div>
+                </div>
+                <button ${!expert.available ? 'disabled' : ''} onclick="alert('${expert.name} 전문가에게 연락을 요청합니다.');" class="w-full py-2.5 rounded-lg font-bold text-sm transition ${expert.available ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}">
+                    ${expert.available ? '이 전문가 선택 및 연락하기' : '현재 연락 불가'}
+                </button>
+            `;
+            listEl.appendChild(card);
+        });
+    }
+
+    document.getElementById('filter-category').addEventListener('change', renderExperts);
+    document.getElementById('filter-region').addEventListener('change', renderExperts);
+
+    renderExperts();
+</script>
+</body>
+</html>
