@@ -1,0 +1,169 @@
+<!-- 파일명: sos-counselor-apply.src.html -->
+<!-- @var PAGE_CLASS: page-sos-counselor -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전문가/카운셀러 지원 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+  <style>
+      #counselor-top-banner { background-color: #1e3a8a; } /* 신뢰감을 주는 네이비 톤 */
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+    .break-keep { word-break: keep-all; }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
+
+            <!-- 상단 배너 -->
+            <div id="counselor-top-banner" class="text-white py-6 shadow-sm shrink-0 flex flex-col items-center justify-center relative z-20">
+                <button onclick="history.back()" class="absolute left-4 top-6 hover:bg-blue-900 p-2 rounded-full transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[20px] font-black tracking-wider text-center break-keep mt-2">
+                    SOS 긴급출동 <span class="text-yellow-400">카운셀러(전문가) 지원</span>
+                </h1>
+            </div>
+
+            <!-- 본문 양식 -->
+            <div class="flex-1 flex flex-col bg-gray-50">
+                <div class="p-5 flex-1 space-y-6 pb-8">
+                    <!-- 운영 원칙 안내 -->
+                    <div class="bg-blue-50 border border-blue-200 py-4 px-5 rounded-xl">
+                        <p class="font-bold text-blue-900 text-[14px] leading-relaxed break-keep mb-2">
+                            <i class="fa-solid fa-clipboard-check text-blue-600"></i> 심사 및 게시 프로세스
+                        </p>
+                        <p class="text-blue-800 text-[13px] break-keep leading-relaxed">
+                            제출하신 지원서는 운영진의 꼼꼼한 서류 및 경력 심사를 거치게 됩니다. <strong class="text-blue-700">심사가 승인되면 공식 앱과 웹사이트의 '상담가능한 전문가' 리스트에 고객들이 볼 수 있도록 게시됩니다.</strong>
+                        </p>
+                    </div>
+
+                    <form id="counselor-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">1. 이름 또는 상호명 <span class="text-red-500">*</span></label>
+                            <input type="text" required placeholder="예: 홍길동 또는 한국종합설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">2. 지원 분야 (복수 선택 가능) <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-2 gap-2 text-sm font-bold text-gray-600">
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 화재/소방
+                                </label>
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 누수/배관
+                                </label>
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 정전/전기
+                                </label>
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 화장실 기기
+                                </label>
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
+                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 가스 누출
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 지역: 대분류/소분류 셀렉트 박스 -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 출동 가능 지역 <span class="text-red-500">*</span></label>
+                            <div class="flex gap-2">
+                                <select required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                    <option value="">시/도 (대분류)</option>
+                                    <option value="서울">서울특별시</option>
+                                    <option value="경기">경기도</option>
+                                    <option value="인천">인천광역시</option>
+                                </select>
+                                <select required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                    <option value="">시/군/구 (소분류)</option>
+                                    <option value="강남구">강남구</option>
+                                    <option value="서초구">서초구</option>
+                                    <option value="송파구">송파구</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">4. 개인 연락처 <span class="text-red-500">*</span></label>
+                            <input type="tel" required placeholder="예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">5. 고객에게 보여질 자기소개 및 경력 <span class="text-red-500">*</span></label>
+                            <textarea required rows="4" placeholder="예: 누수 탐지 전문 경력 10년, 최신 열화상 카메라 보유. 어떤 문제든 정확하게 진단하고 신속히 처리해 드립니다." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none bg-white"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">6. 증빙 서류 (사업자등록증, 자격증명) <span class="text-gray-400 font-normal">(필수)</span></label>
+                            <input type="file" required accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                            <p class="text-[11px] text-gray-500 mt-2 ml-1">심사용으로만 사용되며 외부에 공개되지 않습니다.</p>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10">
+                    <button id="submit-counselor-btn" class="w-full bg-[#1e3a8a] hover:bg-[#1e40af] text-white font-black text-[17px] py-4 rounded-xl shadow-lg transition duration-300 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-file-signature"></i> 검토용 지원서 제출하기
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    document.getElementById('submit-counselor-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // 폼 유효성 검사
+        const inputs = document.querySelectorAll('#counselor-form input[required], #counselor-form select[required], #counselor-form textarea[required]');
+        let isValid = true;
+        inputs.forEach(input => {
+            if(!input.value.trim()) isValid = false;
+        });
+
+        if(!isValid) {
+            alert('필수 항목(*)을 모두 입력해 주세요.');
+            return;
+        }
+
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 제출 중...';
+        this.disabled = true;
+
+        setTimeout(() => {
+            alert('전문가(카운셀러) 지원서가 성공적으로 접수되었습니다.\n\n운영진의 검토를 거쳐 승인 완료 시, 고객들이 볼 수 있는 공식 리스트에 프로필이 자동 게시됩니다.');
+            window.location.href = 'index.html'; 
+        }, 1500);
+    });
+</script>
+</body>
+</html>

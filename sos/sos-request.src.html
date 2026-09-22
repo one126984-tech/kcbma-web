@@ -10,9 +10,21 @@
 
 <!-- @include critical-css -->
 
-  <!-- 이 페이지 전용 빨간 배너도 즉시 칠해지도록 미리 고정 -->
   <style>
       #sos-top-banner { background-color: #dc2626; }
+      /* 다중 선택 카테고리 버튼 스타일 */
+      .cat-btn.selected {
+          border-color: #ef4444 !important;
+          background-color: #fef2f2 !important;
+          box-shadow: 0 0 0 2px #ef4444;
+      }
+      /* 시간대별 요금 하이라이트 스타일 */
+      .time-slot.active {
+          background-color: #dbeafe !important; /* bg-blue-100 */
+          color: #1e40af !important; /* text-blue-800 */
+          font-weight: 900 !important;
+          border-left: 4px solid #3b82f6 !important; /* border-blue-500 */
+      }
   </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,62 +38,37 @@
   <script src="{{BASE}}assets/js/supabase-config.js"></script>
 
 <!-- @include view-transition-css -->
-
 <!-- @include common-css -->
 
   <style>
-    /* 이 페이지(긴급 SOS) 전용 CSS */
-    html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden !important;
-    }
-
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
     input[type="checkbox"] { width: 1.75rem; height: 1.75rem; cursor: pointer; }
     input[type="checkbox"]:checked { background-color: #ef4444; border-color: #ef4444; }
     .break-keep { word-break: keep-all; }
-
     @keyframes shake-red {
       0%, 100% { transform: translateX(0); }
       10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
       20%, 40%, 60%, 80% { transform: translateX(5px); }
     }
-    .error-shake {
-      animation: shake-red 0.5s;
-      background-color: #fef2f2 !important; 
-      border-color: #ef4444 !important; 
-    }
+    .error-shake { animation: shake-red 0.5s; background-color: #fef2f2 !important; border-color: #ef4444 !important; }
   </style>
 </head>
 
 <body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
 
 <!-- @include header -->
-
-    <!-- ----------------------------------------------------
-         헤더 아래 전체 영역 (파란 서브헤더 + 본문)
-         페이지 이동 시 이 영역 전체만 슬라이드 전환됨 (헤더는 고정)
-         ---------------------------------------------------- -->
     <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
     </div>
 <!-- @include header-close -->
 
-<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 relative">
 
-
-
-    <!-- 파란 바와 빨간 배너 사이 간격 -->
     <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
 
     <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
-
-        <!-- 중앙 SOS 모바일 사이즈 컨테이너 -->
         <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
 
-            <!-- 페이지 내부 안내 바 -->
             <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
                 <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-red-700 p-2 rounded-full transition">
                     <i class="fa-solid fa-arrow-left text-lg"></i>
@@ -92,7 +79,6 @@
                 </h1>
             </div>
 
-            <!-- 상시 노출: 앱/접수가 안 될 경우를 대비한 직통 전화 -->
             <a href="tel:15880000" class="flex items-center justify-center gap-2 bg-gray-900 text-white text-sm font-bold py-2.5 shrink-0 hover:bg-black transition">
                 <i class="fa-solid fa-phone"></i>
                 지금 바로 전화하려면 <span class="underline">1588-0000</span>
@@ -102,53 +88,49 @@
             <div id="step-1-situation" class="flex-1 flex flex-col bg-gray-50">
 
                 <div class="p-5 flex-1 space-y-6 pb-8">
-                    <div class="bg-white py-5 px-4 rounded-xl shadow-sm border border-gray-200 text-center">
-                        <p class="font-bold text-gray-800 text-base md:text-lg leading-relaxed break-keep">
-                        화재·누수·정전 등 <span class="text-red-600 font-black">긴급상황 발생 시</span><br>
-                        <span class="text-red-600 font-black">즉시 전문가를 연결</span>해 드립니다.
-                        </p>
-                    </div>
-
+                    <!-- 어떤 긴급 상황인가요? -->
                     <div>
-                        <h2 class="text-lg font-bold text-gray-800 mb-3">1. 어떤 긴급 상황인가요?</h2>
+                        <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-end justify-between">
+                            <span>1. 어떤 긴급 상황인가요?</span>
+                            <span class="text-sm font-normal text-blue-600">(복수 선택 가능)</span>
+                        </h2>
                         <div class="grid grid-cols-2 gap-3" id="category-grid">
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:border-red-400 focus:border-red-500 focus:bg-red-50 transition" data-cat="화재">
+                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:bg-gray-50 transition" data-cat="화재">
                                 <span class="text-3xl">🔥</span><span class="font-bold text-gray-700">화재 / 소방</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:border-blue-400 focus:border-blue-500 focus:bg-blue-50 transition" data-cat="누수">
+                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:bg-gray-50 transition" data-cat="누수">
                                 <span class="text-3xl">💦</span><span class="font-bold text-gray-700">누수 / 배관</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:border-yellow-400 focus:border-yellow-500 focus:bg-yellow-50 transition" data-cat="전기">
+                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:bg-gray-50 transition" data-cat="전기">
                                 <span class="text-3xl">⚡</span><span class="font-bold text-gray-700">정전 / 전기</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:border-purple-400 focus:border-purple-500 focus:bg-purple-50 transition" data-cat="승강기">
-                                <span class="text-3xl">🛗</span><span class="font-bold text-gray-700">승강기 고장</span>
+                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:bg-gray-50 transition" data-cat="화장실">
+                                <span class="text-3xl">🚽</span><span class="font-bold text-gray-700">화장실 기기</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:border-orange-400 focus:border-orange-500 focus:bg-orange-50 transition" data-cat="가스">
+                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:bg-gray-50 transition" data-cat="가스">
                                 <span class="text-3xl">🧯</span><span class="font-bold text-gray-700">가스 누출</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:border-gray-400 focus:border-gray-500 focus:bg-gray-50 transition" data-cat="기타">
+                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-4 flex flex-col items-center gap-2 hover:bg-gray-50 transition" data-cat="기타">
                                 <span class="text-3xl">✏️</span><span class="font-bold text-gray-700">기타 (직접입력)</span>
                             </button>
                         </div>
-                        <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요 (예: 주차차단기 고장)" class="hidden mt-3 w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition">
+                        <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요 (예: 주차차단기 파손)" class="hidden mt-3 w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition">
                     </div>
 
+                    <!-- 상황 상세 설명 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">2. 상황을 조금 더 알려주세요 <span class="text-gray-400 font-normal text-sm">(선택)</span></h2>
-                        
-                        <!-- 마이크 강조 영역 -->
                         <div class="flex items-center gap-2.5 mb-3 bg-red-50 p-2.5 rounded-xl border border-red-100">
                             <button type="button" id="mic-btn" class="shrink-0 w-10 h-10 flex items-center justify-center bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition" title="음성으로 입력하기">
                                 <i class="fa-solid fa-microphone text-lg"></i>
                             </button>
                             <span class="text-[14px] font-black text-red-700 break-keep leading-tight">마이크를 눌러서 음성으로 말하세요.<br>자동으로 글로 입력됩니다</span>
                         </div>
-                        
                         <textarea id="description-input" rows="3" placeholder="(글로 입력 하셔도 됩니다)&#10;예 : 화재경보가 울리고 주펌프가 돌아가고 있어요!" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
                         <p id="mic-status" class="text-xs text-blue-600 font-bold mt-1 hidden">음성을 듣고 있습니다. 계속 말씀해 주세요...</p>
                     </div>
 
+                    <!-- 사진/동영상 첨부 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">3. 사진/동영상 첨부 <span class="text-gray-400 font-normal text-sm">(선택, 최대 3개)</span></h2>
                         <div class="grid grid-cols-3 gap-2">
@@ -165,16 +147,13 @@
                                 <span class="text-xs font-bold text-gray-600">파일 선택하기</span>
                             </button>
                         </div>
-
-                        <!-- 실제 스마트폰 카메라/캠코더 앱을 호출하는 input -->
-                        <!-- capture="environment" 속성이 모바일 브라우저에서 후면 카메라를 즉시 띄우는 핵심 역할 -->
                         <input type="file" id="photo-capture-input" accept="image/*" capture="environment" class="hidden">
                         <input type="file" id="video-capture-input" accept="video/*" capture="environment" class="hidden">
                         <input type="file" id="file-picker-input" accept="image/*,video/*" multiple class="hidden">
-
                         <div id="photo-preview" class="flex gap-2 mt-3 flex-wrap"></div>
                     </div>
 
+                    <!-- 현장 위치 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">4. 현장 위치</h2>
                         <div class="flex gap-2">
@@ -187,6 +166,7 @@
                         <p id="gps-status" class="text-[13px] text-gray-500 mt-2 ml-2 hidden"></p>
                     </div>
 
+                    <!-- 연락처 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">5. 연락처 <span class="text-red-600 font-normal text-sm">(필수)</span></h2>
                         <textarea id="contact-phone-input" rows="2" placeholder="전문가가 연락드릴 번호를 입력해 주세요.&#10;(예: 010-1234-5678)" class="w-full border-2 border-gray-300 rounded-xl p-4 text-base focus:outline-none focus:border-blue-500 transition resize-none leading-relaxed"></textarea>
@@ -204,22 +184,54 @@
             <div id="step-2-consent" class="hidden flex-1 flex-col bg-gray-50">
 
                 <div class="p-5 flex-1 space-y-5 pb-8">
-                    <!-- 비용 안내 커스텀 영역 -->
+                    
+                    <!-- 기본 비용 안내 영역 (시간 자동 강조) -->
                     <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-200">
-                        <h3 class="flex items-center gap-2 text-gray-800 font-black mb-4 text-lg">
-                            <i class="fa-solid fa-won-sign text-red-600"></i> 비용 안내 <span class="text-fuchsia-600 text-[15px] font-normal ml-1">(후불제)</span>
+                        <h3 class="flex items-center gap-2 text-gray-800 font-black mb-4 text-[17px]">
+                            <i class="fa-solid fa-won-sign text-red-600"></i> 기본 비용 안내 <span class="text-gray-500 text-[14px] font-normal ml-1">(후불제)</span>
                         </h3>
-                        <div class="text-fuchsia-600 text-[15px] leading-relaxed space-y-4">
-                            <div>
-                                <p class="mb-1">· 당일결재</p>
-                                <ul class="pl-6 space-y-1">
-                                    <li>3만원 (AM 10시~PM 6시),</li>
-                                    <li>8만원 (PM 11시~AM 6시)</li>
-                                    <li>5만원 (그외 시간)</li>
-                                </ul>
+                        <div class="text-gray-700 text-[15px] leading-relaxed">
+                            <p class="mb-2 font-bold">· 당일결재</p>
+                            <!-- 테두리와 배경색을 적용한 시간대 박스 -->
+                            <ul class="border-2 border-blue-200 bg-blue-50 rounded-xl p-2 mb-4 space-y-1" id="time-price-list">
+                                <li id="price-slot-1" class="time-slot p-2 rounded-lg transition text-gray-600">3만원 (AM 10시~PM 6시)</li>
+                                <li id="price-slot-2" class="time-slot p-2 rounded-lg transition text-gray-600">5만원 (PM 11시~AM 6시)</li>
+                                <li id="price-slot-3" class="time-slot p-2 rounded-lg transition text-gray-600">4만원 (그외 시간)</li>
+                            </ul>
+                            
+                            <p class="mb-2">· 날짜 넘기면 : 2만원씩 추가</p>
+                            <p>· 회원제 <span class="text-gray-400">비용</span> : 월 5만원(2회)</p>
+                        </div>
+                    </div>
+
+                    <!-- 빠른 출동을 위한 추가금(프리미엄) 제안 UI -->
+                    <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="flex items-center gap-2 text-gray-800 font-black mb-2 text-[15px]">
+                            <i class="fa-solid fa-bolt text-yellow-500"></i> 빠른 출동을 위한 추가금 제안 <span class="text-gray-500 font-normal text-sm">(선택)</span>
+                        </h3>
+                        <p class="text-[13px] text-gray-500 mb-4 break-keep leading-relaxed">
+                            상황이 매우 급하신가요? 기본료 외에 추가 출동비를 설정하시면, 야간이나 주말에도 주변 전문가들이 최우선으로 수락할 확률이 크게 높아집니다.
+                        </p>
+                        
+                        <div class="flex items-center gap-2 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                            <!-- 읽기 전용 입력창 -->
+                            <input type="number" id="premium-fee-input" placeholder="0" class="w-16 border-2 border-gray-300 rounded-lg p-2 text-center text-xl focus:outline-none transition font-black text-gray-800 bg-white h-[46px]" readonly>
+                            
+                            <!-- 다중 행 텍스트 스타일 적용 -->
+                            <div class="flex flex-col items-center justify-center leading-tight shrink-0 mr-auto">
+                                <span class="font-bold text-gray-800 text-[15px]">만원</span>
+                                <span class="bg-blue-600 text-white font-bold text-[12px] px-1 mt-0.5">추가</span>
                             </div>
-                            <p>· 날짜 넘기면 : 2만원씩 추가</p>
-                            <p>· 회원제 &nbsp;&nbsp;&nbsp;&nbsp;: 월5만원(2회)</p>
+                            
+                            <button type="button" class="bg-white border border-gray-300 text-gray-700 text-[14px] font-bold w-14 h-[46px] rounded-lg hover:bg-gray-100 transition shadow-sm flex flex-col items-center justify-center leading-tight shrink-0" onclick="addPremium(1)">
+                                <span>+ 1</span>
+                                <span class="text-[12px]">만원</span>
+                            </button>
+                            <button type="button" class="bg-white border border-gray-300 text-gray-700 text-[14px] font-bold w-14 h-[46px] rounded-lg hover:bg-gray-100 transition shadow-sm flex flex-col items-center justify-center leading-tight shrink-0" onclick="addPremium(3)">
+                                <span>+ 3</span>
+                                <span class="text-[12px]">만원</span>
+                            </button>
+                            <button type="button" class="bg-gray-100 border border-gray-300 text-gray-600 text-[13px] font-bold w-14 h-[46px] rounded-lg hover:bg-gray-200 transition shadow-sm shrink-0" onclick="resetPremium()">초기화</button>
                         </div>
                     </div>
 
@@ -254,11 +266,65 @@
 
         </div>
     </main>
-
+    
+    <!-- 접수 내용 확인 커스텀 모달 팝업 -->
+    <div id="confirm-modal" class="absolute inset-0 bg-black/60 z-[9999] hidden items-center justify-center">
+        <div id="confirm-modal-content" class="bg-white rounded-2xl w-[85%] max-w-sm p-6 shadow-2xl transform transition-all scale-95 opacity-0 duration-200">
+            <h3 class="text-[#8b008b] font-black text-xl mb-4 tracking-wide">[ 접수 내용 ]</h3>
+            <div class="text-gray-800 text-[15px] space-y-2 mb-5">
+                <p><span class="text-gray-600 w-[70px] inline-block">상황:</span> <span id="modal-cat" class="font-bold"></span></p>
+                <p><span class="text-gray-600 w-[70px] inline-block">위치:</span> <span id="modal-loc" class="font-bold"></span></p>
+                <p><span class="text-gray-600 w-[70px] inline-block">연락처:</span> <span id="modal-phone" class="font-bold"></span></p>
+                <p class="pt-2"><span class="text-gray-600 w-[70px] inline-block">기본 금액 :</span> <span id="modal-base" class="font-bold"></span></p>
+                <p><span class="text-gray-600 w-[70px] inline-block">추가 금액 :</span> <span id="modal-add" class="font-bold"></span></p>
+                <div class="border-b-2 border-black w-[80%] mx-auto my-3"></div>
+                <p class="text-right text-[17px] mr-2"><span class="text-gray-600 mr-2">합계 :</span> <span id="modal-total" class="font-black text-red-600 text-[18px]"></span></p>
+            </div>
+            <div class="flex justify-end mt-4">
+                <button id="modal-confirm-btn" class="bg-[#1f2937] text-white px-7 py-2.5 rounded-xl font-bold hover:bg-black transition shadow-md text-lg">확인</button>
+            </div>
+        </div>
     </div>
-    <!-- page-content 끝 -->
+
+</div>
 
   <script>
+    // 시간대별 기본 요금 자동 하이라이트 로직
+    let currentBasePrice = 4;
+    function updateTimePrice() {
+        const hour = new Date().getHours();
+        const slot1 = document.getElementById('price-slot-1'); 
+        const slot2 = document.getElementById('price-slot-2');
+        const slot3 = document.getElementById('price-slot-3');
+        
+        [slot1, slot2, slot3].forEach(el => {
+            el.className = 'time-slot p-2 rounded-lg transition text-gray-600';
+        });
+
+        if (hour >= 10 && hour < 18) {
+            currentBasePrice = 3;
+            slot1.classList.add('active');
+        } else if (hour >= 23 || hour < 6) {
+            currentBasePrice = 5;
+            slot2.classList.add('active');
+        } else {
+            currentBasePrice = 4;
+            slot3.classList.add('active');
+        }
+    }
+    updateTimePrice();
+    setInterval(updateTimePrice, 60000); 
+
+    // 추가금 제안 버튼 로직
+    function addPremium(amount) {
+        const input = document.getElementById('premium-fee-input');
+        let current = parseInt(input.value) || 0;
+        input.value = current + amount;
+    }
+    function resetPremium() {
+        document.getElementById('premium-fee-input').value = '';
+    }
+
     const label1 = document.getElementById('agree-label-1');
     const nextBtn = document.getElementById('next-step-btn');
     const prevBtn = document.getElementById('prev-step-btn');
@@ -274,29 +340,21 @@
         label.classList.add('border-gray-300', 'bg-white');
       }
     }
+    document.getElementById('agree-1').addEventListener('change', function() { clearErrorState(this, label1); });
 
-    document.getElementById('agree-1').addEventListener('change', function() {
-      clearErrorState(this, label1);
-    });
-
-    // --- 연락처 하이픈 자동 입력 ---
+    // 연락처 하이픈 자동 입력
     const phoneInput = document.getElementById('contact-phone-input');
     phoneInput.addEventListener('input', function(e) {
       let val = this.value.replace(/[^0-9]/g, '');
       let res = '';
-      if(val.length < 4) {
-          res = val;
-      } else if(val.length < 7) {
-          res = val.substr(0, 3) + '-' + val.substr(3);
-      } else if(val.length < 11) {
-          res = val.substr(0, 3) + '-' + val.substr(3, 3) + '-' + val.substr(6);
-      } else {
-          res = val.substr(0, 3) + '-' + val.substr(3, 4) + '-' + val.substr(7);
-      }
+      if(val.length < 4) res = val;
+      else if(val.length < 7) res = val.substr(0, 3) + '-' + val.substr(3);
+      else if(val.length < 11) res = val.substr(0, 3) + '-' + val.substr(3, 3) + '-' + val.substr(6);
+      else res = val.substr(0, 3) + '-' + val.substr(3, 4) + '-' + val.substr(7);
       this.value = res;
     });
 
-    // --- 1단계: 음성 인식 (Web Speech API) ---
+    // 1단계: 음성 인식
     const micBtn = document.getElementById('mic-btn');
     const descriptionInput = document.getElementById('description-input');
     const micStatus = document.getElementById('mic-status');
@@ -305,8 +363,7 @@
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognition.lang = 'ko-KR';
-        recognition.interimResults = true; // 실시간 결과 반환 허용
-
+        recognition.interimResults = true;
         let isRecording = false;
 
         recognition.onstart = function() {
@@ -315,70 +372,55 @@
             micBtn.classList.add('bg-red-700', 'animate-pulse');
             micStatus.classList.remove('hidden');
         };
-
         recognition.onresult = function(event) {
             let finalTranscript = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
-                }
+                if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
             }
             if(finalTranscript) {
-                // 기존 텍스트에 덧붙이기
                 const currentVal = descriptionInput.value.trim();
                 descriptionInput.value = currentVal ? currentVal + ' ' + finalTranscript : finalTranscript;
             }
         };
-
-        recognition.onerror = function(event) {
-            console.error('음성 인식 오류:', event.error);
-            stopRecording();
-        };
-
-        recognition.onend = function() {
-            stopRecording();
-        };
-
+        recognition.onerror = function(event) { stopRecording(); };
+        recognition.onend = function() { stopRecording(); };
         function stopRecording() {
             isRecording = false;
             micBtn.classList.add('bg-red-500');
             micBtn.classList.remove('bg-red-700', 'animate-pulse');
             micStatus.classList.add('hidden');
         }
-
         micBtn.addEventListener('click', function() {
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
+            if (isRecording) recognition.stop();
+            else recognition.start();
         });
     } else {
-        micBtn.addEventListener('click', function() {
-            alert('현재 브라우저에서는 음성 인식 기능을 지원하지 않습니다. 텍스트로 직접 입력해 주세요.');
-        });
+        micBtn.addEventListener('click', function() { alert('음성 인식을 지원하지 않는 브라우저입니다.'); });
     }
 
-    // --- 1단계: 카테고리 선택 ---
-    let selectedCategory = '';
+    // 1단계: 카테고리 다중 선택
+    let selectedCategories = [];
     const categoryCustomInput = document.getElementById('category-custom-input');
 
     document.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', function() {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('ring-2', 'ring-red-500', 'bg-red-50'));
-        this.classList.add('ring-2', 'ring-red-500', 'bg-red-50');
-        selectedCategory = this.getAttribute('data-cat');
-
-        if (selectedCategory === '기타') {
+        this.classList.toggle('selected');
+        const cat = this.getAttribute('data-cat');
+        if (selectedCategories.includes(cat)) {
+            selectedCategories = selectedCategories.filter(c => c !== cat);
+        } else {
+            selectedCategories.push(cat);
+        }
+        if (selectedCategories.includes('기타')) {
           categoryCustomInput.classList.remove('hidden');
-          categoryCustomInput.focus();
+          if (this.classList.contains('selected')) categoryCustomInput.focus();
         } else {
           categoryCustomInput.classList.add('hidden');
         }
       });
     });
 
-    // --- 1단계: 사진/동영상 첨부 ---
+    // 1단계: 사진/동영상 첨부
     let selectedPhotoFiles = [];
     const photoPreview = document.getElementById('photo-preview');
     const photoCaptureInput = document.getElementById('photo-capture-input');
@@ -388,7 +430,7 @@
     function addSelectedFiles(newFiles) {
       let combined = [...selectedPhotoFiles, ...newFiles];
       if (combined.length > 3) {
-        alert('사진/동영상은 최대 3개까지 첨부할 수 있습니다. 처음 3개만 사용됩니다.');
+        alert('최대 3개까지 첨부할 수 있습니다.');
         combined = combined.slice(0, 3);
       }
       selectedPhotoFiles = combined;
@@ -400,12 +442,10 @@
       selectedPhotoFiles.forEach((file, idx) => {
         const wrap = document.createElement('div');
         wrap.className = 'relative w-16 h-16';
-
         if (file.type && file.type.startsWith('video/')) {
           const url = URL.createObjectURL(file);
           const video = document.createElement('video');
-          video.src = url;
-          video.muted = true;
+          video.src = url; video.muted = true;
           video.className = 'w-16 h-16 object-cover rounded-lg border border-gray-300 bg-black';
           wrap.appendChild(video);
           const icon = document.createElement('i');
@@ -414,21 +454,15 @@
         } else {
           const url = URL.createObjectURL(file);
           const img = document.createElement('img');
-          img.src = url;
-          img.className = 'w-16 h-16 object-cover rounded-lg border border-gray-300';
+          img.src = url; img.className = 'w-16 h-16 object-cover rounded-lg border border-gray-300';
           wrap.appendChild(img);
         }
-
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
         removeBtn.className = 'absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-700 text-white rounded-full text-xs flex items-center justify-center hover:bg-black';
-        removeBtn.onclick = () => {
-          selectedPhotoFiles.splice(idx, 1);
-          renderPhotoPreview();
-        };
+        removeBtn.onclick = () => { selectedPhotoFiles.splice(idx, 1); renderPhotoPreview(); };
         wrap.appendChild(removeBtn);
-
         photoPreview.appendChild(wrap);
       });
     }
@@ -440,65 +474,36 @@
       });
     });
 
-    // --- 1단계 → 2단계 이동 ---
+    // 1단계 → 2단계 이동
     nextBtn.addEventListener('click', function() {
       const location = document.getElementById('location-input').value.trim();
       const phone = document.getElementById('contact-phone-input').value.trim();
       const customCat = categoryCustomInput.value.trim();
 
-      if (!selectedCategory) {
-        alert('긴급 상황 유형을 선택해 주세요.');
-        return;
-      }
-      if (selectedCategory === '기타' && !customCat) {
-        alert('상황을 직접 입력해 주세요.');
-        categoryCustomInput.focus();
-        return;
-      }
-      if (!location) {
-        alert('현장 위치를 입력해 주세요.');
-        document.getElementById('location-input').focus();
-        return;
-      }
-      if (!phone) {
-        alert('연락처를 입력해 주세요. 전문가가 이 번호로 연락드립니다.');
-        document.getElementById('contact-phone-input').focus();
-        return;
-      }
+      if (selectedCategories.length === 0) { alert('상황을 선택해 주세요.'); return; }
+      if (selectedCategories.includes('기타') && !customCat) { alert('기타 상황을 입력해 주세요.'); return; }
+      if (!location) { alert('위치를 입력해 주세요.'); return; }
+      if (!phone) { alert('연락처를 입력해 주세요.'); return; }
 
-      step1.classList.add('hidden');
-      step1.classList.remove('flex');
-      step2.classList.remove('hidden');
-      step2.classList.add('flex');
-
+      step1.classList.add('hidden'); step1.classList.remove('flex');
+      step2.classList.remove('hidden'); step2.classList.add('flex');
       document.getElementById('main-content').scrollTo(0, 0);
     });
 
-    // --- 2단계 → 1단계 뒤로가기 ---
     prevBtn.addEventListener('click', function() {
-      step2.classList.add('hidden');
-      step2.classList.remove('flex');
-      step1.classList.remove('hidden');
-      step1.classList.add('flex');
-
+      step2.classList.add('hidden'); step2.classList.remove('flex');
+      step1.classList.remove('hidden'); step1.classList.add('flex');
       document.getElementById('main-content').scrollTo(0, 0);
     });
 
-    // --- 위치: GPS 버튼 (무료 Open API + 커스텀 Confirm 적용) ---
+    // GPS 위치 확인
     function getCurrentLocation() {
       const gpsBtn = document.getElementById('gps-btn');
       const gpsStatus = document.getElementById('gps-status');
 
-      if (!navigator.geolocation) {
-        alert('사용 중인 브라우저가 위치 정보를 지원하지 않습니다. 직접 주소를 입력해 주세요.');
-        return;
-      }
-
-      // 커스텀 권한 허용 확인 창
+      if (!navigator.geolocation) { alert('위치 정보를 지원하지 않습니다.'); return; }
       const isAgreed = confirm("위치정보 허용하시겠습니까?");
-      if (!isAgreed) {
-          return; // 아니오를 누르면 아무 동작도 하지 않고 종료
-      }
+      if (!isAgreed) return; 
 
       gpsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xl"></i><span class="text-xs">찾는중</span>';
       gpsBtn.disabled = true;
@@ -507,154 +512,94 @@
       gpsStatus.innerText = '위치 정보를 가져오는 중입니다...';
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          getAddressFromCoords(position.coords.latitude, position.coords.longitude);
-        },
+        (position) => { getAddressFromCoords(position.coords.latitude, position.coords.longitude); },
         (error) => {
-          console.error("위치 정보 에러:", error);
           resetGpsBtn();
           gpsStatus.classList.remove('text-gray-500', 'text-green-600', 'text-red-500');
           gpsStatus.classList.add('text-gray-600');
-          // alert 창 띄우지 않고, 글자로만 에러 메시지 표시 ("직접 입력해 주세요" 빨간색 적용)
           gpsStatus.innerHTML = '위치 정보를 가져올 수 없습니다. <span class="text-red-500">직접 입력해 주세요</span>';
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
-
     async function getAddressFromCoords(lat, lng) {
       const gpsStatus = document.getElementById('gps-status');
       const locationInput = document.getElementById('location-input');
-
       try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
         const data = await response.json();
-
         if (data && data.display_name) {
           locationInput.value = data.display_name;
           gpsStatus.innerText = '✅ 위치가 자동으로 입력되었습니다.';
           gpsStatus.classList.remove('text-red-500', 'text-gray-500', 'text-gray-600');
           gpsStatus.classList.add('text-green-600');
-        } else {
-          throw new Error('주소를 찾을 수 없습니다.');
-        }
+        } else throw new Error('주소를 찾을 수 없습니다.');
       } catch (error) {
-        console.error("API 변환 에러:", error);
         locationInput.value = `위도: ${lat.toFixed(5)}, 경도: ${lng.toFixed(5)}`;
-        gpsStatus.innerText = '✅ 주소 변환엔 실패했으나 현재 좌표가 입력되었습니다.';
+        gpsStatus.innerText = '✅ 현재 좌표가 입력되었습니다.';
         gpsStatus.classList.remove('text-red-500', 'text-gray-500', 'text-gray-600');
         gpsStatus.classList.add('text-green-600');
-      } finally {
-        resetGpsBtn();
-      }
+      } finally { resetGpsBtn(); }
     }
-
     function resetGpsBtn() {
       const gpsBtn = document.getElementById('gps-btn');
       gpsBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs text-xl"></i><span class="text-xs">내 위치</span>';
       gpsBtn.disabled = false;
     }
 
-    // --- Supabase 설정 ---
-    const supabaseClient = window.sb;
+    // 커스텀 모달
+    function showConfirmModal(cat, loc, phone, basePrice, premiumPrice) {
+        const modal = document.getElementById('confirm-modal');
+        const content = document.getElementById('confirm-modal-content');
+        
+        document.getElementById('modal-cat').innerText = cat;
+        document.getElementById('modal-loc').innerText = loc;
+        document.getElementById('modal-phone').innerText = phone;
+        document.getElementById('modal-base').innerText = basePrice + '만원';
+        document.getElementById('modal-add').innerText = premiumPrice > 0 ? premiumPrice + '만원' : '0원';
+        document.getElementById('modal-total').innerText = (basePrice + premiumPrice) + '만원';
 
-    // --- 2단계: 최종 제출 ---
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    document.getElementById('modal-confirm-btn').addEventListener('click', function() {
+        window.location.href = `sos-room.html?request_id=test-id`; 
+    });
+
+    const supabaseClient = window.sb;
+    
     document.getElementById('sos-submit-btn').addEventListener('click', async function() {
       const agree1 = document.getElementById('agree-1');
       const errorMsg = document.getElementById('submit-error-msg');
       errorMsg.classList.add('hidden');
 
       if (!agree1.checked) {
-        errorMsg.classList.remove('hidden');
         errorMsg.innerText = '비용 안내 및 이용 안내에 동의해 주셔야 호출이 가능합니다.';
-        label1.classList.remove('error-shake');
-        void label1.offsetWidth;
-        label1.classList.add('error-shake');
+        errorMsg.classList.remove('hidden');
+        label1.classList.remove('error-shake'); void label1.offsetWidth; label1.classList.add('error-shake');
         return;
       }
 
       const location = document.getElementById('location-input').value.trim();
       const phone = document.getElementById('contact-phone-input').value.trim();
-      const description = document.getElementById('description-input').value.trim();
       const customCat = categoryCustomInput.value.trim();
-      const finalCategory = (selectedCategory === '기타' && customCat) ? customCat : selectedCategory;
+      const premiumInput = parseInt(document.getElementById('premium-fee-input').value) || 0;
 
-      const submitBtn = this;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 전문가 찾는 중...';
-      submitBtn.disabled = true;
-      prevBtn.disabled = true;
+      const finalCategories = selectedCategories.map(c => c === '기타' ? customCat : c).join(', ');
 
-      if (!supabaseClient) {
-        errorMsg.classList.remove('hidden');
-        errorMsg.innerText = '현재 접수 기능에 일시적인 문제가 있습니다. 잠시 후 다시 시도해 주세요.';
-        submitBtn.innerHTML = '<span>🚨 동의하고 전문가 호출하기</span>';
-        submitBtn.disabled = false;
-        prevBtn.disabled = false;
-        return;
-      }
-
-      try {
-        let photoUrls = [];
-        if (selectedPhotoFiles.length > 0) {
-          submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 사진 업로드 중...';
-          for (const file of selectedPhotoFiles) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const filePath = `sos-requests/${fileName}`;
-
-            const { error: uploadError } = await supabaseClient.storage
-              .from('sos-photos')
-              .upload(filePath, file);
-
-            if (uploadError) {
-              console.error('사진 업로드 오류:', uploadError);
-              continue; 
-            }
-
-            const { data: publicUrlData } = supabaseClient.storage
-              .from('sos-photos')
-              .getPublicUrl(filePath);
-            photoUrls.push(publicUrlData.publicUrl);
-          }
-        }
-
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 전문가 찾는 중...';
-
-        const { data: { user } } = await supabaseClient.auth.getUser();
-
-        const { data, error } = await supabaseClient
-          .from('sos_requests')
-          .insert([{
-            category: finalCategory,
-            region: location,
-            status: '대기중',
-            contact_phone: phone,
-            description: description || null,
-            photo_urls: photoUrls.length > 0 ? photoUrls.join(',') : null,
-            user_id: user ? user.id : null
-          }])
-          .select();
-
-        if (error) throw error;
-
-        window.location.href = `sos-room.html?request_id=${data[0].id}`;
-      } catch (err) {
-        console.error('SOS 접수 오류:', err);
-        errorMsg.classList.remove('hidden');
-        errorMsg.innerText = '접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.';
-        submitBtn.innerHTML = '<span>🚨 동의하고 전문가 호출하기</span>';
-        submitBtn.disabled = false;
-        prevBtn.disabled = false;
-      }
+      showConfirmModal(
+          finalCategories, 
+          location, 
+          phone, 
+          currentBasePrice, 
+          premiumInput      
+      );
     });
   </script>
-<!-- 페이지 경로 기준점 설정 (루트 기준) -->
-
-    <script>
-      window.BASE_PATH = '/';
-    </script>
-    
-    <!-- 절대 경로(/)로 스크립트 불러오기 -->
-
 </body>
 </html>
