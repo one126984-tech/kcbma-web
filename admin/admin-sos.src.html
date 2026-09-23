@@ -40,6 +40,11 @@
         .admin-table th { background: #f8fafc; color: #1e3a8a; font-weight: bold; padding: 12px 8px; border-bottom: 2px solid #e5e7eb; text-align: center; white-space: nowrap; }
         .admin-table td { padding: 12px 8px; border-bottom: 1px dashed #e5e7eb; text-align: center; vertical-align: middle; }
         .admin-table tr:last-child td { border-bottom: none; }
+        .app-table td:nth-child(1),
+        .app-table td:nth-child(5) { white-space: normal; line-height: 1.45; word-break: keep-all; }
+        .app-table th:nth-child(8), .app-table td:nth-child(8),
+        .app-table th:nth-child(9), .app-table td:nth-child(9),
+        .app-table th:nth-child(10), .app-table td:nth-child(10) { padding-left: 18px; padding-right: 18px; }
 
         .btn-manage { display: inline-flex; align-items: center; justify-content: center; padding: 5px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
         .btn-assign { background: #dbeafe; color: #1d4ed8; }
@@ -232,7 +237,19 @@
 
                 <div class="section-card">
                     <div class="overflow-x-auto">
-                        <table class="admin-table">
+                        <table class="admin-table app-table">
+                            <colgroup>
+                                <col style="width:92px">
+                                <col style="width:76px">
+                                <col style="width:88px">
+                                <col>
+                                <col style="width:88px">
+                                <col style="width:110px">
+                                <col>
+                                <col style="width:64px">
+                                <col style="width:80px">
+                                <col style="width:110px">
+                            </colgroup>
                             <thead>
                                 <tr>
                                     <th>접수일시</th>
@@ -749,13 +766,28 @@
                     ? `<button class="btn-manage btn-complete" onclick="approveApplication('${a.id}')">승인</button>
                        <button class="btn-manage btn-chat" onclick="rejectApplication('${a.id}')">거절</button>`
                     : `<span class="text-gray-300 text-[11px]">처리완료</span>`;
+
+                // 접수일시: 날짜 / 시간 두 줄로 표시
+                const createdDate = a.created_at ? new Date(a.created_at) : null;
+                const dateTimeHtml = (createdDate && !isNaN(createdDate.getTime()))
+                    ? `${createdDate.toLocaleDateString('ko-KR')}<br><span class="text-gray-400 text-[11px]">${createdDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>`
+                    : '-';
+
+                // 지역: 대분류 / 소분류 두 줄로 표시 (첫 단어를 대분류로, 나머지를 소분류로 best-effort 분리)
+                const regionParts = (a.region || '').trim().split(/\s+/).filter(Boolean);
+                const regionHtml = regionParts.length === 0
+                    ? '-'
+                    : regionParts.length === 1
+                        ? escapeHtml(regionParts[0])
+                        : `${escapeHtml(regionParts[0])}<br><span class="text-gray-400 text-[11px]">${escapeHtml(regionParts.slice(1).join(' '))}</span>`;
+
                 return `
                     <tr>
-                        <td class="whitespace-nowrap">${formatDateTime(a.created_at)}</td>
+                        <td>${dateTimeHtml}</td>
                         <td class="whitespace-nowrap">${sourceLabel}</td>
                         <td class="font-bold">${escapeHtml(a.name)}</td>
                         <td class="text-left">${escapeHtml(a.categories || '-')}</td>
-                        <td class="text-left">${escapeHtml(a.region || '-')}</td>
+                        <td>${regionHtml}</td>
                         <td class="whitespace-nowrap">${escapeHtml(a.phone)}</td>
                         <td class="text-left" title="${escapeHtml(a.bio || '')}">${bioShort}</td>
                         <td>${fileLink}</td>
