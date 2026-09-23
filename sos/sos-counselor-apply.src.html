@@ -18,6 +18,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
 
 <!-- @include view-transition-css -->
 <!-- @include common-css -->
@@ -68,26 +70,26 @@
                     <form id="counselor-form" class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">1. 이름 또는 상호명 <span class="text-red-500">*</span></label>
-                            <input type="text" required placeholder="예: 홍길동 또는 한국종합설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                            <input type="text" id="cf-name" required placeholder="예: 홍길동 또는 한국종합설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">2. 지원 분야 (복수 선택 가능) <span class="text-red-500">*</span></label>
-                            <div class="grid grid-cols-2 gap-2 text-sm font-bold text-gray-600">
+                            <div class="grid grid-cols-2 gap-2 text-sm font-bold text-gray-600" id="cf-categories">
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 화재/소방
+                                    <input type="checkbox" value="화재/소방" class="w-4 h-4 text-blue-600 rounded"> 화재/소방
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 누수/배관
+                                    <input type="checkbox" value="누수/배관" class="w-4 h-4 text-blue-600 rounded"> 누수/배관
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 정전/전기
+                                    <input type="checkbox" value="정전/전기" class="w-4 h-4 text-blue-600 rounded"> 정전/전기
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 화장실 기기
+                                    <input type="checkbox" value="화장실 기기" class="w-4 h-4 text-blue-600 rounded"> 화장실 기기
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> 가스 누출
+                                    <input type="checkbox" value="가스 누출" class="w-4 h-4 text-blue-600 rounded"> 가스 누출
                                 </label>
                             </div>
                         </div>
@@ -96,13 +98,13 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 출동 가능 지역 <span class="text-red-500">*</span></label>
                             <div class="flex gap-2">
-                                <select required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                <select id="cf-region-main" required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
                                     <option value="">시/도 (대분류)</option>
                                     <option value="서울">서울특별시</option>
                                     <option value="경기">경기도</option>
                                     <option value="인천">인천광역시</option>
                                 </select>
-                                <select required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                <select id="cf-region-sub" required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
                                     <option value="">시/군/구 (소분류)</option>
                                     <option value="강남구">강남구</option>
                                     <option value="서초구">서초구</option>
@@ -113,17 +115,17 @@
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">4. 개인 연락처 <span class="text-red-500">*</span></label>
-                            <input type="tel" required placeholder="예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                            <input type="tel" id="cf-phone" required placeholder="예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">5. 고객에게 보여질 자기소개 및 경력 <span class="text-red-500">*</span></label>
-                            <textarea required rows="4" placeholder="예: 누수 탐지 전문 경력 10년, 최신 열화상 카메라 보유. 어떤 문제든 정확하게 진단하고 신속히 처리해 드립니다." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none bg-white"></textarea>
+                            <textarea id="cf-bio" required rows="4" placeholder="예: 누수 탐지 전문 경력 10년, 최신 열화상 카메라 보유. 어떤 문제든 정확하게 진단하고 신속히 처리해 드립니다." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none bg-white"></textarea>
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">6. 증빙 서류 (사업자등록증, 자격증명) <span class="text-gray-400 font-normal">(필수)</span></label>
-                            <input type="file" required accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                            <input type="file" id="cf-file" required accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
                             <p class="text-[11px] text-gray-500 mt-2 ml-1">심사용으로만 사용되며 외부에 공개되지 않습니다.</p>
                         </div>
                     </form>
@@ -141,28 +143,82 @@
 </div>
 
 <script>
-    document.getElementById('submit-counselor-btn').addEventListener('click', function(e) {
+    const counselorSb = window.sb;
+
+    document.getElementById('submit-counselor-btn').addEventListener('click', async function(e) {
         e.preventDefault();
-        
+
         // 폼 유효성 검사
         const inputs = document.querySelectorAll('#counselor-form input[required], #counselor-form select[required], #counselor-form textarea[required]');
         let isValid = true;
         inputs.forEach(input => {
-            if(!input.value.trim()) isValid = false;
+            if (!input.value.trim()) isValid = false;
         });
 
-        if(!isValid) {
-            alert('필수 항목(*)을 모두 입력해 주세요.');
+        const checkedCats = Array.from(document.querySelectorAll('#cf-categories input[type="checkbox"]:checked')).map(cb => cb.value);
+
+        if (!isValid || checkedCats.length === 0) {
+            alert('필수 항목(*)을 모두 입력해 주세요. (지원 분야는 최소 1개 이상 선택)');
             return;
         }
 
-        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 제출 중...';
-        this.disabled = true;
+        const fileInput = document.getElementById('cf-file');
+        if (!fileInput.files || !fileInput.files[0]) {
+            alert('증빙 서류(필수)를 첨부해 주세요.');
+            return;
+        }
 
-        setTimeout(() => {
+        const btn = this;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 제출 중...';
+        btn.disabled = true;
+
+        try {
+            const file = fileInput.files[0];
+            const path = `counselor/${Date.now()}_${file.name}`;
+            const { error: uploadError } = await counselorSb.storage.from('sos-applications').upload(path, file);
+            if (uploadError) {
+                console.error('파일 업로드 오류:', uploadError);
+                alert('증빙 서류 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.\n(sos-applications 스토리지 버킷이 생성되어 있는지 확인해 주세요)');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                return;
+            }
+            const { data: pub } = counselorSb.storage.from('sos-applications').getPublicUrl(path);
+            const fileUrl = pub?.publicUrl || null;
+
+            const regionMain = document.getElementById('cf-region-main').value;
+            const regionSub = document.getElementById('cf-region-sub').value;
+            const { data: { user } } = await counselorSb.auth.getUser();
+
+            const { error } = await counselorSb.from('sos_applications').insert([{
+                source: 'counselor',
+                name: document.getElementById('cf-name').value.trim(),
+                categories: checkedCats.join(', '),
+                region: [regionMain, regionSub].filter(Boolean).join(' '),
+                phone: document.getElementById('cf-phone').value.trim(),
+                bio: document.getElementById('cf-bio').value.trim(),
+                file_url: fileUrl,
+                user_id: user ? user.id : null,
+                status: '대기중'
+            }]);
+
+            if (error) {
+                console.error('카운셀러 지원서 저장 오류:', error);
+                alert('접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.\n(sos_applications 테이블이 생성되어 있는지 확인해 주세요)');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                return;
+            }
+
             alert('전문가(카운셀러) 지원서가 성공적으로 접수되었습니다.\n\n운영진의 검토를 거쳐 승인 완료 시, 고객들이 볼 수 있는 공식 리스트에 프로필이 자동 게시됩니다.');
-            window.location.href = 'index.html'; 
-        }, 1500);
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error('제출 중 예외:', err);
+            alert('신청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
     });
 </script>
 </body>

@@ -1,0 +1,470 @@
+<!-- 파일명: sos-room.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 sos-room.html) -->
+<!-- @var PAGE_CLASS: page-sos -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>긴급 SOS 매칭 현황 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+  <!-- 이 페이지 전용 빨간 배너도 즉시 칠해지도록 미리 고정 -->
+  <style>
+      #sos-top-banner { background-color: #dc2626; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+  <style>
+    /* 이 페이지(긴급 SOS 매칭 현황) 전용 CSS */
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden !important;
+    }
+    .break-keep { word-break: keep-all; }
+
+    .status-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+    .status-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; background: #e5e7eb; color: #9ca3af; transition: background-color .2s, color .2s; }
+    .status-step.active .status-dot { background: #dc2626; color: #fff; }
+    .status-step.done .status-dot { background: #fca5a5; color: #fff; }
+    .status-label { font-size: 12px; font-weight: 700; color: #9ca3af; }
+    .status-step.active .status-label, .status-step.done .status-label { color: #374151; }
+    .status-line { flex: 1; height: 3px; background: #e5e7eb; margin-top: 18px; }
+    .status-line.done { background: #fca5a5; }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <!-- ----------------------------------------------------
+         헤더 아래 전체 영역 (파란 서브헤더 + 본문)
+         페이지 이동 시 이 영역 전체만 슬라이드 전환됨 (헤더는 고정)
+         ---------------------------------------------------- -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+
+
+    <!-- 파란 바와 빨간 배너 사이 간격 -->
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+
+        <!-- 중앙 SOS 모바일 사이즈 컨테이너 -->
+        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
+
+            <!-- 페이지 내부 안내 바 -->
+            <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
+                <button onclick="location.href='sos-request.html'" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-red-700 p-2 rounded-full transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
+                    긴급 SOS 매칭 현황
+                </h1>
+            </div>
+
+            <!-- 상시 노출: 앱/매칭이 지연될 경우를 대비한 직통 전화 -->
+            <a href="tel:15880000" class="flex items-center justify-center gap-2 bg-gray-900 text-white text-sm font-bold py-2.5 shrink-0 hover:bg-black transition">
+                <i class="fa-solid fa-phone"></i>
+                매칭이 지연되면 <span class="underline">1588-0000</span>으로 바로 전화하세요
+            </a>
+
+            <!-- 접수 정보를 찾을 수 없을 때 -->
+            <div id="room-invalid" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
+                <i class="fa-solid fa-circle-exclamation text-5xl text-gray-300"></i>
+                <p class="text-gray-600 font-bold break-keep">접수 내역을 찾을 수 없습니다.<br>주소가 정확한지 확인해 주세요.</p>
+                <button onclick="location.href='sos-request.html'" class="bg-red-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-red-700 transition">새로 접수하기</button>
+            </div>
+
+            <!-- 매칭 현황 본문 -->
+            <div id="room-content" class="hidden flex-1 flex flex-col bg-gray-50">
+
+                <div class="p-5 flex-1 space-y-6 pb-8">
+
+                    <!-- 진행 단계 트래커 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-start">
+                            <div class="status-step" id="status-step-1">
+                                <div class="status-dot">1</div>
+                                <div class="status-label">접수완료</div>
+                            </div>
+                            <div class="status-line" id="status-line-1"></div>
+                            <div class="status-step" id="status-step-2">
+                                <div class="status-dot">2</div>
+                                <div class="status-label">매칭중</div>
+                            </div>
+                            <div class="status-line" id="status-line-2"></div>
+                            <div class="status-step" id="status-step-3">
+                                <div class="status-dot">3</div>
+                                <div class="status-label">작업완료</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 text-center space-y-1">
+                        <p id="status-message" class="font-black text-gray-800 text-lg break-keep">전문가를 찾고 있습니다...</p>
+                        <p class="text-sm text-gray-500">평균 15분 이내에 연락드립니다. 조금만 기다려 주세요.</p>
+                    </div>
+
+                    <!-- 접수 내용 요약 -->
+                    <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+                        <div class="flex items-center px-4 py-3 gap-3">
+                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400">상황</span>
+                            <span id="room-category" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex items-center px-4 py-3 gap-3">
+                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400">위치</span>
+                            <span id="room-location" class="text-sm text-gray-800 break-keep">-</span>
+                        </div>
+                        <div class="flex items-center px-4 py-3 gap-3">
+                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400">연락처</span>
+                            <span id="room-phone" class="text-sm text-gray-800">-</span>
+                        </div>
+                        <div id="room-description-row" class="hidden flex items-start px-4 py-3 gap-3">
+                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400 mt-0.5">상세내용</span>
+                            <span id="room-description" class="text-sm text-gray-800 break-keep">-</span>
+                        </div>
+                    </div>
+
+                    <!-- 매칭된 전문가 정보 (배정 전에는 숨김) -->
+                    <div id="match-info-card" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 items-center gap-3">
+                        <div class="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-user-gear text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-gray-800 text-sm">전문가가 배정되었습니다</p>
+                            <p id="match-ref" class="text-xs text-gray-500">배정번호 -</p>
+                        </div>
+                    </div>
+
+                    <!-- 작업 완료 후 만족도 평가 -->
+                    <div id="rating-card" class="hidden bg-white rounded-xl p-5 shadow-sm border border-gray-200 text-center flex-col items-center gap-3">
+                        <p class="font-bold text-gray-800">서비스에 만족하셨나요?</p>
+                        <div id="rating-stars" class="flex gap-2 text-3xl text-gray-300"></div>
+                        <p id="rating-thanks" class="hidden text-sm text-green-600 font-bold">소중한 평가 감사합니다.</p>
+                    </div>
+
+                    <!-- 전문가와의 채팅 -->
+                    <div class="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i class="fa-solid fa-comment-dots text-gray-400"></i> 메시지</h3>
+                        </div>
+                        <div id="chat-messages" class="flex flex-col gap-2 p-4 max-h-64 overflow-y-auto text-sm">
+                            <p class="text-xs text-gray-400 text-center">아직 메시지가 없습니다.</p>
+                        </div>
+                        <div class="flex items-center gap-2 p-3 border-t border-gray-100">
+                            <input type="text" id="chat-input" placeholder="전문가에게 전달할 내용을 입력하세요" class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-red-500 transition">
+                            <button id="chat-send-btn" class="shrink-0 w-9 h-9 bg-red-600 text-white rounded-full hover:bg-red-700 transition flex items-center justify-center">
+                                <i class="fa-solid fa-paper-plane text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10">
+                    <button id="cancel-btn" class="w-full bg-white border-2 border-gray-300 text-gray-600 font-bold text-base py-3.5 rounded-xl hover:bg-gray-100 transition">
+                        접수 취소하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 취소 완료 화면 -->
+            <div id="room-cancelled" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
+                <i class="fa-solid fa-circle-check text-5xl text-gray-300"></i>
+                <p class="text-gray-600 font-bold break-keep">접수가 취소되었습니다.<br>상황이 남아있다면 다시 접수해 주세요.</p>
+                <button onclick="location.href='sos-request.html'" class="bg-red-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-red-700 transition">새로 접수하기</button>
+            </div>
+
+        </div>
+    </main>
+
+    </div>
+    <!-- page-content 끝 -->
+
+  <script>
+    const supabaseClient = window.sb;
+
+    const params = new URLSearchParams(window.location.search);
+    const requestId = params.get('request_id');
+
+    // 진행 단계는 sos_requests.status(운영진이 별도로 입력해줄 값이 없는 한 대부분 '대기중'/'완료'만 존재)가 아니라
+    // 실제 데이터(sos_matches에 매칭 행이 생겼는지)를 기준으로 판단합니다.
+    //   1단계 접수완료: 행이 존재하면 항상 완료
+    //   2단계 매칭완료: sos_matches에 이 request_id로 된 행이 있으면 완료
+    //   3단계 작업완료: sos_requests.status === '완료'
+    const STATUS_MESSAGE = {
+      1: '전문가를 찾고 있습니다...',
+      2: '전문가가 배정되었습니다. 곧 연락드립니다.',
+      3: '조치가 완료되었습니다.'
+    };
+
+    function renderStatus(status, hasMatch) {
+      let step = 1;
+      if (hasMatch) step = 2;
+      if (status === '완료') step = 3;
+
+      for (let i = 1; i <= 3; i++) {
+        const stepEl = document.getElementById(`status-step-${i}`);
+        stepEl.classList.remove('active', 'done');
+        if (i < step) stepEl.classList.add('done');
+        if (i === step) stepEl.classList.add('active');
+      }
+      for (let i = 1; i <= 2; i++) {
+        const lineEl = document.getElementById(`status-line-${i}`);
+        lineEl.classList.toggle('done', i < step);
+      }
+      document.getElementById('status-message').innerText = STATUS_MESSAGE[step];
+    }
+
+    let currentMatch = null; // sos_matches 행 (없으면 null)
+
+    async function loadMatch() {
+      const { data, error } = await supabaseClient
+        .from('sos_matches')
+        .select('*')
+        .eq('request_id', requestId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('매칭 정보 조회 오류:', error);
+        return null;
+      }
+      return data || null;
+    }
+
+    function renderMatchCard(match) {
+      currentMatch = match;
+      const card = document.getElementById('match-info-card');
+      if (match) {
+        card.classList.remove('hidden');
+        card.classList.add('flex');
+        document.getElementById('match-ref').innerText = `배정번호 #${match.id.slice(0, 8).toUpperCase()}`;
+      } else {
+        card.classList.add('hidden');
+        card.classList.remove('flex');
+      }
+    }
+
+    // --- 만족도 평가 (작업완료 + 미평가 상태일 때만 노출) ---
+    function renderRatingWidget(status, match) {
+      const card = document.getElementById('rating-card');
+      if (status !== '완료' || !match) {
+        card.classList.add('hidden');
+        card.classList.remove('flex');
+        return;
+      }
+      card.classList.remove('hidden');
+      card.classList.add('flex');
+
+      const starsEl = document.getElementById('rating-stars');
+      starsEl.innerHTML = '';
+      const already = !!match.satisfaction_score;
+
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('i');
+        star.className = 'fa-star cursor-pointer transition ' + (already && i <= match.satisfaction_score ? 'fa-solid text-yellow-400' : (already ? 'fa-regular text-gray-300' : 'fa-regular text-gray-300 hover:text-yellow-300'));
+        if (!already) {
+          star.addEventListener('click', () => submitRating(i));
+        }
+        starsEl.appendChild(star);
+      }
+      document.getElementById('rating-thanks').classList.toggle('hidden', !already);
+    }
+
+    async function submitRating(score) {
+      const { error } = await supabaseClient
+        .from('sos_matches')
+        .update({ satisfaction_score: score })
+        .eq('id', currentMatch.id);
+
+      if (error) {
+        console.error('평가 저장 오류:', error);
+        alert('평가 저장 중 오류가 발생했습니다.');
+        return;
+      }
+      currentMatch.satisfaction_score = score;
+      renderRatingWidget('완료', currentMatch);
+    }
+
+    // --- 채팅 ---
+    function renderMessages(messages) {
+      const box = document.getElementById('chat-messages');
+      if (!messages || messages.length === 0) {
+        box.innerHTML = '<p class="text-xs text-gray-400 text-center">아직 메시지가 없습니다.</p>';
+        return;
+      }
+      box.innerHTML = messages.map(m => {
+        const mine = m.sender_type !== 'expert';
+        return `<div class="flex ${mine ? 'justify-end' : 'justify-start'}">
+                  <span class="inline-block max-w-[80%] px-3 py-2 rounded-2xl break-keep ${mine ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-800'}">${escapeHtml(m.message_text)}</span>
+                </div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.innerText = str || '';
+      return div.innerHTML;
+    }
+
+    async function loadMessages() {
+      const { data, error } = await supabaseClient
+        .from('sos_messages')
+        .select('*')
+        .eq('request_id', requestId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('메시지 조회 오류:', error);
+        return;
+      }
+      renderMessages(data);
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.disabled = true;
+      const { error } = await supabaseClient
+        .from('sos_messages')
+        .insert([{ request_id: requestId, message_text: text, sender_type: 'requester' }]);
+
+      input.disabled = false;
+      if (error) {
+        console.error('메시지 전송 오류:', error);
+        alert('메시지 전송 중 오류가 발생했습니다.');
+        return;
+      }
+      input.value = '';
+      loadMessages();
+    }
+
+    document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
+    document.getElementById('chat-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    async function loadRequest() {
+      if (!requestId || !supabaseClient) {
+        document.getElementById('room-invalid').classList.remove('hidden');
+        document.getElementById('room-invalid').classList.add('flex');
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from('sos_requests')
+        .select('*')
+        .eq('id', requestId)
+        .single();
+
+      if (error || !data) {
+        console.error('SOS 접수 조회 오류:', error);
+        document.getElementById('room-invalid').classList.remove('hidden');
+        document.getElementById('room-invalid').classList.add('flex');
+        return;
+      }
+
+      if (data.status === '취소됨') {
+        document.getElementById('room-cancelled').classList.remove('hidden');
+        document.getElementById('room-cancelled').classList.add('flex');
+        return;
+      }
+
+      document.getElementById('room-content').classList.remove('hidden');
+      document.getElementById('room-content').classList.add('flex');
+
+      document.getElementById('room-category').innerText = data.category || '-';
+      document.getElementById('room-location').innerText = data.region || '-';
+      document.getElementById('room-phone').innerText = data.contact_phone || '-';
+
+      if (data.description) {
+        document.getElementById('room-description-row').classList.remove('hidden');
+        document.getElementById('room-description-row').classList.add('flex');
+        document.getElementById('room-description').innerText = data.description;
+      }
+
+      const match = await loadMatch();
+      renderMatchCard(match);
+      renderStatus(data.status, !!match);
+      renderRatingWidget(data.status, match);
+      loadMessages();
+
+      document.getElementById('cancel-btn').addEventListener('click', async function() {
+        if (!confirm('접수를 취소하시겠습니까?')) return;
+        this.disabled = true;
+        this.innerText = '취소 처리 중...';
+
+        const { error: updateError } = await supabaseClient
+          .from('sos_requests')
+          .update({ status: '취소됨' })
+          .eq('id', requestId);
+
+        if (updateError) {
+          console.error('취소 처리 오류:', updateError);
+          alert('취소 처리 중 오류가 발생했습니다. 상단의 긴급 전화로 연락해 주세요.');
+          this.disabled = false;
+          this.innerText = '접수 취소하기';
+          return;
+        }
+
+        document.getElementById('room-content').classList.add('hidden');
+        document.getElementById('room-content').classList.remove('flex');
+        document.getElementById('room-cancelled').classList.remove('hidden');
+        document.getElementById('room-cancelled').classList.add('flex');
+      }, { once: true });
+
+      // 15초마다 상태/매칭/메시지를 새로 확인 (실시간 구독 대신 단순 폴링)
+      setInterval(async () => {
+        const { data: latest } = await supabaseClient
+          .from('sos_requests')
+          .select('status')
+          .eq('id', requestId)
+          .single();
+        const latestMatch = await loadMatch();
+        renderMatchCard(latestMatch);
+        if (latest) {
+          renderStatus(latest.status, !!latestMatch);
+          renderRatingWidget(latest.status, latestMatch);
+        }
+        loadMessages();
+      }, 15000);
+    }
+
+    loadRequest();
+  </script>
+<!-- 페이지 경로 기준점 설정 (루트 기준) -->
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+    <!-- 절대 경로(/)로 스크립트 불러오기 -->
+
+</body>
+</html>

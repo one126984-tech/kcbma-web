@@ -114,6 +114,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../../assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../assets/js/supabase-config.js"></script>
 
     <style>
         /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
@@ -762,50 +764,51 @@
                     <form id="partner-form" class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">1. 이름 또는 상호명 <span class="text-red-500">*</span></label>
-                            <input type="text" required placeholder=" 예 : 홍길동 또는 한국설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <input type="text" id="pf-name" required placeholder=" 예 : 홍길동 또는 한국설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">2. 전문 분야 (복수 선택 가능) <span class="text-red-500">*</span></label>
-                            <div class="grid grid-cols-2 gap-2 text-sm font-bold text-gray-600">
+                            <div class="grid grid-cols-2 gap-2 text-sm font-bold text-gray-600" id="pf-categories">
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>화재/소방</span>
+                                    <input type="checkbox" value="화재/소방" class="w-4 h-4 text-blue-600 rounded"> <span>화재/소방</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>누수/배관</span>
+                                    <input type="checkbox" value="누수/배관" class="w-4 h-4 text-blue-600 rounded"> <span>누수/배관</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>정전/전기</span>
+                                    <input type="checkbox" value="정전/전기" class="w-4 h-4 text-blue-600 rounded"> <span>정전/전기</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
-                                    <input type="checkbox" class="w-4 h-4 text-blue-600 rounded"> <span>화장실 기기</span>
+                                    <input type="checkbox" value="화장실 기기" class="w-4 h-4 text-blue-600 rounded"> <span>화장실 기기</span>
                                 </label>
                                 <!-- 기타 직접입력란 -->
                                 <div class="flex items-center gap-2 p-2.5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition focus-within:border-[#818cf8] focus-within:bg-indigo-50 bg-white col-span-2 sm:col-span-1">
                                     <input type="checkbox" id="cat-other" class="w-4 h-4 text-blue-600 rounded cursor-pointer ml-0.5">
-                                    <input type="text" placeholder="기타(직접작성)" class="w-full bg-transparent outline-none text-sm font-bold text-gray-600 placeholder-gray-400" onfocus="document.getElementById('cat-other').checked = true;">
+                                    <input type="text" id="pf-category-other-text" placeholder="기타(직접작성)" class="w-full bg-transparent outline-none text-sm font-bold text-gray-600 placeholder-gray-400" onfocus="document.getElementById('cat-other').checked = true;">
                                 </div>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 활동 지역 <span class="text-red-500">*</span></label>
-                            <input type="text" required placeholder=" 예 : 서울 강남구, 서초구 일대" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <input type="text" id="pf-region" required placeholder=" 예 : 서울 강남구, 서초구 일대" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">4. 연락처 <span class="text-red-500">*</span></label>
-                            <input type="tel" required placeholder=" 예 : 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <input type="tel" id="pf-phone" required placeholder=" 예 : 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">5. 경력 및 자격사항 <span class="text-gray-400 font-normal">(선택)</span></label>
-                            <textarea rows="3" placeholder="  보유 자격증, 경력 년수, 기타 본인소개 등을 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                            <textarea id="pf-bio" rows="3" placeholder="  보유 자격증, 경력 년수, 기타 본인소개 등을 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">6. 증빙 서류 첨부 <span class="text-gray-400 font-normal">(사업자등록증명원 등)</span></label>
-                            <input type="file" accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                            <input type="file" id="pf-file" accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                            <p id="pf-file-status" class="text-[11px] text-gray-500 mt-2 ml-1 hidden"></p>
                         </div>
                     </form>
                 </div>
@@ -822,29 +825,80 @@
 </div>
 
 <script>
-    document.getElementById('submit-partner-btn').addEventListener('click', function(e) {
+    const partnerSb = window.sb;
+
+    document.getElementById('submit-partner-btn').addEventListener('click', async function(e) {
         e.preventDefault();
-        
+
         // 간단한 폼 유효성 검사
         const inputs = document.querySelectorAll('#partner-form input[required]');
         let isValid = true;
         inputs.forEach(input => {
-            if(!input.value.trim()) isValid = false;
+            if (!input.value.trim()) isValid = false;
         });
 
-        if(!isValid) {
-            alert('필수 항목(*)을 모두 입력해 주세요.');
+        const checkedCats = Array.from(document.querySelectorAll('#pf-categories input[type="checkbox"]:checked:not(#cat-other)')).map(cb => cb.value);
+        const otherText = document.getElementById('pf-category-other-text').value.trim();
+        if (document.getElementById('cat-other').checked && otherText) checkedCats.push(otherText);
+
+        if (!isValid || checkedCats.length === 0) {
+            alert('필수 항목(*)을 모두 입력해 주세요. (전문 분야는 최소 1개 이상 선택)');
             return;
         }
 
-        // 제출 완료 처리
-        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 처리 중...';
-        this.disabled = true;
+        const btn = this;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 처리 중...';
+        btn.disabled = true;
 
-        setTimeout(() => {
+        try {
+            let fileUrl = null;
+            const fileInput = document.getElementById('pf-file');
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const path = `partner/${Date.now()}_${file.name}`;
+                const { error: uploadError } = await partnerSb.storage.from('sos-applications').upload(path, file);
+                if (uploadError) {
+                    console.error('파일 업로드 오류:', uploadError);
+                    alert('증빙 서류 업로드 중 오류가 발생했습니다. 파일 없이 계속 제출하시려면 다시 눌러주세요.\n(sos-applications 스토리지 버킷이 생성되어 있는지 확인해 주세요)');
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
+                const { data: pub } = partnerSb.storage.from('sos-applications').getPublicUrl(path);
+                fileUrl = pub?.publicUrl || null;
+            }
+
+            const { data: { user } } = await partnerSb.auth.getUser();
+
+            const { error } = await partnerSb.from('sos_applications').insert([{
+                source: 'partner',
+                name: document.getElementById('pf-name').value.trim(),
+                categories: checkedCats.join(', '),
+                region: document.getElementById('pf-region').value.trim(),
+                phone: document.getElementById('pf-phone').value.trim(),
+                bio: document.getElementById('pf-bio').value.trim() || null,
+                file_url: fileUrl,
+                user_id: user ? user.id : null,
+                status: '대기중'
+            }]);
+
+            if (error) {
+                console.error('파트너 지원서 저장 오류:', error);
+                alert('신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.\n(sos_applications 테이블이 생성되어 있는지 확인해 주세요)');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                return;
+            }
+
             alert('파트너 제휴 신청이 완료되었습니다.\n관리자 심사 후 기재해주신 연락처로 개별 안내해 드리겠습니다.');
-            window.location.href = 'index.html'; 
-        }, 1500);
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error('제출 중 예외:', err);
+            alert('신청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
     });
 </script>
 </body>
