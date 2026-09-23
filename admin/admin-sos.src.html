@@ -115,6 +115,7 @@
             <div class="flex border-b border-gray-200">
                 <div class="sos-tab active" id="tab-btn-requests" onclick="switchTab('requests')">접수 목록</div>
                 <div class="sos-tab" id="tab-btn-experts" onclick="switchTab('experts')">전문가 관리</div>
+                <div class="sos-tab" id="tab-btn-applications" onclick="switchTab('applications')">지원자 심사 <span id="app-pending-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
             </div>
 
             <!-- ================= 탭1: 접수 목록 ================= -->
@@ -201,6 +202,60 @@
 
             </div>
             <!-- ================= /탭2 ================= -->
+
+            <!-- ================= 탭3: 지원자 심사 ================= -->
+            <div id="tab-applications" class="hidden flex-col gap-4">
+
+                <table class="filter-table shadow-sm">
+                    <tr>
+                        <th style="background-color: #e0e7ff; color: #1e3a8a;">상태</th>
+                        <td style="border-bottom: 2px solid #e5e7eb;">
+                            <div class="flex gap-5 flex-wrap">
+                                <label class="custom-radio"><input type="radio" name="app_status_filter" value="ALL" checked onchange="renderApplicationList()"> 전체</label>
+                                <label class="custom-radio"><input type="radio" name="app_status_filter" value="대기중" onchange="renderApplicationList()"> 대기중</label>
+                                <label class="custom-radio"><input type="radio" name="app_status_filter" value="승인" onchange="renderApplicationList()"> 승인됨</label>
+                                <label class="custom-radio"><input type="radio" name="app_status_filter" value="거절" onchange="renderApplicationList()"> 거절됨</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #e0e7ff; color: #1e3a8a;">구분</th>
+                        <td style="background-color: #f8fafc;">
+                            <div class="flex gap-5 flex-wrap">
+                                <label class="custom-radio"><input type="radio" name="app_source_filter" value="ALL" checked onchange="renderApplicationList()"> 전체</label>
+                                <label class="custom-radio"><input type="radio" name="app_source_filter" value="partner" onchange="renderApplicationList()"> SOS 파트너</label>
+                                <label class="custom-radio"><input type="radio" name="app_source_filter" value="counselor" onchange="renderApplicationList()"> 카운셀러</label>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="section-card">
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>접수일시</th>
+                                    <th>구분</th>
+                                    <th>이름/상호</th>
+                                    <th>분야</th>
+                                    <th>지역</th>
+                                    <th>연락처</th>
+                                    <th>소개/경력</th>
+                                    <th>서류</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="application-list-body">
+                                <tr><td colspan="10" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ================= /탭3 ================= -->
 
         </section>
     </main>
@@ -291,12 +346,18 @@
 
         function switchTab(tab) {
             const isReq = tab === 'requests';
+            const isExp = tab === 'experts';
+            const isApp = tab === 'applications';
             document.getElementById('tab-requests').classList.toggle('hidden', !isReq);
-            document.getElementById('tab-experts').classList.toggle('hidden', isReq);
-            document.getElementById('tab-experts').classList.toggle('flex', !isReq);
+            document.getElementById('tab-experts').classList.toggle('hidden', !isExp);
+            document.getElementById('tab-experts').classList.toggle('flex', isExp);
+            document.getElementById('tab-applications').classList.toggle('hidden', !isApp);
+            document.getElementById('tab-applications').classList.toggle('flex', isApp);
             document.getElementById('tab-btn-requests').classList.toggle('active', isReq);
-            document.getElementById('tab-btn-experts').classList.toggle('active', !isReq);
-            if (!isReq) fetchExperts();
+            document.getElementById('tab-btn-experts').classList.toggle('active', isExp);
+            document.getElementById('tab-btn-applications').classList.toggle('active', isApp);
+            if (isExp) fetchExperts();
+            if (isApp) fetchApplications();
         }
 
         async function checkAdmin() {
@@ -624,6 +685,148 @@
             await fetchExperts();
         }
 
+        // ================= 지원자 심사 (sos_applications) =================
+
+        let allApplications = [];
+
+        async function fetchApplications() {
+            const tbody = document.getElementById('application-list-body');
+            const { data, error } = await supabaseClient
+                .from('sos_applications')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('지원자 목록 조회 오류:', error);
+                tbody.innerHTML = '<tr><td colspan="10" class="py-14 text-red-500">지원자 목록을 불러오지 못했습니다. (sos_applications 테이블이 생성되어 있는지 확인해 주세요)</td></tr>';
+                return;
+            }
+            allApplications = data || [];
+            updatePendingBadge();
+            renderApplicationList();
+        }
+
+        function updatePendingBadge() {
+            const badge = document.getElementById('app-pending-badge');
+            const pendingCount = allApplications.filter(a => a.status === '대기중').length;
+            if (pendingCount > 0) {
+                badge.innerText = pendingCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function applicationStatusBadge(status) {
+            if (status === '승인') return '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[11px] font-bold">승인</span>';
+            if (status === '거절') return '<span class="bg-gray-200 text-gray-500 px-2 py-0.5 rounded text-[11px] font-bold">거절</span>';
+            return '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[11px] font-bold">대기중</span>';
+        }
+
+        function renderApplicationList() {
+            const tbody = document.getElementById('application-list-body');
+            const statusFilter = document.querySelector('input[name="app_status_filter"]:checked')?.value || 'ALL';
+            const sourceFilter = document.querySelector('input[name="app_source_filter"]:checked')?.value || 'ALL';
+
+            const filtered = allApplications.filter(a => {
+                if (statusFilter !== 'ALL' && a.status !== statusFilter) return false;
+                if (sourceFilter !== 'ALL' && a.source !== sourceFilter) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="py-14 text-gray-400">해당 조건의 지원자가 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(a => {
+                const sourceLabel = a.source === 'partner' ? 'SOS 파트너' : '카운셀러';
+                const fileLink = a.file_url
+                    ? `<a href="${escapeHtml(a.file_url)}" target="_blank" class="text-blue-600 underline">서류 보기</a>`
+                    : '<span class="text-gray-300">없음</span>';
+                const bioShort = (a.bio || '-').length > 24 ? escapeHtml(a.bio).slice(0, 24) + '…' : escapeHtml(a.bio || '-');
+                const actions = a.status === '대기중'
+                    ? `<button class="btn-manage btn-complete" onclick="approveApplication('${a.id}')">승인</button>
+                       <button class="btn-manage btn-chat" onclick="rejectApplication('${a.id}')">거절</button>`
+                    : `<span class="text-gray-300 text-[11px]">처리완료</span>`;
+                return `
+                    <tr>
+                        <td class="whitespace-nowrap">${formatDateTime(a.created_at)}</td>
+                        <td class="whitespace-nowrap">${sourceLabel}</td>
+                        <td class="font-bold">${escapeHtml(a.name)}</td>
+                        <td class="text-left">${escapeHtml(a.categories || '-')}</td>
+                        <td class="text-left">${escapeHtml(a.region || '-')}</td>
+                        <td class="whitespace-nowrap">${escapeHtml(a.phone)}</td>
+                        <td class="text-left" title="${escapeHtml(a.bio || '')}">${bioShort}</td>
+                        <td>${fileLink}</td>
+                        <td>${applicationStatusBadge(a.status)}</td>
+                        <td class="whitespace-nowrap">${actions}</td>
+                    </tr>`;
+            }).join('');
+        }
+
+        async function approveApplication(appId) {
+            const app = allApplications.find(a => a.id === appId);
+            if (!app) return;
+            if (!confirm(`${app.name} 님을 전문가로 승인하고 SOS 전문가 목록에 등록하시겠습니까?`)) return;
+
+            // 지역 문자열("서울 강남구")을 대분류/소분류로 best-effort 분리
+            const regionParts = (app.region || '').trim().split(/\s+/);
+            const region_main = regionParts[0] || null;
+            const region_sub = regionParts.slice(1).join(' ') || null;
+
+            // sos_experts.category는 단일 값 컬럼이라, 지원 시 선택한 여러 분야 중 첫 번째를 대표 분야로 등록하고
+            // 나머지는 memo에 전체 목록으로 남겨둠 (필요 시 "전문가 관리" 탭에서 수정 가능)
+            const categoryList = (app.categories || '').split(',').map(s => s.trim()).filter(Boolean);
+            const primaryCategory = categoryList[0] || '기타';
+            const memo = `[지원서 승인] 전체 지원 분야: ${app.categories || '-'}${app.bio ? `\n소개/경력: ${app.bio}` : ''}`;
+
+            const { error: expertError } = await supabaseClient.from('sos_experts').insert([{
+                name: app.name,
+                phone: app.phone,
+                category: primaryCategory,
+                region_main,
+                region_sub,
+                is_available: true,
+                memo
+            }]);
+
+            if (expertError) {
+                console.error('전문가 등록 오류:', expertError);
+                alert('전문가 목록 등록 중 오류가 발생했습니다. (sos_experts 테이블/RLS 설정을 확인해 주세요)');
+                return;
+            }
+
+            const { error: statusError } = await supabaseClient
+                .from('sos_applications')
+                .update({ status: '승인' })
+                .eq('id', appId);
+
+            if (statusError) {
+                console.error('지원서 상태 갱신 오류:', statusError);
+                alert('전문가 등록은 완료됐지만, 지원서 상태 갱신 중 오류가 발생했습니다.');
+            }
+
+            alert('승인 처리되었습니다. "전문가 관리" 탭에서 대표 분야/지역을 확인·수정해 주세요.');
+            await fetchApplications();
+            await fetchExperts();
+        }
+
+        async function rejectApplication(appId) {
+            if (!confirm('이 지원을 거절 처리하시겠습니까?')) return;
+            const { error } = await supabaseClient
+                .from('sos_applications')
+                .update({ status: '거절' })
+                .eq('id', appId);
+
+            if (error) {
+                console.error('거절 처리 오류:', error);
+                alert('거절 처리 중 오류가 발생했습니다.');
+                return;
+            }
+            await fetchApplications();
+        }
+
         // ================= 전문가 배정 (sos_matches) =================
 
         async function assignExpert(requestId) {
@@ -747,6 +950,7 @@
             if (!ok) return;
             fetchAll();
             fetchExperts();
+            fetchApplications();
             setInterval(fetchAll, 20000);
         })();
     </script>
