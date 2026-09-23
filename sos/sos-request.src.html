@@ -567,8 +567,66 @@
         }, 10);
     }
 
-    document.getElementById('modal-confirm-btn').addEventListener('click', function() {
-        window.location.href = `sos-room.html?request_id=test-id`; 
+    document.getElementById('modal-confirm-btn').addEventListener('click', async function() {
+        const btn = this;
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = '접수 처리 중...';
+
+        try {
+            // 1) 첨부 사진/동영상 업로드
+            let photoUrls = [];
+            for (const file of selectedPhotoFiles) {
+                const path = `requests/${Date.now()}_${file.name}`;
+                const { error: uploadError } = await supabaseClient.storage.from('sos-photos').upload(path, file);
+                if (uploadError) {
+                    console.error('사진 업로드 오류:', uploadError);
+                    continue; // 사진 업로드 실패해도 접수 자체는 계속 진행
+                }
+                const { data: pub } = supabaseClient.storage.from('sos-photos').getPublicUrl(path);
+                if (pub?.publicUrl) photoUrls.push(pub.publicUrl);
+            }
+
+            // 2) 접수 정보 구성
+            const location = document.getElementById('location-input').value.trim();
+            const phone = document.getElementById('contact-phone-input').value.trim();
+            const customCat = categoryCustomInput.value.trim();
+            const finalCategories = selectedCategories.map(c => c === '기타' ? customCat : c).join(', ');
+            const premiumInput = parseInt(document.getElementById('premium-fee-input').value) || 0;
+
+            let description = document.getElementById('description-input').value.trim();
+            if (premiumInput > 0) {
+                description = `[긴급 추가금 희망: ${premiumInput}만원] ${description}`.trim();
+            }
+
+            const { data: inserted, error: insertError } = await supabaseClient
+                .from('sos_requests')
+                .insert([{
+                    category: finalCategories,
+                    region: location,
+                    contact_phone: phone,
+                    description: description || null,
+                    photo_urls: photoUrls.join(','),
+                    status: '대기중'
+                }])
+                .select()
+                .single();
+
+            if (insertError || !inserted) {
+                console.error('SOS 접수 저장 오류:', insertError);
+                alert('접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.');
+                btn.disabled = false;
+                btn.innerText = originalText;
+                return;
+            }
+
+            window.location.href = `sos-room.html?request_id=${inserted.id}`;
+        } catch (err) {
+            console.error('SOS 접수 처리 중 예외:', err);
+            alert('접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.');
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
     });
 
     const supabaseClient = window.sb;
