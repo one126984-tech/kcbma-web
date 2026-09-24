@@ -498,6 +498,9 @@
             </div>
 
             <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[15px] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-admin-link" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden cursor-pointer text-[15px] font-bold text-[#1e3a8a] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자
+            </div>
             <div id="header-login-btn" data-auth-btn="true" onclick="location.href='../../login.html'" class="login-btn">로그인</div>
         </div>
 
@@ -552,6 +555,9 @@
                 </div>
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
+            <div id="header-admin-link-mobile" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden w-full py-2.5 mt-2 bg-[#1e3a8a] text-white font-bold rounded-lg cursor-pointer text-center">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자 페이지
+            </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
@@ -603,6 +609,11 @@
                     btn.textContent = '로그인';
                     btn.onclick = () => { location.href = '../../login.html'; };
                 }
+            });
+
+            const isAdmin = !!(session && session.user && session.user.user_metadata && session.user.user_metadata.role === 'admin');
+            document.querySelectorAll('[data-admin-only]').forEach(el => {
+                el.classList.toggle('hidden', !isAdmin);
             });
         }
 
