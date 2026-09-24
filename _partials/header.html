@@ -107,6 +107,9 @@
             </div>
 
             <div onclick="location.href='{{BASE}}mypage/dashboard.html'" class="cursor-pointer text-[15px] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-admin-link" data-admin-only="true" onclick="location.href='{{BASE}}admin/admin-dashboard.html'" class="hidden cursor-pointer text-[15px] font-bold text-[#1e3a8a] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자
+            </div>
             <div id="header-login-btn" data-auth-btn="true" onclick="location.href='{{BASE}}login.html'" class="login-btn">로그인</div>
         </div>
 

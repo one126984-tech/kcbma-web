@@ -38,6 +38,9 @@
                 </div>
                 <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='{{BASE}}mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
             </div>
+            <div id="header-admin-link-mobile" data-admin-only="true" onclick="location.href='{{BASE}}admin/admin-dashboard.html'" class="hidden w-full py-2.5 mt-2 bg-[#1e3a8a] text-white font-bold rounded-lg cursor-pointer text-center">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자 페이지
+            </div>
             <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='{{BASE}}login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
             </div>
         </div>
@@ -89,6 +92,11 @@
                     btn.textContent = '로그인';
                     btn.onclick = () => { location.href = '{{BASE}}login.html'; };
                 }
+            });
+
+            const isAdmin = !!(session && session.user && session.user.user_metadata && session.user.user_metadata.role === 'admin');
+            document.querySelectorAll('[data-admin-only]').forEach(el => {
+                el.classList.toggle('hidden', !isAdmin);
             });
         }
 
