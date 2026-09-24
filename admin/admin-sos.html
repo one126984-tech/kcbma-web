@@ -317,6 +317,8 @@
         .app-table th:nth-child(8), .app-table td:nth-child(8),
         .app-table th:nth-child(9), .app-table td:nth-child(9),
         .app-table th:nth-child(10), .app-table td:nth-child(10) { padding-left: 18px; padding-right: 18px; }
+        .req-table td:nth-child(1) { white-space: normal; line-height: 1.45; }
+        .req-table td:nth-child(5) { text-align: left; vertical-align: middle; }
 
         .btn-manage { display: inline-flex; align-items: center; justify-content: center; padding: 5px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
         .btn-assign { background: #dbeafe; color: #1d4ed8; }
@@ -784,14 +786,24 @@
 
             <div class="section-card">
                 <div class="overflow-x-auto">
-                    <table class="admin-table">
+                    <table class="admin-table req-table">
+                        <colgroup>
+                            <col style="width:78px">
+                            <col style="width:64px">
+                            <col style="width:96px">
+                            <col style="width:104px">
+                            <col>
+                            <col style="width:64px">
+                            <col style="width:80px">
+                            <col style="width:110px">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>접수일시</th>
                                 <th>상황</th>
                                 <th>위치</th>
                                 <th>연락처</th>
-                                <th>상세/사진</th>
+                                <th>추가금/상세/사진</th>
                                 <th>상태</th>
                                 <th>매칭 전문가</th>
                                 <th>관리</th>
@@ -1105,16 +1117,35 @@
                 }
                 manageButtons += ` <button class="btn-manage btn-chat" onclick="toggleChat('${r.id}')">채팅</button>`;
 
+                // 접수일시: 날짜 / 시간 두 줄로 표시
+                const createdDate = r.created_at ? new Date(r.created_at) : null;
+                const dateTimeHtml = (createdDate && !isNaN(createdDate.getTime()))
+                    ? `${createdDate.toLocaleDateString('ko-KR')}<br><span class="text-gray-400 text-[11px]">${createdDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>`
+                    : '-';
+
+                // 설명 앞에 붙는 "[긴급 추가금 희망: N만원]" 표시를 분리해서
+                // 추가금은 금액만 굵게, 나머지 설명은 그 아래 별도 줄로 표시
+                const feeMatch = (r.description || '').match(/^\[긴급 추가금 희망:\s*([0-9,]+\s*만원)\]\s*/);
+                const feeAmount = feeMatch ? feeMatch[1] : null;
+                const restDescription = feeMatch ? (r.description || '').slice(feeMatch[0].length).trim() : (r.description || '');
+
+                // 추가금/설명/사진을 한 줄로 이어서 적고, 공간이 부족하면 자연스럽게
+                // 다음 줄로 넘어가도록 구성 (강제 줄바꿈 없이 흐르는 형태)
+                const detailParts = [];
+                if (feeAmount) detailParts.push(`<span class="font-bold text-red-600">${escapeHtml(feeAmount)}</span>`);
+                if (restDescription) detailParts.push(`<span class="text-gray-600">${escapeHtml(restDescription)}</span>`);
+                if (photoCount > 0) detailParts.push(photoLinks);
+                const detailHtml = detailParts.length > 0
+                    ? detailParts.join(' <span class="text-gray-300">|</span> ')
+                    : '<span class="text-gray-300">-</span>';
+
                 const rowHtml = `
                     <tr>
-                        <td class="whitespace-nowrap">${formatDateTime(r.created_at)}</td>
+                        <td>${dateTimeHtml}</td>
                         <td class="font-bold">${escapeHtml(r.category)}</td>
                         <td class="text-left max-w-[160px] truncate" title="${escapeHtml(r.region)}">${escapeHtml(r.region) || '-'}</td>
                         <td class="whitespace-nowrap">${escapeHtml(r.contact_phone) || '-'}</td>
-                        <td class="text-left max-w-[180px]">
-                            ${r.description ? `<p class="truncate text-gray-600" title="${escapeHtml(r.description)}">${escapeHtml(r.description)}</p>` : ''}
-                            <p class="text-[11px] mt-0.5">${photoLinks}</p>
-                        </td>
+                        <td class="text-left leading-relaxed">${detailHtml}</td>
                         <td>${requestStatusBadge(r.status)}</td>
                         <td>${match ? `<span class="text-blue-700 font-bold">${escapeHtml(match.expert_name) || ('#' + match.id.slice(0, 8).toUpperCase())}</span>` : '<span class="text-gray-300">미배정</span>'}</td>
                         <td class="whitespace-nowrap">${manageButtons}</td>
