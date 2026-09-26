@@ -1,0 +1,194 @@
+<!-- 파일명: my-sos.src.html
+     내 SOS 내역: 로그인한 사용자가 본인이 접수한 긴급 SOS 요청들을
+     다시 찾아볼 수 있게 하는 페이지. 다른 mypage 페이지들과 사이드바 구성을 맞춤. -->
+<!-- @var PAGE_CLASS: page-mypage -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>내 SOS 내역 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(내 SOS 내역) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .sos-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
+                <div class="side-menu-tab-active">내 SOS 내역</div>
+                <div class="side-menu-tab">내 정보</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-tab="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-tab="대기중" onclick="setTab('대기중')">대기중</div>
+                <div class="tab-item" data-tab="매칭됨" onclick="setTab('매칭됨')">매칭됨</div>
+                <div class="tab-item" data-tab="완료" onclick="setTab('완료')">완료</div>
+                <div class="tab-item" data-tab="취소됨" onclick="setTab('취소됨')">취소됨</div>
+            </div>
+
+            <div id="sos-list">
+                <div class="text-center py-20 text-gray-400 text-sm bg-white border border-gray-200 rounded">데이터를 불러오는 중입니다...</div>
+            </div>
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+    </div>
+
+    <script>
+        const supabaseClient = window.sb;
+        let currentUser = null;
+        let allRequests = [];
+        let currentTab = 'ALL';
+
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
+            }
+        }
+
+        function requireLogin() {
+            if (!currentUser) {
+                window.location.href = '{{BASE}}login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function fetchRequests() {
+            const { data, error } = await supabaseClient
+                .from('sos_requests')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('내 SOS 내역 조회 오류:', error);
+                return [];
+            }
+            return data || [];
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function statusBadge(status) {
+            const s = status || '대기중';
+            const map = {
+                '대기중': 'bg-red-100 text-red-600',
+                '매칭됨': 'bg-blue-100 text-blue-700',
+                '완료': 'bg-green-100 text-green-700',
+                '취소됨': 'bg-gray-100 text-gray-500'
+            };
+            const cls = map[s] || 'bg-gray-100 text-gray-500';
+            return `<span class="${cls} px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap">${s}</span>`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.innerText = str || '';
+            return div.innerHTML;
+        }
+
+        function renderList() {
+            const container = document.getElementById('sos-list');
+            let filtered = allRequests;
+            if (currentTab !== 'ALL') filtered = allRequests.filter(r => (r.status || '대기중') === currentTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white border border-gray-200 rounded">
+                        <i class="fas fa-triangle-exclamation text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 font-medium">해당 조건의 SOS 접수 내역이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(r => `
+                <div class="sos-card">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-2">
+                            ${statusBadge(r.status)}
+                            <span class="text-[12px] text-gray-500 font-medium">${formatDateTime(r.created_at)}</span>
+                        </div>
+                        <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${escapeHtml(r.category) || '-'}</div>
+                        <div class="text-[13px] text-gray-500 truncate">${escapeHtml(r.region) || '-'} · ${escapeHtml(r.contact_phone) || '-'}</div>
+                    </div>
+                    <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${r.id}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
+                </div>
+            `).join('');
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
+            });
+            renderList();
+        }
+
+        async function init() {
+            await fetchUser();
+            if (!requireLogin()) return;
+
+            allRequests = await fetchRequests();
+            renderList();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

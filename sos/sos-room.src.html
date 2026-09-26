@@ -170,8 +170,8 @@
                     <button id="cancel-btn" class="flex-1 bg-white border-2 border-gray-300 text-gray-600 font-bold text-base py-3.5 rounded-xl hover:bg-gray-100 transition shadow-sm">
                         취소하기
                     </button>
-                    <button id="complete-btn" onclick="location.href='{{BASE}}index.html'" class="flex-1 bg-[#2563eb] border-2 border-[#2563eb] text-white font-bold text-base py-3.5 rounded-xl hover:bg-blue-700 transition shadow-sm">
-                        접수완료
+                    <button id="complete-btn" class="flex-1 bg-[#2563eb] border-2 border-[#2563eb] text-white font-bold text-base py-3.5 rounded-xl hover:bg-blue-700 transition shadow-sm">
+                        처리 완료
                     </button>
                 </div>
             </div>
@@ -181,6 +181,16 @@
                 <i class="fa-solid fa-circle-check text-5xl text-gray-300"></i>
                 <p class="text-gray-600 font-bold break-keep">접수가 취소되었습니다.<br>상황이 남아있다면 다시 접수해 주세요.</p>
                 <button onclick="location.href='sos-request.html'" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">새로 접수하기</button>
+            </div>
+
+            <!-- 처리 완료 화면 -->
+            <div id="room-completed" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
+                <i class="fa-solid fa-circle-check text-5xl text-blue-500"></i>
+                <p class="text-gray-700 font-bold break-keep">처리 완료로 표시된 접수입니다.<br>다른 문제가 있다면 새로 접수해 주세요.</p>
+                <div class="flex gap-2">
+                    <button onclick="location.href='{{BASE}}mypage/my-sos.html'" class="bg-white border-2 border-gray-300 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-100 transition shadow-sm">내 SOS 내역</button>
+                    <button onclick="location.href='sos-request.html'" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">새로 접수하기</button>
+                </div>
             </div>
 
         </div>
@@ -477,11 +487,10 @@
         return;
       }
 
-      const { data, error } = await supabaseClient
-        .from('sos_requests')
-        .select('*')
-        .eq('id', requestId)
-        .single();
+      const { data: rpcData, error } = await supabaseClient
+        .rpc('get_sos_request_by_id', { p_request_id: requestId });
+
+      const data = Array.isArray(rpcData) ? rpcData[0] : rpcData;
 
       if (error || !data) {
         console.error('SOS 접수 조회 오류:', error);
@@ -493,6 +502,12 @@
       if (data.status === '취소됨') {
         document.getElementById('room-cancelled').classList.remove('hidden');
         document.getElementById('room-cancelled').classList.add('flex');
+        return;
+      }
+
+      if (data.status === '완료') {
+        document.getElementById('room-completed').classList.remove('hidden');
+        document.getElementById('room-completed').classList.add('flex');
         return;
       }
 
@@ -531,6 +546,30 @@
         document.getElementById('room-content').classList.remove('flex');
         document.getElementById('room-cancelled').classList.remove('hidden');
         document.getElementById('room-cancelled').classList.add('flex');
+      }, { once: true });
+
+      document.getElementById('complete-btn').addEventListener('click', async function() {
+        if (!confirm('문제가 해결되어 접수를 완료 처리하시겠습니까?')) return;
+        this.disabled = true;
+        this.innerText = '처리 중...';
+
+        const { error: updateError } = await supabaseClient
+          .from('sos_requests')
+          .update({ status: '완료' })
+          .eq('id', requestId);
+
+        if (updateError) {
+          console.error('완료 처리 오류:', updateError);
+          alert('완료 처리 중 오류가 발생했습니다. 상단의 긴급 전화로 연락해 주세요.');
+          this.disabled = false;
+          this.innerText = '처리 완료';
+          return;
+        }
+
+        document.getElementById('room-content').classList.add('hidden');
+        document.getElementById('room-content').classList.remove('flex');
+        document.getElementById('room-completed').classList.remove('hidden');
+        document.getElementById('room-completed').classList.add('flex');
       }, { once: true });
 
       setInterval(async () => {

@@ -1307,20 +1307,23 @@
                 description = `[긴급 추가금 희망: ${premiumInput}만원] ${description}`.trim();
             }
 
-            const { data: inserted, error: insertError } = await supabaseClient
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const newRequestId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : null;
+
+            const { error: insertError } = await supabaseClient
                 .from('sos_requests')
                 .insert([{
+                    ...(newRequestId ? { id: newRequestId } : {}),
                     category: finalCategories,
                     region: location,
                     contact_phone: phone,
                     description: description || null,
                     photo_urls: photoUrls.join(','),
-                    status: '대기중'
-                }])
-                .select()
-                .single();
+                    status: '대기중',
+                    user_id: user ? user.id : null
+                }]);
 
-            if (insertError || !inserted) {
+            if (insertError || !newRequestId) {
                 console.error('SOS 접수 저장 오류:', insertError);
                 alert('접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.');
                 btn.disabled = false;
@@ -1328,7 +1331,7 @@
                 return;
             }
 
-            window.location.href = `sos-room.html?request_id=${inserted.id}`;
+            window.location.href = `sos-room.html?request_id=${newRequestId}`;
         } catch (err) {
             console.error('SOS 접수 처리 중 예외:', err);
             alert('접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.');

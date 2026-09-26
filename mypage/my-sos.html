@@ -1,10 +1,12 @@
-<!-- 파일명: sos-room.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 sos-room.html) -->
+<!-- 파일명: my-sos.src.html
+     내 SOS 내역: 로그인한 사용자가 본인이 접수한 긴급 SOS 요청들을
+     다시 찾아볼 수 있게 하는 페이지. 다른 mypage 페이지들과 사이드바 구성을 맞춤. -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>긴급 SOS 매칭 현황 | 대한집합건물관리협회</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>내 SOS 내역 | 대한집합건물관리협회</title>
 
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
@@ -106,22 +108,16 @@
         }
     </style>
 
-  <style>
-      #sos-top-banner { background-color: #dc2626; }
-  </style>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <link rel="stylesheet" href="../../assets/css/tailwind.css">
-  
-  <!-- 카카오톡 SDK 추가 -->
-  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../../assets/js/supabase-config.js"></script>
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../assets/js/supabase-config.js"></script>
 
     <style>
         /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
@@ -379,20 +375,18 @@
     }
 </style>
 
-  <style>
-    /* 이 페이지(긴급 SOS 매칭 현황) 전용 CSS */
-    html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden !important;
-    }
-    .break-keep { word-break: keep-all; }
-  </style>
-</head>
+    <style>
+        /* 이 페이지(내 SOS 내역) 전용 CSS */
+        html, body { overflow-y: scroll; }
 
-<body class="flex flex-col h-screen overflow-hidden page-sos">
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .sos-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen page-mypage">
 
 <!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
          _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -519,9 +513,7 @@
     </header>
 </div>
 
-    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
-        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
-    </div>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
 </div>
 
     <!-- 모바일 메뉴 -->
@@ -761,540 +753,150 @@
         });
     </script>
 
-<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+<div id="page-content" class="flex-1 flex flex-col">
 
-    <!-- 파란 바와 빨간 배너 사이 간격 -->
-    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
+                <div class="side-menu-tab-active">내 SOS 내역</div>
+                <div class="side-menu-tab">내 정보</div>
+            </div>
+        </aside>
 
-    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
-
-        <!-- 중앙 SOS 모바일 사이즈 컨테이너 -->
-        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
-
-            <!-- 페이지 내부 안내 바 -->
-            <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
-                <button onclick="location.href='sos-request.html'" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-red-700 p-2 rounded-full transition">
-                    <i class="fa-solid fa-arrow-left text-lg"></i>
-                </button>
-                <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
-                    긴급 SOS 매칭 현황
-                </h1>
+        <section class="flex-1 min-w-0">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-tab="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-tab="대기중" onclick="setTab('대기중')">대기중</div>
+                <div class="tab-item" data-tab="매칭됨" onclick="setTab('매칭됨')">매칭됨</div>
+                <div class="tab-item" data-tab="완료" onclick="setTab('완료')">완료</div>
+                <div class="tab-item" data-tab="취소됨" onclick="setTab('취소됨')">취소됨</div>
             </div>
 
-            <!-- 접수 정보를 찾을 수 없을 때 -->
-            <div id="room-invalid" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
-                <i class="fa-solid fa-circle-exclamation text-5xl text-gray-300"></i>
-                <p class="text-gray-600 font-bold break-keep">접수 내역을 찾을 수 없습니다.<br>주소가 정확한지 확인해 주세요.</p>
-                <button onclick="location.href='sos-request.html'" class="bg-red-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-red-700 transition">새로 접수하기</button>
+            <div id="sos-list">
+                <div class="text-center py-20 text-gray-400 text-sm bg-white border border-gray-200 rounded">데이터를 불러오는 중입니다...</div>
             </div>
-
-            <!-- 매칭 현황 본문 -->
-            <div id="room-content" class="hidden flex-1 flex flex-col bg-gray-50">
-
-                <div class="p-5 flex-1 space-y-6 pb-8">
-
-                    <!-- 상담 가능한 전문가 그리드 및 정렬 -->
-                    <div>
-                        <div class="flex justify-between items-end mb-3 px-1">
-                            <h2 class="text-[17px] font-black text-gray-800 border-b-2 border-blue-600 pb-1">상담가능한 전문가</h2>
-                            <select id="expert-sort" class="border-2 border-gray-300 text-sm font-bold text-gray-700 rounded-lg p-1.5 focus:outline-none focus:border-blue-500 bg-white cursor-pointer">
-                                <option value="rating">평가순</option>
-                                <option value="experience">경험순</option>
-                                <option value="recent">최근활동순</option>
-                            </select>
-                        </div>
-                        
-                        <!-- 자바스크립트로 전문가 카드가 렌더링될 영역 -->
-                        <div id="expert-grid" class="grid grid-cols-2 gap-3 mb-2"></div>
-                    </div>
-
-                    <!-- 다른 전문가들 연락하기 (카톡 / 검색) -->
-                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 text-center">
-                        <h3 class="font-black text-gray-800 text-[16px] mb-4">다른 전문가들 연락하기</h3>
-                        <div class="space-y-3">
-                            <button id="kakao-share-btn" class="w-full bg-[#FEE500] hover:bg-[#ebd300] text-[#000000] font-black text-[14px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
-                                <i class="fa-solid fa-comment text-lg"></i> 카카오톡으로 다른 전문가 호출하기
-                            </button>
-                            <!-- 녹색 배경 및 위 버튼과 일정한 간격(space-y-3) 적용 -->
-                            <button onclick="location.href='sos-experts.html'" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-[14px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
-                                <i class="fa-solid fa-magnifying-glass text-lg"></i> 출동가능한 전문가 찾기
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 매칭된 전문가 정보 (최종 배정 시 노출) -->
-                    <div id="match-info-card" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 items-center gap-3">
-                        <div class="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-user-gear text-lg"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p id="match-expert-name" class="font-bold text-gray-800 text-sm">전문가가 배정되었습니다</p>
-                            <p id="match-ref" class="text-xs text-gray-500">배정번호 -</p>
-                        </div>
-                        <div id="match-expert-rating" class="hidden shrink-0 text-right">
-                            <p class="text-xs font-black text-yellow-500">★ -</p>
-                            <p class="text-[10px] text-gray-400">누적 -건</p>
-                        </div>
-                    </div>
-
-                    <!-- 접수 내용 요약 -->
-                    <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden shadow-sm">
-                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                            <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-file-lines text-gray-400 mr-1"></i> 접수 내역</h3>
-                        </div>
-                        <div class="flex items-center px-4 py-3 gap-3">
-                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400">상황</span>
-                            <span id="room-category" class="text-sm font-bold text-gray-800">-</span>
-                        </div>
-                        <div class="flex items-center px-4 py-3 gap-3">
-                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400">위치</span>
-                            <span id="room-location" class="text-sm text-gray-800 break-keep">-</span>
-                        </div>
-                        <div class="flex items-center px-4 py-3 gap-3">
-                            <span class="w-20 shrink-0 text-xs font-bold text-gray-400">연락처</span>
-                            <span id="room-phone" class="text-sm text-gray-800">-</span>
-                        </div>
-                    </div>
-
-                    <!-- 전문가와의 채팅 -->
-                    <div class="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden shadow-sm">
-                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                            <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i class="fa-solid fa-comment-dots text-gray-400"></i> 메시지</h3>
-                        </div>
-                        <div id="chat-messages" class="flex flex-col gap-2 p-4 max-h-64 overflow-y-auto text-sm bg-white">
-                            <p class="text-xs text-gray-400 text-center">아직 메시지가 없습니다.</p>
-                        </div>
-                        <div class="flex items-center gap-2 p-3 border-t border-gray-100 bg-white">
-                            <input type="text" id="chat-input" placeholder="전문가에게 전달할 내용을 입력하세요" class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-blue-500 transition">
-                            <button id="chat-send-btn" class="shrink-0 w-9 h-9 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition flex items-center justify-center">
-                                <i class="fa-solid fa-paper-plane text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
-                    <button id="cancel-btn" class="flex-1 bg-white border-2 border-gray-300 text-gray-600 font-bold text-base py-3.5 rounded-xl hover:bg-gray-100 transition shadow-sm">
-                        취소하기
-                    </button>
-                    <button id="complete-btn" class="flex-1 bg-[#2563eb] border-2 border-[#2563eb] text-white font-bold text-base py-3.5 rounded-xl hover:bg-blue-700 transition shadow-sm">
-                        처리 완료
-                    </button>
-                </div>
-            </div>
-
-            <!-- 취소 완료 화면 -->
-            <div id="room-cancelled" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
-                <i class="fa-solid fa-circle-check text-5xl text-gray-300"></i>
-                <p class="text-gray-600 font-bold break-keep">접수가 취소되었습니다.<br>상황이 남아있다면 다시 접수해 주세요.</p>
-                <button onclick="location.href='sos-request.html'" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">새로 접수하기</button>
-            </div>
-
-            <!-- 처리 완료 화면 -->
-            <div id="room-completed" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
-                <i class="fa-solid fa-circle-check text-5xl text-blue-500"></i>
-                <p class="text-gray-700 font-bold break-keep">처리 완료로 표시된 접수입니다.<br>다른 문제가 있다면 새로 접수해 주세요.</p>
-                <div class="flex gap-2">
-                    <button onclick="location.href='../../mypage/my-sos.html'" class="bg-white border-2 border-gray-300 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-100 transition shadow-sm">내 SOS 내역</button>
-                    <button onclick="location.href='sos-request.html'" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">새로 접수하기</button>
-                </div>
-            </div>
-
-        </div>
+    <div id="footer-container"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+        </section>
     </main>
 
     </div>
-    <!-- page-content 끝 -->
 
-  <script>
-    // 카카오 SDK 초기화 — 실제 키가 설정되기 전까지는 초기화를 미루고,
-    // 공유 버튼을 눌렀을 때만 안내 메시지를 보여줍니다.
-    const KAKAO_JS_KEY = 'YOUR_KAKAO_JAVASCRIPT_KEY';
-    let kakaoInited = false;
-
-    document.getElementById('kakao-share-btn').addEventListener('click', function() {
-        if (KAKAO_JS_KEY === 'YOUR_KAKAO_JAVASCRIPT_KEY') {
-            alert('카카오톡 공유 기능은 아직 설정 중입니다. (관리자: Kakao Developers에서 발급받은 JavaScript 키를 등록해 주세요)');
-            return;
-        }
-        if (!kakaoInited) {
-            Kakao.init(KAKAO_JS_KEY);
-            kakaoInited = true;
-        }
-        const requestUrl = new URL('sos-request.html', window.location.href).href;
-        const shareImageUrl = new URL('../../assets/img/logo.png', window.location.href).href;
-        Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: {
-                title: '🚨 긴급 SOS 지원 요청',
-                description: '지금 즉시 출동 가능한 전문가를 찾고 있습니다. 프로필을 확인하시고 지원해 주세요!',
-                imageUrl: shareImageUrl,
-                link: { mobileWebUrl: requestUrl, webUrl: requestUrl },
-            },
-            buttons: [
-                { title: '지원하기 / 자세히 보기', link: { mobileWebUrl: requestUrl, webUrl: requestUrl } },
-            ],
-        });
-    });
-
-    const supabaseClient = window.sb;
-    const params = new URLSearchParams(window.location.search);
-    const requestId = params.get('request_id');
-
-    // --- 상담가능한 전문가 그리드: 실제 sos_experts 데이터 사용 ---
-    let allActiveExperts = [];
-
-    function iconForCategory(category) {
-        const c = category || '';
-        if (c.includes('누수') || c.includes('배관')) return 'fa-user-tie';
-        if (c.includes('전기') || c.includes('정전')) return 'fa-user-gear';
-        if (c.includes('화재') || c.includes('소방')) return 'fa-helmet-safety';
-        if (c.includes('화장실')) return 'fa-wrench';
-        if (c.includes('가스')) return 'fa-fire-flame-simple';
-        return 'fa-user-tie';
-    }
-
-    async function fetchActiveExperts() {
-        const { data, error } = await supabaseClient
-            .from('sos_experts')
-            .select('*')
-            .eq('is_active', true);
-        if (error) {
-            console.error('전문가 목록 조회 오류:', error);
-            allActiveExperts = [];
-            return;
-        }
-        allActiveExperts = data || [];
-    }
-
-    function renderExpertGrid(sortBy = 'rating') {
-        const grid = document.getElementById('expert-grid');
-        grid.innerHTML = '';
-
-        if (allActiveExperts.length === 0) {
-            grid.innerHTML = '<p class="col-span-2 text-center text-xs text-gray-400 py-4">현재 등록된 전문가가 없습니다.</p>';
-            return;
-        }
-
-        let sortedExperts = [...allActiveExperts];
-        if (sortBy === 'rating') {
-            sortedExperts.sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
-        } else if (sortBy === 'experience') {
-            sortedExperts.sort((a, b) => (b.total_cases || 0) - (a.total_cases || 0));
-        } else {
-            // 최근활동순
-            sortedExperts.sort((a, b) => new Date(b.last_active_at || 0) - new Date(a.last_active_at || 0));
-        }
-
-        sortedExperts.slice(0, 4).forEach(expert => {
-            const region = [expert.region_main, expert.region_sub].filter(Boolean).join(' ') || '지역 미등록';
-            const available = expert.is_available !== false;
-            const rating = expert.avg_rating ? Number(expert.avg_rating).toFixed(1) : '신규';
-            const cases = expert.total_cases || 0;
-
-            const card = document.createElement('div');
-            card.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-col items-center text-center shadow-sm relative overflow-hidden';
-
-            const availabilityHtml = available
-                ? '<span class="text-blue-600 font-bold">즉시 출동</span>'
-                : '<span class="text-gray-500 font-bold">상담 후 조율</span>';
-
-            card.innerHTML = `
-                <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
-                <div class="w-12 h-12 bg-gray-100 rounded-full mb-1 flex items-center justify-center border border-gray-200 mt-1">
-                    <i class="fa-solid ${iconForCategory(expert.category)} text-lg text-gray-400"></i>
-                </div>
-                <p class="font-black text-gray-800 text-[14px] truncate w-full">${escapeHtml(expert.name)}</p>
-
-                <div class="text-[11px] text-gray-600 mt-2 space-y-1.5 w-full text-left bg-gray-50 p-2 rounded border border-gray-100">
-                    <p class="truncate"><i class="fa-solid fa-location-dot w-3 text-center text-gray-400 mr-1"></i> ${escapeHtml(region)}</p>
-                    <p class="truncate"><i class="fa-solid fa-truck-fast w-3 text-center text-blue-500 mr-1"></i> ${availabilityHtml}</p>
-                    <div class="pt-1.5 border-t border-gray-200 mt-1 text-[10px] text-center text-gray-500 font-bold">
-                        ★ ${rating} | ${cases}건
-                    </div>
-                </div>
-
-                <button ${!available ? 'disabled' : ''} onclick="requestExpert('${expert.id}')" class="mt-2.5 w-full text-[12px] font-bold py-1.5 rounded-lg transition ${available ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-600 hover:text-white' : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'}">
-                    ${available ? '상담 요청' : '응답 불가'}
-                </button>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    async function requestExpert(expertId) {
-        if (!requestId) return;
-        const expert = allActiveExperts.find(e => e.id === expertId);
-        if (!expert) return;
-
-        if (currentMatch) {
-            alert('이미 배정된 전문가가 있습니다. 다른 전문가로 변경하시려면 "취소하기" 후 다시 접수해 주세요.');
-            return;
-        }
-        if (!confirm(`${expert.name} 전문가에게 상담을 요청하시겠습니까?`)) return;
-
-        const { error } = await supabaseClient.from('sos_matches').insert([{
-            request_id: requestId,
-            expert_id: expert.id,
-            sos_expert_id: expert.id,
-            expert_name: expert.name,
-            expert_phone: expert.phone
-        }]);
-
-        if (error) {
-            console.error('상담 요청 오류:', error);
-            alert('상담 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-            return;
-        }
-
-        alert(`${expert.name} 전문가에게 상담이 요청되었습니다.`);
-        const match = await loadMatch();
-        await renderMatchCard(match);
-    }
-
-    // 정렬 드롭다운 이벤트 리스너
-    document.getElementById('expert-sort').addEventListener('change', (e) => {
-        renderExpertGrid(e.target.value);
-    });
-
-    // --- 매칭 정보 로드 로직 ---
-    let currentMatch = null; 
-
-    async function loadMatch() {
-      const { data, error } = await supabaseClient
-        .from('sos_matches')
-        .select('*')
-        .eq('request_id', requestId)
-        .maybeSingle();
-
-      if (error) {
-        console.error('매칭 정보 조회 오류:', error);
-        return null;
-      }
-      return data || null;
-    }
-
-    function renderMatchCard(match) {
-      currentMatch = match;
-      const card = document.getElementById('match-info-card');
-      const nameEl = document.getElementById('match-expert-name');
-      const ratingBox = document.getElementById('match-expert-rating');
-
-      if (!match) {
-        card.classList.add('hidden');
-        card.classList.remove('flex');
-        return Promise.resolve();
-      }
-
-      card.classList.remove('hidden');
-      card.classList.add('flex');
-      document.getElementById('match-ref').innerText = `배정번호 #${match.id.slice(0, 8).toUpperCase()}`;
-
-      if (!match.sos_expert_id) {
-        nameEl.innerText = '전문가가 배정되었습니다';
-        ratingBox.classList.add('hidden');
-        return Promise.resolve();
-      }
-
-      return supabaseClient
-        .from('sos_experts')
-        .select('name, avg_rating, total_cases')
-        .eq('id', match.sos_expert_id)
-        .maybeSingle()
-        .then(({ data: expert, error }) => {
-          if (error || !expert) {
-            nameEl.innerText = '전문가가 배정되었습니다';
-            ratingBox.classList.add('hidden');
-            return;
-          }
-          nameEl.innerText = `${expert.name} 전문가가 배정되었습니다`;
-          ratingBox.classList.remove('hidden');
-          ratingBox.querySelectorAll('p')[0].innerText = expert.avg_rating ? `★ ${Number(expert.avg_rating).toFixed(1)}` : '★ 신규';
-          ratingBox.querySelectorAll('p')[1].innerText = `누적 ${expert.total_cases || 0}건`;
-        });
-    }
-
-    // --- 채팅 ---
-    function renderMessages(messages) {
-      const box = document.getElementById('chat-messages');
-      if (!messages || messages.length === 0) {
-        box.innerHTML = '<p class="text-xs text-gray-400 text-center">아직 메시지가 없습니다.</p>';
-        return;
-      }
-      box.innerHTML = messages.map(m => {
-        const mine = m.sender_type !== 'expert';
-        return `<div class="flex ${mine ? 'justify-end' : 'justify-start'}">
-                  <span class="inline-block max-w-[80%] px-3 py-2 rounded-2xl break-keep ${mine ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}">${escapeHtml(m.message_text)}</span>
-                </div>`;
-      }).join('');
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.innerText = str || '';
-      return div.innerHTML;
-    }
-
-    async function loadMessages() {
-      const { data, error } = await supabaseClient
-        .from('sos_messages')
-        .select('*')
-        .eq('request_id', requestId)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('메시지 조회 오류:', error);
-        return;
-      }
-      renderMessages(data);
-    }
-
-    async function sendMessage() {
-      const input = document.getElementById('chat-input');
-      const text = input.value.trim();
-      if (!text) return;
-
-      input.disabled = true;
-      const { error } = await supabaseClient
-        .from('sos_messages')
-        .insert([{ request_id: requestId, message_text: text, sender_type: 'requester' }]);
-
-      input.disabled = false;
-      if (error) {
-        console.error('메시지 전송 오류:', error);
-        alert('메시지 전송 중 오류가 발생했습니다.');
-        return;
-      }
-      input.value = '';
-      loadMessages();
-    }
-
-    document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
-    document.getElementById('chat-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
-
-    // --- 전화번호 형식 포맷팅 함수 ---
-    function formatPhoneDisplay(num) {
-        if (!num) return '-';
-        let val = num.replace(/[^0-9]/g, '');
-        if (val.length === 11) {
-            return val.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-        } else if (val.length === 10) {
-            return val.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-        }
-        return num;
-    }
-
-    async function loadRequest() {
-      if (!requestId || !supabaseClient) {
-        document.getElementById('room-invalid').classList.remove('hidden');
-        document.getElementById('room-invalid').classList.add('flex');
-        return;
-      }
-
-      const { data: rpcData, error } = await supabaseClient
-        .rpc('get_sos_request_by_id', { p_request_id: requestId });
-
-      const data = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-
-      if (error || !data) {
-        console.error('SOS 접수 조회 오류:', error);
-        document.getElementById('room-invalid').classList.remove('hidden');
-        document.getElementById('room-invalid').classList.add('flex');
-        return;
-      }
-
-      if (data.status === '취소됨') {
-        document.getElementById('room-cancelled').classList.remove('hidden');
-        document.getElementById('room-cancelled').classList.add('flex');
-        return;
-      }
-
-      if (data.status === '완료') {
-        document.getElementById('room-completed').classList.remove('hidden');
-        document.getElementById('room-completed').classList.add('flex');
-        return;
-      }
-
-      document.getElementById('room-content').classList.remove('hidden');
-      document.getElementById('room-content').classList.add('flex');
-
-      document.getElementById('room-category').innerText = data.category || '-';
-      document.getElementById('room-location').innerText = data.region || '-';
-      document.getElementById('room-phone').innerText = formatPhoneDisplay(data.contact_phone);
-
-      fetchActiveExperts().then(() => renderExpertGrid('rating'));
-
-      const match = await loadMatch();
-      await renderMatchCard(match);
-      loadMessages();
-
-      document.getElementById('cancel-btn').addEventListener('click', async function() {
-        if (!confirm('접수를 취소하시겠습니까?')) return;
-        this.disabled = true;
-        this.innerText = '취소 처리 중...';
-
-        const { error: updateError } = await supabaseClient
-          .from('sos_requests')
-          .update({ status: '취소됨' })
-          .eq('id', requestId);
-
-        if (updateError) {
-          console.error('취소 처리 오류:', updateError);
-          alert('취소 처리 중 오류가 발생했습니다. 상단의 긴급 전화로 연락해 주세요.');
-          this.disabled = false;
-          this.innerText = '취소하기';
-          return;
-        }
-
-        document.getElementById('room-content').classList.add('hidden');
-        document.getElementById('room-content').classList.remove('flex');
-        document.getElementById('room-cancelled').classList.remove('hidden');
-        document.getElementById('room-cancelled').classList.add('flex');
-      }, { once: true });
-
-      document.getElementById('complete-btn').addEventListener('click', async function() {
-        if (!confirm('문제가 해결되어 접수를 완료 처리하시겠습니까?')) return;
-        this.disabled = true;
-        this.innerText = '처리 중...';
-
-        const { error: updateError } = await supabaseClient
-          .from('sos_requests')
-          .update({ status: '완료' })
-          .eq('id', requestId);
-
-        if (updateError) {
-          console.error('완료 처리 오류:', updateError);
-          alert('완료 처리 중 오류가 발생했습니다. 상단의 긴급 전화로 연락해 주세요.');
-          this.disabled = false;
-          this.innerText = '처리 완료';
-          return;
-        }
-
-        document.getElementById('room-content').classList.add('hidden');
-        document.getElementById('room-content').classList.remove('flex');
-        document.getElementById('room-completed').classList.remove('hidden');
-        document.getElementById('room-completed').classList.add('flex');
-      }, { once: true });
-
-      setInterval(async () => {
-        const latestMatch = await loadMatch();
-        await renderMatchCard(latestMatch);
-        loadMessages();
-      }, 15000);
-    }
-
-    loadRequest();
-  </script>
-<!-- 페이지 경로 기준점 설정 (루트 기준) -->
     <script>
-      window.BASE_PATH = '/';
+        const supabaseClient = window.sb;
+        let currentUser = null;
+        let allRequests = [];
+        let currentTab = 'ALL';
+
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
+            }
+        }
+
+        function requireLogin() {
+            if (!currentUser) {
+                window.location.href = '../../login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function fetchRequests() {
+            const { data, error } = await supabaseClient
+                .from('sos_requests')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('내 SOS 내역 조회 오류:', error);
+                return [];
+            }
+            return data || [];
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function statusBadge(status) {
+            const s = status || '대기중';
+            const map = {
+                '대기중': 'bg-red-100 text-red-600',
+                '매칭됨': 'bg-blue-100 text-blue-700',
+                '완료': 'bg-green-100 text-green-700',
+                '취소됨': 'bg-gray-100 text-gray-500'
+            };
+            const cls = map[s] || 'bg-gray-100 text-gray-500';
+            return `<span class="${cls} px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap">${s}</span>`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.innerText = str || '';
+            return div.innerHTML;
+        }
+
+        function renderList() {
+            const container = document.getElementById('sos-list');
+            let filtered = allRequests;
+            if (currentTab !== 'ALL') filtered = allRequests.filter(r => (r.status || '대기중') === currentTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white border border-gray-200 rounded">
+                        <i class="fas fa-triangle-exclamation text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 font-medium">해당 조건의 SOS 접수 내역이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(r => `
+                <div class="sos-card">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-2">
+                            ${statusBadge(r.status)}
+                            <span class="text-[12px] text-gray-500 font-medium">${formatDateTime(r.created_at)}</span>
+                        </div>
+                        <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${escapeHtml(r.category) || '-'}</div>
+                        <div class="text-[13px] text-gray-500 truncate">${escapeHtml(r.region) || '-'} · ${escapeHtml(r.contact_phone) || '-'}</div>
+                    </div>
+                    <button onclick="location.href='../../sos/sos-room.html?request_id=${r.id}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
+                </div>
+            `).join('');
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
+            });
+            renderList();
+        }
+
+        async function init() {
+            await fetchUser();
+            if (!requireLogin()) return;
+
+            allRequests = await fetchRequests();
+            renderList();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
-
-    <!-- 절대 경로(/)로 스크립트 불러오기 -->
-
 </body>
 </html>
