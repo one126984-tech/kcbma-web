@@ -1,213 +1,194 @@
+<!-- 파일명: my-sos.src.html
+     내 SOS 내역: 로그인한 사용자가 본인이 접수한 긴급 SOS 요청들을
+     다시 찾아볼 수 있게 하는 페이지. 다른 mypage 페이지들과 사이드바 구성을 맞춤. -->
+<!-- @var PAGE_CLASS: page-mypage -->
+<!-- @var BASE: ../../ -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지 - 내 SOS 내역</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>내 SOS 내역 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(내 SOS 내역) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .sos-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
 
-  <!-- 상단 네비게이션 바 -->
-  <header class="bg-white shadow-sm border-b">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-      <div class="flex items-center gap-6">
-        <h1 class="text-xl font-black text-[#1e3a8a]">KCBMA 대한집합건물관리협회</h1>
-        <nav class="hidden md:flex gap-4 text-sm font-bold text-gray-700">
-          <a href="#" class="hover:text-blue-600">협회소개</a>
-          <a href="#" class="hover:text-blue-600">구인구직</a>
-          <a href="#" class="hover:text-blue-600">견적의뢰</a>
-          <a href="#" class="hover:text-blue-600">자격증</a>
-          <a href="#" class="hover:text-blue-600 text-red-500">긴급 SOS 호출</a>
-        </nav>
-      </div>
-      <div class="flex items-center gap-4 text-sm">
-        <span id="user-greeting" class="font-bold">회원님, 안녕하세요!</span>
-        <button onclick="handleLogout()" class="bg-gray-700 text-white px-3 py-1.5 rounded font-bold hover:bg-gray-800 transition">로그아웃</button>
-      </div>
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
+                <div class="side-menu-tab-active">내 SOS 내역</div>
+                <div class="side-menu-tab">내 정보</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-tab="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-tab="대기중" onclick="setTab('대기중')">대기중</div>
+                <div class="tab-item" data-tab="매칭됨" onclick="setTab('매칭됨')">매칭됨</div>
+                <div class="tab-item" data-tab="완료" onclick="setTab('완료')">완료</div>
+                <div class="tab-item" data-tab="취소됨" onclick="setTab('취소됨')">취소됨</div>
+            </div>
+
+            <div id="sos-list">
+                <div class="text-center py-20 text-gray-400 text-sm bg-white border border-gray-200 rounded">데이터를 불러오는 중입니다...</div>
+            </div>
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
     </div>
-  </header>
 
-  <main class="max-w-7xl mx-auto mt-8 px-4 flex flex-col md:flex-row gap-8 pb-20">
-    
-    <!-- 좌측 사이드바 -->
-    <aside class="w-full md:w-64 flex-shrink-0">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <ul class="flex flex-col text-center font-bold text-gray-600">
-          <li><a href="dashboard.html" class="block py-4 hover:bg-gray-50 border-b">대시보드</a></li>
-          <li><a href="my-courses.html" class="block py-4 hover:bg-gray-50 border-b">내 수강 목록</a></li>
-          <li><a href="my-certs.html" class="block py-4 hover:bg-gray-50 border-b">내 자격증</a></li>
-          <li><a href="my-exams.html" class="block py-4 hover:bg-gray-50 border-b">시험 결과</a></li>
-          <li><a href="my-field-courses.html" class="block py-4 hover:bg-gray-50 border-b">내 현장교육 신청</a></li>
-          <!-- 현재 메뉴 활성화 -->
-          <li><a href="my-sos.html" class="block py-4 bg-[#2563eb] text-white border-b shadow-inner">내 SOS 내역</a></li>
-          <li><a href="#" class="block py-4 hover:bg-gray-50">내 정보</a></li>
-        </ul>
-      </div>
-    </aside>
+    <script>
+        const supabaseClient = window.sb;
+        let currentUser = null;
+        let allRequests = [];
+        let currentTab = 'ALL';
 
-    <!-- 메인 콘텐츠 영역 -->
-    <section class="flex-1">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-[#1e3a8a]">내 SOS 내역</h2>
-      </div>
-
-      <!-- 탭 메뉴 -->
-      <div class="bg-white rounded-t-lg shadow-sm border border-gray-200 flex px-2 sm:px-6 pt-4 gap-4 sm:gap-8 text-gray-500 font-bold overflow-x-auto">
-        <button id="tab-전체" class="tab-btn pb-3 border-b-2 border-blue-600 text-blue-800 whitespace-nowrap" onclick="filterList('전체')">전체</button>
-        <button id="tab-대기중" class="tab-btn pb-3 border-b-2 border-transparent hover:text-blue-600 whitespace-nowrap" onclick="filterList('대기중')">대기중</button>
-        <button id="tab-매칭됨" class="tab-btn pb-3 border-b-2 border-transparent hover:text-blue-600 whitespace-nowrap" onclick="filterList('매칭됨')">매칭됨</button>
-        <button id="tab-완료" class="tab-btn pb-3 border-b-2 border-transparent hover:text-blue-600 whitespace-nowrap" onclick="filterList('완료')">완료</button>
-        <button id="tab-취소됨" class="tab-btn pb-3 border-b-2 border-transparent hover:text-blue-600 whitespace-nowrap" onclick="filterList('취소됨')">취소됨</button>
-      </div>
-
-      <!-- 리스트 렌더링 영역 -->
-      <div id="sos-list-container" class="bg-gray-50 border border-t-0 border-gray-200 rounded-b-lg p-4 sm:p-6 space-y-4 min-h-[300px]">
-        <div class="text-center py-20 text-gray-500 flex flex-col items-center justify-center">
-          <svg class="animate-spin h-8 w-8 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          데이터를 불러오는 중입니다...
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    // [필수] 본인의 Supabase 정보로 변경
-    const SUPABASE_URL = '본인의_SUPABASE_URL_입력';
-    const SUPABASE_ANON_KEY = '본인의_SUPABASE_ANON_KEY_입력';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let allSosData = [];
-
-    document.addEventListener('DOMContentLoaded', initPage);
-
-    async function initPage() {
-      try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError || !user) throw new Error('로그인이 필요합니다.');
-
-        const userName = user.user_metadata?.full_name || '회원';
-        document.getElementById('user-greeting').innerText = `${userName}님, 안녕하세요!`;
-
-        const { data: sosData, error: dbError } = await supabase
-          .from('sos_requests')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (dbError) throw dbError;
-
-        allSosData = sosData || [];
-        renderList(allSosData);
-
-      } catch (error) {
-        console.error("데이터 로딩 에러:", error);
-        document.getElementById('sos-list-container').innerHTML = `
-          <div class="text-center py-20 font-bold">
-            <p class="text-red-500 mb-2">데이터를 불러오지 못했습니다.</p>
-            <p class="text-sm text-gray-500">(${error.message})</p>
-          </div>
-        `;
-      }
-    }
-
-    function renderList(data) {
-      const container = document.getElementById('sos-list-container');
-      container.innerHTML = '';
-
-      if (data.length === 0) {
-        container.innerHTML = `
-          <div class="bg-white rounded-lg border border-gray-200 p-16 text-center text-gray-500 flex flex-col items-center">
-            <p>해당 조건의 내역이 없습니다.</p>
-          </div>
-        `;
-        return;
-      }
-
-      data.forEach(item => {
-        let badgeColor = 'bg-gray-100 text-gray-600';
-        if (item.status === '대기중') badgeColor = 'bg-orange-100 text-orange-600';
-        else if (item.status === '매칭됨') badgeColor = 'bg-blue-100 text-blue-600';
-        else if (item.status === '완료') badgeColor = 'bg-green-100 text-green-700';
-        else if (item.status === '취소됨') badgeColor = 'bg-red-100 text-red-600';
-
-        const dateObj = new Date(item.created_at);
-        const dateStr = dateObj.toLocaleString('ko-KR', {
-          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-        });
-
-        // 서비스 수령 여부에 따른 정보 출력 로직
-        let expertInfoHtml = '';
-        if (item.status === '완료') {
-          // is_success 컬럼을 통해 서비스 수령 여부 판별 (없으면 임의 테스트)
-          const isSuccess = item.is_success !== false; // 기본적으로 성공이라 가정
-          if (isSuccess) {
-            expertInfoHtml = `
-              <div class="mt-3 text-sm text-blue-700 font-bold bg-blue-50 border border-blue-100 px-3 py-2 rounded-md flex items-center gap-2">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                서비스 수령 완료 (담당: ${item.expert_name || '김전문'})
-              </div>`;
-          } else {
-            expertInfoHtml = `
-              <div class="mt-3 text-sm text-red-600 font-bold bg-red-50 border border-red-100 px-3 py-2 rounded-md flex items-center gap-2">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
-                서비스 미수령 종료
-              </div>`;
-          }
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
+            }
         }
 
-        const card = `
-          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition">
-            <div class="w-full">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="px-2 py-1 rounded text-xs font-black ${badgeColor}">${item.status || '대기중'}</span>
-                <span class="text-sm text-gray-500 font-medium">${dateStr}</span>
-              </div>
-              <h3 class="text-lg font-bold text-gray-900 mb-1">${item.issue_type || '현장 문제'}</h3>
-              <p class="text-sm text-gray-500">${item.address || ''}</p>
-              ${expertInfoHtml}
-            </div>
-            <button onclick="goToRoom('${item.id}')" class="w-full sm:w-auto flex-shrink-0 bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded font-bold hover:bg-gray-50 transition text-sm">
-              상세보기
-            </button>
-          </div>
-        `;
-        container.innerHTML += card;
-      });
-    }
+        function requireLogin() {
+            if (!currentUser) {
+                window.location.href = '{{BASE}}login.html';
+                return false;
+            }
+            return true;
+        }
 
-    function filterList(status) {
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('border-blue-600', 'text-blue-800');
-        btn.classList.add('border-transparent');
-      });
-      const activeBtn = document.getElementById(`tab-${status}`);
-      if(activeBtn) {
-        activeBtn.classList.remove('border-transparent');
-        activeBtn.classList.add('border-blue-600', 'text-blue-800');
-      }
+        async function fetchRequests() {
+            const { data, error } = await supabaseClient
+                .from('sos_requests')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
 
-      if (status === '전체') {
-        renderList(allSosData);
-      } else {
-        const filtered = allSosData.filter(item => item.status === status);
-        renderList(filtered);
-      }
-    }
+            if (error) {
+                console.error('내 SOS 내역 조회 오류:', error);
+                return [];
+            }
+            return data || [];
+        }
 
-    function goToRoom(id) {
-      window.location.href = `../sos/sos-room.html?id=${id}`;
-    }
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
 
-    async function handleLogout() {
-      if(confirm('로그아웃 하시겠습니까?')) {
-        await supabase.auth.signOut();
-        window.location.href = '../index.html';
-      }
-    }
-  </script>
+        function statusBadge(status) {
+            const s = status || '대기중';
+            const map = {
+                '대기중': 'bg-red-100 text-red-600',
+                '매칭됨': 'bg-blue-100 text-blue-700',
+                '완료': 'bg-green-100 text-green-700',
+                '취소됨': 'bg-gray-100 text-gray-500'
+            };
+            const cls = map[s] || 'bg-gray-100 text-gray-500';
+            return `<span class="${cls} px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap">${s}</span>`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.innerText = str || '';
+            return div.innerHTML;
+        }
+
+        function renderList() {
+            const container = document.getElementById('sos-list');
+            let filtered = allRequests;
+            if (currentTab !== 'ALL') filtered = allRequests.filter(r => (r.status || '대기중') === currentTab);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white border border-gray-200 rounded">
+                        <i class="fas fa-triangle-exclamation text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 font-medium">해당 조건의 SOS 접수 내역이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(r => `
+                <div class="sos-card">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-2">
+                            ${statusBadge(r.status)}
+                            <span class="text-[12px] text-gray-500 font-medium">${formatDateTime(r.created_at)}</span>
+                        </div>
+                        <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${escapeHtml(r.category) || '-'}</div>
+                        <div class="text-[13px] text-gray-500 truncate">${escapeHtml(r.region) || '-'} · ${escapeHtml(r.contact_phone) || '-'}</div>
+                    </div>
+                    <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${r.id}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
+                </div>
+            `).join('');
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
+            });
+            renderList();
+        }
+
+        async function init() {
+            await fetchUser();
+            if (!requireLogin()) return;
+
+            allRequests = await fetchRequests();
+            renderList();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>

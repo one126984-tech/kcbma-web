@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>전문가 제휴 신청 | 대한집합건물관리협회</title>
+  <title>전문가 파트너 신청 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
   <style>
@@ -44,9 +44,8 @@
     <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
         <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
 
-            <!-- 상단 배너 (크기 축소 및 버튼 중앙 정렬) -->
+            <!-- 상단 배너 -->
             <div id="partner-top-banner" class="text-white py-4 shadow-sm shrink-0 flex flex-col items-center justify-center relative z-20">
-                <!-- 뒤로가기 버튼: 무조건 이전 페이지로 이동 -->
                 <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-gray-700 p-2 rounded-full transition z-30 cursor-pointer">
                     <i class="fa-solid fa-arrow-left text-lg"></i>
                 </button>
@@ -55,7 +54,7 @@
                 </h1>
             </div>
 
-            <!-- 본문 양식 (배너 크기 조정에 맞춰 둥근 모서리 및 겹침 속성 제거) -->
+            <!-- 본문 양식 -->
             <div class="flex-1 flex flex-col bg-gray-50 relative z-30">
                 <div class="p-5 flex-1 space-y-6 pb-8">
                     <div class="bg-blue-50 border border-blue-200 py-4 px-4 rounded-xl text-center shadow-sm">
@@ -85,8 +84,11 @@
                                 <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
                                     <input type="checkbox" value="화장실 기기" class="w-4 h-4 text-blue-600 rounded"> <span>화장실 기기</span>
                                 </label>
+                                <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-white">
+                                    <input type="checkbox" value="가스 누출" class="w-4 h-4 text-blue-600 rounded"> <span>가스 누출</span>
+                                </label>
                                 <!-- 기타 직접입력란 -->
-                                <div class="flex items-center gap-2 p-2.5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition focus-within:border-[#818cf8] focus-within:bg-indigo-50 bg-white col-span-2 sm:col-span-1">
+                                <div class="flex items-center gap-2 p-2.5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition focus-within:border-[#818cf8] focus-within:bg-indigo-50 bg-white">
                                     <input type="checkbox" id="cat-other" class="w-4 h-4 text-blue-600 rounded cursor-pointer ml-0.5">
                                     <input type="text" id="pf-category-other-text" placeholder="기타(직접작성)" class="w-full bg-transparent outline-none text-sm font-bold text-gray-600 placeholder-gray-400" onfocus="document.getElementById('cat-other').checked = true;">
                                 </div>
@@ -94,31 +96,58 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 활동 지역 <span class="text-red-500">*</span></label>
-                            <input type="text" id="pf-region" required placeholder=" 예 : 서울 강남구, 서초구 일대" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 출동 가능 지역 <span class="text-red-500">*</span></label>
+                            <div class="flex gap-2">
+                                <select id="pf-region-main" required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white" onchange="updateSubRegions()">
+                                    <option value="">시/도 (대분류)</option>
+                                    <option value="서울">서울특별시</option>
+                                    <option value="경기">경기도</option>
+                                    <option value="인천">인천광역시</option>
+                                    <option value="부산">부산광역시</option>
+                                    <option value="대구">대구광역시</option>
+                                    <option value="광주">광주광역시</option>
+                                    <option value="대전">대전광역시</option>
+                                    <option value="울산">울산광역시</option>
+                                    <option value="세종">세종특별자치시</option>
+                                    <option value="강원">강원특별자치도</option>
+                                    <option value="충북">충청북도</option>
+                                    <option value="충남">충청남도</option>
+                                    <option value="전북">전북특별자치도</option>
+                                    <option value="전남">전라남도</option>
+                                    <option value="경북">경상북도</option>
+                                    <option value="경남">경상남도</option>
+                                    <option value="제주">제주특별자치도</option>
+                                </select>
+                                <select id="pf-region-sub" required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                    <option value="">시/군/구 (소분류)</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-2">4. 연락처 <span class="text-red-500">*</span></label>
-                            <input type="tel" id="pf-phone" required placeholder=" 예 : 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <label class="block text-sm font-bold text-gray-800 mb-2">4. 개인 연락처 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="pf-phone" required placeholder=" 예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-2">5. 경력 및 자격사항 <span class="text-gray-400 font-normal">(선택)</span></label>
-                            <textarea id="pf-bio" rows="3" placeholder="  보유 자격증, 경력 년수, 기타 본인소개 등을 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">5. 자기소개 및 경력사항 <span class="text-red-500">*</span></label>
+                            <textarea id="pf-bio" required rows="4" placeholder="예: 누수 탐지 전문 경력 10년. 보유 자격증 및 본인 소개를 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">6. 증빙 서류 첨부 <span class="text-gray-400 font-normal">(사업자등록증명원 등)</span></label>
                             <input type="file" id="pf-file" accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
-                            <p id="pf-file-status" class="text-[11px] text-gray-500 mt-2 ml-1 hidden"></p>
+                            <p id="pf-file-status" class="text-[11px] text-gray-500 mt-2 ml-1">외부에 공개되지 않으며 심사용으로만 사용됩니다.</p>
                         </div>
                     </form>
                 </div>
 
-                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10">
-                    <button id="submit-partner-btn" class="w-full bg-[#1f2937] hover:bg-black text-white font-black text-lg py-4 rounded-xl shadow-lg transition duration-300 flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> 제휴 신청하기
+                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
+                    <button type="button" onclick="history.back()" class="shrink-0 bg-gray-200 text-gray-700 font-bold text-base py-4 px-5 rounded-xl hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> <span>이전</span>
+                    </button>
+                    <button id="submit-partner-btn" class="flex-1 bg-[#1f2937] hover:bg-black text-white font-black text-lg py-4 rounded-xl shadow-lg transition duration-300 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> 검토용 지원서 제출하기
                     </button>
                 </div>
             </div>
@@ -127,14 +156,49 @@
     </main>
 </div>
 
+<!-- 지역 데이터 JS 연동 -->
+<script src="{{BASE}}assets/js/region-data.js"></script>
+
 <script>
     const partnerSb = window.sb;
+
+    // 대분류 선택 시 소분류(시/군/구) 동적 생성 함수 추가
+    function updateSubRegions() {
+        const major = document.getElementById('pf-region-main').value;
+        const subSelect = document.getElementById('pf-region-sub');
+        
+        // 초기화
+        subSelect.innerHTML = '<option value="">시/군/구 (소분류)</option>';
+
+        if (major && typeof subRegionData !== 'undefined' && subRegionData[major]) {
+            subRegionData[major].forEach(minor => {
+                if (minor.replace(/\s/g, '') !== `${major}전체` && minor !== '전국전체') {
+                    const opt = document.createElement('option');
+                    opt.value = minor;
+                    opt.textContent = minor;
+                    subSelect.appendChild(opt);
+                }
+            });
+        }
+    }
+
+    // 연락처 자동 하이픈 추가
+    const pfPhoneInput = document.getElementById('pf-phone');
+    pfPhoneInput.addEventListener('input', function(e) {
+      let val = this.value.replace(/[^0-9]/g, '');
+      let res = '';
+      if(val.length < 4) res = val;
+      else if(val.length < 7) res = val.substr(0, 3) + '-' + val.substr(3);
+      else if(val.length < 11) res = val.substr(0, 3) + '-' + val.substr(3, 3) + '-' + val.substr(6);
+      else res = val.substr(0, 3) + '-' + val.substr(3, 4) + '-' + val.substr(7);
+      this.value = res;
+    });
 
     document.getElementById('submit-partner-btn').addEventListener('click', async function(e) {
         e.preventDefault();
 
-        // 간단한 폼 유효성 검사
-        const inputs = document.querySelectorAll('#partner-form input[required]');
+        // 폼 유효성 검사 (드롭다운 포함)
+        const inputs = document.querySelectorAll('#partner-form input[required], #partner-form select[required], #partner-form textarea[required]');
         let isValid = true;
         inputs.forEach(input => {
             if (!input.value.trim()) isValid = false;
@@ -163,7 +227,7 @@
                 const { error: uploadError } = await partnerSb.storage.from('sos-applications').upload(path, file);
                 if (uploadError) {
                     console.error('파일 업로드 오류:', uploadError);
-                    alert('증빙 서류 업로드 중 오류가 발생했습니다. 파일 없이 계속 제출하시려면 다시 눌러주세요.\n(sos-applications 스토리지 버킷이 생성되어 있는지 확인해 주세요)');
+                    alert('증빙 서류 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
                     btn.innerHTML = originalHTML;
                     btn.disabled = false;
                     return;
@@ -172,13 +236,18 @@
                 fileUrl = pub?.publicUrl || null;
             }
 
+            // 시/도 + 시/군/구 합치기
+            const regionMain = document.getElementById('pf-region-main').value;
+            const regionSub = document.getElementById('pf-region-sub').value;
+            const combinedRegion = [regionMain, regionSub].filter(Boolean).join(' ');
+
             const { data: { user } } = await partnerSb.auth.getUser();
 
             const { error } = await partnerSb.from('sos_applications').insert([{
                 source: 'partner',
                 name: document.getElementById('pf-name').value.trim(),
                 categories: checkedCats.join(', '),
-                region: document.getElementById('pf-region').value.trim(),
+                region: combinedRegion,
                 phone: document.getElementById('pf-phone').value.trim(),
                 bio: document.getElementById('pf-bio').value.trim() || null,
                 file_url: fileUrl,
@@ -188,7 +257,7 @@
 
             if (error) {
                 console.error('파트너 지원서 저장 오류:', error);
-                alert('신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.\n(sos_applications 테이블이 생성되어 있는지 확인해 주세요)');
+                alert('신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
                 return;
