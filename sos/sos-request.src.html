@@ -12,19 +12,34 @@
 
   <style>
       #sos-top-banner { background-color: #dc2626; }
-      /* 다중 선택 카테고리 버튼 스타일 */
       .cat-btn.selected {
           border-color: #ef4444 !important;
           background-color: #fef2f2 !important;
           box-shadow: 0 0 0 2px #ef4444;
       }
-      /* 시간대별 요금 하이라이트 스타일 */
       .time-slot.active {
-          background-color: #dbeafe !important; /* bg-blue-100 */
-          color: #1e40af !important; /* text-blue-800 */
+          background-color: #dbeafe !important;
+          color: #1e40af !important;
           font-weight: 900 !important;
-          border-left: 4px solid #3b82f6 !important; /* border-blue-500 */
+          border-left: 4px solid #3b82f6 !important;
       }
+      /* 커스텀 스크롤바 (지역 메가 드롭다운용) */
+      .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+      .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+      .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+      /* 모바일 브라우저 주소창 유무에 따라 100vh가 실제 화면보다 커지는 문제 보정 (지원 브라우저만 적용, 미지원 시 위 100% 유지) */
+      html, body { height: 100dvh !important; }
+      input[type="checkbox"] { width: 1.75rem; height: 1.75rem; cursor: pointer; }
+      input[type="checkbox"]:checked { background-color: #ef4444; border-color: #ef4444; }
+      .break-keep { word-break: keep-all; }
+      @keyframes shake-red {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+      .error-shake { animation: shake-red 0.5s; background-color: #fef2f2 !important; border-color: #ef4444 !important; }
   </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -40,21 +55,9 @@
 <!-- @include view-transition-css -->
 <!-- @include common-css -->
 
-  <style>
-    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
-    input[type="checkbox"] { width: 1.75rem; height: 1.75rem; cursor: pointer; }
-    input[type="checkbox"]:checked { background-color: #ef4444; border-color: #ef4444; }
-    .break-keep { word-break: keep-all; }
-    @keyframes shake-red {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-      20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
-    .error-shake { animation: shake-red 0.5s; background-color: #fef2f2 !important; border-color: #ef4444 !important; }
-  </style>
 </head>
 
-<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}} bg-gray-100">
 
 <!-- @include header -->
     <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
@@ -66,29 +69,73 @@
 
     <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
 
-    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
-        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100 pb-24">
+        <div class="w-full max-w-md mx-auto min-h-full flex flex-col relative">
 
-            <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
-                <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-red-700 p-2 rounded-full transition">
-                    <i class="fa-solid fa-arrow-left text-lg"></i>
-                </button>
-                <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
-                    <span class="bg-[#FFFF00] text-red-600 px-3.5 py-1 rounded-full text-[15px] font-black shadow-sm">24시간</span>
-                    긴급 SOS 호출
-                </h1>
+            <!-- ==========================================
+                 [STEP INTRO] 첫 진입 화면 
+                 ========================================== -->
+            <div id="step-intro" class="flex-1 flex flex-col space-y-6 p-4 pb-8">
+                <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+                    <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
+                        <button onclick="handleBottomBack()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-red-700 p-2 rounded-full transition">
+                            <i class="fa-solid fa-arrow-left text-lg"></i>
+                        </button>
+                        <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
+                            <span class="bg-[#FFFF00] text-red-600 px-3.5 py-1 rounded-full text-[15px] font-black shadow-sm">24시간</span>
+                            긴급 SOS 호출
+                        </h1>
+                    </div>
+                    <a href="tel:15880000" class="flex items-center justify-center gap-2 bg-gray-900 text-white text-sm font-bold py-2.5 shrink-0 hover:bg-black transition">
+                        <i class="fa-solid fa-phone"></i>
+                        지금 바로 전화하려면 <span class="underline">1588-0000</span>
+                    </a>
+                    <div class="p-6 bg-white">
+                        <p class="font-bold text-gray-800 mb-4">원하시는 호출 방식을 선택해주세요.</p>
+                        <button onclick="startActual()" class="w-full bg-red-50 border-2 border-red-300 rounded-xl p-5 shadow-sm hover:shadow-md hover:bg-red-100 transition flex items-center justify-between group">
+                            <div class="text-left">
+                                <h3 class="text-blue-700 font-bold text-lg mb-1 flex items-center gap-2">
+                                    <span class="text-xl">🚨</span> 실제 긴급 호출하기
+                                </h3>
+                                <p class="text-sm text-gray-600">실제 상황 발생 시 전문가를 즉시 호출합니다.</p>
+                            </div>
+                            <span class="text-blue-600 font-bold text-xl group-hover:translate-x-1 transition">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <button onclick="startPractice()" class="w-full bg-white border border-gray-300 rounded-xl p-5 shadow-sm hover:shadow-md hover:bg-gray-50 transition flex items-center justify-between group">
+                        <div class="text-left">
+                            <h3 class="text-gray-800 font-bold text-lg mb-1 flex items-center gap-2">
+                                <span class="text-xl">🛠️</span> 연습용 호출해보기
+                            </h3>
+                            <p class="text-sm text-gray-500">가상의 전문가를 통해 앱 이용 방법을 체험합니다.</p>
+                        </div>
+                        <span class="text-gray-400 font-bold text-xl group-hover:translate-x-1 transition">→</span>
+                    </button>
+
+                    <button onclick="applyExpert()" class="w-full bg-[#1f2937] text-white rounded-xl p-6 shadow-md hover:bg-gray-800 transition text-center flex flex-col items-center justify-center">
+                        <div class="text-yellow-400 font-bold text-lg mb-2 flex items-center gap-2">
+                            <span>🤝</span> 건물 관리/수리 전문가이신가요?
+                        </div>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            SOS 파트너 전문가로 등록하고,<br>주변의 긴급 출동 요청을 직접 받아보세요!
+                        </p>
+                    </button>
+                </div>
             </div>
 
-            <a href="tel:15880000" class="flex items-center justify-center gap-2 bg-gray-900 text-white text-sm font-bold py-2.5 shrink-0 hover:bg-black transition">
-                <i class="fa-solid fa-phone"></i>
-                지금 바로 전화하려면 <span class="underline">1588-0000</span>
-            </a>
-
-            <!-- [1단계] 상황 입력 화면 -->
-            <div id="step-1-situation" class="flex-1 flex flex-col bg-gray-50">
-
+            <!-- ==========================================
+                 [STEP 1] 상황 입력 화면 
+                 ========================================== -->
+            <div id="step-1-situation" class="hidden flex-1 flex-col bg-gray-50 pb-20">
+                <div class="practice-tip hidden bg-blue-50 border border-blue-200 text-blue-800 p-3 m-4 rounded-lg text-sm font-bold flex items-start gap-2 shadow-sm">
+                    <span class="text-lg leading-none">💡</span>
+                    <span>[연습 모드] 실제 화면과 동일합니다. 내용을 임의로 선택하고 하단의 '다음' 버튼을 눌러보세요.</span>
+                </div>
+                
                 <div class="p-5 flex-1 space-y-6 pb-8">
-                    <!-- 어떤 긴급 상황인가요? -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-end justify-between">
                             <span>1. 어떤 긴급 상황인가요?</span>
@@ -117,7 +164,6 @@
                         <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요 (예: 주차차단기 파손)" class="hidden mt-3 w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 transition">
                     </div>
 
-                    <!-- 상황 상세 설명 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">2. 상황을 조금 더 알려주세요 <span class="text-gray-400 font-normal text-sm">(선택)</span></h2>
                         <div class="flex items-center gap-2.5 mb-3 bg-red-50 p-2.5 rounded-xl border border-red-100">
@@ -130,19 +176,18 @@
                         <p id="mic-status" class="text-xs text-blue-600 font-bold mt-1 hidden">음성을 듣고 있습니다. 계속 말씀해 주세요...</p>
                     </div>
 
-                    <!-- 사진/동영상 첨부 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">3. 사진/동영상 첨부 <span class="text-gray-400 font-normal text-sm">(선택, 최대 3개)</span></h2>
                         <div class="grid grid-cols-3 gap-2">
-                            <button type="button" onclick="document.getElementById('photo-capture-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-gray-200 rounded-xl py-3 hover:border-red-400 hover:bg-red-50 transition focus:border-red-400">
+                            <button type="button" onclick="document.getElementById('photo-capture-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-gray-200 rounded-xl py-3 hover:border-red-500 hover:bg-red-50 transition focus:border-red-500">
                                 <i class="fa-solid fa-camera text-lg text-gray-500"></i>
                                 <span class="text-xs font-bold text-gray-600">사진찍기</span>
                             </button>
-                            <button type="button" onclick="document.getElementById('video-capture-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-gray-200 rounded-xl py-3 hover:border-red-400 hover:bg-red-50 transition focus:border-red-400">
+                            <button type="button" onclick="document.getElementById('video-capture-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-gray-200 rounded-xl py-3 hover:border-red-500 hover:bg-red-50 transition focus:border-red-500">
                                 <i class="fa-solid fa-video text-lg text-gray-500"></i>
                                 <span class="text-xs font-bold text-gray-600">동영상찍기</span>
                             </button>
-                            <button type="button" onclick="document.getElementById('file-picker-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-gray-200 rounded-xl py-3 hover:border-red-400 hover:bg-red-50 transition">
+                            <button type="button" onclick="document.getElementById('file-picker-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-gray-200 rounded-xl py-3 hover:border-red-500 hover:bg-red-50 transition">
                                 <i class="fa-solid fa-folder-open text-lg text-gray-500"></i>
                                 <span class="text-xs font-bold text-gray-600">파일 선택하기</span>
                             </button>
@@ -153,7 +198,6 @@
                         <div id="photo-preview" class="flex gap-2 mt-3 flex-wrap"></div>
                     </div>
 
-                    <!-- 현장 위치 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">4. 현장 위치</h2>
                         <div class="flex gap-2">
@@ -166,45 +210,48 @@
                         <p id="gps-status" class="text-[13px] text-gray-500 mt-2 ml-2 hidden"></p>
                     </div>
 
-                    <!-- 연락처 -->
                     <div>
                         <h2 class="text-lg font-bold text-gray-800 mb-3">5. 연락처 <span class="text-red-600 font-normal text-sm">(필수)</span></h2>
                         <textarea id="contact-phone-input" rows="2" placeholder="전문가가 연락드릴 번호를 입력해 주세요.&#10;(예: 010-1234-5678)" class="w-full border-2 border-gray-300 rounded-xl p-4 text-base focus:outline-none focus:border-blue-500 transition resize-none leading-relaxed"></textarea>
                     </div>
                 </div>
 
-                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10">
-                    <button id="next-step-btn" class="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl shadow-sm transition duration-300 flex justify-center items-center gap-2">
+                <div class="fixed bottom-0 w-full max-w-md p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
+                    <button id="prev-step-btn-1" type="button" class="shrink-0 bg-gray-200 text-gray-700 font-bold text-base py-4 px-5 rounded-xl hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> <span>이전으로</span>
+                    </button>
+                    <button id="next-step-btn" class="flex-1 bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl shadow-sm transition duration-300 flex justify-center items-center gap-2">
                         <span>다음</span>
                     </button>
                 </div>
             </div>
 
-            <!-- [2단계] 비용 안내 및 동의 화면 -->
-            <div id="step-2-consent" class="hidden flex-1 flex-col bg-gray-50">
-
+            <!-- ==========================================
+                 [STEP 2] 비용 안내 및 동의 화면 
+                 ========================================== -->
+            <div id="step-2-consent" class="hidden flex-1 flex-col bg-gray-50 pb-36" style="padding-bottom: 12rem;">
+                <div class="practice-tip hidden bg-blue-50 border border-blue-200 text-blue-800 p-3 m-4 rounded-lg text-sm font-bold flex items-start gap-2 shadow-sm">
+                    <span class="text-lg leading-none">💡</span>
+                    <span>[연습 모드] 동의 후 전문가를 호출하면 가상 매칭 화면으로 이어집니다.</span>
+                </div>
+                
                 <div class="p-5 flex-1 space-y-5 pb-8">
-                    
-                    <!-- 기본 비용 안내 영역 (시간 자동 강조) -->
                     <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-200">
                         <h3 class="flex items-center gap-2 text-gray-800 font-black mb-4 text-[17px]">
                             <i class="fa-solid fa-won-sign text-red-600"></i> 기본 비용 안내 <span class="text-gray-500 text-[14px] font-normal ml-1">(후불제)</span>
                         </h3>
                         <div class="text-gray-700 text-[15px] leading-relaxed">
                             <p class="mb-2 font-bold">· 당일결재</p>
-                            <!-- 테두리와 배경색을 적용한 시간대 박스 -->
                             <ul class="border-2 border-blue-200 bg-blue-50 rounded-xl p-2 mb-4 space-y-1" id="time-price-list">
                                 <li id="price-slot-1" class="time-slot p-2 rounded-lg transition text-gray-600">3만원 (AM 10시~PM 6시)</li>
                                 <li id="price-slot-2" class="time-slot p-2 rounded-lg transition text-gray-600">5만원 (PM 11시~AM 6시)</li>
                                 <li id="price-slot-3" class="time-slot p-2 rounded-lg transition text-gray-600">4만원 (그외 시간)</li>
                             </ul>
-                            
-                            <p class="mb-2">· 날짜 넘기면 : 2만원씩 추가</p>
+                            <p class="mb-2">· 날짜 넘기면 : 2만원씩 추가 (한도 10만원)</p>
                             <p>· 회원제 <span class="text-gray-400">비용</span> : 월 5만원(2회)</p>
                         </div>
                     </div>
 
-                    <!-- 빠른 출동을 위한 추가금(프리미엄) 제안 UI -->
                     <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                         <h3 class="flex items-center gap-2 text-gray-800 font-black mb-2 text-[15px]">
                             <i class="fa-solid fa-bolt text-yellow-500"></i> 빠른 출동을 위한 추가금 제안 <span class="text-gray-500 font-normal text-sm">(선택)</span>
@@ -212,17 +259,12 @@
                         <p class="text-[13px] text-gray-500 mb-4 break-keep leading-relaxed">
                             상황이 매우 급하신가요? 기본료 외에 추가 출동비를 설정하시면, 야간이나 주말에도 주변 전문가들이 최우선으로 수락할 확률이 크게 높아집니다.
                         </p>
-                        
                         <div class="flex items-center gap-2 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                            <!-- 읽기 전용 입력창 -->
                             <input type="number" id="premium-fee-input" placeholder="0" class="w-16 border-2 border-gray-300 rounded-lg p-2 text-center text-xl focus:outline-none transition font-black text-gray-800 bg-white h-[46px]" readonly>
-                            
-                            <!-- 다중 행 텍스트 스타일 적용 -->
                             <div class="flex flex-col items-center justify-center leading-tight shrink-0 mr-auto">
                                 <span class="font-bold text-gray-800 text-[15px]">만원</span>
                                 <span class="bg-blue-600 text-white font-bold text-[12px] px-1 mt-0.5">추가</span>
                             </div>
-                            
                             <button type="button" class="bg-white border border-gray-300 text-gray-700 text-[14px] font-bold w-14 h-[46px] rounded-lg hover:bg-gray-100 transition shadow-sm flex flex-col items-center justify-center leading-tight shrink-0" onclick="addPremium(1)">
                                 <span>+ 1</span>
                                 <span class="text-[12px]">만원</span>
@@ -244,22 +286,200 @@
                         </p>
                     </div>
 
-                    <label class="flex items-start gap-3 p-4 bg-white border-2 border-gray-300 rounded-xl cursor-pointer hover:bg-blue-50 transition agree-box" id="agree-label-1">
+                    <label class="flex items-start gap-3 p-4 bg-red-50 border-2 border-red-500 rounded-xl cursor-pointer hover:bg-blue-50 transition agree-box" id="agree-label-1">
                         <input type="checkbox" id="agree-1" class="mt-0.5 rounded border-gray-400 text-blue-600 focus:ring-blue-500 transition">
                         <span class="text-gray-900 font-bold text-[15px] leading-tight break-keep select-none">
                             [필수] 위 비용 안내 및 이용 안내 내용을 모두 확인하였으며 이에 동의합니다.
                         </span>
                     </label>
 
-                    <p id="submit-error-msg" class="hidden text-sm text-red-600 font-bold text-center"></p>
+                    <p class="text-[13px] text-red-600 font-bold text-center">비용 안내 및 이용 안내에 동의해주셔야 호출이 가능합니다.</p>
                 </div>
 
-                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
-                    <button id="prev-step-btn" type="button" class="shrink-0 bg-gray-200 text-gray-700 font-bold text-base py-4 px-5 rounded-xl hover:bg-gray-300 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-arrow-left"></i> <span>돌아가기</span>
+                <div class="fixed bottom-0 w-full max-w-md p-4 bg-gray-50 border-t border-gray-200 z-10 flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <button id="prev-step-btn" type="button" class="shrink-0 bg-gray-200 text-gray-700 font-bold text-base py-4 px-5 rounded-xl hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-left"></i> <span>이전으로</span>
+                        </button>
+                        <button id="sos-submit-btn" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold text-lg py-4 rounded-xl shadow-sm transition flex justify-center items-center gap-2 cursor-not-allowed">
+                            <span>🚨 동의하고 전문가 호출하기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 [STEP 3] 매칭 현황 화면
+                 ========================================== -->
+            <div id="step-matching" class="hidden flex-1 flex-col bg-white p-6 pb-32">
+                <div class="practice-tip hidden bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg mb-6 text-sm font-bold flex items-start gap-2 shadow-sm">
+                    <span class="text-lg leading-none">💡</span>
+                    <span>[연습 모드] 접수가 완료되어 대기중인 상태입니다. 주변에 전문가가 있다면 아래 목록에 나타납니다. 가상의 '호출' 버튼을 눌러보거나 하단의 '직접찾기'를 이용해보세요.</span>
+                </div>
+
+                <div class="flex justify-between items-center border-b border-gray-200 pb-3 mb-6">
+                    <h3 class="text-lg font-black text-[#1e3a8a]">상담가능한 전문가</h3>
+                    <select class="border border-gray-300 rounded p-1 text-sm text-gray-600 outline-none focus:border-blue-500">
+                        <option>평가순</option>
+                        <option>거리순</option>
+                    </select>
+                </div>
+                
+                <div id="actual-expert-empty" class="text-center text-gray-400 mt-10 font-medium">
+                    현재 등록된 전문가가 없습니다.
+                </div>
+
+                <div id="practice-expert-list" class="hidden space-y-3">
+                    <div class="border border-gray-200 rounded-lg p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-xl">👤</div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">김건물 <span class="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded ml-1 font-black">가상 전문가</span></h4>
+                                <p class="text-sm text-gray-500 mt-1">화재 및 누수 전문 · 리뷰 ⭐5.0</p>
+                            </div>
+                        </div>
+                        <button onclick="callDummyExpert()" class="bg-[#1e3a8a] text-white px-4 py-2 rounded font-bold text-sm shadow-sm hover:bg-blue-900 transition">호출</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 [STEP 4] 전문가 직접 찾기 화면 
+                 ========================================== -->
+            <div id="step-search" class="hidden flex-1 flex-col bg-white pb-32" style="padding-bottom: 14rem;">
+                <div class="practice-tip hidden bg-blue-50 border-b border-blue-200 text-blue-800 p-3 text-sm font-bold flex items-start gap-2 shadow-sm">
+                    <span class="text-lg leading-none">💡</span>
+                    <span>[연습 모드] 원하는 전문가가 없다면, 전체 알림을 통해 대기중인 전문가들의 지원을 받을 수 있습니다. 카카오톡 SOS 요청을 눌러보세요.</span>
+                </div>
+
+                <div class="p-6 min-h-[300px]">
+                    <div class="flex gap-2 mb-10">
+                        <!-- 1. 지역 선택 메가 드롭다운 -->
+                        <div class="relative z-[40]" style="flex: 1;">
+                            <button type="button" onclick="toggleRegionDropdown()" class="w-full h-full bg-white border border-gray-300 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 focus:outline-none focus:border-blue-500 transition-colors">
+                                <span id="selected-region-text" class="text-sm text-gray-700 font-medium truncate">지역 선택</span>
+                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                            </button>
+                            <div id="region-mega-dropdown" class="hidden absolute top-full left-0 mt-1 w-[340px] sm:w-[460px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden text-left">
+                                <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                    <span class="font-bold text-[13px] text-[#12387a]"><span class="text-purple-600">대분류</span> 지역 선택 <span class="text-gray-500 font-normal text-[11px] ml-1">(1개 이상 선택 후 소분류 선택)</span></span>
+                                    <button type="button" onclick="document.getElementById('region-mega-dropdown').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="flex flex-col w-full" id="region-mega-dropdown-inner">
+                                    <div id="region-major-section" class="flex flex-col">
+                                        <div class="p-3 overflow-y-auto custom-scroll" style="height: 150px;">
+                                            <div class="grid grid-cols-3 sm:grid-cols-4 gap-1.5" id="mega-major-list"></div>
+                                        </div>
+                                        <div class="p-3 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                            <button type="button" onclick="openMinorView()" class="w-full border border-[#12387a] text-[#12387a] bg-blue-50 hover:bg-blue-100 font-bold px-4 py-2 rounded text-[13px] transition-colors shadow-sm"><i class="fas fa-level-down-alt mr-1"></i> 소분류 넣기</button>
+                                        </div>
+                                    </div>
+                                    <div id="region-minor-section" class="hidden flex-col h-full">
+                                        <div class="px-4 py-2 bg-[#f8fafc] border-b border-gray-200 flex justify-between items-center shrink-0">
+                                            <span class="font-bold text-[13px] text-[#12387a]">소분류 <span class="text-gray-500 font-normal ml-1 text-[11px]">(원하는 지역 체크)</span></span>
+                                            <button type="button" onclick="closeMinorView()" class="text-[11px] text-gray-600 hover:text-black font-medium hover:underline bg-white border border-gray-300 px-2 py-1 rounded"><i class="fas fa-undo mr-1"></i>대분류 다시보기</button>
+                                        </div>
+                                        <div class="p-3 overflow-y-auto custom-scroll" style="height: 150px;" id="minor-regions-container"></div>
+                                        <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                            <button type="button" onclick="applyRegionSelection()" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold w-full py-2 rounded text-[13px] transition-colors shadow-sm">적용하기</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 2. 분야 선택 -->
+                        <select class="flex-1 border border-gray-300 rounded-lg p-3 text-sm text-gray-700 font-medium outline-none focus:border-blue-500">
+                            <option>전체 분야</option>
+                            <option>화재 / 소방</option>
+                            <option>누수 / 배관</option>
+                            <option>정전 / 전기</option>
+                            <option>화장실 기기</option>
+                            <option>가스 누출</option>
+                            <option>기타</option>
+                        </select>
+                    </div>
+
+                    <div class="text-center text-gray-500 mt-10 font-medium">
+                        조건에 맞는 대기중인 전문가가 없습니다.
+                    </div>
+                </div>
+
+                <div class="bg-[#fef9c3] p-6 text-center border-b border-yellow-200">
+                    <p class="text-yellow-900 font-bold mb-4 text-sm sm:text-base leading-relaxed break-keep">
+                        원하는 전문가가 없나요? 내 상황을 카톡으로 보내고<br>대기중인 전문가들의 지원을 받아보세요.
+                    </p>
+                    <button onclick="sendKakao()" class="w-full bg-yellow-400 text-black font-black py-4 rounded-xl shadow-md hover:bg-yellow-500 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-comment"></i> 카카오톡으로 SOS 요청 보내기
                     </button>
-                    <button id="sos-submit-btn" class="flex-1 bg-[#2563eb] text-white font-bold text-lg py-4 rounded-xl shadow-sm hover:bg-blue-700 transition active:scale-95 flex justify-center items-center gap-2">
-                        <span>🚨 동의하고 전문가 호출하기</span>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 [실제 상담 종료] 결제 및 평가 화면 (새로운 디자인 적용)
+                 ========================================== -->
+            <div id="step-review" class="hidden flex-1 flex-col bg-gray-50 pb-24">
+                <div class="p-5 flex-1 space-y-6">
+                    <!-- Thank you msg -->
+                    <div class="text-center pt-4 pb-2">
+                        <h2 class="text-[19px] sm:text-[21px] font-black text-[#12387a] leading-snug">이용해 주셔서 대단히 감사합니다.<br>앞으로도 지속적인 이용을 부탁드립니다.</h2>
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-black text-gray-800 mb-4 text-[16px] flex items-center gap-2">
+                            <span class="text-red-600 text-lg">₩</span> 결제 금액 안내
+                        </h3>
+                        <div class="space-y-3 text-[15px]">
+                            <p class="flex justify-between"><span class="text-gray-600">기본 금액</span> <span id="review-base-fee" class="font-bold text-gray-800">-</span></p>
+                            <p class="flex justify-between"><span class="text-gray-600">추가 금액</span> <span id="review-add-fee" class="font-bold text-gray-800">-</span></p>
+                        </div>
+                        <div class="border-t border-gray-200 my-4"></div>
+                        <p class="flex justify-between items-center"><span class="text-gray-800 font-bold text-[16px]">합계</span> <span id="review-total-fee" class="font-black text-red-600 text-[22px]">-</span></p>
+                    </div>
+
+                    <!-- Checklist & Ad -->
+                    <div class="flex gap-3 items-start">
+                        <div class="bg-green-500 text-white rounded p-1.5 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="bg-white border border-red-300 rounded-xl p-4 w-full shadow-sm text-[14px] text-gray-700 space-y-2">
+                            <p>· 날짜 넘기면 : <span class="text-red-600 font-bold">2만원씩 추가 (한도 10만원)</span></p>
+                            <p>· 회원제 비용 : <span class="font-bold">월 5만원(2회)</span></p>
+                            
+                            <div class="mt-3 pt-3 border-t border-red-100 text-[13px] text-blue-700 font-bold break-keep leading-relaxed bg-blue-50 p-2.5 rounded-lg text-center">
+                                💡 정기적인 건물 관리가 필요하신가요?<br>회원제 서비스에 가입하시고 더욱 편리하고 저렴하게 다양한 혜택을 누려보세요!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account -->
+                    <div class="bg-blue-50 rounded-xl p-5 border border-blue-200">
+                        <h3 class="font-bold text-[#12387a] mb-2"><i class="fa-solid fa-building-columns"></i> 입금 계좌 안내</h3>
+                        <p class="text-[15px] text-gray-800 font-bold">[은행명 입력] [계좌번호 입력]</p>
+                        <p class="text-[13px] text-gray-600 mt-1">예금주: 대한집합건물관리협회</p>
+                        <p class="text-[12px] text-gray-500 mt-2">※ 위 결제 금액을 확인하신 후 입금해 주세요.</p>
+                    </div>
+
+                    <!-- Review -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-bold text-gray-800 mb-3 text-center">전문가 상담은 어떠셨나요?</h3>
+                        <div id="review-star-rating" class="flex gap-2 justify-center text-3xl mb-3">
+                            <i class="fa-regular fa-star cursor-pointer review-star" data-value="1"></i>
+                            <i class="fa-regular fa-star cursor-pointer review-star" data-value="2"></i>
+                            <i class="fa-regular fa-star cursor-pointer review-star" data-value="3"></i>
+                            <i class="fa-regular fa-star cursor-pointer review-star" data-value="4"></i>
+                            <i class="fa-regular fa-star cursor-pointer review-star" data-value="5"></i>
+                        </div>
+                        <textarea id="review-comment-input" rows="3" placeholder="상담 후기를 남겨주세요 (선택)" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="fixed bottom-0 w-full max-w-md p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
+                    <button onclick="showStep('step-matching')" class="shrink-0 bg-gray-200 text-gray-700 font-bold text-base py-4 px-5 rounded-xl hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> <span>이전으로</span>
+                    </button>
+                    <button id="review-submit-btn" class="flex-1 bg-gray-800 hover:bg-black text-white font-bold text-lg py-4 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
+                        <span>종료하기</span>
                     </button>
                 </div>
             </div>
@@ -267,9 +487,29 @@
         </div>
     </main>
     
+    <!-- ==========================================
+         [하단 고정 버튼 바] - (매칭, 검색 화면에서 노출)
+         ========================================== -->
+    <div id="bottom-action-bar" class="hidden absolute bottom-0 left-0 w-full bg-white border-t border-gray-300 p-2 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-[1000]">
+        <div class="max-w-md mx-auto flex gap-1 sm:gap-2 px-2 sm:px-0">
+            <button onclick="handleBottomBack()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-bold text-[13px] sm:text-sm hover:bg-gray-200 transition">
+                🔙 이전으로
+            </button>
+            <button onclick="handleHold()" class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-bold text-[13px] sm:text-sm hover:bg-gray-600 transition">
+                ⏳ 대기
+            </button>
+            <button onclick="handleDirectSearch()" class="flex-1 bg-yellow-400 text-black py-3 rounded-lg font-bold text-[13px] sm:text-sm hover:bg-yellow-500 transition">
+                🔍 직접찾기
+            </button>
+            <button onclick="handleEnd()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold text-[13px] sm:text-sm hover:bg-red-700 transition">
+                ✔️ 종료
+            </button>
+        </div>
+    </div>
+
     <!-- 접수 내용 확인 커스텀 모달 팝업 -->
     <div id="confirm-modal" class="absolute inset-0 bg-black/60 z-[9999] hidden items-center justify-center">
-        <div id="confirm-modal-content" class="bg-white rounded-2xl w-[85%] max-w-sm p-6 shadow-2xl transform transition-all scale-95 opacity-0 duration-200">
+        <div id="confirm-modal-content" class="bg-white rounded-2xl w-[85%] max-w-sm p-6 shadow-2xl transform transition-all duration-200">
             <h3 class="text-[#8b008b] font-black text-xl mb-4 tracking-wide">[ 접수 내용 ]</h3>
             <div class="text-gray-800 text-[15px] space-y-2 mb-5">
                 <p><span class="text-gray-600 w-[70px] inline-block">상황:</span> <span id="modal-cat" class="font-bold"></span></p>
@@ -277,72 +517,324 @@
                 <p><span class="text-gray-600 w-[70px] inline-block">연락처:</span> <span id="modal-phone" class="font-bold"></span></p>
                 <p class="pt-2"><span class="text-gray-600 w-[70px] inline-block">기본 금액 :</span> <span id="modal-base" class="font-bold"></span></p>
                 <p><span class="text-gray-600 w-[70px] inline-block">추가 금액 :</span> <span id="modal-add" class="font-bold"></span></p>
-                <div class="border-b-2 border-black w-[80%] mx-auto my-3"></div>
+                <div class="border-b-2 border-gray-300 w-[80%] mx-auto my-3"></div>
                 <p class="text-right text-[17px] mr-2"><span class="text-gray-600 mr-2">합계 :</span> <span id="modal-total" class="font-black text-red-600 text-[18px]"></span></p>
             </div>
             <div class="flex justify-end mt-4">
-                <button id="modal-confirm-btn" class="bg-[#1f2937] text-white px-7 py-2.5 rounded-xl font-bold hover:bg-black transition shadow-md text-lg">확인</button>
+                <button id="modal-confirm-btn" class="bg-[#1f2937] text-white px-7 py-2.5 rounded-xl font-bold hover:bg-black transition shadow-md text-lg">확인 및 접수</button>
             </div>
         </div>
     </div>
 
 </div>
 
-  <script>
-    // 시간대별 기본 요금 자동 하이라이트 로직
+<!-- 지역 데이터 JS 연동 -->
+<script src="{{BASE}}assets/js/region-data.js"></script>
+
+<script>
+    // ==========================================
+    // 1. SPA 상태 및 화면 제어 로직
+    // ==========================================
+    let isPracticeMode = false;
+    let currentStep = 'step-intro';
+    const supabaseClient = window.sb; 
+
+    function showStep(stepId) {
+        ['step-intro', 'step-1-situation', 'step-2-consent', 'step-matching', 'step-search', 'step-review'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+            if (id === 'step-1-situation' || id === 'step-2-consent') {
+                document.getElementById(id).classList.remove('flex'); 
+            }
+        });
+        
+        document.getElementById(stepId).classList.remove('hidden');
+        if (stepId === 'step-1-situation' || stepId === 'step-2-consent') {
+            document.getElementById(stepId).classList.add('flex'); 
+        }
+        currentStep = stepId;
+        document.getElementById('main-content').scrollTo(0, 0);
+
+        const bottomBar = document.getElementById('bottom-action-bar');
+        if (stepId === 'step-matching' || stepId === 'step-search') {
+            bottomBar.classList.remove('hidden');
+        } else {
+            bottomBar.classList.add('hidden');
+        }
+
+        document.querySelectorAll('.practice-tip').forEach(el => {
+            isPracticeMode ? el.classList.remove('hidden') : el.classList.add('hidden');
+        });
+
+        if (stepId === 'step-matching') {
+            if (isPracticeMode) {
+                document.getElementById('actual-expert-empty').classList.add('hidden');
+                document.getElementById('practice-expert-list').classList.remove('hidden');
+            } else {
+                document.getElementById('actual-expert-empty').classList.remove('hidden');
+                document.getElementById('practice-expert-list').classList.add('hidden');
+            }
+        }
+    }
+
+    function startActual() { isPracticeMode = false; showStep('step-1-situation'); }
+    function startPractice() { isPracticeMode = true; showStep('step-1-situation'); }
+    function applyExpert() { alert('전문가 파트너 등록 페이지로 이동합니다.'); }
+
+    function handleBottomBack() {
+        if (currentStep === 'step-search') showStep('step-matching');
+        else if (currentStep === 'step-matching') showStep('step-2-consent');
+        else if (currentStep === 'step-2-consent') showStep('step-1-situation');
+        else if (currentStep === 'step-1-situation') { isPracticeMode = false; showStep('step-intro'); }
+        else history.back();
+    }
+
+    function handleHold() {
+        alert("연락이 올 때까지 기다리면 됩니다.\n만약 시간이 걸리면 '직접 찾기'를 눌러서 찾아보세요.");
+    }
+
+    function handleDirectSearch() {
+        if (currentStep === 'step-search') return;
+        showStep('step-search');
+    }
+
+    // 중간 팝업을 거치지 않고 바로 결제/평가 화면으로 다이렉트 이동
+    function handleEnd() {
+        if(confirm('상담을 종료하고 결제 및 평가 화면으로 이동하시겠습니까?')) {
+            populateReviewFees();
+            showStep('step-review');
+        }
+    }
+
+    // 폼과 데이터를 완전 초기화하고 첫 화면으로 돌아가는 리셋 함수
+    function resetAndGoHome() {
+        // 1. 카테고리 초기화
+        selectedCategories = [];
+        document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('selected'));
+        const customInput = document.getElementById('category-custom-input');
+        customInput.value = '';
+        customInput.classList.add('hidden');
+
+        // 2. 텍스트 입력값 초기화
+        document.getElementById('description-input').value = '';
+        document.getElementById('location-input').value = '';
+        document.getElementById('contact-phone-input').value = '';
+        document.getElementById('premium-fee-input').value = '';
+
+        // 3. 첨부파일 초기화
+        selectedPhotoFiles = [];
+        renderPhotoPreview();
+
+        // 4. GPS 초기화
+        const gpsStatus = document.getElementById('gps-status');
+        gpsStatus.classList.add('hidden');
+        gpsStatus.innerText = '';
+        resetGpsBtn();
+
+        // 5. 약관 동의 체크박스 초기화
+        document.getElementById('agree-1').checked = false;
+        const label1 = document.getElementById('agree-label-1');
+        label1.classList.remove('border-blue-500', 'bg-blue-50');
+        label1.classList.add('border-red-500', 'bg-red-50');
+        const submitBtn = document.getElementById('sos-submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.classList.remove('bg-[#2563eb]', 'text-white', 'hover:bg-blue-700', 'active:scale-95');
+        submitBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+
+        // 6. 리뷰 별점 초기화
+        document.querySelectorAll('.review-star').forEach(s => { 
+            s.classList.remove('fa-solid', 'text-yellow-400'); 
+            s.classList.add('fa-regular'); 
+        });
+        document.getElementById('review-comment-input').value = '';
+        selectedReviewRating = 0;
+
+        // 7. 모드 초기화 및 초기 화면으로 이동
+        isPracticeMode = false;
+        showStep('step-intro');
+    }
+
+    function populateReviewFees() {
+        const premiumInput = parseInt(document.getElementById('premium-fee-input').value) || 0;
+        const baseFee = currentBasePrice;
+        const totalFee = baseFee + premiumInput;
+        document.getElementById('review-base-fee').textContent = baseFee + '만원';
+        document.getElementById('review-add-fee').textContent = premiumInput + '만원';
+        document.getElementById('review-total-fee').textContent = totalFee + '만원';
+    }
+
+    let selectedReviewRating = 0;
+    document.querySelectorAll('.review-star').forEach(star => {
+        star.addEventListener('click', function() {
+            selectedReviewRating = parseInt(this.dataset.value);
+            document.querySelectorAll('.review-star').forEach(s => {
+                const val = parseInt(s.dataset.value);
+                if (val <= selectedReviewRating) {
+                    s.classList.remove('fa-regular');
+                    s.classList.add('fa-solid', 'text-yellow-400');
+                } else {
+                    s.classList.remove('fa-solid', 'text-yellow-400');
+                    s.classList.add('fa-regular');
+                }
+            });
+        });
+    });
+
+    document.getElementById('review-submit-btn').addEventListener('click', function() {
+        if(isPracticeMode) {
+            alert('💡 [연습 모드] 평가 및 결제 체험이 종료되었습니다.\n초기 화면으로 돌아갑니다.');
+        } else {
+            alert('소중한 평가 감사합니다. 초기 화면으로 돌아갑니다.');
+        }
+        resetAndGoHome(); 
+    });
+
+    function callDummyExpert() {
+        alert("💡 [연습 모드] '김건물' 전문가에게 호출 알림이 전송되었습니다.\n실제 상황에서는 전문가가 수락 시 연락이 연결됩니다.");
+    }
+
+    function sendKakao() {
+        if (isPracticeMode) alert("💡 [연습 모드] 실제 카카오톡 앱이 열리며, 지역 내 대기 중인 파트너 전문가들에게 내 상황이 전송됩니다.");
+        else alert("카카오톡으로 SOS 요청을 발송합니다.");
+    }
+
+    // ==========================================
+    // 2. 메가 드롭다운 지역 선택 기능 
+    // ==========================================
+    const majorsList = ['전국', '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+    let selectedRegionTags = []; 
+
+    function renderMegaMajor() {
+        const list = document.getElementById('mega-major-list');
+        if(!list) return;
+        list.innerHTML = majorsList.map(m => `
+            <label class="flex items-center gap-1.5 cursor-pointer py-0.5 px-1.5 hover:bg-gray-100 rounded border border-transparent hover:border-gray-200 transition-colors">
+                <input type="checkbox" value="${m}" class="major-region-chk w-3.5 h-3.5 cursor-pointer accent-[#12387a] shrink-0">
+                <span class="text-[13px] text-gray-700 font-medium whitespace-nowrap">${m}</span>
+            </label>
+        `).join('');
+    }
+
+    function toggleRegionDropdown() {
+        const dropdown = document.getElementById('region-mega-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    function openMinorView() {
+        const checkedMajors = Array.from(document.querySelectorAll('.major-region-chk:checked')).map(cb => cb.value);
+        if (checkedMajors.length === 0) { alert('먼저 1개 이상의 대분류(지역)를 체크해주세요.'); return; }
+
+        document.getElementById('region-major-section').classList.add('hidden');
+        document.getElementById('region-minor-section').classList.remove('hidden');
+        document.getElementById('region-minor-section').classList.add('flex');
+
+        const container = document.getElementById('minor-regions-container');
+        let html = '';
+        
+        const rData = typeof subRegionData !== 'undefined' ? subRegionData : {};
+
+        checkedMajors.forEach(major => {
+            html += `<div class="mb-5"><div class="font-bold text-[#12387a] mb-2 text-[14px] border-b border-gray-200 pb-1">[${major}]</div><div class="grid grid-cols-2 gap-1">`;
+            
+            if(major === '전국') {
+                const isChecked = selectedRegionTags.includes('전국 전체') ? 'checked' : '';
+                html += `<label class="flex items-center gap-1.5 cursor-pointer py-0.5 text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="전국 전체" class="mega-region-chk w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">지역무관</span></label>`;
+            } else {
+                const majorAllVal = `${major} 전체`;
+                const isAllChecked = selectedRegionTags.includes(majorAllVal) ? 'checked' : '';
+                html += `<label class="flex items-center gap-1.5 cursor-pointer py-0.5 text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${majorAllVal}" class="mega-region-chk w-3.5 h-3.5 cursor-pointer" ${isAllChecked}> <span class="font-bold text-[#12387a] truncate">${majorAllVal}</span></label>`;
+
+                if(rData[major]) {
+                    rData[major].forEach(minor => {
+                        if(minor.replace(/\s/g,'') !== `${major}전체` && minor !== '전국전체') {
+                            const isChecked = selectedRegionTags.includes(minor) ? 'checked' : '';
+                            html += `<label class="flex items-center gap-1.5 cursor-pointer py-0.5 text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${minor}" class="mega-region-chk w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">${minor}</span></label>`;
+                        }
+                    });
+                }
+            }
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function closeMinorView() {
+        document.getElementById('region-minor-section').classList.remove('flex');
+        document.getElementById('region-minor-section').classList.add('hidden');
+        document.getElementById('region-major-section').classList.remove('hidden');
+    }
+
+    function applyRegionSelection() {
+        const checkedBoxes = Array.from(document.querySelectorAll('.mega-region-chk:checked')).map(cb => cb.value);
+        selectedRegionTags = checkedBoxes;
+        
+        const btnText = document.getElementById('selected-region-text');
+        if (selectedRegionTags.length === 0) {
+            btnText.innerText = '지역 선택';
+        } else if (selectedRegionTags.length === 1) {
+            btnText.innerText = selectedRegionTags[0];
+        } else {
+            btnText.innerText = `${selectedRegionTags[0]} 외 ${selectedRegionTags.length - 1}건`;
+        }
+        
+        document.getElementById('region-mega-dropdown').classList.add('hidden');
+    }
+
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('region-mega-dropdown');
+        const btn = document.querySelector('[onclick="toggleRegionDropdown()"]');
+        if (dropdown && !dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderMegaMajor();
+    });
+
+
+    // ==========================================
+    // 3. 기존 폼 기능 (비용, 음성, 첨부, GPS 등)
+    // ==========================================
     let currentBasePrice = 4;
     function updateTimePrice() {
         const hour = new Date().getHours();
         const slot1 = document.getElementById('price-slot-1'); 
         const slot2 = document.getElementById('price-slot-2');
         const slot3 = document.getElementById('price-slot-3');
-        
-        [slot1, slot2, slot3].forEach(el => {
-            el.className = 'time-slot p-2 rounded-lg transition text-gray-600';
-        });
-
-        if (hour >= 10 && hour < 18) {
-            currentBasePrice = 3;
-            slot1.classList.add('active');
-        } else if (hour >= 23 || hour < 6) {
-            currentBasePrice = 5;
-            slot2.classList.add('active');
-        } else {
-            currentBasePrice = 4;
-            slot3.classList.add('active');
-        }
+        [slot1, slot2, slot3].forEach(el => { el.className = 'time-slot p-2 rounded-lg transition text-gray-600'; });
+        if (hour >= 10 && hour < 18) { currentBasePrice = 3; slot1.classList.add('active'); } 
+        else if (hour >= 23 || hour < 6) { currentBasePrice = 5; slot2.classList.add('active'); } 
+        else { currentBasePrice = 4; slot3.classList.add('active'); }
     }
     updateTimePrice();
     setInterval(updateTimePrice, 60000); 
 
-    // 추가금 제안 버튼 로직
     function addPremium(amount) {
         const input = document.getElementById('premium-fee-input');
-        let current = parseInt(input.value) || 0;
-        input.value = current + amount;
+        input.value = (parseInt(input.value) || 0) + amount;
     }
-    function resetPremium() {
-        document.getElementById('premium-fee-input').value = '';
-    }
+    function resetPremium() { document.getElementById('premium-fee-input').value = ''; }
 
     const label1 = document.getElementById('agree-label-1');
-    const nextBtn = document.getElementById('next-step-btn');
-    const prevBtn = document.getElementById('prev-step-btn');
-    const step1 = document.getElementById('step-1-situation');
-    const step2 = document.getElementById('step-2-consent');
+    const submitBtn = document.getElementById('sos-submit-btn');
+    document.getElementById('agree-1').addEventListener('change', function() {
+        if(this.checked) {
+            label1.classList.remove('error-shake', 'border-red-500', 'bg-red-50');
+            label1.classList.add('border-blue-500', 'bg-blue-50');
 
-    function clearErrorState(chk, label) {
-      if(chk.checked) {
-        label.classList.remove('error-shake', 'border-red-500', 'bg-red-50', 'border-gray-300', 'bg-white');
-        label.classList.add('border-blue-500', 'bg-blue-50');
-      } else {
-        label.classList.remove('error-shake', 'border-blue-500', 'bg-blue-50');
-        label.classList.add('border-gray-300', 'bg-white');
-      }
-    }
-    document.getElementById('agree-1').addEventListener('change', function() { clearErrorState(this, label1); });
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            submitBtn.classList.add('bg-[#2563eb]', 'text-white', 'hover:bg-blue-700', 'active:scale-95');
+        } else {
+            label1.classList.remove('error-shake', 'border-blue-500', 'bg-blue-50');
+            label1.classList.add('border-red-500', 'bg-red-50');
 
-    // 연락처 하이픈 자동 입력
+            submitBtn.disabled = true;
+            submitBtn.classList.remove('bg-[#2563eb]', 'text-white', 'hover:bg-blue-700', 'active:scale-95');
+            submitBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+        }
+    });
+
     const phoneInput = document.getElementById('contact-phone-input');
     phoneInput.addEventListener('input', function(e) {
       let val = this.value.replace(/[^0-9]/g, '');
@@ -354,11 +846,10 @@
       this.value = res;
     });
 
-    // 1단계: 음성 인식
+    // 음성 인식
     const micBtn = document.getElementById('mic-btn');
     const descriptionInput = document.getElementById('description-input');
     const micStatus = document.getElementById('mic-status');
-
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
@@ -368,8 +859,7 @@
 
         recognition.onstart = function() {
             isRecording = true;
-            micBtn.classList.remove('bg-red-500');
-            micBtn.classList.add('bg-red-700', 'animate-pulse');
+            micBtn.classList.remove('bg-red-500'); micBtn.classList.add('bg-red-700', 'animate-pulse');
             micStatus.classList.remove('hidden');
         };
         recognition.onresult = function(event) {
@@ -386,22 +876,17 @@
         recognition.onend = function() { stopRecording(); };
         function stopRecording() {
             isRecording = false;
-            micBtn.classList.add('bg-red-500');
-            micBtn.classList.remove('bg-red-700', 'animate-pulse');
+            micBtn.classList.add('bg-red-500'); micBtn.classList.remove('bg-red-700', 'animate-pulse');
             micStatus.classList.add('hidden');
         }
-        micBtn.addEventListener('click', function() {
-            if (isRecording) recognition.stop();
-            else recognition.start();
-        });
+        micBtn.addEventListener('click', function() { if (isRecording) recognition.stop(); else recognition.start(); });
     } else {
         micBtn.addEventListener('click', function() { alert('음성 인식을 지원하지 않는 브라우저입니다.'); });
     }
 
-    // 1단계: 카테고리 다중 선택
+    // 카테고리 다중 선택
     let selectedCategories = [];
     const categoryCustomInput = document.getElementById('category-custom-input');
-
     document.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         this.classList.toggle('selected');
@@ -420,23 +905,15 @@
       });
     });
 
-    // 1단계: 사진/동영상 첨부
+    // 사진/동영상 첨부
     let selectedPhotoFiles = [];
     const photoPreview = document.getElementById('photo-preview');
-    const photoCaptureInput = document.getElementById('photo-capture-input');
-    const videoCaptureInput = document.getElementById('video-capture-input');
-    const filePickerInput = document.getElementById('file-picker-input');
-
     function addSelectedFiles(newFiles) {
       let combined = [...selectedPhotoFiles, ...newFiles];
-      if (combined.length > 3) {
-        alert('최대 3개까지 첨부할 수 있습니다.');
-        combined = combined.slice(0, 3);
-      }
+      if (combined.length > 3) { alert('최대 3개까지 첨부할 수 있습니다.'); combined = combined.slice(0, 3); }
       selectedPhotoFiles = combined;
       renderPhotoPreview();
     }
-
     function renderPhotoPreview() {
       photoPreview.innerHTML = '';
       selectedPhotoFiles.forEach((file, idx) => {
@@ -445,11 +922,10 @@
         if (file.type && file.type.startsWith('video/')) {
           const url = URL.createObjectURL(file);
           const video = document.createElement('video');
-          video.src = url; video.muted = true;
-          video.className = 'w-16 h-16 object-cover rounded-lg border border-gray-300 bg-black';
+          video.src = url; video.muted = true; video.className = 'w-16 h-16 object-cover rounded-lg border border-gray-300 bg-black';
           wrap.appendChild(video);
           const icon = document.createElement('i');
-          icon.className = 'fa-solid fa-circle-play absolute inset-0 m-auto text-white text-lg pointer-events-none';
+          icon.className = 'fa-solid fa-circle-play absolute inset-0 m-auto text-white text-lg pointer-events-none text-center leading-[64px]';
           wrap.appendChild(icon);
         } else {
           const url = URL.createObjectURL(file);
@@ -458,52 +934,37 @@
           wrap.appendChild(img);
         }
         const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        removeBtn.type = 'button'; removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
         removeBtn.className = 'absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-700 text-white rounded-full text-xs flex items-center justify-center hover:bg-black';
         removeBtn.onclick = () => { selectedPhotoFiles.splice(idx, 1); renderPhotoPreview(); };
         wrap.appendChild(removeBtn);
         photoPreview.appendChild(wrap);
       });
     }
-
-    [photoCaptureInput, videoCaptureInput, filePickerInput].forEach(input => {
-      input.addEventListener('change', function() {
-        addSelectedFiles(Array.from(this.files || []));
-        this.value = ''; 
-      });
+    ['photo-capture-input', 'video-capture-input', 'file-picker-input'].forEach(id => {
+      document.getElementById(id).addEventListener('change', function() { addSelectedFiles(Array.from(this.files || [])); this.value = ''; });
     });
 
-    // 1단계 → 2단계 이동
-    nextBtn.addEventListener('click', function() {
+    document.getElementById('next-step-btn').addEventListener('click', function() {
       const location = document.getElementById('location-input').value.trim();
       const phone = document.getElementById('contact-phone-input').value.trim();
       const customCat = categoryCustomInput.value.trim();
-
       if (selectedCategories.length === 0) { alert('상황을 선택해 주세요.'); return; }
       if (selectedCategories.includes('기타') && !customCat) { alert('기타 상황을 입력해 주세요.'); return; }
       if (!location) { alert('위치를 입력해 주세요.'); return; }
       if (!phone) { alert('연락처를 입력해 주세요.'); return; }
-
-      step1.classList.add('hidden'); step1.classList.remove('flex');
-      step2.classList.remove('hidden'); step2.classList.add('flex');
-      document.getElementById('main-content').scrollTo(0, 0);
+      showStep('step-2-consent');
     });
 
-    prevBtn.addEventListener('click', function() {
-      step2.classList.add('hidden'); step2.classList.remove('flex');
-      step1.classList.remove('hidden'); step1.classList.add('flex');
-      document.getElementById('main-content').scrollTo(0, 0);
-    });
+    document.getElementById('prev-step-btn').addEventListener('click', function() { showStep('step-1-situation'); });
 
-    // GPS 위치 확인
+    document.getElementById('prev-step-btn-1').addEventListener('click', function() { isPracticeMode = false; showStep('step-intro'); });
+
     function getCurrentLocation() {
       const gpsBtn = document.getElementById('gps-btn');
       const gpsStatus = document.getElementById('gps-status');
-
       if (!navigator.geolocation) { alert('위치 정보를 지원하지 않습니다.'); return; }
-      const isAgreed = confirm("위치정보 허용하시겠습니까?");
-      if (!isAgreed) return; 
+      if (!confirm("위치정보 허용하시겠습니까?")) return; 
 
       gpsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xl"></i><span class="text-xs">찾는중</span>';
       gpsBtn.disabled = true;
@@ -546,26 +1007,32 @@
       gpsBtn.disabled = false;
     }
 
-    // 커스텀 모달
-    function showConfirmModal(cat, loc, phone, basePrice, premiumPrice) {
-        const modal = document.getElementById('confirm-modal');
-        const content = document.getElementById('confirm-modal-content');
-        
-        document.getElementById('modal-cat').innerText = cat;
-        document.getElementById('modal-loc').innerText = loc;
-        document.getElementById('modal-phone').innerText = phone;
-        document.getElementById('modal-base').innerText = basePrice + '만원';
-        document.getElementById('modal-add').innerText = premiumPrice > 0 ? premiumPrice + '만원' : '0원';
-        document.getElementById('modal-total').innerText = (basePrice + premiumPrice) + '만원';
+    document.getElementById('sos-submit-btn').addEventListener('click', function() {
+      const agree1 = document.getElementById('agree-1');
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        setTimeout(() => {
-            content.classList.remove('scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
+      if (!agree1.checked) {
+        label1.classList.remove('error-shake'); void label1.offsetWidth; label1.classList.add('error-shake');
+        label1.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      const location = document.getElementById('location-input').value.trim();
+      const phone = document.getElementById('contact-phone-input').value.trim();
+      const customCat = categoryCustomInput.value.trim();
+      const premiumInput = parseInt(document.getElementById('premium-fee-input').value) || 0;
+      const finalCategories = selectedCategories.map(c => c === '기타' ? customCat : c).join(', ');
+
+      document.getElementById('modal-cat').innerText = finalCategories;
+      document.getElementById('modal-loc').innerText = location;
+      document.getElementById('modal-phone').innerText = phone;
+      document.getElementById('modal-base').innerText = currentBasePrice + '만원';
+      document.getElementById('modal-add').innerText = premiumInput > 0 ? premiumInput + '만원' : '0원';
+      document.getElementById('modal-total').innerText = (currentBasePrice + premiumInput) + '만원';
+
+      const modal = document.getElementById('confirm-modal');
+      const content = document.getElementById('confirm-modal-content');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+    });
 
     document.getElementById('modal-confirm-btn').addEventListener('click', async function() {
         const btn = this;
@@ -573,31 +1040,33 @@
         btn.disabled = true;
         btn.innerText = '접수 처리 중...';
 
+        if (isPracticeMode) {
+            setTimeout(() => {
+                document.getElementById('confirm-modal').classList.add('hidden');
+                btn.disabled = false; btn.innerText = originalText;
+                showStep('step-matching');
+            }, 800);
+            return;
+        }
+
         try {
-            // 1) 첨부 사진/동영상 업로드
             let photoUrls = [];
             for (const file of selectedPhotoFiles) {
                 const path = `requests/${Date.now()}_${file.name}`;
                 const { error: uploadError } = await supabaseClient.storage.from('sos-photos').upload(path, file);
-                if (uploadError) {
-                    console.error('사진 업로드 오류:', uploadError);
-                    continue; // 사진 업로드 실패해도 접수 자체는 계속 진행
+                if (!uploadError) {
+                    const { data: pub } = supabaseClient.storage.from('sos-photos').getPublicUrl(path);
+                    if (pub?.publicUrl) photoUrls.push(pub.publicUrl);
                 }
-                const { data: pub } = supabaseClient.storage.from('sos-photos').getPublicUrl(path);
-                if (pub?.publicUrl) photoUrls.push(pub.publicUrl);
             }
 
-            // 2) 접수 정보 구성
             const location = document.getElementById('location-input').value.trim();
             const phone = document.getElementById('contact-phone-input').value.trim();
             const customCat = categoryCustomInput.value.trim();
             const finalCategories = selectedCategories.map(c => c === '기타' ? customCat : c).join(', ');
             const premiumInput = parseInt(document.getElementById('premium-fee-input').value) || 0;
-
             let description = document.getElementById('description-input').value.trim();
-            if (premiumInput > 0) {
-                description = `[긴급 추가금 희망: ${premiumInput}만원] ${description}`.trim();
-            }
+            if (premiumInput > 0) description = `[긴급 추가금 희망: ${premiumInput}만원] ${description}`.trim();
 
             const { data: { user } } = await supabaseClient.auth.getUser();
             const newRequestId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : null;
@@ -615,51 +1084,16 @@
                     user_id: user ? user.id : null
                 }]);
 
-            if (insertError || !newRequestId) {
-                console.error('SOS 접수 저장 오류:', insertError);
-                alert('접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.');
-                btn.disabled = false;
-                btn.innerText = originalText;
-                return;
-            }
+            if (insertError || !newRequestId) throw new Error('접수 저장 오류');
 
-            window.location.href = `sos-room.html?request_id=${newRequestId}`;
+            document.getElementById('confirm-modal').classList.add('hidden');
+            btn.disabled = false; btn.innerText = originalText;
+            showStep('step-matching');
         } catch (err) {
             console.error('SOS 접수 처리 중 예외:', err);
             alert('접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나, 상단의 긴급 전화로 연락해 주세요.');
-            btn.disabled = false;
-            btn.innerText = originalText;
+            btn.disabled = false; btn.innerText = originalText;
         }
-    });
-
-    const supabaseClient = window.sb;
-    
-    document.getElementById('sos-submit-btn').addEventListener('click', async function() {
-      const agree1 = document.getElementById('agree-1');
-      const errorMsg = document.getElementById('submit-error-msg');
-      errorMsg.classList.add('hidden');
-
-      if (!agree1.checked) {
-        errorMsg.innerText = '비용 안내 및 이용 안내에 동의해 주셔야 호출이 가능합니다.';
-        errorMsg.classList.remove('hidden');
-        label1.classList.remove('error-shake'); void label1.offsetWidth; label1.classList.add('error-shake');
-        return;
-      }
-
-      const location = document.getElementById('location-input').value.trim();
-      const phone = document.getElementById('contact-phone-input').value.trim();
-      const customCat = categoryCustomInput.value.trim();
-      const premiumInput = parseInt(document.getElementById('premium-fee-input').value) || 0;
-
-      const finalCategories = selectedCategories.map(c => c === '기타' ? customCat : c).join(', ');
-
-      showConfirmModal(
-          finalCategories, 
-          location, 
-          phone, 
-          currentBasePrice, 
-          premiumInput      
-      );
     });
   </script>
 </body>
