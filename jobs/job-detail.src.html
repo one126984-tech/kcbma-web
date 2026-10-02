@@ -284,7 +284,7 @@
                 ul.innerHTML = '<li>등록된 내용이 없습니다.</li>';
                 return;
             }
-            ul.innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+            ul.innerHTML = lines.map(l => `<li>${KC.esc(l)}</li>`).join('');
         }
 
         async function fetchJobDetail() {
@@ -335,7 +335,7 @@
             }
 
             // 조회수 +1 (실패해도 화면 표시에는 영향 없음)
-            supabaseClient.from('jobs').update({ view_count: (data.view_count || 0) + 1 }).eq('id', jobId).then(() => {});
+            supabaseClient.rpc('increment_job_view', { p_id: jobId }).then(() => {});
         }
 
         document.addEventListener('DOMContentLoaded', fetchJobDetail);

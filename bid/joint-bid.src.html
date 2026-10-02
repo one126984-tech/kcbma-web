@@ -553,10 +553,10 @@
                 
                 tr.innerHTML = `
                     <td>${no}</td>
-                    <td class="font-bold text-[#0B2A5B] truncate" title="${companyName}">${companyName}</td>
-                    <td class="text-left pl-6 text-gray-800 hover:underline font-medium truncate" title="${catchphrase}">${catchphrase}</td>
-                    <td class="text-gray-700">${category}</td>
-                    <td class="text-gray-600">${regionStr}</td>
+                    <td class="font-bold text-[#0B2A5B] truncate" title="${KC.esc(companyName)}">${KC.esc(companyName)}</td>
+                    <td class="text-left pl-6 text-gray-800 hover:underline font-medium truncate" title="${KC.esc(catchphrase)}">${KC.esc(catchphrase)}</td>
+                    <td class="text-gray-700">${KC.esc(category)}</td>
+                    <td class="text-gray-600">${KC.esc(regionStr)}</td>
                     <td class="font-bold text-red-600">${discountText}</td>
                     <td><span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 text-xs">${deficitCount}</span></td>
                     <td class="font-bold text-[#d97706]">${dDayDisplay}</td>
@@ -590,7 +590,7 @@
         function incrementViewAndGo(id, currentViews) {
             if(supabaseClient) {
                 // DB 스키마에 맞게 views 업데이트
-                supabaseClient.from(DB_TABLE_NAME).update({ views: parseInt(currentViews) + 1 }).eq('id', id).then(); 
+                supabaseClient.rpc('increment_joint_bid_view', { p_id: id }).then();
             }
             window.location.href = `joint-bid-detail.html?id=${id}`;
         }
@@ -666,7 +666,7 @@
             tags.forEach(word => {
                 const chip = document.createElement('span');
                 chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             manualInput.placeholder = tags.length > 0 ? "" : "업체명, 핵심서비스, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로";

@@ -486,7 +486,7 @@
             includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             tags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             manualInput.placeholder = tags.length > 0 ? "" : "제목, 업체명, 지역 등 포함할 단어 입력 후 엔터";
@@ -522,7 +522,7 @@
             excludeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             excludeTags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip !bg-red-100 !text-red-700'; 
-                chip.innerHTML = `${word} <span class="tag-remove hover:!text-red-900" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
                 excludeContainer.insertBefore(chip, manualExcludeInput);
             });
             manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
@@ -833,11 +833,11 @@
                 
                 tr.innerHTML = `
                     <td class="text-center">${startIndex + i + 1}</td>
-                    <td class="text-left pl-4 font-bold text-[#0B2A5B] hover:underline">${isOpen ? '' : '<span class="text-gray-400 mr-1">[마감]</span>'}${title}</td>
-                    <td class="text-center">${category}</td>
-                    <td class="text-center">${shortRegion}</td>
-                    <td class="text-center font-bold text-[#12387a]">${salary}</td>
-                    <td class="text-center text-gray-500 text-[13px]">${workType}</td>
+                    <td class="text-left pl-4 font-bold text-[#0B2A5B] hover:underline">${isOpen ? '' : '<span class="text-gray-400 mr-1">[마감]</span>'}${KC.esc(title)}</td>
+                    <td class="text-center">${KC.esc(category)}</td>
+                    <td class="text-center">${KC.esc(shortRegion)}</td>
+                    <td class="text-center font-bold text-[#12387a]">${KC.esc(salary)}</td>
+                    <td class="text-center text-gray-500 text-[13px]">${KC.esc(workType)}</td>
                     <td class="text-center text-[13px]">${period}</td>
                     <td class="text-center text-[14px] ${ddayInfo.color}">${ddayInfo.text}</td>
                     <td class="text-center">${views}</td>
@@ -866,7 +866,7 @@
         // ★ 조회수 증가 (view_count) 
         window.goToJobDetail = function(id, currentViews) {
             if (supabaseClient) {
-                supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).then();
+                supabaseClient.rpc('increment_job_view', { p_id: id }).then();
             }
             window.location.href = `job-detail.html?id=${id}`;
         };

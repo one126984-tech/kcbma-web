@@ -130,12 +130,9 @@
                 const date = new Date(data.created_at);
                 document.getElementById('detail-date').innerText = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 
-                document.getElementById('detail-views').innerText = data.view_count || 0; // ★ 수정됨
+                document.getElementById('detail-views').innerText = data.views || 0;
 
-                await supabaseClient
-                    .from('notices')
-                    .update({ view_count: (data.view_count || 0) + 1 }) // ★ 수정됨
-                    .eq('id', noticeId);
+                supabaseClient.rpc('increment_notice_view', { p_id: noticeId }).then(() => {});
 
             } catch (error) {
                 console.error("오류 발생:", error.message);
