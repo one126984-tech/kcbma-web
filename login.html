@@ -12,7 +12,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>간편 로그인 - 대한집합건물관리협회</title>
 
-<script src="assets/js/utils.js"></script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -542,7 +541,7 @@
             <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
             <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
-            <div onclick="if(!location.pathname.endsWith('consulting-field.html')) location.href='consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
+            <div onclick="if(!location.pathname.endsWith('consulting-list.html')) location.href='consulting/consulting-list.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
             <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
 
             <!-- 모바일 긴급 SOS 호출 -->
@@ -620,7 +619,7 @@
                 }
             });
 
-            const isAdmin = !!(session && session.user && session.user.app_metadata && session.user.app_metadata.role === 'admin');
+            const isAdmin = !!(session && session.user && session.user.user_metadata && session.user.user_metadata.role === 'admin');
             document.querySelectorAll('[data-admin-only]').forEach(el => {
                 el.classList.toggle('hidden', !isAdmin);
             });
@@ -885,7 +884,7 @@
         //   방식으로 바꿈(#naverIdLogin, 위쪽 HTML). returnUrl 저장은 SDK 버튼 클릭
         //   시점에 맞춰 그 버튼 자체에 클릭 리스너를 하나 더 붙여서 처리.
         const naverLoginSdk = new naver.LoginWithNaverId({
-            clientId: "VD2UEjPCJu9cGeA6Ywdr", // ★ 2026-09: 기존 앱(QQt53ijWrcAksEFEIQcc)이 네이버 서버 쪽에서 원인불명으로 계속 client info invalid 에러를 내서, 새 앱으로 교체함
+            clientId: "V6Edh6XBQEtlWNVAgukW", // ★ 2026-09: 기존 앱(QQt53ijWrcAksEFEIQcc)이 네이버 서버 쪽에서 원인불명으로 계속 client info invalid 에러를 내서, 새 앱으로 교체함
             callbackUrl: window.location.origin + "/callback.html",
             isPopup: false,
             // ★ 이 옵션이 없으면 SDK가 버튼 자체를 안 그리는 경우가 있어서 명시적으로 지정.
