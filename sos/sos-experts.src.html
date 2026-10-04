@@ -82,6 +82,14 @@
                     <option value="인천">인천</option>
                 </select>
             </div>
+            <!-- 응대 방식 필터 (전화상담만 / 전화상담 및 출동) -->
+            <div class="px-4 pb-4 border-b border-gray-200 shrink-0 bg-white">
+                <select id="filter-level" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm font-bold text-gray-700 focus:border-blue-500 outline-none">
+                    <option value="">전체 응대 방식</option>
+                    <option value="dispatch">전화상담 및 출동서비스 가능</option>
+                    <option value="phone">전화상담만 가능</option>
+                </select>
+            </div>
 
             <!-- 전문가 리스트 -->
             <div class="flex-1 bg-gray-50 p-4 space-y-4" id="expert-list">
@@ -152,12 +160,14 @@
         return 'fa-user-tie';
     }
 
+    // 대기 신청(is_standby)을 한 전문가만 목록에 표시
     async function fetchExperts() {
         const listEl = document.getElementById('expert-list');
         const { data, error } = await supabaseClient
             .from('sos_experts')
             .select('*')
             .eq('is_active', true)
+            .eq('is_standby', true)
             .order('avg_rating', { ascending: false, nullsFirst: false });
 
         if (error) {
@@ -169,21 +179,34 @@
         renderExperts();
     }
 
+    // 전문가가 정한 서비스 가능 시간 안인지 (한국 시간 기준, 밤을 넘기는 시간대 지원)
+    function inServiceHours(e) {
+        if (!e.avail_from || !e.avail_to) return true;
+        const from = String(e.avail_from).slice(0, 5), to = String(e.avail_to).slice(0, 5);
+        if (from === to) return true;
+        const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+        const cur = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        return from < to ? (cur >= from && cur < to) : (cur >= from || cur < to);
+    }
+
     function renderExperts() {
         const listEl = document.getElementById('expert-list');
         const catFilter = document.getElementById('filter-category').value;
         const regFilter = document.getElementById('filter-region').value;
+        const levelFilter = document.getElementById('filter-level').value;
 
         listEl.innerHTML = '';
 
         const filtered = allExperts.filter(e => {
             const region = [e.region_main, e.region_sub].filter(Boolean).join(' ');
-            return (catFilter === '' || (e.category || '').includes(catFilter)) &&
-                   (regFilter === '' || region.includes(regFilter));
+            return inServiceHours(e) &&
+                   (catFilter === '' || (e.category || '').includes(catFilter)) &&
+                   (regFilter === '' || region.includes(regFilter)) &&
+                   (levelFilter === '' || e.service_level === levelFilter);
         });
 
         if (filtered.length === 0) {
-            listEl.innerHTML = '<div class="text-center py-10 text-gray-500 font-bold">조건에 맞는 대기중인 전문가가 없습니다.</div>';
+            listEl.innerHTML = '<div class="text-center py-10 text-gray-500 font-bold break-keep">조건에 맞는 대기중인 전문가가 없습니다.</div>';
             return;
         }
 
@@ -191,8 +214,15 @@
             const region = [expert.region_main, expert.region_sub].filter(Boolean).join(' ') || '지역 미등록';
             const rating = expert.avg_rating ? Number(expert.avg_rating).toFixed(1) : '신규';
             const cases = expert.total_cases || 0;
-            const available = expert.is_available !== false;
+            const canDispatch = expert.service_level === 'dispatch';
             const phone = expert.phone || '';
+            const hoursText = (expert.avail_from && expert.avail_to)
+                ? String(expert.avail_from).slice(0, 5) + '~' + String(expert.avail_to).slice(0, 5) : '24시간';
+            const photoText = expert.provides_photo ? '사진 제공' : '사진 제공 안 함';
+
+            const levelBadge = canDispatch
+                ? '<span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full whitespace-nowrap">전화+출동 가능</span>'
+                : '<span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full whitespace-nowrap">전화상담만</span>';
 
             const card = document.createElement('div');
             card.className = 'bg-white rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3';
@@ -201,12 +231,13 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center shrink-0 border border-gray-200">
                         <i class="fa-solid ${iconForCategory(expert.category)} text-2xl text-gray-400"></i>
                     </div>
-                    <div class="flex-1 text-[13px] space-y-1">
-                        <div class="flex items-center justify-between">
-                            <p class="font-black text-gray-900 text-[16px]">${escapeHtml(expert.name)} <span class="text-xs font-normal text-gray-500">전문가</span></p>
-                            ${available ? '<span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">즉시가능</span>' : '<span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">응답불가</span>'}
+                    <div class="flex-1 text-[13px] space-y-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="font-black text-gray-900 text-[16px] truncate">${escapeHtml(expert.name)} <span class="text-xs font-normal text-gray-500">전문가</span></p>
+                            ${levelBadge}
                         </div>
                         <p class="text-gray-600 font-bold">${escapeHtml(expert.category || '-')} · ${escapeHtml(region)}</p>
+                        <p class="text-[11px] text-gray-500"><i class="fa-regular fa-clock mr-1"></i>${hoursText} <span class="mx-1 text-gray-300">|</span> <i class="fa-solid fa-camera mr-1"></i>${photoText}</p>
                         <div class="flex items-center gap-2 text-xs">
                             <span class="text-yellow-500 font-bold">★ ${rating}</span>
                             <span class="text-gray-400">|</span>
@@ -214,8 +245,8 @@
                         </div>
                     </div>
                 </div>
-                <button ${!available ? 'disabled' : ''} onclick="${available ? `location.href='tel:${phone}'` : ''}" class="w-full py-2.5 rounded-lg font-bold text-sm transition ${available ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}">
-                    ${available ? `<i class="fa-solid fa-phone mr-1"></i> 이 전문가에게 전화하기` : '현재 연락 불가'}
+                <button ${!phone ? 'disabled' : ''} onclick="${phone ? `location.href='tel:${phone}'` : ''}" class="w-full py-2.5 rounded-lg font-bold text-sm transition ${phone ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}">
+                    ${phone ? `<i class="fa-solid fa-phone mr-1"></i> 이 전문가에게 전화하기` : '현재 연락 불가'}
                 </button>
             `;
             listEl.appendChild(card);
@@ -230,6 +261,7 @@
 
     document.getElementById('filter-category').addEventListener('change', renderExperts);
     document.getElementById('filter-region').addEventListener('change', renderExperts);
+    document.getElementById('filter-level').addEventListener('change', renderExperts);
 
     fetchExperts();
 </script>

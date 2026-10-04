@@ -1,0 +1,708 @@
+<!-- 파일명: sos-standby.src.html
+     승인된 SOS 전문가용 대기실
+     (1) 설정 화면 : 서비스 수준 / 출동가능 지역 / 서비스 가능 시간 / 사진 제공 여부 / 대기 시작·종료
+     (2) 요청 화면 : 도착한 SOS 요청 옆에서 [전화상담] [전화+출동] 응답 -> 요청자의 전문가 찾기 화면에 표시
+     그 외 : 내가 선택된 건에서 "실제로 출동했는지" 결정 -->
+<!-- @var PAGE_CLASS: page-sos-standby -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS 전문가 대기실 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+  <style>
+      #standby-top-banner { background-color: #1e3a8a; }
+      .opt-card.selected { border-color: #2563eb !important; background-color: #eff6ff !important; }
+      .opt-card.disabled { opacity: 0.5; cursor: not-allowed; }
+      @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+        70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+        100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+      }
+      .standby-dot-on { animation: pulse-ring 1.8s infinite; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+    .break-keep { word-break: keep-all; }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
+
+            <!-- 상단 배너 -->
+            <div id="standby-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
+                <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-blue-900 p-2 rounded-full transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 id="banner-title" class="text-[22px] font-bold tracking-wider">SOS 전문가 대기실</h1>
+            </div>
+
+            <!-- 불러오는 중 -->
+            <div id="state-loading" class="flex-1 flex items-center justify-center p-10 text-gray-400 text-sm">불러오는 중입니다...</div>
+
+            <!-- 승인된 전문가 계정이 아닐 때 -->
+            <div id="state-noexpert" class="hidden flex-1 flex-col items-center justify-center p-8 text-center gap-4 bg-gray-50">
+                <i class="fa-solid fa-user-lock text-5xl text-gray-300"></i>
+                <p class="text-gray-700 font-bold break-keep">아직 승인된 SOS 전문가 계정이 아닙니다.</p>
+                <p class="text-gray-500 text-[13px] break-keep leading-relaxed">
+                    지원서를 제출하셨다면 운영진 승인 후 이용할 수 있습니다.<br>
+                    승인이 끝났는데도 이 화면이 보이면 운영진에게 계정 연결을 요청해 주세요.
+                </p>
+                <div class="flex flex-col gap-2 w-full max-w-xs">
+                    <a href="sos-counselor-apply.html" class="bg-[#1e3a8a] text-white font-bold py-3 rounded-xl hover:bg-blue-900 transition">전문가(카운셀러) 지원하기</a>
+                    <a href="sos-partner-apply.html" class="bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-black transition">파트너(출동) 전문가 지원하기</a>
+                </div>
+            </div>
+
+            <!-- 승인된 전문가 화면 -->
+            <div id="state-ready" class="hidden flex-1 flex-col bg-gray-50">
+
+                <!-- ===================== (1) 설정 화면 ===================== -->
+                <div id="view-setup" class="p-5 space-y-5 pb-6">
+
+                    <!-- 내 정보 + 대기 상태 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-user-gear text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p id="me-name" class="font-black text-gray-900 text-[16px] truncate">-</p>
+                            <p id="me-meta" class="text-[12px] text-gray-500 truncate">-</p>
+                        </div>
+                        <div class="shrink-0 flex items-center gap-2">
+                            <span id="status-dot" class="w-3 h-3 rounded-full bg-gray-300"></span>
+                            <span id="status-text" class="text-[13px] font-bold text-gray-500">대기 안 함</span>
+                        </div>
+                    </div>
+
+                    <!-- 1. 서비스 제공 수준 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h2 class="font-black text-gray-800 text-[15px] mb-3">1. 현재 나의 서비스 제공 수준</h2>
+                        <div class="space-y-2">
+                            <label id="level-phone" class="opt-card flex items-center gap-3 p-3.5 border-2 border-gray-200 rounded-xl cursor-pointer transition">
+                                <input type="radio" name="level" value="phone" class="w-5 h-5">
+                                <span class="font-bold text-gray-800 text-[14px] break-keep">전화상담만 가능</span>
+                            </label>
+                            <label id="level-dispatch" class="opt-card flex items-center gap-3 p-3.5 border-2 border-gray-200 rounded-xl cursor-pointer transition">
+                                <input type="radio" name="level" value="dispatch" class="w-5 h-5">
+                                <span class="font-bold text-gray-800 text-[14px] break-keep">전화상담 및 출동서비스 가능</span>
+                            </label>
+                        </div>
+                        <p id="level-note" class="hidden text-[12px] text-gray-500 mt-2 break-keep">출동 자격이 승인되지 않아 '전화상담만 가능'으로만 대기할 수 있습니다.</p>
+                    </div>
+
+                    <!-- 2. 출동 가능 지역 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h2 class="font-black text-gray-800 text-[15px] mb-3">2. 출동 가능 지역</h2>
+                        <div class="flex gap-2">
+                            <select id="region-main" onchange="updateSubRegions()" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 bg-white">
+                                <option value="">시/도</option>
+                                <option value="서울">서울특별시</option>
+                                <option value="경기">경기도</option>
+                                <option value="인천">인천광역시</option>
+                                <option value="부산">부산광역시</option>
+                                <option value="대구">대구광역시</option>
+                                <option value="광주">광주광역시</option>
+                                <option value="대전">대전광역시</option>
+                                <option value="울산">울산광역시</option>
+                                <option value="세종">세종특별자치시</option>
+                                <option value="강원">강원특별자치도</option>
+                                <option value="충북">충청북도</option>
+                                <option value="충남">충청남도</option>
+                                <option value="전북">전북특별자치도</option>
+                                <option value="전남">전라남도</option>
+                                <option value="경북">경상북도</option>
+                                <option value="경남">경상남도</option>
+                                <option value="제주">제주특별자치도</option>
+                            </select>
+                            <select id="region-sub" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 bg-white">
+                                <option value="">시/군/구</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 3. 서비스 가능 시간 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h2 class="font-black text-gray-800 text-[15px] mb-3">3. 서비스 가능 시간</h2>
+                        <label class="flex items-center gap-2 text-[14px] font-bold text-gray-700 mb-3 cursor-pointer">
+                            <input type="checkbox" id="hours-24" class="w-5 h-5"> 24시간 가능
+                        </label>
+                        <div id="hours-inputs" class="flex items-center gap-2">
+                            <input type="time" id="hours-from" value="09:00" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500">
+                            <span class="text-gray-500 font-bold">~</span>
+                            <input type="time" id="hours-to" value="18:00" class="flex-1 border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <p class="text-[12px] text-gray-500 mt-2 break-keep">정해진 시간 밖에는 요청이 오지 않습니다. 시간과 상관없이 언제든 아래 <strong>대기 종료</strong> 버튼으로 나갈 수 있습니다.</p>
+                    </div>
+
+                    <!-- 4. 사진 제공 여부 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h2 class="font-black text-gray-800 text-[15px] mb-3">4. 현장 사진 제공 여부</h2>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label id="photo-yes" class="opt-card flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer transition">
+                                <input type="radio" name="photo" value="yes" class="w-5 h-5">
+                                <span class="font-bold text-gray-800 text-[14px]">제공 가능</span>
+                            </label>
+                            <label id="photo-no" class="opt-card flex items-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer transition">
+                                <input type="radio" name="photo" value="no" class="w-5 h-5">
+                                <span class="font-bold text-gray-800 text-[14px]">제공 안 함</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 대기 시작 → (2) 화면으로 이동 -->
+                    <button id="start-btn" class="w-full bg-[#1e3a8a] hover:bg-blue-900 text-white font-black text-[17px] py-4 rounded-xl shadow-lg transition flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-tower-broadcast"></i> <span id="start-text">대기 시작하고 요청 보기</span>
+                    </button>
+                    <button id="end-btn-setup" class="hidden w-full bg-white border-2 border-gray-400 text-gray-700 hover:bg-gray-100 font-black text-[16px] py-3.5 rounded-xl transition flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket"></i> 대기 종료하고 나가기
+                    </button>
+                </div>
+
+                <!-- ===================== (2) 요청 화면 ===================== -->
+                <div id="view-feed" class="hidden p-5 space-y-4 pb-6">
+
+                    <!-- 상태 막대 -->
+                    <div class="bg-white rounded-xl border border-green-200 shadow-sm p-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-green-500 standby-dot-on shrink-0"></span>
+                            <p id="feed-status" class="flex-1 text-[13px] font-bold text-green-700 break-keep">대기중</p>
+                        </div>
+                        <div class="flex gap-2 mt-3">
+                            <button id="to-setup-btn" class="flex-1 bg-gray-100 text-gray-700 font-bold text-[13px] py-2.5 rounded-lg hover:bg-gray-200 transition"><i class="fa-solid fa-sliders mr-1"></i> 설정 변경</button>
+                            <button id="end-btn-feed" class="flex-1 bg-white border border-gray-300 text-gray-700 font-bold text-[13px] py-2.5 rounded-lg hover:bg-gray-100 transition"><i class="fa-solid fa-right-from-bracket mr-1"></i> 대기 종료</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end justify-between px-1">
+                        <h2 class="font-black text-gray-800 text-[15px] border-b-2 border-red-500 pb-1">도착한 SOS 요청</h2>
+                        <span id="open-count" class="text-[12px] text-gray-500 font-bold">0건</span>
+                    </div>
+                    <p class="text-[12px] text-gray-500 px-1 -mt-2 break-keep">가능한 방식의 버튼을 누르면 내 정보가 요청자의 '전문가 찾기' 화면에 표시됩니다. 전화상담은 1건 기준, 기본 30분입니다.</p>
+                    <div id="open-list" class="space-y-3"></div>
+                </div>
+
+                <!-- ===================== 내가 선택된 요청 (출동 여부 결정) ===================== -->
+                <div id="assigned-section" class="hidden px-5 pb-10">
+                    <h2 class="font-black text-gray-800 text-[15px] mb-2 border-b-2 border-blue-600 pb-1 inline-block">내가 선택된 요청</h2>
+                    <p class="text-[12px] text-gray-500 mb-2 break-keep">출동서비스 요청은 실제로 출동했는지 직접 눌러 주세요. 요청자가 입력한 내용과 다르면 운영진이 확인합니다.</p>
+                    <div id="assigned-list" class="space-y-3"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- 지역 데이터 -->
+<script src="{{BASE}}assets/js/region-data.js"></script>
+
+<script>
+    const supabaseClient = window.sb;
+    let me = null;              
+    let isStandby = false;
+    let selectedLevel = 'phone';
+    let lastOpenCount = 0;
+    let lastAssignedCount = 0;
+    let busy = false;
+    let standbyChannel = null; // 실시간 채널
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.innerText = str || '';
+        return div.innerHTML;
+    }
+
+    function timeAgo(dateStr) {
+        const sec = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+        if (isNaN(sec) || sec < 60) return '방금 전';
+        const min = Math.floor(sec / 60);
+        if (min < 60) return min + '분 전';
+        return Math.floor(min / 60) + '시간 전';
+    }
+
+    function showState(id) {
+        ['state-loading', 'state-noexpert', 'state-ready'].forEach(k => {
+            const el = document.getElementById(k);
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        });
+        const target = document.getElementById(id);
+        target.classList.remove('hidden');
+        target.classList.add('flex');
+    }
+
+    // (1) 설정 화면 / (2) 요청 화면 전환
+    function showView(name) {
+        document.getElementById('view-setup').classList.toggle('hidden', name !== 'setup');
+        document.getElementById('view-feed').classList.toggle('hidden', name !== 'feed');
+        document.getElementById('banner-title').innerText = name === 'feed' ? '도착한 SOS 요청' : 'SOS 전문가 대기실';
+        document.getElementById('main-content').scrollTo(0, 0);
+    }
+
+    function levelLabel(level) {
+        return level === 'dispatch' ? '전화상담 및 출동서비스' : '전화상담만';
+    }
+
+    function hoursLabel() {
+        if (!me || !me.avail_from || !me.avail_to) return '24시간';
+        return String(me.avail_from).slice(0, 5) + '~' + String(me.avail_to).slice(0, 5);
+    }
+
+    // --- 내 전문가 정보 로드 ---
+    async function loadMe() {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
+            window.location.href = '{{BASE}}login.html';
+            return false;
+        }
+        const { data, error } = await supabaseClient
+            .from('sos_experts')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('is_active', true)
+            .maybeSingle();
+
+        if (error) console.error('전문가 정보 조회 오류:', error);
+        me = data || null;
+        return !!me;
+    }
+
+    // --- 지역 선택 ---
+    function updateSubRegions(selectedSub) {
+        const major = document.getElementById('region-main').value;
+        const subSelect = document.getElementById('region-sub');
+        subSelect.innerHTML = '<option value="">시/군/구</option>';
+        if (major && typeof subRegionData !== 'undefined' && subRegionData[major]) {
+            subRegionData[major].forEach(minor => {
+                if (minor.replace(/\s/g, '') !== `${major}전체` && minor !== '전국전체') {
+                    const opt = document.createElement('option');
+                    opt.value = minor;
+                    opt.textContent = minor;
+                    subSelect.appendChild(opt);
+                }
+            });
+        }
+        if (selectedSub && typeof selectedSub === 'string') {
+            if (![...subSelect.options].some(o => o.value === selectedSub)) {
+                const opt = document.createElement('option');
+                opt.value = selectedSub; opt.textContent = selectedSub;
+                subSelect.appendChild(opt);
+            }
+            subSelect.value = selectedSub;
+        }
+    }
+
+    // --- 화면 그리기 (설정 화면 값 채우기) ---
+    function renderMe() {
+        document.getElementById('me-name').innerText = me.name || '-';
+        const region = [me.region_main, me.region_sub].filter(Boolean).join(' ');
+        document.getElementById('me-meta').innerText = [me.category, region].filter(Boolean).join(' · ') || '-';
+
+        isStandby = !!me.is_standby;
+        selectedLevel = (me.service_level === 'dispatch' && me.can_dispatch) ? 'dispatch' : 'phone';
+
+        const dispatchCard = document.getElementById('level-dispatch');
+        const dispatchInput = dispatchCard.querySelector('input');
+        dispatchCard.classList.toggle('disabled', !me.can_dispatch);
+        dispatchInput.disabled = !me.can_dispatch;
+        document.getElementById('level-note').classList.toggle('hidden', !!me.can_dispatch);
+        renderLevelCards();
+
+        // 지역
+        document.getElementById('region-main').value = me.region_main || '';
+        updateSubRegions(me.region_sub || '');
+
+        // 서비스 시간
+        const all24 = !me.avail_from || !me.avail_to;
+        document.getElementById('hours-24').checked = all24;
+        if (!all24) {
+            document.getElementById('hours-from').value = String(me.avail_from).slice(0, 5);
+            document.getElementById('hours-to').value = String(me.avail_to).slice(0, 5);
+        }
+        syncHoursInputs();
+
+        // 사진 제공
+        setPhoto(me.provides_photo ? 'yes' : 'no');
+
+        renderStandbyBadge();
+    }
+
+    function renderLevelCards() {
+        ['phone', 'dispatch'].forEach(lv => {
+            const card = document.getElementById('level-' + lv);
+            card.querySelector('input').checked = (lv === selectedLevel);
+            card.classList.toggle('selected', lv === selectedLevel);
+        });
+    }
+
+    function setPhoto(v) {
+        ['yes', 'no'].forEach(k => {
+            const card = document.getElementById('photo-' + k);
+            card.querySelector('input').checked = (k === v);
+            card.classList.toggle('selected', k === v);
+        });
+    }
+    function getPhoto() {
+        return document.querySelector('input[name="photo"]:checked')?.value === 'yes';
+    }
+
+    function syncHoursInputs() {
+        const all24 = document.getElementById('hours-24').checked;
+        document.getElementById('hours-from').disabled = all24;
+        document.getElementById('hours-to').disabled = all24;
+        document.getElementById('hours-inputs').style.opacity = all24 ? '0.4' : '1';
+    }
+
+    function renderStandbyBadge() {
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+        const startText = document.getElementById('start-text');
+        const endBtn = document.getElementById('end-btn-setup');
+
+        if (isStandby) {
+            dot.className = 'w-3 h-3 rounded-full bg-green-500 standby-dot-on';
+            text.innerText = '대기중';
+            text.className = 'text-[13px] font-bold text-green-600';
+            startText.innerText = '저장하고 요청 화면으로';
+            endBtn.classList.remove('hidden');
+            document.getElementById('feed-status').innerText =
+                `대기중 · ${levelLabel(selectedLevel)} · ${hoursLabel()}`;
+        } else {
+            dot.className = 'w-3 h-3 rounded-full bg-gray-300';
+            text.innerText = '대기 안 함';
+            text.className = 'text-[13px] font-bold text-gray-500';
+            startText.innerText = '대기 시작하고 요청 보기';
+            endBtn.classList.add('hidden');
+        }
+    }
+
+    // --- 서버 저장 (설정 / 대기 ON·OFF) ---
+    async function saveProfile() {
+        const main = document.getElementById('region-main').value;
+        const sub = document.getElementById('region-sub').value;
+        if (!main || !sub) { alert('출동 가능 지역(시/도, 시/군/구)을 선택해 주세요.'); return false; }
+
+        const all24 = document.getElementById('hours-24').checked;
+        const from = all24 ? '' : document.getElementById('hours-from').value;
+        const to = all24 ? '' : document.getElementById('hours-to').value;
+        if (!all24 && (!from || !to)) { alert('서비스 가능 시간(시작~종료)을 입력하거나 "24시간 가능"을 선택해 주세요.'); return false; }
+
+        const { error } = await supabaseClient.rpc('set_my_profile', {
+            p_region_main: main,
+            p_region_sub: sub,
+            p_avail_from: from,
+            p_avail_to: to,
+            p_provides_photo: getPhoto()
+        });
+        if (error) {
+            console.error('설정 저장 오류:', error);
+            alert('설정 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            return false;
+        }
+        me.region_main = main;
+        me.region_sub = sub;
+        me.avail_from = from || null;
+        me.avail_to = to || null;
+        me.provides_photo = getPhoto();
+        document.getElementById('me-meta').innerText = [me.category, main + ' ' + sub].filter(Boolean).join(' · ');
+        return true;
+    }
+
+    async function saveStandby(on, level) {
+        const { error } = await supabaseClient.rpc('set_my_standby', { p_on: on, p_level: level });
+        if (error) {
+            const msg = String(error.message || '');
+            console.error('대기 설정 오류:', error);
+            if (msg.includes('LEVEL_NOT_ALLOWED')) alert('출동 자격이 승인되지 않았습니다. 전화상담만 가능으로 대기해 주세요.');
+            else if (msg.includes('NOT_EXPERT')) alert('승인된 전문가 계정이 아닙니다.');
+            else alert('대기 설정 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            return false;
+        }
+        me.is_standby = on;
+        me.service_level = level;
+        return true;
+    }
+
+    // --- 버튼 이벤트 ---
+    document.querySelectorAll('input[name="level"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (!this.checked) return;
+            selectedLevel = this.value;
+            renderLevelCards();
+        });
+    });
+    document.querySelectorAll('input[name="photo"]').forEach(radio => {
+        radio.addEventListener('change', function() { if (this.checked) setPhoto(this.value); });
+    });
+    document.getElementById('hours-24').addEventListener('change', syncHoursInputs);
+
+    // --- 실시간(Realtime) 통신 로직 ---
+    function startRealtime() {
+        stopRealtime();
+        loadOpenRequests();
+        loadAssigned();
+
+        standbyChannel = supabaseClient.channel('standby-channel')
+            .on(
+                'postgres_changes', 
+                { event: 'INSERT', schema: 'public', table: 'sos_requests' }, 
+                () => { loadOpenRequests(); }
+            )
+            .on(
+                'postgres_changes', 
+                { event: 'UPDATE', schema: 'public', table: 'sos_requests' }, 
+                () => { 
+                    loadOpenRequests(); 
+                    loadAssigned(); 
+                }
+            )
+            .on(
+                'postgres_changes', 
+                { event: 'UPDATE', schema: 'public', table: 'sos_matches' }, 
+                () => { loadAssigned(); }
+            )
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') console.log('Realtime connected');
+            });
+    }
+
+    function stopRealtime() {
+        if (standbyChannel) {
+            supabaseClient.removeChannel(standbyChannel);
+            standbyChannel = null;
+        }
+    }
+
+    // 대기 시작 / 저장 -> (2) 요청 화면
+    document.getElementById('start-btn').addEventListener('click', async function() {
+        if (busy) return;
+        busy = true;
+        this.disabled = true;
+        try {
+            if (!(await saveProfile())) return;
+            if (!(await saveStandby(true, selectedLevel))) return;
+            isStandby = true;
+            renderStandbyBadge();
+            showView('feed');
+            startRealtime();
+        } finally {
+            busy = false;
+            this.disabled = false;
+        }
+    });
+
+    async function endStandby() {
+        if (busy) return;
+        if (!confirm('대기를 종료하고 나가시겠습니까?\n이미 응답한 요청은 요청자가 선택할 수 없게 됩니다.')) return;
+        busy = true;
+        const ok = await saveStandby(false, selectedLevel);
+        busy = false;
+        if (!ok) return;
+        isStandby = false;
+        stopRealtime();
+        document.getElementById('open-list').innerHTML = '';
+        renderStandbyBadge();
+        showView('setup');
+    }
+    
+    document.getElementById('end-btn-setup').addEventListener('click', endStandby);
+    document.getElementById('end-btn-feed').addEventListener('click', endStandby);
+    document.getElementById('to-setup-btn').addEventListener('click', () => showView('setup'));
+
+    // --- (2) 도착한 SOS 요청 ---
+    async function loadOpenRequests() {
+        if (!isStandby) return;
+        const { data, error } = await supabaseClient.rpc('list_open_sos_requests');
+        if (error) { console.error('요청 목록 조회 오류:', error); return; }
+        const list = data || [];
+
+        if (list.length > lastOpenCount) {
+            try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+        }
+        lastOpenCount = list.length;
+        document.getElementById('open-count').innerText = list.length + '건';
+
+        const box = document.getElementById('open-list');
+        if (list.length === 0) {
+            box.innerHTML = '<div class="bg-white border border-gray-200 rounded-xl p-6 text-center text-[13px] text-gray-400 break-keep">아직 도착한 요청이 없습니다.<br>새 요청이 오면 이 화면에 바로 나타납니다.</div>';
+            return;
+        }
+
+        const canDispatchNow = !!me.can_dispatch && selectedLevel === 'dispatch';
+        box.innerHTML = list.map(r => {
+            const isDispatchReq = r.service_type === 'dispatch';
+            const badge = isDispatchReq
+                ? '<span class="text-[11px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">출동 요청</span>'
+                : '<span class="text-[11px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">전화상담 요청</span>';
+
+            const phoneOn = r.my_offer === 'phone';
+            const dispatchOn = r.my_offer === 'dispatch';
+            const phoneDisabled = isDispatchReq;                 
+            const dispatchDisabled = !canDispatchNow;
+
+            const btnBase = 'flex-1 font-bold text-[13px] py-3 rounded-lg transition border-2';
+            const phoneCls = phoneOn ? 'bg-blue-600 text-white border-blue-600'
+                : phoneDisabled ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50';
+            const dispatchCls = dispatchOn ? 'bg-red-600 text-white border-red-600'
+                : dispatchDisabled ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                : 'bg-white text-red-600 border-red-300 hover:bg-red-50';
+
+            const offeredNote = r.my_offer
+                ? `<div class="mt-3 flex items-center justify-between gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                       <p class="text-[12px] text-green-700 font-bold break-keep">${dispatchOn ? '전화+출동' : '전화상담'}으로 응답했습니다. 요청자의 선택을 기다리는 중...</p>
+                       <button onclick="withdrawOffer('${r.id}')" class="shrink-0 text-[12px] text-gray-500 font-bold underline">응답 취소</button>
+                   </div>`
+                : '';
+
+            return `
+                <div class="bg-white border-2 ${r.my_offer ? 'border-green-300' : 'border-red-200'} rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">${badge}<span class="text-[12px] text-gray-400">${timeAgo(r.created_at)}</span></div>
+                    <p class="font-black text-gray-900 text-[15px] mb-1 break-keep">${escapeHtml(r.category) || '-'}</p>
+                    <p class="text-[13px] text-gray-500 mb-3"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${escapeHtml(r.region_short) || '-'}</p>
+                    <div class="flex gap-2">
+                        <button ${phoneDisabled ? 'disabled' : ''} onclick="offerRequest('${r.id}', 'phone')" class="${btnBase} ${phoneCls}">
+                            <i class="fa-solid fa-phone mr-1"></i> 전화상담
+                        </button>
+                        <button ${dispatchDisabled ? 'disabled' : ''} onclick="offerRequest('${r.id}', 'dispatch')" class="${btnBase} ${dispatchCls}">
+                            <i class="fa-solid fa-truck-fast mr-1"></i> 전화+출동
+                        </button>
+                    </div>
+                    ${offeredNote}
+                </div>`;
+        }).join('');
+    }
+
+    async function offerRequest(requestId, offerType) {
+        const { error } = await supabaseClient.rpc('offer_sos_request', {
+            p_request_id: requestId,
+            p_offer_type: offerType
+        });
+        if (error) {
+            const msg = String(error.message || '');
+            console.error('응답 오류:', error);
+            if (msg.includes('REQUEST_CLOSED')) alert('이미 마감되었거나 다른 전문가가 선택된 요청입니다.');
+            else if (msg.includes('OUT_OF_HOURS')) alert('설정한 서비스 가능 시간이 아닙니다. 설정 변경에서 시간을 조정해 주세요.');
+            else if (msg.includes('LEVEL_NOT_ALLOWED')) alert('출동 응답은 "전화상담 및 출동서비스 가능"으로 대기한 전문가만 할 수 있습니다.');
+            else if (msg.includes('OFFER_TYPE_MISMATCH')) alert('출동서비스로 접수된 요청에는 "전화+출동"으로만 응답할 수 있습니다.');
+            else if (msg.includes('NOT_STANDBY')) alert('대기 상태가 아닙니다. 대기를 시작해 주세요.');
+            else alert('응답 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+        // DB가 업데이트되면 Realtime 이벤트로 화면이 자동 갱신됩니다
+    }
+
+    async function withdrawOffer(requestId) {
+        const { error } = await supabaseClient.rpc('withdraw_offer', { p_request_id: requestId });
+        if (error) { console.error('응답 취소 오류:', error); alert('응답 취소 중 오류가 발생했습니다.'); }
+    }
+
+    // --- 내가 선택된 요청 (연락처 공개 + 출동 여부 결정) ---
+    async function loadAssigned() {
+        const { data, error } = await supabaseClient.rpc('list_my_assigned_requests');
+        if (error) { console.error('선택된 요청 조회 오류:', error); return; }
+        const list = data || [];
+        const section = document.getElementById('assigned-section');
+
+        if (list.length > lastAssignedCount) {
+            try { if (navigator.vibrate) navigator.vibrate([300, 100, 300]); } catch (e) {}
+        }
+        lastAssignedCount = list.length;
+
+        if (list.length === 0) { section.classList.add('hidden'); return; }
+        section.classList.remove('hidden');
+
+        document.getElementById('assigned-list').innerHTML = list.map(r => {
+            const dispatch = r.service_type === 'dispatch';
+            const phone = r.contact_phone || '';
+            const state = r.expert_dispatched === true ? '출동했음으로 표시됨'
+                        : r.expert_dispatched === false ? '출동하지 못함으로 표시됨' : '아직 선택하지 않음';
+            const dispatchBox = dispatch ? `
+                <div class="mt-3 pt-3 border-t border-blue-200">
+                    <p class="text-[12px] font-bold text-gray-700 mb-2">실제로 출동하셨나요? <span class="text-gray-400 font-normal">(${state})</span></p>
+                    <div class="flex gap-2">
+                        <button onclick="markDispatched('${r.id}', true)" class="flex-1 font-bold text-[13px] py-2.5 rounded-lg border-2 ${r.expert_dispatched === true ? 'bg-red-600 text-white border-red-600' : 'bg-white text-red-600 border-red-300 hover:bg-red-50'} transition">출동했음</button>
+                        <button onclick="markDispatched('${r.id}', false)" class="flex-1 font-bold text-[13px] py-2.5 rounded-lg border-2 ${r.expert_dispatched === false ? 'bg-gray-700 text-white border-gray-700' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'} transition">출동하지 못함</button>
+                    </div>
+                </div>` : '';
+
+            return `
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[11px] font-bold ${dispatch ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-700'} px-2 py-0.5 rounded-full">${dispatch ? '전화상담 + 출동' : '전화상담'}</span>
+                        <span class="text-[12px] text-gray-400">${timeAgo(r.created_at)}</span>
+                    </div>
+                    <p class="font-black text-gray-900 text-[15px] mb-1 break-keep">${escapeHtml(r.category) || '-'}</p>
+                    <p class="text-[13px] text-gray-600 mb-3 break-keep"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${escapeHtml(r.region) || '-'}</p>
+                    ${phone ? `<a href="tel:${escapeHtml(phone)}" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition"><i class="fa-solid fa-phone mr-1"></i> ${escapeHtml(phone)} 전화하기</a>` : ''}
+                    ${dispatchBox}
+                </div>`;
+        }).join('');
+    }
+
+    async function markDispatched(requestId, dispatched) {
+        const msg = dispatched
+            ? '출동했다고 표시하시겠습니까?'
+            : '출동하지 못했다고 표시하시겠습니까?\n요청자가 확인한 뒤 출동비는 환불될 수 있습니다.';
+        if (!confirm(msg)) return;
+        const { error } = await supabaseClient.rpc('mark_dispatched', {
+            p_request_id: requestId,
+            p_dispatched: dispatched
+        });
+        if (error) {
+            console.error('출동 여부 저장 오류:', error);
+            alert('저장 중 오류가 발생했습니다. 이미 종료된 요청일 수 있습니다.');
+        }
+    }
+
+    async function init() {
+        const ok = await loadMe();
+        if (!ok) { showState('state-noexpert'); return; }
+        showState('state-ready');
+        renderMe();
+        await loadAssigned();
+        if (isStandby) {
+            showView('feed');
+            startRealtime();
+        } else {
+            showView('setup');
+        }
+    }
+
+    // 탭이 가려졌다 다시 보일 때 즉시 새로고침
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && me && isStandby) { loadOpenRequests(); loadAssigned(); }
+    });
+
+    init();
+</script>
+</body>
+</html>

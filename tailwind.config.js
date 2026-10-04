@@ -21,11 +21,16 @@
  *    1) npm install -D tailwindcss@3   (최초 1회만)
  *    2) npx tailwindcss -c tailwind.config.js -i ./assets/css/tailwind-input.css -o ./assets/css/tailwind.css --minify
  *
- *  content 아래 글롭이 pages/**\/*.src.html과 완성된 .html을 전부 스캔하므로,
+ *  content 아래 글롭이 pages/**/*.src.html과 완성된 .html을 전부 스캔하므로,
  *  새 페이지를 추가했으면 build.js로 먼저 .html을 만든 뒤에 위 명령을 돌릴 것.
  */
 module.exports = {
-  content: ["./**/*.html", "./assets/js/*.js", "!./node_modules/**"],
+  content: [
+    "./**/*.html", 
+    "./_partials/**/*.html", // 헤더 등 공통 컴포넌트 폴더를 명시적으로 추가
+    "./assets/js/**/*.js", 
+    "!./node_modules/**"
+  ],
   theme: { extend: {} },
   plugins: [],
 };

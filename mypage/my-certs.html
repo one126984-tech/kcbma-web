@@ -475,9 +475,9 @@
     background-color: #334155 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    padding: 7px 20px !important;
+    padding: 6px 16px !important; /* 여유 공간 확보를 위해 패딩 소폭 감소 */
     border-radius: 4px !important;
-    font-size: 14px !important;
+    font-size: 13px !important; /* 기본 사이즈 소폭 감소 */
     line-height: 1.5 !important;
     height: auto !important;
     cursor: pointer;
@@ -489,9 +489,17 @@
     margin: 0 0 0 4px !important;
     box-sizing: border-box !important;
     transform: none !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
   #main-header .login-btn:hover {
     background-color: #1e293b !important;
+  }
+  @media (min-width: 1280px) {
+    #main-header .login-btn {
+      padding: 7px 20px !important;
+      font-size: 14px !important;
+    }
   }
 
   /* 4. 긴급 SOS 호출 버튼 스타일 보호 (견적의뢰 페이지 등에서 위로 움직이는 현상 방지) */
@@ -500,16 +508,18 @@
     font-weight: bold !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 6px !important;
-    margin: 0 0 0 8px !important;
+    gap: 4px !important;
+    margin: 0 0 0 4px !important;
     padding: 0 0 4px 0 !important;
-    font-size: 15px !important; 
+    font-size: 14px !important; 
     line-height: 1.5 !important;
     transform: none !important; 
   }
   @media (min-width: 1280px) {
     #main-header .sos-btn {
       font-size: 16px !important;
+      gap: 6px !important;
+      margin: 0 0 0 8px !important;
     }
   }
   #main-header .sos-btn i {
@@ -520,15 +530,15 @@
 </style>
 
 <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header" style="box-sizing: border-box !important;">
-    <header class="flex justify-between items-center px-4 md:px-6 max-w-[1400px] mx-auto w-full h-[70px]" style="margin: 0 auto !important; padding-top: 0 !important; padding-bottom: 0 !important;">
+    <header class="flex justify-between items-center px-3 lg:px-2 xl:px-6 max-w-[1400px] mx-auto w-full h-[70px]" style="margin: 0 auto !important; padding-top: 0 !important; padding-bottom: 0 !important;">
 
-        <!-- 1) 좌측 로고 (흔들림 방지) -->
-        <div class="flex items-center h-full cursor-pointer shrink-0 mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
-            <img src="../../assets/img/logo.png" class="h-[38px] md:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
+        <!-- 1) 좌측 로고 -->
+        <div class="flex items-center h-full cursor-pointer shrink-0 mr-2 xl:mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
+            <img src="../../assets/img/logo.png" class="h-[34px] lg:h-[36px] xl:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
         </div>
 
-        <!-- 2) 중앙 메인 GNB (PC 메뉴 - 강제 중앙 정렬 및 정렬축 고정) -->
-        <nav class="hidden lg:flex flex-1 justify-center items-center gap-6 xl:gap-9 font-medium text-[15px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="justify-content: center !important; align-items: center !important; padding: 0 !important; margin: 0 !important;">
+        <!-- 2) 중앙 메인 GNB (간격 및 폰트 축소 적용) -->
+        <nav class="hidden lg:flex flex-1 justify-center items-center gap-2.5 xl:gap-9 font-medium text-[13px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="justify-content: center !important; align-items: center !important; padding: 0 !important; margin: 0 !important;">
             <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
             <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
             <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
@@ -538,19 +548,19 @@
             <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
 
             <!-- 긴급 SOS 호출 -->
-            <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-2">
+            <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-1 xl:ml-2">
                 <i class="fa-solid fa-phone-volume"></i>
                 <span>긴급 SOS 호출</span>
             </div>
         </nav>
 
-        <!-- 3) 우측 유틸리티 영역 (마이페이지/로그인 간격 및 크기 보호) -->
-        <div class="hidden lg:flex items-center gap-4 shrink-0 ml-6 whitespace-nowrap font-medium text-gray-700" style="align-items: center !important; margin-top: 0 !important; margin-bottom: 0 !important;">
+        <!-- 3) 우측 유틸리티 영역 (간격 축소 적용) -->
+        <div class="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0 ml-2 xl:ml-6 whitespace-nowrap font-medium text-gray-700 text-[13px] xl:text-[15px]" style="align-items: center !important; margin-top: 0 !important; margin-bottom: 0 !important;">
             <!-- 알림 종소리 및 드롭다운 컨테이너 -->
-            <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[36px] h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인" style="margin: 0 !important;">
-                <i class="fa-regular fa-bell text-gray-700 text-[20px]" style="margin: 0 !important;"></i>
+            <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[30px] xl:w-[36px] h-[30px] xl:h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인" style="margin: 0 !important;">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px] xl:text-[20px]" style="margin: 0 !important;"></i>
                 <!-- 알림 개수 뱃지 -->
-                <span id="notification-badge" class="hidden absolute top-[2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white" style="margin: 0 !important; padding: 0 !important;">
+                <span id="notification-badge" class="hidden absolute top-[1px] right-[1px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white" style="margin: 0 !important; padding: 0 !important;">
                     0
                 </span>
                 <!-- 알림 목록 드롭다운 창 -->
@@ -560,8 +570,8 @@
                 </div>
             </div>
 
-            <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer text-[15px] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
-            <div id="header-admin-link" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden cursor-pointer text-[15px] font-bold text-[#1e3a8a] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">
+            <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-admin-link" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden cursor-pointer font-bold text-[#1e3a8a] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">
                 <i class="fa-solid fa-user-shield mr-1"></i>관리자
             </div>
             <div id="header-login-btn" data-auth-btn="true" onclick="location.href='../../login.html'" class="login-btn">로그인</div>

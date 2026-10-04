@@ -142,6 +142,21 @@
             return div.innerHTML;
         }
 
+        // 서비스 방식 + 출동비(선차감/확정/환불) 상태를 한 줄로 보여준다
+        function feeLine(r) {
+            const isDispatch = r.service_type === 'dispatch';
+            const svc = isDispatch ? '전화상담 및 출동서비스' : '전화상담만';
+            let fee = '';
+            const amount = Number(r.hold_amount || 0).toLocaleString();
+            if (isDispatch) {
+                if (r.hold_status === 'held') fee = `출동비 ${amount}원 선차감 중`;
+                else if (r.hold_status === 'captured') fee = `출동비 ${amount}원 확정`;
+                else if (r.hold_status === 'refunded') fee = `출동비 ${amount}원 환불됨`;
+            }
+            const feeHtml = fee ? ` <span class="text-blue-600 font-bold">· ${fee}</span>` : '';
+            return `<div class="text-[12.5px] text-gray-500 mt-1 truncate">${svc}${feeHtml}</div>`;
+        }
+
         function renderList() {
             const container = document.getElementById('sos-list');
             let filtered = allRequests;
@@ -166,6 +181,7 @@
                         </div>
                         <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${escapeHtml(r.category) || '-'}</div>
                         <div class="text-[13px] text-gray-500 truncate">${escapeHtml(r.region) || '-'} · ${escapeHtml(r.contact_phone) || '-'}</div>
+                        ${feeLine(r)}
                     </div>
                     <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${r.id}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
                 </div>
