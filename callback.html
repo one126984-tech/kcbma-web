@@ -41,11 +41,23 @@
         naverLogin.getLoginStatus(async function (status) {
           try {
           if (status) {
-            const email = naverLogin.user.getEmail();
-            const name = naverLogin.user.getName();
+            // ★ 보안: 이메일을 브라우저가 보내지 않고 "네이버 access token"만 보냄.
+            //   서버 함수가 네이버에 직접 물어봐서 토큰 주인의 이메일을 확인함.
+            let accessToken = null;
+            try { accessToken = naverLogin.accessToken && naverLogin.accessToken.accessToken; } catch (e) {}
+            if (!accessToken && naverLogin.oauthParams) accessToken = naverLogin.oauthParams.access_token;
+            if (!accessToken) {
+              const hm = window.location.hash.match(/access_token=([^&]+)/);
+              if (hm) accessToken = decodeURIComponent(hm[1]);
+            }
+            if (!accessToken) {
+              alert("네이버 인증 정보를 가져오지 못했습니다. 다시 로그인해주세요.");
+              window.location.href = '/login.html';
+              return;
+            }
 
             const { data: fnData, error: fnError } = await _supabase.functions.invoke('naver-login', {
-              body: { email, name }
+              body: { access_token: accessToken }
             });
 
             if (fnError || !fnData || fnData.error) {
