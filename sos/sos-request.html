@@ -108,8 +108,9 @@
 
   <style>
       #sos-top-banner { background-color: #dc2626; }
-      .cat-btn.selected { border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 0 2px #ef4444; }
-      .svc-label.selected { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+      .cat-btn.selected, .qcat-btn.selected { border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 0 2px #ef4444; }
+      .svc-label.selected, .qsvc-label.selected { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+      .place-tab.selected { border-color: #2563eb !important; background-color: #eff6ff !important; color: #1d4ed8 !important; }
       .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
       .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
       .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
@@ -117,6 +118,9 @@
       input[type="checkbox"], input[type="radio"] { width: 1.5rem; height: 1.5rem; cursor: pointer; }
       input[type="checkbox"]:checked { background-color: #ef4444; border-color: #ef4444; }
       .break-keep { word-break: keep-all; }
+      
+      /* 확실한 마우스 오버(Hover) 효과를 위한 강제 스타일 추가 */
+      .hover-blue-fill:hover { background-color: #3b82f6 !important; color: #ffffff !important; }
   </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -430,6 +434,7 @@
     transform: none !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
+    min-width: 86px !important; /* 추가: 로그인/로그아웃 텍스트 변경 시 흔들림 방지 */
   }
   #main-header .login-btn:hover {
     background-color: #1e293b !important;
@@ -438,6 +443,7 @@
     #main-header .login-btn {
       padding: 7px 20px !important;
       font-size: 14px !important;
+      min-width: 96px !important; /* 추가: PC 화면용 최소 너비 고정 */
     }
   }
 
@@ -466,6 +472,48 @@
     padding: 0 !important;
     vertical-align: middle !important;
   }
+
+  /* 5. 헤더 글씨 크기·간격 조정 — 메뉴가 로고~우측 영역 사이에 양끝까지 퍼지도록 (Tailwind 빌드와 무관하게 적용) */
+  #main-header nav {
+    justify-content: space-between !important; /* 첫 메뉴는 왼쪽, SOS는 오른쪽 끝으로 */
+    gap: 8px !important;                       /* 화면이 좁을 때 최소 간격 */
+    padding: 0 8px !important;
+    font-size: 14px !important;
+  }
+  #main-header .gnb-item { font-size: 14px !important; }
+  #main-header .sos-btn {
+    font-size: 14px !important;
+    margin: 0 !important;
+  }
+
+  /* 1100px 이상 (브라우저 배율 125%에서도 여기에 해당) */
+  @media (min-width: 1100px) {
+    #main-header > header { height: 76px !important; }
+    #main-header nav {
+      /* 화면 폭에 비례해 좌우 여백이 커짐: 왼쪽 = 로고와의 거리, 오른쪽 = 마이페이지와의 거리 */
+      padding-left: clamp(8px, calc((100vw - 1100px) * 0.28), 84px) !important;
+      padding-right: clamp(8px, calc((100vw - 1100px) * 0.19), 64px) !important;
+      font-size: 15px !important;
+    }
+    #main-header .gnb-item { font-size: 15px !important; }
+    #main-header .sos-btn { font-size: 15px !important; margin: 0 !important; }
+    /* 우측 마이페이지/알림 영역 */
+    #main-header header > div.lg\:flex {
+      gap: 16px !important;
+      font-size: 15px !important;
+    }
+    #main-header .login-btn {
+      font-size: 15px !important;
+      padding: 9px 22px !important;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    #main-header > header { max-width: 1600px !important; }
+    #main-header nav { font-size: 19px !important; }
+    #main-header .gnb-item { font-size: 19px !important; }
+    #main-header .sos-btn { font-size: 19px !important; }
+  }
 </style>
 
 <div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header" style="box-sizing: border-box !important;">
@@ -477,7 +525,7 @@
         </div>
 
         <!-- 2) 중앙 메인 GNB (간격 및 폰트 축소 적용) -->
-        <nav class="hidden lg:flex flex-1 justify-center items-center gap-2.5 xl:gap-9 font-medium text-[13px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="justify-content: center !important; align-items: center !important; padding: 0 !important; margin: 0 !important;">
+        <nav class="hidden lg:flex flex-1 justify-center items-center gap-2.5 xl:gap-9 font-medium text-[13px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="align-items: center !important; margin: 0 !important;">
             <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
             <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
             <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
@@ -830,35 +878,55 @@
                         </div>
                     </div>
 
-                    <div class="mb-14">
+                    <div style="margin-top:44px;">
                         <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-end justify-between">
                             <span>2. 어떤 긴급 상황인가요?</span> <span class="text-sm font-normal text-blue-600">(복수 선택 가능)</span>
                         </h2>
-                        <div class="grid grid-cols-2 gap-3" id="category-grid">
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-3 flex items-center justify-center gap-2.5 hover:bg-gray-50 transition" data-cat="화재">
-                                <span class="text-2xl leading-none">🔥</span><span class="font-bold text-[15px] text-gray-800 leading-none">화재 / 소방</span>
+                        <div id="category-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+                            <button type="button" class="cat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="화재" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">🔥</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">화재 / 소방</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-3 flex items-center justify-center gap-2.5 hover:bg-gray-50 transition" data-cat="누수">
-                                <span class="text-2xl leading-none">💦</span><span class="font-bold text-[15px] text-gray-800 leading-none">누수 / 배관</span>
+                            <button type="button" class="cat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="전기" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">⚡</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">정전 / 전기</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-3 flex items-center justify-center gap-2.5 hover:bg-gray-50 transition" data-cat="전기">
-                                <span class="text-2xl leading-none">⚡</span><span class="font-bold text-[15px] text-gray-800 leading-none">정전 / 전기</span>
+                            <button type="button" class="cat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="누수" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">💦</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">누수 / 배관</span>
                             </button>
-                            <button class="cat-btn border-2 border-gray-200 rounded-xl py-3 flex items-center justify-center gap-2.5 hover:bg-gray-50 transition" data-cat="화장실">
-                                <span class="text-2xl leading-none">🚽</span><span class="font-bold text-[15px] text-gray-800 leading-none">화장실 기기</span>
+                            <button type="button" class="cat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="가스" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">🧯</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">가스 누출</span>
+                            </button>
+                            <button type="button" class="cat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="화장실" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">🚽</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">화장실 기기</span>
+                            </button>
+                            <button type="button" class="cat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="기타" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">✏️</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">기타 (입력)</span>
                             </button>
                         </div>
+                        <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요" class="hidden w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 bg-white" style="margin-top:12px;">
                     </div>
 
-                    <div>
+                    <div style="margin-top:44px;">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">3. 연락처 <span class="text-red-600 font-normal text-sm">(필수)</span></h2>
                         <input type="tel" id="contact-phone-input" maxlength="13" placeholder="예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-[17px] font-bold tracking-wider focus:outline-none focus:border-blue-500 transition">
+                        <div class="mt-4 bg-white border border-gray-200 rounded-xl p-3.5">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="save-profile-chk" class="rounded border-gray-400 text-blue-600">
+                                <span class="text-[14px] font-bold text-gray-800">이 정보를 기본 정보로 저장 <span class="font-normal text-gray-500">(다음부터 [기존 정보입력]으로 한 번에)</span></span>
+                            </label>
+                            <div class="flex gap-4 mt-2.5 pl-1 text-[14px] text-gray-700 font-bold">
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="save_place" value="home" checked> 집</label>
+                                <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="save_place" value="work"> 회사</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="fixed bottom-0 w-full max-w-md p-3 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
                     <button id="prev-step-btn-1" class="shrink-0 bg-gray-200 text-gray-700 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-1 text-[14px]">
                         <i class="fa-solid fa-arrow-left"></i> 이전
+                    </button>
+                    <button type="button" onclick="resetFormOnly()" class="shrink-0 font-bold rounded-xl flex items-center justify-center gap-1 text-[14px]" style="padding:14px 16px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">
+                        <i class="fa-solid fa-rotate-right"></i> 초기화
                     </button>
                     <button id="next-step-btn" class="flex-1 bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-[16px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
                         결제 및 접수 단계로
@@ -890,25 +958,181 @@
                                 </div>
                             </label>
                         </div>
+                        <div class="text-right pr-1" style="margin-top:6px;">
+                            <button type="button" onclick="openFeeGuideModal()" class="text-[13px] text-gray-500 font-bold hover:text-gray-800 transition flex items-center justify-end gap-1 ml-auto">
+                                <i class="fa-solid fa-circle-info text-blue-500"></i> 요금부과방식 안내 <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <label class="flex items-start gap-3 p-4 bg-red-50 border-2 border-red-500 rounded-xl cursor-pointer transition agree-box">
+                    <div class="bg-gray-100 border border-gray-200 rounded-xl p-5" style="margin-top:24px;">
+                        <h3 class="flex items-center gap-2 text-gray-800 font-bold mb-2 text-[15px]">
+                            <i class="fa-solid fa-circle-info text-gray-500"></i> 이용 전 꼭 확인해 주세요
+                        </h3>
+                        <p class="text-[13px] text-gray-600 leading-relaxed break-keep">
+                            대한집합건물관리협회는 신청자와 전문가를 연결하는 매칭 서비스만 제공하며, 매칭된 전문가의 상담·현장 조치 결과에 대한 민·형사상 책임은 협회에 있지 않습니다.
+                        </p>
+                    </div>
+
+                    <label class="flex items-start gap-3 p-4 bg-red-50 border-2 border-red-500 rounded-xl cursor-pointer transition" style="margin-top:24px;">
                         <input type="checkbox" id="agree-1" class="mt-0.5 rounded border-gray-400 text-blue-600 transition">
                         <span class="text-gray-900 font-bold text-[14px] leading-tight break-keep select-none">
-                            [필수] 결제 금액을 확인하였으며, 허위 출동 요청 등에 대한 협회 면책사항에 동의합니다.
+                            [필수] 위 협회 면책사항과 지불금액을 모두 확인하였으며 이에 동의합니다.
                         </span>
                     </label>
+                    <p class="text-[13px] text-red-600 font-bold text-center" style="margin-top:16px;">면책사항 및 지불금액에 동의해주셔야 호출이 가능합니다.</p>
                 </div>
 
-                <div class="fixed bottom-0 w-full max-w-md p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
-                    <button id="prev-step-btn" type="button" class="shrink-0 px-4 bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-300 transition">이전</button>
-                    <!-- 버튼 텍스트를 결제 직관적으로 변경 -->
-                    <button id="sos-submit-btn" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold text-[16px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2 cursor-not-allowed">
-                        결제 내용 확인하기
+                <div class="fixed bottom-0 w-full max-w-md p-3 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
+                    <button id="prev-step-btn" type="button" class="shrink-0 bg-gray-200 text-gray-700 font-bold rounded-xl flex flex-col items-center justify-center hover:bg-gray-300 transition" style="width:70px;padding:12px 0;font-size:13px;gap:4px;">
+                        <i class="fa-solid fa-arrow-left" style="font-size:18px;"></i> 이전
+                    </button>
+                    <button id="reset-btn-2" type="button" onclick="resetFormOnly()" class="shrink-0 font-bold rounded-xl flex flex-col items-center justify-center transition" style="width:70px;padding:12px 0;font-size:13px;gap:4px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">
+                        <i class="fa-solid fa-rotate-right" style="font-size:18px;"></i> 초기화
+                    </button>
+                    <button id="sos-submit-btn" type="button" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold text-[15px] py-3 rounded-xl shadow-sm transition flex justify-center items-center gap-2 cursor-not-allowed">
+                        🚨 동의하고 접수하기
                     </button>
                 </div>
             </div>
+            <!-- ==========================================
+                 [STEP QUICK] 빠른 SOS: 기존 정보입력 → 현장상황/출동여부 → 결제
+                 ========================================== -->
+            <div id="step-quick" class="hidden flex-1 flex-col bg-gray-50 pb-36" style="padding-bottom: 12rem;">
+                <div class="practice-tip hidden bg-blue-100 border border-blue-300 text-blue-800 p-3 m-4 rounded-lg text-sm font-bold flex items-start gap-2 shadow-sm">
+                    <span class="text-lg leading-none">💡</span>
+                    <span>[연습 모드] 결제가 진행되지 않으며 실전과 100% 동일하게 작동합니다.</span>
+                </div>
 
+                <div class="p-5 flex-1 pt-6">
+                    <!-- 1. 호출 정보 -->
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 mb-3">1. 호출 정보 <span class="text-red-600 font-normal text-sm">(필수)</span></h2>
+                        <p class="font-bold text-gray-700 text-[15px]" style="margin-bottom:12px;">기존에 저장해 둔 정보가 있나요?</p>
+                        <div class="flex gap-3">
+                            <!-- 버튼 수정: 커스텀 hover 클래스 적용 -->
+                            <button type="button" id="load-profile-btn" onclick="loadSavedProfile()" class="flex-1 bg-white border-2 border-blue-500 text-blue-700 font-black text-[15px] py-3.5 rounded-xl shadow-sm hover-blue-fill transition-all flex items-center justify-center">
+                                기존 정보입력
+                            </button>
+                            <button type="button" onclick="startClassic()" class="flex-1 bg-white border-2 border-blue-500 text-blue-700 font-black text-[15px] py-3.5 rounded-xl shadow-sm hover-blue-fill transition-all flex items-center justify-center">
+                                새로 직접 입력하기
+                            </button>
+                        </div>
+
+                        <div id="q-place-tabs" class="hidden mt-3">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="q-tab-home" onclick="applyPlace('home')" class="place-tab border-2 border-gray-200 bg-white text-gray-600 font-bold text-[14px] py-2.5 rounded-xl transition">🏠 집</button>
+                                <button type="button" id="q-tab-work" onclick="applyPlace('work')" class="place-tab border-2 border-gray-200 bg-white text-gray-600 font-bold text-[14px] py-2.5 rounded-xl transition">🏢 회사</button>
+                            </div>
+                        </div>
+
+                        <div id="q-summary" class="hidden mt-3 bg-white border border-gray-200 rounded-xl p-4 text-[14px] space-y-1.5">
+                            <p class="flex gap-2"><i class="fa-solid fa-location-dot text-red-500 w-4 text-center mt-1 shrink-0"></i><span id="q-sum-addr" class="font-bold text-gray-900 break-keep"></span></p>
+                            <p class="flex gap-2"><i class="fa-solid fa-door-open text-gray-400 w-4 text-center mt-1 shrink-0"></i><span id="q-sum-detail" class="text-gray-700 break-keep"></span></p>
+                            <p class="flex gap-2"><i class="fa-solid fa-phone text-gray-400 w-4 text-center mt-1 shrink-0"></i><span id="q-sum-phone" class="text-gray-700 font-bold"></span></p>
+                        </div>
+
+                        <p id="q-empty-note" class="hidden mt-3 text-[13px] text-orange-700 bg-orange-50 border border-orange-200 rounded-lg p-3 break-keep"></p>
+                    </div>
+
+                    <!-- 2. 현장상황 -->
+                    <div style="margin-top:44px;">
+                        <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-end justify-between">
+                            <span>2. 현장 상황</span> <span class="text-sm font-normal text-blue-600">(복수 선택 가능)</span>
+                        </h2>
+                        <div id="quick-category-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+                            <button type="button" class="qcat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="화재" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">🔥</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">화재 / 소방</span>
+                            </button>
+                            <button type="button" class="qcat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="전기" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">⚡</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">정전 / 전기</span>
+                            </button>
+                            <button type="button" class="qcat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="누수" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">💦</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">누수 / 배관</span>
+                            </button>
+                            <button type="button" class="qcat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="가스" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">🧯</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">가스 누출</span>
+                            </button>
+                            <button type="button" class="qcat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="화장실" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">🚽</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">화장실 기기</span>
+                            </button>
+                            <button type="button" class="qcat-btn border-2 border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition" data-cat="기타" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:12px 2px;">
+                                <span style="font-size:20px;line-height:1;">✏</span><span style="font-size:13px;font-weight:700;color:#1f2937;line-height:1.15;letter-spacing:-0.3px;">기타 (입력)</span>
+                            </button>
+                        </div>
+                        <input type="text" id="q-category-custom" placeholder="상황을 직접 입력해 주세요" class="hidden w-full border-2 border-gray-300 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 bg-white" style="margin-top:12px;">
+                    </div>
+
+                    <!-- 3. 출동여부 -->
+                    <div style="margin-top:44px;">
+                        <h2 class="text-lg font-bold text-gray-800 mb-3">3. 출동 여부</h2>
+                        <div class="space-y-3">
+                            <label class="qsvc-label flex items-center gap-3 p-4 border-2 border-gray-200 bg-white rounded-xl cursor-pointer transition selected">
+                                <input type="radio" name="q_svc_type" value="phone" class="w-5 h-5 text-blue-600 border-gray-300" checked>
+                                <span class="font-bold text-gray-800 text-[15px]">전화상담만</span>
+                            </label>
+                            <label class="qsvc-label flex items-start gap-3 p-4 border-2 border-gray-200 bg-white rounded-xl cursor-pointer transition" style="margin-top:12px;">
+                                <input type="radio" name="q_svc_type" value="dispatch" class="w-5 h-5 mt-0.5 text-blue-600 border-gray-300">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-gray-800 text-[15px]">전화상담 + 현장 출동</span>
+                                    <span class="text-[13px] font-bold mt-1 text-purple-600 tracking-tight break-keep">※ 출동이 이루어지지 않으면 출동비 5만 원은 환불됩니다.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 결제 금액 안내 -->
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 text-[14px]" style="margin-top:32px;">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">기본 상담료 <span class="text-[12px] text-gray-400">(전화 1건, 기본 30분)</span></span>
+                            <span id="q-base-price" class="font-bold text-gray-800"></span>
+                        </div>
+                        <div id="q-dispatch-row" class="hidden justify-between items-center" style="margin-top:10px;">
+                            <span class="text-gray-600">현장 출동비 <span class="text-[12px] text-gray-400">(미출동 시 환불)</span></span>
+                            <span id="q-dispatch-price" class="font-bold text-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between items-end pt-3 border-t-2 border-dashed border-gray-200" style="margin-top:12px;">
+                            <span class="font-bold text-gray-800 text-[15px]">결제 예정 금액</span>
+                            <span id="q-total" class="text-[#dc2626] font-black text-[26px] leading-none"></span>
+                        </div>
+                        <p class="text-[12px] text-gray-500 break-keep" style="margin-top:10px;">결제 후 바로 전문가 목록으로 이동합니다. 마음에 드는 전문가에게 전화하세요.</p>
+                        <div class="text-right pr-1" style="margin-top:6px;">
+                            <button type="button" onclick="openFeeGuideModal()" class="text-[13px] text-gray-500 font-bold hover:text-gray-800 transition flex items-center justify-end gap-1 ml-auto">
+                                <i class="fa-solid fa-circle-info text-blue-500"></i> 요금부과방식 안내 <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-100 border border-gray-200 rounded-xl p-5" style="margin-top:24px;">
+                        <h3 class="flex items-center gap-2 text-gray-800 font-bold mb-2 text-[15px]">
+                            <i class="fa-solid fa-circle-info text-gray-500"></i> 이용 전 꼭 확인해 주세요
+                        </h3>
+                        <p class="text-[13px] text-gray-600 leading-relaxed break-keep">
+                            대한집합건물관리협회는 신청자와 전문가를 연결하는 매칭 서비스만 제공하며, 매칭된 전문가의 상담·현장 조치 결과에 대한 민·형사상 책임은 협회에 있지 않습니다.
+                        </p>
+                    </div>
+
+                    <label class="flex items-start gap-3 p-4 bg-red-50 border-2 border-red-500 rounded-xl cursor-pointer transition" style="margin-top:24px;">
+                        <input type="checkbox" id="q-agree" class="mt-0.5 rounded border-gray-400 text-blue-600 transition">
+                        <span class="text-gray-900 font-bold text-[14px] leading-tight break-keep select-none">
+                            [필수] 위 협회 면책사항과 지불금액을 모두 확인하였으며 이에 동의합니다.
+                        </span>
+                    </label>
+                    <p class="text-[13px] text-red-600 font-bold text-center" style="margin-top:16px;">면책사항 및 지불금액에 동의해주셔야 호출이 가능합니다.</p>
+                </div>
+
+                <div class="fixed bottom-0 w-full max-w-md p-3 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
+                    <button id="q-prev-btn" type="button" class="shrink-0 bg-gray-200 text-gray-700 font-bold rounded-xl flex flex-col items-center justify-center hover:bg-gray-300 transition" style="width:70px;padding:12px 0;font-size:13px;gap:4px;">
+                        <i class="fa-solid fa-arrow-left" style="font-size:18px;"></i> 이전
+                    </button>
+                    <button id="q-reset-btn" type="button" onclick="resetFormOnly()" class="shrink-0 font-bold rounded-xl flex flex-col items-center justify-center transition" style="width:70px;padding:12px 0;font-size:13px;gap:4px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">
+                        <i class="fa-solid fa-rotate-right" style="font-size:18px;"></i> 초기화
+                    </button>
+                    <button id="q-pay-btn" type="button" disabled class="flex-1 bg-gray-300 text-gray-500 font-bold text-[15px] py-3 rounded-xl shadow-sm transition flex justify-center items-center gap-2 cursor-not-allowed">
+                        🚨 동의하고 접수하기
+                    </button>
+                </div>
+            </div>
             <!-- 매칭 현황 화면 -->
             <div id="step-matching" class="hidden flex-1 flex-col bg-white p-6 h-full text-center items-center justify-center">
                 <p class="text-gray-400 font-bold text-[17px]">현재 등록된 전문가가 없습니다.</p>
@@ -917,22 +1141,44 @@
         </div>
     </main>
 
+    <!-- 요금부과방식 안내 모달 -->
+    <div id="fee-guide-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+            <button type="button" onclick="closeFeeGuideModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl leading-none">&times;</button>
+            <h3 class="flex items-center gap-2 text-[#12387a] font-black text-[17px]">
+                <i class="fa-solid fa-wallet text-blue-600"></i> 긴급 SOS 이용 요금 안내
+            </h3>
+            <ul class="text-gray-700 text-[14px] leading-relaxed list-disc pl-5 break-keep" style="margin-top:20px;">
+                <li>상담 요청 시 <strong class="text-blue-600">시간대별 기본 상담료</strong>가 결제됩니다.</li>
+                <li style="margin-top:12px;">'전화상담 + 현장 출동'을 선택하면 <strong class="text-red-600">출동비 50,000원</strong>이 함께 결제되며, 상담 후 현장 출동이 이루어지지 않으면 출동비는 환불(결제 취소)됩니다.</li>
+                <li style="margin-top:12px;">결제 후 전문가 목록에서 전문가를 직접 골라 전화하거나, 전문가의 응답을 기다릴 수 있습니다.</li>
+            </ul>
+            <div class="border-t border-gray-200" style="margin-top:18px;padding-top:14px;">
+                <p class="font-bold text-gray-800 mb-2">· 시간대별 기본 상담료</p>
+                <ul class="border border-gray-200 bg-gray-50 rounded-xl p-2 space-y-1" id="time-price-list-modal">
+                    <li id="price-slot-1-modal" class="p-2 rounded-lg transition text-gray-600 font-bold text-[13px]">2만원 (주간: 09시~18시)</li>
+                    <li id="price-slot-2-modal" class="p-2 rounded-lg transition text-gray-600 font-bold text-[13px]">3만원 (저녁/아침: 18시~22시, 06시~09시)</li>
+                    <li id="price-slot-3-modal" class="p-2 rounded-lg transition text-gray-600 font-bold text-[13px]">4만원 (심야: 22시~06시)</li>
+                </ul>
+            </div>
+            <button type="button" onclick="closeFeeGuideModal()" class="w-full bg-gray-800 text-white font-bold py-3.5 rounded-xl hover:bg-black transition" style="margin-top:16px;">확인</button>
+        </div>
+    </div>
+
     <!-- 세련된 영수증 스타일 결제 모달 -->
-    <div id="payment-modal" class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4 transition-all duration-300">
-        <div id="payment-modal-content" class="bg-white rounded-[24px] w-full max-w-sm overflow-hidden shadow-2xl relative flex flex-col">
+    <div id="payment-modal" class="fixed inset-0 bg-gray-900/50 z-[9999] hidden items-start justify-center p-4 transition-all duration-300 overflow-y-auto" style="padding-top: 65px;">
+        <div id="payment-modal-content" class="bg-white rounded-[20px] w-full max-w-sm overflow-hidden shadow-2xl relative flex flex-col">
             
             <!-- 상단 헤더 영역 -->
-            <div class="bg-[#12387a] p-6 text-center relative">
-                <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 text-white">
-                    <i class="fa-solid fa-file-invoice-dollar text-2xl"></i>
-                </div>
-                <h3 class="text-white font-black text-xl tracking-wide">결제 정보 확인</h3>
+            <div class="bg-[#12387a] py-3.5 px-4 flex items-center justify-center gap-2 relative">
+                <i class="fa-solid fa-file-invoice-dollar text-white text-xl"></i>
+                <h3 class="text-white font-black text-lg tracking-wide">결제 정보 확인</h3>
             </div>
 
             <!-- 상세 내용 영역 -->
             <div class="p-6">
                 <!-- 요청 정보 요약 박스 -->
-                <div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
                     <div class="flex items-start justify-between">
                         <span class="text-gray-500 text-[14px] font-medium shrink-0">요청 서비스</span>
                         <span id="modal-svc" class="font-bold text-blue-700 text-[14px] text-right break-keep"></span>
@@ -980,7 +1226,7 @@
     let currentBasePrice = 4; // 단위: 만원
 
     // PG 결제를 위한 포트원 가맹점 식별코드 (현재 임시 코드)
-    const IMP_CODE = 'imp00000000'; 
+    const IMP_CODE = 'imp38872420'; 
 
     // 주소 검색 (다음 우편번호 API)
     function execDaumPostcode() {
@@ -1003,7 +1249,7 @@
             return; 
         }
         
-        gpsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-green-600"></i> 찾는 중...';
+        gpsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-fw text-green-600"></i> 찾는 중...';
         
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
@@ -1036,6 +1282,8 @@
             currentBasePrice = newBasePrice;
         }
         document.querySelectorAll('.dynamic-time-price').forEach(el => { el.innerText = currentBasePrice; });
+        if (typeof renderQuickPrice === 'function') renderQuickPrice();
+        if (typeof highlightFeeSlots === 'function') highlightFeeSlots();
     }
     updateTimePrice(); setInterval(updateTimePrice, 60000); 
 
@@ -1055,21 +1303,162 @@
                 label.classList.remove('border-gray-200');
                 label.classList.add('border-blue-500', 'bg-blue-50', 'selected');
                 
-                selectedType = this.value === 'dispatch' ? 'dispatch' : 'phone';
-                selectedService = SERVICE_LABEL[selectedType];
-                selectedServiceCost = selectedType === 'dispatch' ? DISPATCH_FEE : 0;
+                setServiceType(this.value);
             }
         });
     });
 
-    function startActual() { 
-        isPracticeMode = false;
-        showStep('step-1-situation'); 
+    // ===== 빠른 SOS (기존 정보입력 → 현장상황/출동여부 → 결제 → 전문가 목록) =====
+    let currentFlow = 'quick';       // 'quick' | 'classic'
+    let savedProfile = null;         // member_sos_profile 한 줄
+    let currentPlace = null;         // 'home' | 'work'
+
+    function startActual() { isPracticeMode = false; showQuick(); }
+    function startPractice() { isPracticeMode = true; showQuick(); }
+
+    function showQuick() {
+        if (currentFlow === 'classic') syncCategories(true);   // 직접 입력 화면에서 고른 내용 유지
+        currentFlow = 'quick';
+        showStep('step-quick');
+        setServiceType(selectedType);
+        renderQuickPrice();
     }
 
-    function startPractice() { 
-        isPracticeMode = true;
-        showStep('step-1-situation'); 
+    // 직접 입력(기존 방식)으로 전환 — 이미 불러온 정보가 있으면 그대로 이어서 사용
+    function startClassic() {
+        if (currentFlow === 'quick') syncCategories(false);    // 빠른 화면에서 고른 내용 유지
+        currentFlow = 'classic';
+        const radio = document.querySelector('input[name="svc_type"][value="' + selectedType + '"]');
+        if (radio && !radio.checked) radio.click();
+        showStep('step-1-situation');
+    }
+
+    function formatPhone(v) {
+        const d = String(v || '').replace(/[^0-9]/g, '');
+        if (d.length < 4) return d;
+        if (d.length < 7) return d.substr(0, 3) + '-' + d.substr(3);
+        if (d.length < 11) return d.substr(0, 3) + '-' + d.substr(3, 3) + '-' + d.substr(6);
+        return d.substr(0, 3) + '-' + d.substr(3, 4) + '-' + d.substr(7);
+    }
+
+    function showEmptyNote(msg) {
+        const el = document.getElementById('q-empty-note');
+        el.innerText = msg;
+        el.classList.remove('hidden');
+    }
+
+    // [기존 정보입력] 버튼
+    async function loadSavedProfile() {
+        const btn = document.getElementById('load-profile-btn');
+        btn.disabled = true;
+        
+        document.getElementById('q-empty-note').classList.add('hidden');
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                showEmptyNote('로그인한 회원만 저장된 정보를 불러올 수 있습니다. 로그인하거나 아래 [새로 직접 입력하기]를 눌러 주세요.');
+                return;
+            }
+            const { data, error } = await supabaseClient
+                .from('member_sos_profile').select('*').eq('user_id', user.id).maybeSingle();
+            if (error) {
+                console.error('기본 정보 조회 오류:', error);
+                showEmptyNote('저장된 정보를 불러오지 못했습니다. 잠시 후 다시 시도하거나 직접 입력해 주세요.');
+                return;
+            }
+            if (!data || (!data.home_address && !data.work_address)) {
+                showEmptyNote('저장된 정보가 없습니다. [새로 직접 입력하기]에서 입력할 때 "기본 정보로 저장"을 체크하면 다음부터 한 번에 불러올 수 있습니다.');
+                return;
+            }
+            savedProfile = data;
+            const hasHome = !!data.home_address, hasWork = !!data.work_address;
+            document.getElementById('q-tab-home').classList.toggle('hidden', !hasHome);
+            document.getElementById('q-tab-work').classList.toggle('hidden', !hasWork);
+            // 집·회사가 모두 있을 때만 탭을 보여줌
+            document.getElementById('q-place-tabs').classList.toggle('hidden', !(hasHome && hasWork));
+            applyPlace(hasHome ? 'home' : 'work');
+        } catch (e) {
+            console.error(e);
+            showEmptyNote('정보를 불러오는 중 오류가 발생했습니다. 직접 입력해 주세요.');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // 집 / 회사 선택 → 입력칸 자동 채움
+    function applyPlace(kind) {
+        if (!savedProfile) return;
+        currentPlace = kind;
+        const addr = kind === 'work' ? savedProfile.work_address : savedProfile.home_address;
+        const detail = kind === 'work' ? savedProfile.work_detail : savedProfile.home_detail;
+        const phone = formatPhone(savedProfile.phone);
+
+        document.getElementById('location-input').value = addr || '';
+        document.getElementById('location-detail-input').value = detail || '';
+        document.getElementById('contact-phone-input').value = phone;
+
+        document.getElementById('q-sum-addr').innerText = addr || '-';
+        document.getElementById('q-sum-detail').innerText = detail || '상세 주소 없음';
+        document.getElementById('q-sum-phone').innerText = phone || '연락처 없음';
+        document.getElementById('q-summary').classList.remove('hidden');
+
+        document.getElementById('q-tab-home').classList.toggle('selected', kind === 'home');
+        document.getElementById('q-tab-work').classList.toggle('selected', kind === 'work');
+    }
+
+    // 서비스 방식 상태 (빠른 화면 / 기존 화면 공용)
+    function setServiceType(val) {
+        selectedType = val === 'dispatch' ? 'dispatch' : 'phone';
+        selectedService = SERVICE_LABEL[selectedType];
+        selectedServiceCost = selectedType === 'dispatch' ? DISPATCH_FEE : 0;
+        document.querySelectorAll('.qsvc-label').forEach(lbl => {
+            const on = lbl.querySelector('input').value === selectedType;
+            lbl.classList.toggle('selected', on);
+            lbl.querySelector('input').checked = on;
+        });
+        renderQuickPrice();
+    }
+
+    function renderQuickPrice() {
+        const base = document.getElementById('q-base-price');
+        if (!base) return;
+        base.innerText = (currentBasePrice * 10000).toLocaleString() + '원';
+        const row = document.getElementById('q-dispatch-row');
+        const isDispatch = selectedType === 'dispatch';
+        row.classList.toggle('hidden', !isDispatch);
+        row.classList.toggle('flex', isDispatch);
+        document.getElementById('q-dispatch-price').innerText = DISPATCH_FEE.toLocaleString() + '원';
+        document.getElementById('q-total').innerText = getRequiredAmount().toLocaleString() + '원';
+    }
+
+    document.querySelectorAll('input[name="q_svc_type"]').forEach(r => {
+        r.addEventListener('change', function () { if (this.checked) setServiceType(this.value); });
+    });
+    document.getElementById('q-prev-btn').addEventListener('click', () => showStep('step-intro'));
+
+    document.getElementById('q-pay-btn').addEventListener('click', () => {
+        if (!document.getElementById('location-input').value) return alert('먼저 [기존 정보입력]을 눌러 주세요.\n저장된 정보가 없으면 [새로 직접 입력하기]를 이용해 주세요.');
+        if (getSelectedCategories().length === 0) return alert('현장 상황을 선택해 주세요.');
+        if (!checkCustomCategory()) return;
+        if (document.getElementById('contact-phone-input').value.length < 12) return alert('저장된 연락처가 없거나 올바르지 않습니다.\n[새로 직접 입력하기]에서 연락처를 입력해 주세요.');
+        if (!document.getElementById('q-agree').checked) return alert('면책사항 및 지불금액 동의에 체크해 주세요.');
+        openPaymentModal();
+    });
+
+    // 직접 입력 화면에서 "기본 정보로 저장"을 체크한 경우 저장
+    async function saveProfileIfChecked() {
+        const chk = document.getElementById('save-profile-chk');
+        if (!chk || !chk.checked) return;
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { alert('로그인하면 기본 정보를 저장할 수 있습니다. (이번 접수는 그대로 진행됩니다)'); return; }
+            const place = (document.querySelector('input[name="save_place"]:checked') || {}).value === 'work' ? 'work' : 'home';
+            const payload = { user_id: user.id, phone: document.getElementById('contact-phone-input').value };
+            payload[place + '_address'] = document.getElementById('location-input').value;
+            payload[place + '_detail'] = document.getElementById('location-detail-input').value;
+            const { error } = await supabaseClient.from('member_sos_profile').upsert(payload, { onConflict: 'user_id' });
+            if (error) console.error('기본 정보 저장 오류:', error);
+        } catch (e) { console.error(e); }
     }
 
     document.getElementById('contact-phone-input').addEventListener('input', function(e) {
@@ -1082,15 +1471,102 @@
         this.value = res;
     });
 
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.addEventListener('click', function() { this.classList.toggle('selected'); });
-    });
+    // ===== 현장 상황 선택 (빠른 화면 / 직접 입력 화면 공용) =====
     function getSelectedCategories() {
-        return Array.from(document.querySelectorAll('.cat-btn.selected')).map(btn => btn.getAttribute('data-cat'));
+        const sel = currentFlow === 'quick' ? '.qcat-btn.selected' : '.cat-btn.selected';
+        return Array.from(document.querySelectorAll(sel)).map(btn => btn.getAttribute('data-cat'));
+    }
+    function getCustomCategoryText() {
+        const el = document.getElementById(currentFlow === 'quick' ? 'q-category-custom' : 'category-custom-input');
+        return el ? el.value.trim() : '';
+    }
+    // DB 저장/표시용 이름 ('기타'는 입력한 내용을 함께 기록)
+    function getCategoryLabels() {
+        const custom = getCustomCategoryText();
+        return getSelectedCategories().map(c => c === '기타' ? (custom ? '기타(' + custom + ')' : '기타') : c);
+    }
+    function checkCustomCategory() {
+        if (getSelectedCategories().includes('기타') && !getCustomCategoryText()) {
+            alert('"기타"를 선택하셨습니다. 상황을 직접 입력해 주세요.');
+            return false;
+        }
+        return true;
+    }
+    function updateCustomInputs() {
+        [['.cat-btn', 'category-custom-input'], ['.qcat-btn', 'q-category-custom']].forEach(([sel, id]) => {
+            const etc = document.querySelector(sel + '[data-cat="기타"]');
+            const input = document.getElementById(id);
+            if (etc && input) input.classList.toggle('hidden', !etc.classList.contains('selected'));
+        });
+    }
+    // 두 화면의 선택/입력을 맞춤 (화면을 오가도 입력한 자료가 그대로 유지됨)
+    function syncCategories(toQuick) {
+        const fromSel = toQuick ? '.cat-btn' : '.qcat-btn';
+        const toSel = toQuick ? '.qcat-btn' : '.cat-btn';
+        const selected = Array.from(document.querySelectorAll(fromSel + '.selected')).map(b => b.getAttribute('data-cat'));
+        document.querySelectorAll(toSel).forEach(b => b.classList.toggle('selected', selected.includes(b.getAttribute('data-cat'))));
+        document.getElementById(toQuick ? 'q-category-custom' : 'category-custom-input').value =
+            document.getElementById(toQuick ? 'category-custom-input' : 'q-category-custom').value;
+        updateCustomInputs();
+    }
+    document.querySelectorAll('.cat-btn, .qcat-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            this.classList.toggle('selected');
+            updateCustomInputs();
+            if (this.getAttribute('data-cat') === '기타' && this.classList.contains('selected')) {
+                document.getElementById(this.classList.contains('qcat-btn') ? 'q-category-custom' : 'category-custom-input').focus();
+            }
+        });
+    });
+
+    // ===== 접수 버튼 활성/비활성 =====
+    const SUBMIT_ON = 'flex-1 bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-[15px] py-3 rounded-xl shadow-sm transition flex justify-center items-center gap-2';
+    const SUBMIT_OFF = 'flex-1 bg-gray-300 text-gray-500 font-bold text-[15px] py-3 rounded-xl shadow-sm transition flex justify-center items-center gap-2 cursor-not-allowed';
+    function setSubmitEnabled(btn, on) {
+        if (!btn) return;
+        btn.disabled = !on;
+        btn.className = on ? SUBMIT_ON : SUBMIT_OFF;
+    }
+
+    // ===== 요금부과방식 안내 모달 =====
+    function openFeeGuideModal() { const m = document.getElementById('fee-guide-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
+    function closeFeeGuideModal() { const m = document.getElementById('fee-guide-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+    function highlightFeeSlots() {
+        const slots = [1, 2, 3].map(n => document.getElementById('price-slot-' + n + '-modal'));
+        if (slots.some(el => !el)) return;
+        slots.forEach(el => { el.className = 'p-2 rounded-lg transition text-gray-600 font-bold text-[13px]'; el.style.borderLeft = ''; });
+        const cur = currentBasePrice === 2 ? slots[0] : (currentBasePrice === 4 ? slots[2] : slots[1]);
+        cur.classList.add('bg-blue-100', 'text-blue-800');
+        cur.style.borderLeft = '4px solid #3b82f6';
+    }
+    highlightFeeSlots();
+
+    // ===== 초기화: 이 버튼을 누르기 전에는 입력한 자료가 그대로 남아 있음 =====
+    function resetFormOnly() {
+        if (!confirm('입력한 내용을 모두 초기화하시겠습니까?')) return;
+        document.querySelectorAll('.cat-btn, .qcat-btn').forEach(b => b.classList.remove('selected'));
+        ['category-custom-input', 'q-category-custom'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        updateCustomInputs();
+        ['location-input', 'location-detail-input', 'contact-phone-input', 'postcode-input'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        const gps = document.getElementById('gps-status'); if (gps) { gps.classList.add('hidden'); gps.innerText = ''; }
+        // 빠른 화면: 불러온 정보 표시 해제
+        currentPlace = null;
+        ['q-summary', 'q-place-tabs', 'q-empty-note'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+        document.querySelectorAll('.place-tab').forEach(t => t.classList.remove('selected'));
+        const saveChk = document.getElementById('save-profile-chk'); if (saveChk) saveChk.checked = false;
+        // 서비스 방식: 전화상담만으로 되돌림
+        const phoneRadio = document.querySelector('input[name="svc_type"][value="phone"]');
+        if (phoneRadio) { phoneRadio.checked = true; phoneRadio.dispatchEvent(new Event('change')); }
+        setServiceType('phone');
+        // 동의 해제
+        ['agree-1', 'q-agree'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });
+        setSubmitEnabled(document.getElementById('sos-submit-btn'), false);
+        setSubmitEnabled(document.getElementById('q-pay-btn'), false);
+        alert('모든 입력 내용이 초기화되었습니다.');
     }
 
     function showStep(stepId) {
-        ['step-intro', 'step-1-situation', 'step-2-consent', 'step-matching'].forEach(id => {
+        ['step-intro', 'step-quick', 'step-1-situation', 'step-2-consent', 'step-matching'].forEach(id => {
             const el = document.getElementById(id);
             if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
         });
@@ -1103,25 +1579,25 @@
     document.getElementById('next-step-btn').addEventListener('click', () => {
         if(!document.getElementById('location-input').value) return alert('현장 주소를 입력해주세요.');
         if(getSelectedCategories().length === 0) return alert('긴급 상황을 선택해 주세요.');
+        if(!checkCustomCategory()) return;
         if(document.getElementById('contact-phone-input').value.length < 12) return alert('정확한 연락처를 입력해주세요.');
+        saveProfileIfChecked();
         showStep('step-2-consent');
     });
     document.getElementById('prev-step-btn-1').addEventListener('click', () => showStep('step-intro'));
     document.getElementById('prev-step-btn').addEventListener('click', () => showStep('step-1-situation'));
 
     const submitBtn = document.getElementById('sos-submit-btn');
-    document.getElementById('agree-1').addEventListener('change', function() {
-        submitBtn.disabled = !this.checked;
-        if(this.checked) submitBtn.className = "flex-1 bg-[#2563eb] text-white font-bold text-[16px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2";
-        else submitBtn.className = "flex-1 bg-gray-300 text-gray-500 font-bold text-[16px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2 cursor-not-allowed";
-    });
+    document.getElementById('agree-1').addEventListener('change', function() { setSubmitEnabled(submitBtn, this.checked); });
+    document.getElementById('q-agree').addEventListener('change', function() { setSubmitEnabled(document.getElementById('q-pay-btn'), this.checked); });
 
     function closePaymentModal() { document.getElementById('payment-modal').classList.replace('flex', 'hidden'); }
 
     // 결제 확인 모달 데이터 주입 및 띄우기
-    submitBtn.addEventListener('click', () => {
+    submitBtn.addEventListener('click', openPaymentModal);
+    function openPaymentModal() {
         document.getElementById('modal-svc').innerText = selectedService;
-        document.getElementById('modal-cat').innerText = getSelectedCategories().join(', ');
+        document.getElementById('modal-cat').innerText = getCategoryLabels().join(', ');
         
         const costContainer = document.getElementById('modal-cost-container');
         costContainer.innerHTML = `
@@ -1138,7 +1614,7 @@
         
         document.getElementById('payment-modal').classList.remove('hidden'); 
         document.getElementById('payment-modal').classList.add('flex');
-    });
+    }
 
     // 실제 PG 결제 호출 및 DB 저장 로직
     document.getElementById('modal-pay-btn').addEventListener('click', async function() {
@@ -1188,11 +1664,13 @@
     // 새로 수정한 백엔드 함수(create_sos_request_with_payment)를 호출하는 최종 접수 기능
     async function processFinalRequest(imp_uid) {
         try {
-            const fullAddress = document.getElementById('location-input').value;
+            const baseAddress = document.getElementById('location-input').value;
+            const detailAddress = document.getElementById('location-detail-input').value.trim();
+            const fullAddress = detailAddress ? (baseAddress + ' ' + detailAddress) : baseAddress;
             
             const { data: newRequestId, error } = await supabaseClient.rpc('create_sos_request_with_payment', {
                 p_service_type: selectedType,
-                p_category: getSelectedCategories().join(', '),
+                p_category: getCategoryLabels().join(', '),
                 p_region: fullAddress,
                 p_contact_phone: document.getElementById('contact-phone-input').value,
                 p_imp_uid: imp_uid, // 결제 고유 번호 저장
@@ -1207,15 +1685,69 @@
                 return;
             }
 
+            // DB 저장이 성공하면 조건에 맞는 전문가에게 문자 발송!
+            await sendSmsAlert(fullAddress, getCategoryLabels());
+
             closePaymentModal();
-            // 매칭 대기실(상황실)로 이동
-            window.location.href = 'sos-room.html?request_id=' + encodeURIComponent(newRequestId);
+            if (currentFlow === 'quick') {
+                // 빠른 SOS: 결제 후 바로 해당 조건의 전문가 목록으로 이동 (필터 자동 적용)
+                const q = new URLSearchParams({
+                    request_id: newRequestId,
+                    cat: getSelectedCategories().join(','),
+                    region: (baseAddress || '').split(' ')[0],
+                    svc: selectedType
+                });
+                if (isPracticeMode) q.set('practice', '1');
+                window.location.href = 'sos-experts.html?' + q.toString();
+            } else {
+                // 직접 입력 방식: 기존대로 매칭 대기실(상황실)로 이동
+                window.location.href = 'sos-room.html?request_id=' + encodeURIComponent(newRequestId);
+            }
             
         } catch (err) {
             console.error(err);
             alert('접수 처리 중 심각한 오류가 발생했습니다.');
             document.getElementById('modal-pay-btn').disabled = false;
             document.getElementById('modal-pay-btn').innerText = '결제 진행하기';
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // [문자 알림 자동화] 결제 완료 후 조건에 맞는 전문가에게 SMS 발송
+    // -----------------------------------------------------------------
+    async function sendSmsAlert(region, categories) {
+        try {
+            // 1. 현재 대기 중(is_standby=true)인 전문가 목록 조회
+            const { data: experts } = await supabaseClient
+                .from('sos_experts')
+                .select('phone, region_main, category')
+                .eq('is_active', true)
+                .eq('is_standby', true);
+            
+            if (!experts || experts.length === 0) return;
+
+            // 2. 요청 들어온 '지역'과 '분야'가 일치하는 전문가만 필터링
+            const targetExperts = experts.filter(e => {
+                const isRegionMatch = region.includes(e.region_main);
+                const isCategoryMatch = categories.some(c => (e.category || '').includes(c));
+                return isRegionMatch && isCategoryMatch && e.phone;
+            });
+
+            // 3. 전문가들의 휴대폰 번호만 추출
+            const toNumbers = targetExperts.map(e => e.phone);
+            if (toNumbers.length === 0) return;
+
+            // 4. 문자 내용 작성
+            const message = `🚨 [긴급 SOS 호출]\n${region} 지역에 새로운 호출이 접수되었습니다.\n분야: ${categories.join(', ')}\n\n지금 바로 시스템에 접속하여 확인해 주세요!`;
+
+            // 5. 방금 만든 문자 발송 서버(send-sms) 실행!
+            await supabaseClient.functions.invoke('send-sms', {
+                body: { to_numbers: toNumbers, message: message }
+            });
+            
+            console.log(`알림 문자 발송 완료: ${toNumbers.length}명`);
+        } catch (err) {
+            console.error("문자 발송 중 에러 발생:", err);
         }
     }
 </script>
