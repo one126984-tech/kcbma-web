@@ -95,34 +95,60 @@
                             </div>
                         </div>
 
-                        <div>
+                        <!-- 3. 주요 출동 가능 지역 (교체된 영역) -->
+                        <div class="mb-6">
                             <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 출동 가능 지역 <span class="text-red-500">*</span></label>
-                            <div class="flex gap-2">
-                                <select id="pf-region-main" required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white" onchange="updateSubRegions()">
-                                    <option value="">시/도 (대분류)</option>
-                                    <option value="서울">서울특별시</option>
-                                    <option value="경기">경기도</option>
-                                    <option value="인천">인천광역시</option>
-                                    <option value="부산">부산광역시</option>
-                                    <option value="대구">대구광역시</option>
-                                    <option value="광주">광주광역시</option>
-                                    <option value="대전">대전광역시</option>
-                                    <option value="울산">울산광역시</option>
-                                    <option value="세종">세종특별자치시</option>
-                                    <option value="강원">강원특별자치도</option>
-                                    <option value="충북">충청북도</option>
-                                    <option value="충남">충청남도</option>
-                                    <option value="전북">전북특별자치도</option>
-                                    <option value="전남">전라남도</option>
-                                    <option value="경북">경상북도</option>
-                                    <option value="경남">경상남도</option>
-                                    <option value="제주">제주특별자치도</option>
-                                </select>
-                                <select id="pf-region-sub" required class="flex-1 border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
-                                    <option value="">시/군/구 (소분류)</option>
-                                </select>
+                            <div class="relative w-full z-[50]">
+                                <!-- 드롭다운 토글 버튼 -->
+                                <button type="button" onclick="toggleDropdown('region-mega-dropdown')" class="w-full bg-white border-2 border-gray-300 rounded-xl p-3.5 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                    <span class="text-[14px] font-medium text-gray-700 truncate" id="region-btn-text">지역 선택</span>
+                                    <i class="fas fa-chevron-down text-gray-400 text-[12px] ml-1 shrink-0"></i>
+                                </button>
+
+                                <!-- 메가 드롭다운 -->
+                                <div id="region-mega-dropdown" class="hidden absolute top-full left-0 mt-1 w-full sm:w-[360px] bg-white border border-gray-300 rounded-xl shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                    <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                        <span class="font-bold text-[14px] text-[#12387a]">
+                                            <span class="text-purple-600">대분류</span> 지역 선택
+                                        </span>
+                                        <button type="button" onclick="toggleDropdown('region-mega-dropdown')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
+                                    </div>
+                                    
+                                    <div class="flex flex-col w-full" id="region-mega-dropdown-inner">
+                                        <!-- 대분류 섹션 -->
+                                        <div id="region-major-section" class="flex flex-col">
+                                            <div class="p-4 overflow-y-auto custom-scroll" style="max-height: 240px;">
+                                                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2" id="mega-major-list">
+                                                    <!-- JS로 렌더링 됨 -->
+                                                </div>
+                                            </div>
+                                            <div class="p-3 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                                <button type="button" onclick="openMinorView()" class="w-full border border-[#12387a] text-[#12387a] bg-blue-50 hover:bg-blue-100 font-bold px-4 py-2.5 rounded text-[14px] transition-colors shadow-sm">
+                                                    <i class="fas fa-level-down-alt mr-1"></i> 소분류 넣기
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 소분류 섹션 -->
+                                        <div id="region-minor-section" class="hidden flex-col h-full">
+                                            <div class="px-4 py-2.5 bg-[#f8fafc] border-b border-gray-200 flex justify-between items-center shrink-0">
+                                                <span class="font-bold text-[13px] text-[#12387a]">소분류 <span class="text-gray-500 font-normal ml-1 text-[11px]">(원하는 지역 체크)</span></span>
+                                                <button type="button" onclick="closeMinorView()" class="text-[12px] text-gray-600 hover:text-black font-medium hover:underline bg-white border border-gray-300 px-2 py-1 rounded">
+                                                    <i class="fas fa-undo mr-1"></i>대분류 다시보기
+                                                </button>
+                                            </div>
+                                            <div class="p-4 overflow-y-auto custom-scroll" style="max-height: 240px;" id="minor-regions-container">
+                                                <!-- JS로 렌더링 됨 -->
+                                            </div>
+                                            <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                                <button type="button" onclick="applyRegion()" class="w-full bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2.5 rounded text-[14px] transition-colors shadow-sm">적용하기</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <!-- // 3. 주요 출동 가능 지역 끝 -->
 
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">4. 개인 연락처 <span class="text-red-500">*</span></label>
@@ -162,25 +188,103 @@
 <script>
     const partnerSb = window.sb;
 
-    // 대분류 선택 시 소분류(시/군/구) 동적 생성 함수 추가
-    function updateSubRegions() {
-        const major = document.getElementById('pf-region-main').value;
-        const subSelect = document.getElementById('pf-region-sub');
-        
-        // 초기화
-        subSelect.innerHTML = '<option value="">시/군/구 (소분류)</option>';
+    // ===== 지역 메가 드롭다운 관련 변수 및 함수 시작 =====
+    const majorsList = ['전국', '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+    let selectedRegions = [];
 
-        if (major && typeof subRegionData !== 'undefined' && subRegionData[major]) {
-            subRegionData[major].forEach(minor => {
-                if (minor.replace(/\s/g, '') !== `${major}전체` && minor !== '전국전체') {
-                    const opt = document.createElement('option');
-                    opt.value = minor;
-                    opt.textContent = minor;
-                    subSelect.appendChild(opt);
-                }
-            });
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        renderMegaMajor();
+    });
+
+    function renderMegaMajor() {
+        const list = document.getElementById('mega-major-list');
+        if(!list) return;
+        list.innerHTML = majorsList.map(m => `
+            <label class="flex items-center gap-1.5 cursor-pointer p-1 hover:bg-gray-100 rounded border border-transparent hover:border-gray-200 transition-colors">
+                <input type="checkbox" value="${m}" class="major-region-chk w-4 h-4 cursor-pointer accent-[#12387a] shrink-0 border-gray-300">
+                <span class="text-[14px] text-gray-700 font-medium whitespace-nowrap">${m}</span>
+            </label>
+        `).join('');
     }
+
+    function toggleDropdown(targetId) {
+        const targetMenu = document.getElementById(targetId);
+        if (targetMenu) targetMenu.classList.toggle('hidden');
+    }
+
+    function openMinorView() {
+        const checkedMajors = Array.from(document.querySelectorAll('.major-region-chk:checked')).map(cb => cb.value);
+        if (checkedMajors.length === 0) { 
+            alert('먼저 1개 이상의 대분류(지역)를 체크해주세요.'); 
+            return; 
+        }
+
+        document.getElementById('region-major-section').classList.add('hidden');
+        document.getElementById('region-minor-section').classList.remove('hidden');
+        document.getElementById('region-minor-section').classList.add('flex');
+
+        const container = document.getElementById('minor-regions-container');
+        let html = '';
+        
+        checkedMajors.forEach(major => {
+            html += `<div class="mb-5"><div class="font-bold text-[#12387a] mb-2 text-[14px] border-b border-gray-200 pb-1">[${major}]</div><div class="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-3">`;
+            if(major === '전국') {
+                const isChecked = selectedRegions.includes('전국 전체') ? 'checked' : '';
+                html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="전국 전체" class="mega-region-chk w-4 h-4 cursor-pointer accent-blue-600" ${isChecked}> <span class="text-gray-700 truncate">지역무관</span></label>`;
+            } else {
+                const majorAllVal = `${major} 전체`;
+                const isAllChecked = selectedRegions.includes(majorAllVal) ? 'checked' : '';
+                html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${majorAllVal}" class="mega-region-chk w-4 h-4 cursor-pointer accent-blue-600" ${isAllChecked}> <span class="font-bold text-[#12387a] truncate">${majorAllVal}</span></label>`;
+
+                if(typeof subRegionData !== 'undefined' && subRegionData[major]) {
+                    subRegionData[major].forEach(minor => {
+                        if(minor.replace(/\s/g,'') !== `${major}전체` && minor !== '전국전체') {
+                            const isChecked = selectedRegions.includes(minor) ? 'checked' : '';
+                            html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${minor}" class="mega-region-chk w-4 h-4 cursor-pointer accent-blue-600" ${isChecked}> <span class="text-gray-700 truncate">${minor}</span></label>`;
+                        }
+                    });
+                }
+            }
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function closeMinorView() {
+        document.getElementById('region-minor-section').classList.remove('flex');
+        document.getElementById('region-minor-section').classList.add('hidden');
+        document.getElementById('region-major-section').classList.remove('hidden');
+    }
+
+    function applyRegion() {
+        const checkboxes = document.querySelectorAll('.mega-region-chk:checked');
+        selectedRegions = Array.from(checkboxes).map(cb => cb.value);
+        
+        const labelEl = document.getElementById('region-btn-text');
+        if (selectedRegions.length > 0) {
+            const displayTxt = selectedRegions.length > 1 
+                               ? `${selectedRegions[0]} 외 ${selectedRegions.length - 1}곳` 
+                               : selectedRegions[0];
+            labelEl.textContent = displayTxt;
+            labelEl.classList.remove('text-gray-700');
+            labelEl.classList.add('text-blue-700', 'font-bold');
+        } else {
+            labelEl.textContent = '지역 선택';
+            labelEl.classList.remove('text-blue-700', 'font-bold');
+            labelEl.classList.add('text-gray-700');
+        }
+        
+        document.getElementById('region-mega-dropdown').classList.add('hidden');
+    }
+
+    // 드롭다운 외부 영역 클릭 시 닫기
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.relative.z-\\[50\\]')) {
+            document.getElementById('region-mega-dropdown')?.classList.add('hidden');
+        }
+    });
+    // ===== 지역 메가 드롭다운 관련 변수 및 함수 끝 =====
+
 
     // 연락처 자동 하이픈 추가
     const pfPhoneInput = document.getElementById('pf-phone');
@@ -197,8 +301,8 @@
     document.getElementById('submit-partner-btn').addEventListener('click', async function(e) {
         e.preventDefault();
 
-        // 폼 유효성 검사 (드롭다운 포함)
-        const inputs = document.querySelectorAll('#partner-form input[required], #partner-form select[required], #partner-form textarea[required]');
+        // 폼 유효성 검사 (드롭다운 포함) - 지역은 selectedRegions 배열로 확인
+        const inputs = document.querySelectorAll('#partner-form input[required], #partner-form textarea[required]');
         let isValid = true;
         inputs.forEach(input => {
             if (!input.value.trim()) isValid = false;
@@ -208,8 +312,8 @@
         const otherText = document.getElementById('pf-category-other-text').value.trim();
         if (document.getElementById('cat-other').checked && otherText) checkedCats.push(otherText);
 
-        if (!isValid || checkedCats.length === 0) {
-            alert('필수 항목(*)을 모두 입력해 주세요. (전문 분야는 최소 1개 이상 선택)');
+        if (!isValid || checkedCats.length === 0 || selectedRegions.length === 0) {
+            alert('필수 항목(*)을 모두 입력해 주세요. (전문 분야 및 출동 지역은 최소 1개 이상 선택)');
             return;
         }
 
@@ -236,10 +340,8 @@
                 fileUrl = pub?.publicUrl || null;
             }
 
-            // 시/도 + 시/군/구 합치기
-            const regionMain = document.getElementById('pf-region-main').value;
-            const regionSub = document.getElementById('pf-region-sub').value;
-            const combinedRegion = [regionMain, regionSub].filter(Boolean).join(' ');
+            // 다중 선택된 지역을 콤마로 이어붙여서 DB에 저장
+            const combinedRegion = selectedRegions.join(', ');
 
             const { data: { user } } = await partnerSb.auth.getUser();
 

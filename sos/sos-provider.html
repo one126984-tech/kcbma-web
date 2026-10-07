@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전문가 콜 대기 화면</title>
+    <!-- Tailwind CSS (디자인) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-4 text-blue-600">🚨 실시간 SOS 콜 대기</h1>
+        <button onclick="fetchCalls()" class="mb-4 bg-gray-800 text-white px-4 py-2 rounded shadow w-full">
+            🔄 새로고침 (최신 콜 확인)
+        </button>
+        
+        <!-- 콜 목록이 들어갈 자리 -->
+        <div id="call-list" class="space-y-4">
+            <p class="text-gray-500 text-center">대기 중인 콜을 불러오는 중...</p>
+        </div>
+    </div>
+
+    <script>
+        // 소장님의 Supabase 정보를 입력하세요 (기존 HTML에 있던 것과 동일하게)
+        const SUPABASE_URL = '여기에_소장님의_SUPABASE_URL_입력';
+        const SUPABASE_ANON_KEY = '여기에_소장님의_ANON_KEY_입력';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 대기 중인 콜 불러오기 함수
+        async function fetchCalls() {
+            const callListDiv = document.getElementById('call-list');
+            callListDiv.innerHTML = '<p class="text-gray-500 text-center">불러오는 중...</p>';
+
+            // sos_requests 테이블에서 상태가 '대기중'인 것만 가져오기
+            const { data, error } = await supabase
+                .from('sos_requests')
+                .select('*')
+                .eq('status', '대기중')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                callListDiv.innerHTML = '<p class="text-red-500">콜을 불러오는데 실패했습니다.</p>';
+                return;
+            }
+
+            if (data.length === 0) {
+                callListDiv.innerHTML = '<p class="text-gray-500 text-center">현재 대기 중인 콜이 없습니다.</p>';
+                return;
+            }
+
+            // 가져온 데이터를 화면에 카드 형태로 그리기
+            callListDiv.innerHTML = '';
+            data.forEach(call => {
+                const card = `
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-lg">${call.region || '지역미상'}</span>
+                            <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-bold">${call.service_type || '분야미상'}</span>
+                        </div>
+                        <p class="text-gray-700 mb-4">${call.description || '상세 내용 없음'}</p>
+                        <button onclick="acceptCall(${call.id})" class="bg-blue-600 text-white w-full py-3 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
+                            🖐️ 이 콜 수락하기
+                        </button>
+                    </div>
+                `;
+                callListDiv.innerHTML += card;
+            });
+        }
+
+        // 콜 수락 버튼을 눌렀을 때 실행될 임시 함수
+        function acceptCall(id) {
+            alert("수락 기능은 다음 단계에서 만듭니다! (콜 ID: " + id + ")");
+        }
+
+        // 페이지가 열리면 자동으로 콜을 한 번 불러옴
+        window.onload = fetchCalls;
+    </script>
+</body>
+</html>
