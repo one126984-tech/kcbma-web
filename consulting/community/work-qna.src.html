@@ -1,0 +1,206 @@
+<!-- 파일명: work-qna.src.html -->
+<!-- @var PAGE_CLASS: page-community -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>업무 Q&A | 대한집합건물관리협회 커뮤니티</title>
+<!-- @include critical-css -->
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+    <style>
+        html, body { overflow: hidden; height: 100%; }
+        @media (max-width: 767px) { .main-scroll-area { height: auto; overflow: visible; } }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+
+        #dr-qna-content { font-family: 'Malgun Gothic', sans-serif; color: #333; }
+        #dr-qna-content .filter-bar { background: #fff; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px; }
+        #dr-qna-content .tabs button { background: none; border: none; font-size: 14.5px; font-weight: bold; color: #718096; margin-right: 15px; cursor: pointer; padding-bottom: 5px; }
+        #dr-qna-content .tabs button.active { color: #2b6cb0; border-bottom: 2px solid #2b6cb0; }
+        #dr-qna-content .write-form { background: #fff; padding: 22px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 26px; display: none; }
+        #dr-qna-content .write-form.active { display: block; }
+        #dr-qna-content .form-group { margin-bottom: 15px; }
+        #dr-qna-content .form-group label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 13.5px; }
+        #dr-qna-content .form-group input, #dr-qna-content .form-group textarea, #dr-qna-content .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; }
+        #dr-qna-content .bounty-input-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        #dr-qna-content .bounty-input-wrap input { width: 130px; padding: 10px; text-align: right; border: 2px solid #e53e3e; border-radius: 4px; font-size: 15px; font-weight: bold; color: #e53e3e; }
+        #dr-qna-content .bounty-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        #dr-qna-content .bounty-btns button { background: #edf2f7; border: 1px solid #cbd5e0; padding: 6px 12px; border-radius: 4px; cursor: pointer; color: #4a5568; font-weight: bold; }
+        #dr-qna-content .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+        #dr-qna-content .cancel-btn { flex: 1; background: #a0aec0; color: white; border: none; padding: 12px; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        #dr-qna-content .submit-btn { flex: 2; background: #2b6cb0; color: white; border: none; padding: 12px; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; }
+
+        #dr-qna-content .qa-list { display: flex; flex-direction: column; gap: 15px; }
+        #dr-qna-content .qa-item { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; border-left: 4px solid transparent; }
+        #dr-qna-content .qa-item.premium { border-left-color: #e53e3e; }
+        #dr-qna-content .badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        #dr-qna-content .badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        #dr-qna-content .badge.category { background: #edf2f7; color: #4a5568; }
+        #dr-qna-content .badge.bounty { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+        #dr-qna-content .badge.resolved { background: #c6f6d5; color: #22543d; }
+        #dr-qna-content .qa-item h3 { margin: 0; font-size: 17px; cursor: pointer; color: #2d3748; }
+        #dr-qna-content .qa-item h3:hover { text-decoration: underline; color: #2b6cb0; }
+        #dr-qna-content .qa-meta { font-size: 12.5px; color: #a0aec0; display: flex; gap: 15px; flex-wrap: wrap; }
+        #dr-qna-content .answer-box { margin-top: 15px; padding: 20px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
+        #dr-qna-content .blur-content { filter: blur(5px); user-select: none; color: #4a5568; }
+        #dr-qna-content .lock-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; text-align: center; padding: 0 16px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+<!-- @include header -->
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center relative z-[800] shrink-0"></div>
+<!-- @include header-close -->
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 bg-[#F8FAFC]">
+    <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 flex flex-col md:flex-row gap-8">
+        
+        <!-- 좌측 사이드바 스크롤 활성화 및 여백 축소 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-y-auto custom-scrollbar z-40 pb-8">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-3 p-2 flex flex-col gap-1">
+                    <div class="side-menu-tab" onclick="location.href='field-experience.html'">현장경험 공유</div>
+                    <div class="side-menu-tab" onclick="location.href='notice.html'">공지사항</div>
+                    <div class="side-menu-tab" onclick="location.href='free-board.html'">자유게시판</div>
+                    <div class="side-menu-tab-active">업무 Q&A</div>
+                    <div class="side-menu-tab" onclick="location.href='data-room.html'">서식/자료실</div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-3 mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-gray-800 text-[14px]">조회기간</span>
+                        <button class="period-btn border border-[#3b5bdb] text-[#3b5bdb] bg-blue-50 px-2 py-1 text-[11px] rounded font-bold" onclick="alert('데이터 연동 준비 중입니다.')">기간 전체</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 mb-4">
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="alert('데이터 연동 준비 중입니다.')">1주</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="alert('데이터 연동 준비 중입니다.')">1달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="alert('데이터 연동 준비 중입니다.')">2달</button>
+                        <button class="period-btn border border-gray-300 text-gray-600 hover:bg-gray-50 py-1 text-[11px] rounded" onclick="alert('데이터 연동 준비 중입니다.')">6개월</button>
+                    </div>
+                    <div class="flex items-stretch gap-2">
+                        <div class="flex flex-col gap-2 flex-1">
+                            <div class="flex items-center gap-2">
+                                <input type="date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">부터</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="date" class="flex-1 border border-gray-300 rounded p-1.5 text-[11px] outline-none text-gray-500">
+                                <span class="text-xs text-gray-600 font-bold w-6">까지</span>
+                            </div>
+                        </div>
+                        <button onclick="alert('데이터 연동 준비 중입니다.')" class="w-10 border border-[#0B2A5B] text-[#0B2A5B] font-bold text-[13px] rounded hover:bg-blue-50 flex items-center justify-center transition-colors">검색</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 min-w-0 h-full main-scroll-area relative flex flex-col mt-0">
+            <section class="flex-1 shrink-0 pb-8">
+                <div class="border border-gray-200 border-l-[6px] border-l-[#12387a] bg-[#fdfdfd] rounded-md p-6 md:p-7 mb-6 flex gap-5 md:gap-6 items-start shadow-sm">
+                    <div class="w-[44px] h-[44px] md:w-[52px] md:h-[52px] rounded-full bg-[#e6e9fc] flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-shield-halved text-[#12387a] text-lg md:text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-[#12387a] font-bold text-[16px] md:text-[18px] mb-3 md:mb-4">업무 Q&A 게시판 이용 안내</h3>
+                        <ul class="text-gray-600 text-[13px] md:text-[15px] space-y-2 md:space-y-3">
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><strong>명확한 질의응답:</strong> 행정, 법률, 시설 관리 등 실무 중 발생하는 궁금증을 묻고 답하는 공간입니다.</span></li>
+                            <li class="flex gap-2"><span class="text-gray-400">-</span><span><strong>유료 콘텐츠 안내:</strong> 전문가의 심층 답변 열람 등 일부 콘텐츠는 결제 후 이용하실 수 있습니다.</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="dr-qna-content">
+                    <div class="sticky top-0 z-50 bg-[#F8FAFC] pt-4 pb-3 mb-6 border-b-2 border-[#2f66e0] flex justify-between items-end">
+                        <div>
+                            <h2 class="text-2xl font-bold text-[#12387a] flex items-center gap-2">💡 업무 Q&A</h2>
+                            <p class="text-gray-500 text-sm mt-2 hidden md:block">실무 노하우부터 법률 자문까지, 확실한 해결책을 거래하세요.</p>
+                        </div>
+                        <button class="px-5 py-2.5 bg-[#12387a] hover:bg-[#0b224f] text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2 whitespace-nowrap" onclick="toggleWriteForm()">질문 작성하기 ➔</button>
+                    </div>
+
+                    <div class="write-form" id="writeForm">
+                        <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">새 질문 등록</h3>
+                        <div class="form-group">
+                            <label>질문 제목</label>
+                            <input type="text" placeholder="핵심 내용을 요약해서 적어주세요.">
+                        </div>
+                        <div class="form-group" style="background:#fff5f5; padding:15px; border-radius:6px; border:1px solid #feb2b2;">
+                            <label style="color:#c53030;">💰 업무 Q&A 쿠폰(현상금) 걸기 <span style="font-weight:normal; font-size:12px; color:#718096;">(선택)</span></label>
+                            <div class="bounty-input-wrap">
+                                <input type="number" id="bountyAmount" value="0" min="0" step="1" oninput="validateInput(this)"> 만원
+                                <div class="bounty-btns">
+                                    <button type="button" onclick="addBounty(1)">1만원 추가</button>
+                                    <button type="button" onclick="addBounty(5)">5만원 추가</button>
+                                    <button type="button" onclick="resetBounty()" style="background:#e2e8f0;">초기화</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" onclick="toggleWriteForm()">뒤로가기 (취소)</button>
+                            <button type="button" class="submit-btn" onclick="submitForm()">결제 및 등록하기</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="tabs">
+                            <button class="active">전체 보기</button>
+                            <button>💰 프리미엄(유료) 질문</button>
+                        </div>
+                    </div>
+
+                    <div class="qa-list">
+                        <!-- 더미 데이터 -->
+                        <div class="qa-item premium">
+                            <div class="badges">
+                                <span class="badge category">법률/분쟁</span>
+                                <span class="badge bounty">💰 5만 원</span>
+                                <span class="badge resolved">채택 완료</span>
+                            </div>
+                            <h3 onclick="requireLogin()">장기수선충당금 용도 외 사용 관련 관할구청 시정명령 대처법</h3>
+                            <p style="font-size:14px; color:#4a5568; margin:5px 0;">구청에서 3년 전 집행한 옥상 방수 공사건에 대해 과태료 사전 통지가 날아왔습니다.</p>
+                            <div class="qa-meta">
+                                <span>작성자: 경기오피소장</span>
+                                <span>조회: 1,024</span>
+                            </div>
+                            <div class="answer-box">
+                                <div class="answer-title">✅ 전문가 채택 답변</div>
+                                <div class="blur-content">소장님, 해당 건은 집합건물법과 공동주택관리법의 적용 예외 조항을 적극적으로 활용하셔야 합니다...</div>
+                                <div class="lock-overlay">
+                                    <div class="lock-icon">🔒</div>
+                                    <div class="lock-msg">이 답변은 작성자 및 유료 회원만 열람할 수 있습니다.</div>
+                                    <button class="unlock-btn" style="background:#2b6cb0; color:white; padding:10px 20px; border-radius:20px;" onclick="requireLogin()">500원 결제하고 전체 보기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+            <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </div>
+    </main>
+</div>
+    <script>
+        function toggleWriteForm() { document.getElementById('writeForm').classList.toggle('active'); }
+        function validateInput(element) { if (element.value < 0 || isNaN(element.value)) element.value = 0; }
+        function addBounty(amount) {
+            const input = document.getElementById('bountyAmount');
+            let newVal = (parseInt(input.value) || 0) + amount;
+            input.value = newVal < 0 ? 0 : newVal;
+        }
+        function resetBounty() { document.getElementById('bountyAmount').value = 0; }
+        function submitForm() { alert("게시글이 등록되었습니다."); toggleWriteForm(); }
+        function requireLogin() { alert("현재 회원가입 및 로그인 시스템을 연동 중입니다."); }
+    </script>
+    <script>window.BASE_PATH = '/';</script>
+</body>
+</html>

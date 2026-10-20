@@ -1,0 +1,338 @@
+<!-- 파일명: bid-write.src.html -->
+<!-- @var PAGE_CLASS: page-admin -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>입찰공고 등록 | 대한집합건물관리협회</title>
+
+    <style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 6px;
+        }
+
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            #main-header nav { display: flex; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 768px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+    </style>
+
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 */
+        #main-header { view-transition-name: site-header; }
+        #page-content { view-transition-name: page-content; }
+        @keyframes page-content-out { to { opacity: 0; } }
+        @keyframes page-content-in { from { opacity: 0; } }
+        ::view-transition-old(page-content) { animation: 150ms ease-in both page-content-out; }
+        ::view-transition-new(page-content) { animation: 200ms ease-out both page-content-in; }
+        ::view-transition-group(page-content) { animation: none; width: 100%; height: 100%; }
+        ::view-transition-group(site-header) { animation: none; }
+        ::view-transition-old(site-header), ::view-transition-new(site-header) { animation: none; }
+        html.no-page-transition #page-content, html.no-page-transition ::view-transition-group(page-content), html.no-page-transition ::view-transition-old(page-content), html.no-page-transition ::view-transition-new(page-content) { animation: none !important; transform: none !important; }
+    </style>
+
+    <style>
+        /* [COMMON-CSS] 자동 생성됨 */
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
+
+.sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn { background-color: #2c3e50; color: #ffffff; font-weight: 700; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; }
+        .login-btn:hover { background-color: #1a252f; }
+        .mypage-btn-mobile { background-color: #0088cc; color: #ffffff; transition: background-color 0.15s; }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+
+    <style>
+        /* 이 페이지(입찰공고 등록) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .form-table { width: 100%; border-top: 2px solid #12387a; border-collapse: collapse; margin-bottom: 30px; background: #fff; }
+        .form-table th { width: 160px; background: #f9fafb; color: #333; font-weight: bold; text-align: left; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .form-table td { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+
+        .req { color: #ef4444; margin-left: 4px; font-weight: bold; }
+
+        .input-text { width: 100%; max-width: 500px; border: 1px solid #d1d5db; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .input-text:focus { border-color: #3b82f6; }
+        .input-text.full { max-width: 100%; }
+
+        .input-date { border: 1px solid #d1d5db; border-radius: 4px; padding: 8px 12px; font-size: 14px; outline: none; color: #4b5563; }
+        .input-select { border: 1px solid #d1d5db; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; min-width: 180px; }
+
+        .custom-radio { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; margin-right: 20px; }
+
+        .textarea-box { width: 100%; height: 300px; border: 1px solid #d1d5db; border-radius: 4px; padding: 15px; font-size: 14px; outline: none; resize: vertical; line-height: 1.6; }
+        .textarea-box:focus { border-color: #3b82f6; }
+
+        .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; margin-top: 20px; }
+        .btn-cancel { padding: 12px 30px; background: #fff; border: 1px solid #cbd5e1; color: #4b5563; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-cancel:hover { background: #f8fafc; border-color: #94a3b8; }
+        .btn-submit { padding: 12px 40px; background: #0B2A5B; border: 1px solid #0B2A5B; color: #fff; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-submit:hover { background: #12387a; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen page-bid-write">
+
+<!-- @include header -->
+
+    <div class="sticky top-0 w-full flex flex-col bg-white shadow-md relative z-[800]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
+
+        <!-- ★ 최신 3단 탭 사이드바 영역 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab-active" onclick="window.location.href='bid-list.html'">견적 및 입찰 정보</div>
+                <div class="side-menu-tab" onclick="window.location.href='company-ads.html'">협력업체 홍보관</div>
+                <div class="side-menu-tab" onclick="window.location.href='joint-bid.html'">우수업체 공동선정</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 bg-white p-6 md:p-8 border border-gray-200 rounded shadow-sm">
+
+            <h1 class="text-[20px] font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">입찰공고 등록</h1>
+
+            <form id="bid-form" onsubmit="submitBid(event)">
+                <table class="form-table">
+                    <tbody>
+                        <tr>
+                            <th>공고명 <span class="req">*</span></th>
+                            <td colspan="3">
+                                <input type="text" id="f-title" class="input-text full" placeholder="입찰공고 제목을 입력해주세요" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>발주업체명 <span class="req">*</span></th>
+                            <td>
+                                <input type="text" id="f-company" class="input-text" placeholder="예: OOO아파트 입주자대표회의" required>
+                            </td>
+                            <th>분류 <span class="req">*</span></th>
+                            <td>
+                                <!-- 💡 분류 선택 항목이 리스트 페이지와 동일하게 변경되었습니다 -->
+                                <select id="f-category" class="input-select" required>
+                                    <option value="">분류 선택</option>
+                                    <option value="전기">전기</option>
+                                    <option value="소방">소방</option>
+                                    <option value="승강기">승강기</option>
+                                    <option value="기계설비">기계설비</option>
+                                    <option value="배관설비">배관설비</option>
+                                    <option value="위생설비">위생설비</option>
+                                    <option value="인테리어">인테리어</option>
+                                    <option value="토목건축">토목건축</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>지역 <span class="req">*</span></th>
+                            <td>
+                                <select id="f-region" class="input-select" required>
+                                    <option value="">지역 선택</option>
+                                </select>
+                            </td>
+                            <th>상세 현장 위치</th>
+                            <td>
+                                <input type="text" id="f-location" class="input-text" placeholder="상세 주소 또는 아파트명">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>공고일 (시작일) <span class="req">*</span></th>
+                            <td>
+                                <input type="date" id="f-start-date" class="input-date" required>
+                            </td>
+                            <th>마감일 <span class="req">*</span></th>
+                            <td>
+                                <input type="date" id="f-end-date" class="input-date" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>상세 내용 <span class="req">*</span></th>
+                            <td colspan="3">
+                                <textarea id="f-description" class="textarea-box" placeholder="입찰 참가 자격, 제출 서류, 세부 공고 내용을 작성해 주세요." required></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="btn-wrap">
+                    <button type="button" class="btn-cancel" onclick="history.back()">취소</button>
+                    <button type="submit" id="btn-submit" class="btn-submit">등록하기</button>
+                </div>
+            </form>
+
+            <div id="footer-container"></div>
+            <script src="../../assets/js/region-data.js"></script>
+            <script src="../../assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+    </div>
+
+    <script>
+        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+
+        const DB_TABLE_NAME = 'bids'; 
+
+        function initApp() {
+            initForm();
+        }
+
+        function initForm() {
+            const today = new Date();
+            const offset = today.getTimezoneOffset() * 60000;
+            const todayStr = new Date(today.getTime() - offset).toISOString().split('T')[0];
+            document.getElementById('f-start-date').value = todayStr;
+
+            const regionSelect = document.getElementById('f-region');
+            if (typeof subRegionData !== 'undefined') {
+                for (const major in subRegionData) {
+                    if (major === '전국') continue;
+                    const option = document.createElement('option');
+                    option.value = major;
+                    option.text = major;
+                    regionSelect.appendChild(option);
+                }
+            } else {
+                const defaultRegions = ['서울', '경기', '인천', '부산', '대구', '광주', '대전', '울산', '세종', '강원', '경남', '경북', '전남', '전북', '충남', '충북', '제주'];
+                defaultRegions.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r;
+                    option.text = r;
+                    regionSelect.appendChild(option);
+                });
+            }
+        }
+
+        async function submitBid(event) {
+            event.preventDefault();
+
+            if(!supabaseClient) {
+                alert('데이터베이스 연결에 실패했습니다.');
+                return;
+            }
+
+            const { data: authData } = await supabaseClient.auth.getUser();
+            
+            // 테스트용으로는 주석 처리하여 누구나 등록할 수 있게 하려면 아래 코드를 주석처리 하세요.
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const title = document.getElementById('f-title').value.trim();
+            const company = document.getElementById('f-company').value.trim();
+            const category = document.getElementById('f-category').value;
+            const region = document.getElementById('f-region').value;
+            const locationStr = document.getElementById('f-location').value.trim();
+            const startDate = document.getElementById('f-start-date').value;
+            const endDate = document.getElementById('f-end-date').value;
+            const description = document.getElementById('f-description').value.trim();
+
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('마감일은 공고 시작일 이후여야 합니다.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('btn-submit');
+            submitBtn.disabled = true;
+            submitBtn.innerText = '등록 중...';
+            submitBtn.style.opacity = '0.7';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .insert([
+                        {
+                            title: title,
+                            company_name: company,
+                            category: category,
+                            region: region,
+                            location: locationStr,
+                            start_date: startDate,
+                            end_date: endDate,
+                            description: description,
+                            status: 'OPEN',
+                            views: 0,
+                            created_by: authData.user ? authData.user.id : null
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert('입찰공고가 성공적으로 등록되었습니다.');
+                window.location.href = 'bid-list.html';
+
+            } catch (error) {
+                console.error('Insert error:', error);
+                alert('공고 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = '등록하기';
+                submitBtn.style.opacity = '1';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

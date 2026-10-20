@@ -1,0 +1,1446 @@
+<!-- 파일명: cert-detail.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 cert-detail.html)
+     ★★★ 이 페이지도 dashboard.html과 똑같이 header.js를 defer로 비동기
+     로드해서 #header-container에 나중에 주입하는 방식이었음. 표준 헤더로
+     교체하여 제거함. -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>자격증 과정 상세 | 대한집합건물관리협회</title>
+
+<style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
+           _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
+           절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐).
+
+           ⚠ 여기에 opacity 0→1 페이드 같은 "로딩 후 서서히 나타내기" 트릭을
+              다시 넣지 말 것. resume-list.html 원본 주석에 남아있듯,
+              그런 트릭을 View Transition(아래 view-transition-css 파샬)과
+              같이 쓰면 "이중 페이드"로 오히려 흰 화면이 더 도드라져 보이는
+              버그가 실제로 있었음. 이 파일은 순수 배경색 즉시 고정 용도로만
+              쓸 것. */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 6px;
+            /* ★ 2026-09: 굵은 직선 형태로 축소 (기존 56px 짜리 텍스트 바에서
+               텍스트를 전부 지우고 얇은 색상 바로 변경) — height 값은
+               common-css.html 쪽과 반드시 동일하게 맞출 것.
+               ★ 2026-08: 이제 #sub-header-bar는 header.html/header-close.html
+               분할 덕분에 #main-header의 "자식"으로 들어가 있어서 (예전엔
+               형제 요소였음) 따로 sticky를 줄 필요가 없어짐 — 부모인
+               #main-header가 통째로 sticky라 자동으로 같이 고정됨.
+               (예전에 시도했던 position:sticky 오버라이드는 제거함) */
+        }
+
+        /* ★★★ 2026-08 추가 → 이후 되돌림: Tailwind CDN 스크립트가 렌더링을
+           막고있는 동안(로드 전) 페이지가 스타일 없이 날것으로 보이는 문제를
+           고치려고 script에 defer를 붙여봤었는데, 그러면 오른쪽 유틸리티
+           영역(알림·마이페이지·로그인)처럼 이 스킈레톤이 못 커버한 부분이
+           Tailwind 로드 전에 잠깐 글자가 겹쳐 보이는 "새로운" 버그가 생겨서
+           defer는 다시 뺐음 (지금은 원래대로 blocking script).
+
+           ★★★ 2026-08 추가 업데이트: 위 문제 자체가 이제 근본적으로 해결됨.
+           Tailwind CDN <script> 태그를 전부 걷어내고, 미리 빌드해둔 정적
+           파일(assets/css/tailwind.css)을 <link rel="stylesheet">로 불러오는
+           방식으로 교체함 (tailwind.config.js 참고). 이제 "CDN이 다운로드/
+           실행되길 기다리는 시간"이 아예 없어서 이 스킈레톤 CSS는 실질적으로
+           불필요해졌지만, 혹시 모를 안전망으로 그냥 남겨둠 (있어도 무해함 —
+           .css 파일과 값이 같아서 중복 적용일 뿐). */
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            #main-header nav { display: flex; }
+        }
+        /* ★ 2026-09 (4차 수정): 사용자 실측 결과 실제 페이지 폭이 803px로
+           나오는 환경(모니터 배율 등으로 인해 창은 넓어 보여도 실제 CSS 기준
+           폭은 좁게 잡히는 경우)에서도 가로 메뉴를 보이게 해달라는 요청.
+           768~1023px 구간은 원래 메뉴 6개+SOS 문구+아이콘을 다 넣기엔
+           여유가 부족한 폭이라, 이 구간에서만 폰트를 줄이고 SOS 문구 텍스트를
+           숨겨(아이콘만 유지) 최대한 겹치지 않게 압축함. 1024px 이상에서는
+           원래 여백대로 표시됨. */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 768px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+
+        /* ★ 2026-08 추가: 좌측 사이드 탭 메뉴(.side-menu-tab / .side-menu-tab-active)를
+           common-css.html이 아니라 여기(critical-css)에도 미리 정의해둠.
+           이 두 클래스는 원래 common-css.html에만 있었는데, common-css는 문서
+           순서상 Tailwind CDN <script> 태그보다 "뒤"에 온다. Tailwind CDN
+           스크립트는 렌더링을 막는(blocking) 스크립트라서, 그게 다운로드/실행
+           되는 동안에는 아직 뒤에 있는 common-css의 <style>이 파싱되기 전이라
+           활성 탭(파란 배경)이 잠깐 "흰색"으로 보였다가 그 직후 파란색으로
+           바뀌는 깜빡임이 있었음. Tailwind 스크립트보다 앞에 오는 이 파일에
+           동일한 규칙을 미리 넣어두면, 첫 렌더링부터 바로 파란색으로 나와서
+           깜빡임이 없어짐 (common-css.html 쪽 정의는 그대로 둬도 무해 — 값이
+           같아서 중복 적용일 뿐 충돌 없음). */
+        .side-menu-tab {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+            font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+        }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+            font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        }
+    </style>
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../assets/js/supabase-config.js"></script>
+    <script src="../../assets/js/cert-common.js"></script>
+
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 — 이 내용을 고치려면
+           _partials/view-transition-css.html 파일만 고치고 build.js를 다시
+           실행할 것. 절대 각 페이지에서 직접 고치지 말 것.
+
+           ★★★ 2026-08 기준 크로스 문서 View Transition 기능을 완전히 껐음.
+           이유: 헤더 안 움직임 → 서브헤더 흰 화면 → 본문 울렁임 → 헤더가
+           오른쪽으로 갔다 돌아옴 → 입찰공고/구인구직 등 여전히 덜컹거림,
+           이런 식으로 한 군데 고치면 다른 데서 새로운 미세한 어긋남이
+           계속 튀어나왔음. 이 기능은 브라우저가 이전 페이지와 새 페이지의
+           스크린샷을 직접 찍어서 애니메이션시키는 방식이라, 코드만 보고
+           고치는 방식으로는 실제 브라우저에서 어떻게 보일지 확인이 안 되고
+           끝없이 두더지잡기가 됨.
+
+           그래서 아래 @view-transition 자체를 꺼서 그냥 "즉시 전환"(깜빡임
+           없이 바로 바뀌는 일반적인 페이지 이동)으로 되돌림. 헤더/서브헤더가
+           흔들리거나 밀리거나 울렁이는 문제가 구조적으로 있을 수 없음
+           (애니메이션 자체가 없으니까). 아래의 view-transition-name /
+           키프레임 코드들은 그대로 남겨뒀지만 @view-transition이 꺼져있는
+           동안은 전부 아무 효과가 없음 — 나중에 다시 켜고 싶으면 아래
+           @view-transition 블록의 주석만 풀면 됨. */
+        /*
+        @view-transition {
+            navigation: auto;
+        }
+        */
+        #main-header {
+            view-transition-name: site-header;
+        }
+        #page-content {
+            view-transition-name: page-content;
+        }
+        @keyframes page-content-out {
+            to { opacity: 0; }
+        }
+        @keyframes page-content-in {
+            from { opacity: 0; }
+        }
+        ::view-transition-old(page-content) {
+            animation: 150ms ease-in both page-content-out;
+        }
+        ::view-transition-new(page-content) {
+            animation: 200ms ease-out both page-content-in;
+        }
+        /* 핵심: 박스 크기/위치를 이전↔새 페이지 사이에서 자동으로
+           보간(모핑)하는 기본 동작을 꺼서 "들썩임"을 없앰 */
+        ::view-transition-group(page-content) {
+            animation: none;
+            width: 100%;
+            height: 100%;
+        }
+        ::view-transition-group(site-header) {
+            animation: none;
+        }
+        ::view-transition-old(site-header),
+        ::view-transition-new(site-header) {
+            animation: none;
+        }
+        /* ★ 2026-08: #sub-header-bar가 이제 header.html/header-close.html
+           분할 구조 덕분에 #main-header의 "자식"으로 들어가 있음 (예전엔
+           #page-content 쪽의 형제 요소였음). 그래서 따로 view-transition-name을
+           줄 필요가 없어짐 — 부모인 site-header(#main-header)의 캡처 영역에
+           자동으로 같이 포함됨. (오히려 여기 따로 이름을 주면 "이름표 붙은
+           요소를 또 다른 이름표 붙은 요소 안에 중첩"시키는 예전에 버그났던
+           패턴이 재발하니 절대 다시 추가하지 말 것 — 본문이 울렁이던 그 버그.) */
+        /* 안전장치: 같은 페이지 안에서 사이드 탭(AJAX)만 바뀔 때는
+           슬라이드 애니메이션이 절대 걸리지 않도록 강제로 끔.
+           AJAX 탭 전환이 있는 페이지(job-list/resume-list/bid-list 등)의
+           탭 전환 스크립트에서 이 클래스를 잠깐 추가했다가 제거해야 함. */
+        html.no-page-transition #page-content,
+        html.no-page-transition ::view-transition-group(page-content),
+        html.no-page-transition ::view-transition-old(page-content),
+        html.no-page-transition ::view-transition-new(page-content) {
+            animation: none !important;
+            transform: none !important;
+        }
+    </style>
+
+
+<style>
+    /* [COMMON-CSS] 자동 생성됨 — 이 내용을 고치려면
+       _partials/common-css.html 파일만 고치고 build.js를 다시 실행할 것.
+       절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). */
+
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+    #main-header { background-color: #ffffff; }
+    #sub-header-bar { background-color: #12387a; height: 6px; }
+
+    /* ★ 사이드 탭 메뉴 — 패턴 A: AJAX 탭 전환용 (job-list / resume-list) */
+    .side-menu-tab {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: bold;
+        font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s;
+    }
+    .side-menu-tab:hover { background-color: #f8fafc; }
+    .side-menu-tab-active {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff;
+        font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    }
+
+    /* ★ 사이드 탭 메뉴 — 패턴 B: 목록형 (bid-list / field-experience 등)
+       패턴 A와 이름/스타일이 다름. 두 패턴이 실제로 공존 중이라 둘 다 남겨둠.
+       (장기적으로는 하나로 통일하는 걸 권장 — README 참고) */
+    .side-menu-item { display: flex; justify-content: center; align-items: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #4b5563; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+    .side-menu-item:hover { background-color: #f8fafc; color: #0B2A5B; }
+    .side-menu-active { background-color: #274bce !important; color: #ffffff !important; font-weight: bold !important; padding: 12px 0; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; }
+    .side-menu-active-wrapper { padding: 10px; }
+
+    /* ★ 좌측 메뉴 독립 스크롤 (스크롤바 왼쪽 배치) — cert-list/field-experience/dashboard 공통 */
+    .left-scroll-area {
+        direction: rtl;
+        overflow-y: auto;
+        height: 100%;
+        padding-bottom: 2rem;
+    }
+    .left-scroll-area::-webkit-scrollbar { width: 6px; }
+    .left-scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    .left-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+    .left-scroll-content { direction: ltr; padding-left: 12px; }
+
+    /* ★ 우측 본문 영역 독립 스크롤 */
+    .main-scroll-area { overflow-y: auto; height: 100%; padding-right: 6px; }
+    .main-scroll-area::-webkit-scrollbar { width: 8px; }
+    .main-scroll-area::-webkit-scrollbar-thumb { background-color: #94a3b8; border-radius: 4px; }
+    .main-scroll-area::-webkit-scrollbar-track { background-color: transparent; }
+
+    /* 커스텀 스크롤바 */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background-color: transparent; }
+
+    /* 스크롤바 숨김 유틸리티 */
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* ★ 브라우저 기본 스크롤바 완전 숨김 처리 (모든 페이지 공통 적용)
+       (기능은 살려두고, 시각적인 기본 스크롤바 막대와 화살표만 제거하여
+       내부의 커스텀 얇은 스크롤바만 예쁘게 보이도록 함) */
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none !important;
+    }
+    ::-webkit-scrollbar-button { 
+        display: none !important; 
+    }
+
+    /* -------------------------------------
+       공통 헤더 관련 스타일
+       ------------------------------------- */
+    .sos-btn {
+        background-color: transparent;
+        color: #dc2626;
+        border: none;
+        cursor: pointer;
+        padding: 5px 8px;
+        margin-left: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s;
+    }
+    .sos-btn:hover { color: #991b1b; }
+    .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+    .login-btn {
+        background-color: #2c3e50;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        transition: background-color 0.15s;
+    }
+    .login-btn:hover { background-color: #1a252f; }
+
+    .mypage-btn-mobile {
+        background-color: #0088cc;
+        color: #ffffff;
+        transition: background-color 0.15s;
+    }
+    .mypage-btn-mobile:hover { background-color: #0077b3; }
+
+    /* ★ 커뮤니티 안내문 박스 (방패 아이콘 + 안내 목록) — 2026-09 추가.
+       community/ 하위 페이지들(공지사항/자유게시판/현장경험담/자료실/Q&A)에서
+       개별 안내문을 올릴 때 공통으로 쓰는 스타일. 내용(제목/목록/아이콘 문자)은
+       페이지마다 다르게 채워 넣고, 이 CSS 자체는 공통으로 재사용함. */
+    .guide-notice-box {
+        display: flex;
+        background-color: #f8f9fb;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #143b86;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 30px;
+        font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    }
+    .guide-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        background-color: #e6edfa;
+        color: #143b86;
+        border-radius: 50%;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .guide-content {
+        flex-grow: 1;
+    }
+    .guide-content h4 {
+        color: #143b86;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 16px 0;
+    }
+    .guide-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .guide-content li {
+        position: relative;
+        padding-left: 12px;
+        margin-bottom: 10px;
+        font-size: 14.5px;
+        color: #555;
+        line-height: 1.6;
+    }
+    .guide-content li::before {
+        content: "-";
+        position: absolute;
+        left: 0;
+        color: #555;
+    }
+    .guide-content li strong {
+        color: #333;
+        font-weight: 600;
+    }
+    .text-red {
+        color: #d32f2f;
+        font-weight: bold;
+    }
+</style>
+
+    <style>
+        /* 이 페이지(자격증 상세) 전용 CSS */
+        html, body { overflow-y: scroll; overflow-anchor: none; }
+
+        /* ★ 2026-08: --header-actual-height 변수+JS 측정 방식을 걷어내고
+           aside 태그에 직접 md:top-[126px]로 고정함. 126px = 헤더(70px) +
+           서브헤더(56px), 사이트 전체 공통 고정값. 예전 계산식은 이 변수가
+           이미 "헤더+서브헤더 합산"을 담고 있는데 거기에 56px를 또 더해서
+           182px까지 부풀어 오르는 버그가 있었음(다른 자격증 페이지보다
+           사이드바가 훨씬 아래에서 시작하던 원인). */
+
+        .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; margin-bottom: 24px; transition: box-shadow 0.2s; }
+
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 20px 24px; display: flex; gap: 14px; align-items: flex-start; border-radius: 6px; }
+        .notice-icon-wrapper { width: 40px; height: 40px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .notice-title { font-size: 14.5px; font-weight: 700; color: #12387a; margin-bottom: 10px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 7px; font-size: 13px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+
+        .detail-hero { height: 130px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .detail-hero i { font-size: 54px; color: rgba(255,255,255,0.95); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18)); }
+        .detail-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 85% 15%, rgba(255,255,255,0.18), transparent 55%); }
+
+        .section-title { font-size: 19px; font-weight: 900; color: #12387a; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #e0e7ff; display: flex; align-items: center; gap: 8px; }
+
+        .curr-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .curr-table th { background: #f0f4fb; color: #1e3a8a; font-weight: 700; padding: 12px; border-bottom: 2px solid #dbe4f5; text-align: center; }
+        .curr-table td { padding: 12px; border-bottom: 1px solid #eef0f3; text-align: center; color: #374151; }
+        .curr-table tr:hover td { background: #f8fafc; }
+
+        .step-flow { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; }
+        .step-box { flex: 1; min-width: 150px; background: #f8fafc; border: 1px solid #e0e7ff; border-radius: 8px; padding: 20px 14px; text-align: center; transition: all 0.2s; }
+        .step-box:hover { border-color: #93c5fd; transform: translateY(-2px); }
+        .step-num { width: 32px; height: 32px; border-radius: 50%; background: #12387a; color: #fff; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+        .step-label { font-size: 13.5px; font-weight: 700; color: #1e3a8a; line-height: 1.4; }
+        .step-arrow { color: #94a3b8; font-size: 18px; }
+
+        .instructor-card { display: flex; gap: 20px; align-items: flex-start; }
+        .instructor-photo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; background: #e5e7eb; flex-shrink: 0; }
+
+        .price-box-free { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; }
+
+        .progress-box-cert { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
+        .progress-illust { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
+        .progress-bar-track { width: 100%; height: 8px; background: #dbeafe; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #12387a, #274bce); border-radius: 4px; transition: width 0.5s ease; }
+        .cert-fee-note { display: flex; align-items: flex-start; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e5e7eb; font-size: 12.5px; color: #9ca3af; line-height: 1.6; }
+
+        /* 공통 로딩/에러 */
+        .cert-loading-box { text-align: center; padding: 96px 20px; color: #6b7280; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .cert-spinner { width: 38px; height: 38px; border: 4px solid #dbe4f5; border-top-color: #12387a; border-radius: 50%; margin: 0 auto 16px; animation: cert-spin 0.8s linear infinite; }
+        @keyframes cert-spin { to { transform: rotate(360deg); } }
+        .cert-error-box { text-align: center; padding: 80px 20px; color: #b91c1c; background: #fff; border: 1px solid #fecaca; border-radius: 8px; }
+        .cert-error-box i { font-size: 32px; margin-bottom: 12px; display: block; }
+        .cert-retry-btn { margin-top: 14px; background: #12387a; color: #fff; font-weight: 700; padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; }
+        .cert-retry-btn:hover { background: #0e2b61; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen page-cert-detail">
+
+<!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
+         _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). -->
+<style>
+  /* 1. 페이지 길이에 따른 좌우 흔들림(우측 스크롤바 생성/소멸) 원천 차단 */
+  html {
+    overflow-y: scroll !important;
+  }
+
+  /* 2. 헤더 내비게이션(GNB) 간섭 방지 */
+  #main-header .gnb-item {
+    margin: 0 !important;
+    padding: 0 0 4px 0 !important;
+    line-height: 1.5 !important;
+    transform: none !important;
+    font-size: inherit !important;
+  }
+
+  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  #main-header .login-btn {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    padding: 6px 16px !important; /* 여유 공간 확보를 위해 패딩 소폭 감소 */
+    border-radius: 4px !important;
+    font-size: 13px !important; /* 기본 사이즈 소폭 감소 */
+    line-height: 1.5 !important;
+    height: auto !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.15s;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 0 0 4px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 86px !important; /* 추가: 로그인/로그아웃 텍스트 변경 시 흔들림 방지 */
+  }
+  #main-header .login-btn:hover {
+    background-color: #1e293b !important;
+  }
+  @media (min-width: 1280px) {
+    #main-header .login-btn {
+      padding: 7px 20px !important;
+      font-size: 14px !important;
+      min-width: 96px !important; /* 추가: PC 화면용 최소 너비 고정 */
+    }
+  }
+
+  /* 4. 긴급 SOS 호출 버튼 스타일 보호 (견적의뢰 페이지 등에서 위로 움직이는 현상 방지) */
+  #main-header .sos-btn {
+    color: #ef4444 !important;
+    font-weight: bold !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin: 0 0 0 4px !important;
+    padding: 0 0 4px 0 !important;
+    font-size: 14px !important; 
+    line-height: 1.5 !important;
+    transform: none !important; 
+  }
+  @media (min-width: 1280px) {
+    #main-header .sos-btn {
+      font-size: 16px !important;
+      gap: 6px !important;
+      margin: 0 0 0 8px !important;
+    }
+  }
+  #main-header .sos-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+  }
+
+  /* 5. 헤더 글씨 크기·간격 조정 — 메뉴가 로고~우측 영역 사이에 양끝까지 퍼지도록 (Tailwind 빌드와 무관하게 적용) */
+  #main-header nav {
+    justify-content: space-between !important; /* 첫 메뉴는 왼쪽, SOS는 오른쪽 끝으로 */
+    gap: 8px !important;                       /* 화면이 좁을 때 최소 간격 */
+    padding: 0 8px !important;
+    font-size: 14px !important;
+  }
+  #main-header .gnb-item { font-size: 14px !important; }
+  #main-header .sos-btn {
+    font-size: 14px !important;
+    margin: 0 !important;
+  }
+
+  /* 1100px 이상 (브라우저 배율 125%에서도 여기에 해당) */
+  @media (min-width: 1100px) {
+    #main-header > header { height: 76px !important; }
+    #main-header nav {
+      /* 화면 폭에 비례해 좌우 여백이 커짐: 왼쪽 = 로고와의 거리, 오른쪽 = 마이페이지와의 거리 */
+      padding-left: clamp(8px, calc((100vw - 1100px) * 0.28), 84px) !important;
+      padding-right: clamp(8px, calc((100vw - 1100px) * 0.19), 64px) !important;
+      font-size: 15px !important;
+    }
+    #main-header .gnb-item { font-size: 15px !important; }
+    #main-header .sos-btn { font-size: 15px !important; margin: 0 !important; }
+    /* 우측 마이페이지/알림 영역 */
+    #main-header header > div.lg\:flex {
+      gap: 16px !important;
+      font-size: 15px !important;
+    }
+    #main-header .login-btn {
+      font-size: 15px !important;
+      padding: 9px 22px !important;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    #main-header > header { max-width: 1600px !important; }
+    #main-header nav { font-size: 19px !important; }
+    #main-header .gnb-item { font-size: 19px !important; }
+    #main-header .sos-btn { font-size: 19px !important; }
+  }
+</style>
+
+<div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header" style="box-sizing: border-box !important;">
+    <header class="flex justify-between items-center px-3 lg:px-2 xl:px-6 max-w-[1400px] mx-auto w-full h-[70px]" style="margin: 0 auto !important; padding-top: 0 !important; padding-bottom: 0 !important;">
+
+        <!-- 1) 좌측 로고 -->
+        <div class="flex items-center h-full cursor-pointer shrink-0 mr-2 xl:mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
+            <img src="../../assets/img/logo.png" class="h-[34px] lg:h-[36px] xl:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
+        </div>
+
+        <!-- 2) 중앙 메인 GNB (간격 및 폰트 축소 적용) -->
+        <nav class="hidden lg:flex flex-1 justify-center items-center gap-2.5 xl:gap-9 font-medium text-[13px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="align-items: center !important; margin: 0 !important;">
+            <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
+            <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="board" onclick="location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
+            <div data-menu="consulting" onclick="location.href='../../consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
+            <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
+
+            <!-- 긴급 SOS 호출 -->
+            <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-1 xl:ml-2">
+                <i class="fa-solid fa-phone-volume"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+        </nav>
+
+        <!-- 3) 우측 유틸리티 영역 (간격 축소 적용) -->
+        <div class="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0 ml-2 xl:ml-6 whitespace-nowrap font-medium text-gray-700 text-[13px] xl:text-[15px]" style="align-items: center !important; margin-top: 0 !important; margin-bottom: 0 !important;">
+            <!-- 알림 종소리 및 드롭다운 컨테이너 -->
+            <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[30px] xl:w-[36px] h-[30px] xl:h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인" style="margin: 0 !important;">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px] xl:text-[20px]" style="margin: 0 !important;"></i>
+                <!-- 알림 개수 뱃지 -->
+                <span id="notification-badge" class="hidden absolute top-[1px] right-[1px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white" style="margin: 0 !important; padding: 0 !important;">
+                    0
+                </span>
+                <!-- 알림 목록 드롭다운 창 -->
+                <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
+                    <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
+                    <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default"></ul>
+                </div>
+            </div>
+
+            <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-admin-link" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden cursor-pointer font-bold text-[#1e3a8a] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자
+            </div>
+            <div id="header-login-btn" data-auth-btn="true" onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+        </div>
+
+        <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기" style="margin-right: 0 !important; padding: 8px !important;">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </header>
+</div>
+
+    <div id="sticky-top-bar" class="w-full flex flex-col relative z-[900] shrink-0 bg-transparent">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+</div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('consulting-field.html')) location.href='../../consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
+            <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='../../community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+
+            <!-- 모바일 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </div>
+
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <!-- 모바일 알림 버튼 -->
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                    <i class="fa-regular fa-bell mr-1"></i> 알림
+                    <!-- 모바일 알림 개수 뱃지 (초기 숨김) -->
+                    <span id="mobile-notification-badge" class="hidden absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">
+                        0
+                    </span>
+                </div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div id="header-admin-link-mobile" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden w-full py-2.5 mt-2 bg-[#1e3a8a] text-white font-bold rounded-lg cursor-pointer text-center">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자 페이지
+            </div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 메뉴 열기/닫기 스크립트
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '../../login.html'; };
+                }
+            });
+
+            const isAdmin = !!(session && session.user && session.user.user_metadata && session.user.user_metadata.role === 'admin');
+            document.querySelectorAll('[data-admin-only]').forEach(el => {
+                el.classList.toggle('hidden', !isAdmin);
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
+        // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
+        async function fetchUnreadCount() {
+            if (!window.sb) {
+                return;
+            }
+            
+            const { data: { user } } = await window.sb.auth.getUser();
+            if (!user) {
+                console.log("로그인된 사용자가 없습니다.");
+                return; 
+            }
+
+            const { count, error } = await window.sb
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false);
+
+            if (error) {
+                console.error('알림 개수 로드 오류:', error);
+                return;
+            }
+
+            console.log("알림 개수:", count, "로그인 유저:", user.id);
+
+            const pcBadge = document.getElementById('notification-badge');
+            const mobileBadge = document.getElementById('mobile-notification-badge');
+
+            if (count > 0) {
+                if (pcBadge) { pcBadge.innerText = count; pcBadge.classList.remove('hidden'); }
+                if (mobileBadge) { mobileBadge.innerText = count; mobileBadge.classList.remove('hidden'); }
+            } else {
+                if (pcBadge) pcBadge.classList.add('hidden');
+                if (mobileBadge) mobileBadge.classList.add('hidden');
+            }
+        }
+
+        async function loadNotifications() {
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
+            if (!user) return;
+
+            const listContainer = document.getElementById('notification-list');
+            if (!listContainer) return;
+
+            const { data, error } = await window.sb
+                .from('notifications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            listContainer.innerHTML = ''; 
+
+            if (error) {
+                console.error('알림 로드 오류:', error);
+                return;
+            }
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<li class="px-4 py-3 text-sm text-gray-500">새로운 알림이 없습니다.</li>';
+                return;
+            }
+
+            data.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = `px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 ${notification.is_read ? 'text-gray-500' : 'text-black font-medium bg-blue-50'}`;
+                li.innerText = notification.message;
+                
+                li.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (!notification.is_read) {
+                        await window.sb
+                            .from('notifications')
+                            .update({ is_read: true })
+                            .eq('id', notification.id);
+                    }
+                    if (notification.link_url) {
+                        window.location.href = notification.link_url;
+                    }
+                };
+                listContainer.appendChild(li);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.gnb-item').forEach(item => {
+                const menuKey = item.getAttribute('data-menu');
+                if (menuKey && currentPath.includes('/' + menuKey + '/')) {
+                    item.classList.add('text-[#0088cc]');
+                }
+            });
+
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+                const updateHeaderHeightVar = () => {
+                    const h = headerEl.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+                };
+                updateHeaderHeightVar();
+                const ro = new ResizeObserver(updateHeaderHeightVar);
+                ro.observe(headerEl);
+            }
+
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
+
+            const bellContainer = document.getElementById('bell-container');
+            const dropdown = document.getElementById('notification-dropdown');
+            
+            if (bellContainer && dropdown) {
+                bellContainer.addEventListener('click', (e) => {
+                    if(e.target.closest('#notification-dropdown')) return;
+                    
+                    dropdown.classList.toggle('hidden');
+                    if (!dropdown.classList.contains('hidden')) {
+                        loadNotifications();
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!bellContainer.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+
+
+    <!-- 메인 콘텐츠 -->
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-7 pb-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <!-- 좌측 사이드바: 다른 cert 페이지들과 동일하게 "자격증 과정 / 현장 교육 / 진위확인" 3단 구성 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[126px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab-active">자격증 과정</div>
+                <div class="side-menu-tab" onclick="window.location.href='edu-field-list.html'">현장 교육</div>
+                <div class="side-menu-tab" onclick="window.location.href='cert-verify.html'">진위 확인</div>
+            </div>
+            <a href="cert-list.html" class="block text-center text-[13.5px] text-gray-500 hover:text-[#12387a] font-medium py-2"><i class="fas fa-arrow-left mr-1"></i> 목록으로 돌아가기</a>
+        </aside>
+
+        <section class="flex-1 min-w-0" id="detail-root">
+            <div class="cert-loading-box" id="loading-msg">
+                <div class="cert-spinner"></div>
+                <p>데이터를 불러오는 중입니다...</p>
+            </div>
+    <div id="footer-container" class="w-full mt-auto"></div>
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+    </div>
+    <!-- 핑크박스 끝 -->
+
+
+    <script>
+        const supabaseClient = window.sb;
+
+        const qs = new URLSearchParams(window.location.search);
+        const courseId = qs.get('id');
+        const courseSlug = qs.get('slug');
+
+        let currentCourse = null;
+        let currentUser = null;
+        let currentEnrollment = null;
+
+        const isDummyId = (id) => typeof id === 'string' && (id.startsWith('dummy') || id.startsWith('cert-'));
+
+        const CERT_VISUAL_MAP = {
+            'dummy-1': { icon: 'fa-bolt', gradient: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+            'dummy-2': { icon: 'fa-fire-extinguisher', gradient: 'linear-gradient(135deg,#b91c1c,#f97316)' },
+            'dummy-3': { icon: 'fa-gears', gradient: 'linear-gradient(135deg,#0f766e,#14b8a6)' },
+            'dummy-4': { icon: 'fa-screwdriver-wrench', gradient: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+            'dummy-5': { icon: 'fa-faucet-drip', gradient: 'linear-gradient(135deg,#0369a1,#0ea5e9)' },
+            'dummy-6': { icon: 'fa-building-shield', gradient: 'linear-gradient(135deg,#334155,#64748b)' },
+            'dummy-7': { icon: 'fa-leaf', gradient: 'linear-gradient(135deg,#15803d,#65a30d)' },
+            'dummy-8': { icon: 'fa-file-invoice-dollar', gradient: 'linear-gradient(135deg,#c2410c,#f59e0b)' },
+            'dummy-9': { icon: 'fa-broom', gradient: 'linear-gradient(135deg,#0d9488,#4ade80)' },
+            'cert-1': { icon: 'fa-user-tie', gradient: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+            'cert-2': { icon: 'fa-file-invoice-dollar', gradient: 'linear-gradient(135deg,#c2410c,#f59e0b)' },
+            'cert-3': { icon: 'fa-broom', gradient: 'linear-gradient(135deg,#0d9488,#4ade80)' },
+            'cert-4': { icon: 'fa-screwdriver-wrench', gradient: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+            'cert-5': { icon: 'fa-bolt', gradient: 'linear-gradient(135deg,#6610f2,#a78bfa)' }
+        };
+
+        const dummyCourseMap = {
+            'dummy-1': {
+                id: 'dummy-1', title: '기전당직실무관리사', slug: 'electrical-duty', category: '기전',
+                description: '<p>건물 기전실 당직 운영에 필요한 전기·기계 설비 실무 지식을 학습합니다. 수변전설비, 발전기, 공조설비 등 당직 근무 중 발생하는 실무 상황에 대한 대응 능력을 배양합니다.</p><p>실제 현장에서 발생하는 고장 사례와 점검 체크리스트를 기반으로, 초보자도 당직 업무를 바로 수행할 수 있도록 구성된 실무형 과정입니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 60일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '김기전', instructor_bio: '20년간 대형 오피스빌딩 기전실 총괄 관리 경력을 보유한 실무 전문가입니다. 다수의 건물관리 실무 교육 강의를 진행해왔습니다.',
+                status: 'OPEN', view_count: 342, enroll_count: 128
+            },
+            'dummy-2': {
+                id: 'dummy-2', title: '전기방재설비관리사', slug: 'fire-electrical-safety', category: '전기방재',
+                description: '<p>소방·방재 전기설비의 구조와 점검 방법, 화재 및 비상 상황 발생 시 대응 절차를 학습하는 과정입니다. 자동화재탐지설비, 비상방송, 피난유도설비 등 핵심 방재 설비를 실무 중심으로 다룹니다.</p><p>법정 점검 기준과 실제 현장 대응 사례를 함께 학습하여 방재 관리 역량을 강화합니다.</p>',
+                edu_method: 'LIVE', edu_period: '2026-09-01 ~ 09-05', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '박방재', instructor_bio: '소방안전관리 및 전기방재설비 분야 15년 경력의 현장 전문가로, 다수 기업체 방재 교육을 담당하고 있습니다.',
+                status: 'OPEN', view_count: 198, enroll_count: 96
+            },
+            'dummy-3': {
+                id: 'dummy-3', title: '기계설비실무관리사', slug: 'mechanical-facility', category: '기계',
+                description: '<p>냉동기, 보일러, 공조설비 등 건물 기계설비의 운전관리와 유지보수 실무를 종합적으로 학습하는 과정입니다. 계절별 설비 운전 전략과 에너지 효율 관리 방법을 포함합니다.</p><p>현장 실습형 커리큘럼으로 구성되어 실제 설비 점검 및 트러블슈팅 능력을 키울 수 있습니다.</p>',
+                edu_method: 'MIX', edu_period: '2026-09-10 ~ 09-24', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '이기계', instructor_bio: '기계설비 유지관리 분야 18년 경력을 보유하고 있으며, 다수의 대형 건물 기계설비 총괄 책임자로 활동했습니다.',
+                status: 'OPEN', view_count: 256, enroll_count: 141
+            },
+            'dummy-4': {
+                id: 'dummy-4', title: '건물영선실무관리사', slug: 'building-maintenance', category: '영선',
+                description: '<p>건물 내외부 시설물의 보수와 유지관리를 위한 영선 실무 전 과정을 학습합니다. 도장, 방수, 타일, 목공 등 다양한 보수 작업의 기초 이론과 실무 노하우를 다룹니다.</p><p>현장에서 자주 발생하는 하자 유형별 대응 방법을 사례 중심으로 학습합니다.</p>',
+                edu_method: 'VOD', edu_period: '2026-08-01 ~ 08-14', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '최영선', instructor_bio: '건물 유지보수 및 영선 실무 12년 경력의 전문가로, 다수의 아파트 및 오피스 건물 영선팀을 운영한 경험이 있습니다.',
+                status: 'OPEN', view_count: 174, enroll_count: 82
+            },
+            'dummy-5': {
+                id: 'dummy-5', title: '배관설비실무관리사', slug: 'piping-facility', category: '배관',
+                description: '<p>급수, 배수, 소방배관 등 건물 배관설비의 구조와 점검 방법을 학습하는 과정입니다. 누수 진단, 배관 부식 관리, 긴급 고장 대응 절차를 실무 중심으로 다룹니다.</p><p>Zoom 화상강의를 통해 실시간 질의응답과 사례 공유가 가능합니다.</p>',
+                edu_method: 'LIVE', edu_period: '2026-09-15 ~ 09-16', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '정배관', instructor_bio: '설비 배관 시공 및 유지관리 분야 14년 경력을 보유하고 있으며, 배관 진단 전문 기술사로 활동 중입니다.',
+                status: 'OPEN', view_count: 91, enroll_count: 45
+            },
+            'dummy-6': {
+                id: 'dummy-6', title: '시설행정실무관리사', slug: 'facility-administration', category: '행정',
+                description: '<p>집합건물 관리규약 작성, 관리비 회계 처리, 행정 서류 관리 등 시설행정 실무 전반을 학습하는 과정입니다. 관련 법령과 실제 행정 사례를 함께 다룹니다.</p><p>상시 수강 가능한 VOD 과정으로 원하는 시간에 자유롭게 학습할 수 있습니다.</p>',
+                edu_method: 'VOD', edu_period: '상시 수강', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '한행정', instructor_bio: '집합건물 관리행정 및 관리비 회계 분야 16년 경력의 전문가로, 다수의 관리사무소 행정 컨설팅을 수행했습니다.',
+                status: 'OPEN', view_count: 312, enroll_count: 167
+            },
+            'dummy-7': {
+                id: 'dummy-7', title: '환경위생실무관리사', slug: 'environment-hygiene', category: '환경위생',
+                description: '<p>건물 위생관리, 저수조 및 급수설비 소독, 실내 공기질 관리 등 환경위생 실무 전반을 학습하는 과정입니다. 관련 법정 점검 주기와 실무 체크리스트를 포함합니다.</p><p>이론 학습과 실무 사례를 함께 다루는 혼합형 과정으로 구성되어 있습니다.</p>',
+                edu_method: 'MIX', edu_period: '2026-09-20 ~ 10-04', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '오위생', instructor_bio: '건물 환경위생관리 및 수질관리 분야 13년 경력을 보유하고 있으며, 환경위생 관리기술사로 활동 중입니다.',
+                status: 'OPEN', view_count: 143, enroll_count: 73
+            },
+            'dummy-8': {
+                id: 'dummy-8', title: '경리회계실무관리사', slug: 'accounting-practice', category: '회계',
+                description: '<p>건물 관리 현장의 경리·회계 실무 능력을 검증하는 과정입니다. 관리비 회계처리, 예산편성, 세무신고, 재무제표 분석 등 관리사무소 회계 업무 전반을 학습합니다.</p><p>실제 관리사무소 장부와 결산 사례를 기반으로, 회계 기초부터 실무 적용까지 단계적으로 학습할 수 있도록 구성된 과정입니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 30일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '강경리', instructor_bio: '관리사무소 경리·회계 실무 15년 경력을 보유하고 있으며, 다수의 집합건물 회계 감사 대응 및 결산 업무를 수행했습니다.',
+                status: 'OPEN', view_count: 132, enroll_count: 58
+            },
+            'dummy-9': {
+                id: 'dummy-9', title: '환경미화관리사', slug: 'cleaning-management', category: '환경미화',
+                description: '<p>건물 환경미화 실무 능력을 검증하는 과정입니다. 처음 미화원이 되려는 분들을 위해 약품 사용법, 구역별 청소 방법, 위생 관리 등을 체계적으로 교육하고 합격자에게 자격증을 발급합니다.</p><p>현장에서 바로 활용할 수 있는 청소 장비·약품 사용법과 안전 수칙을 실습형 커리큘럼으로 구성했습니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 30일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '윤미화', instructor_bio: '건물 환경미화 관리 및 교육 분야 11년 경력을 보유하고 있으며, 다수의 미화원 양성 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 108, enroll_count: 41
+            },
+            'cert-1': {
+                id: 'cert-1', title: '관리소장 실무관리사', slug: 'property-manager', category: '관리소장 실무',
+                description: '<p>집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다. 입주자대표회의 운영, 관리규약 실무, 민원 대응 및 시설 운영 총괄 업무를 체계적으로 학습합니다.</p><p>현장에서 바로 활용 가능한 행정 서식과 실전 민원 대응 사례를 중심으로 구성된 실무형 과정입니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 60일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '이소장', instructor_bio: '20년간 대형 공동주택 및 오피스빌딩 관리소장으로 근무한 실무 전문가로, 다수의 관리소장 양성 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 405, enroll_count: 320
+            },
+            'cert-2': {
+                id: 'cert-2', title: '경리회계 실무관리사', slug: 'accounting-manager', category: '경리회계 실무',
+                description: '<p>관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양하는 과정입니다. 관리사무소 장부 작성부터 부가세·원천징수 등 세무 실무까지 단계적으로 학습합니다.</p><p>실제 관리비 부과 사례와 결산 서류를 기반으로, 회계 초보자도 바로 실무에 적용할 수 있도록 구성했습니다.</p>',
+                edu_method: 'LIVE', edu_period: '2026-09-01 ~ 09-05', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '강경리', instructor_bio: '관리사무소 경리·회계 실무 15년 경력을 보유하고 있으며, 다수의 집합건물 회계 감사 대응 및 결산 업무를 수행했습니다.',
+                status: 'OPEN', view_count: 289, enroll_count: 215
+            },
+            'cert-3': {
+                id: 'cert-3', title: '환경미화 실무관리사', slug: 'cleaning-manager', category: '환경미화 실무',
+                description: '<p>건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습하는 과정입니다. 약품 및 장비 사용법부터 특수 청소, 위생 점검까지 폭넓게 다룹니다.</p><p>현장에서 바로 활용할 수 있는 청소 장비·약품 사용법과 안전 수칙을 실습형 커리큘럼으로 구성했습니다.</p>',
+                edu_method: 'VOD', edu_period: '신청일로부터 30일', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '윤미화', instructor_bio: '건물 환경미화 관리 및 교육 분야 11년 경력을 보유하고 있으며, 다수의 미화원 양성 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 198, enroll_count: 142
+            },
+            'cert-4': {
+                id: 'cert-4', title: '기전영선 실무관리사', slug: 'facility-manager', category: '기전영선 실무',
+                description: '<p>전기, 기계, 배관, 영선 등 건물 내 각종 시설물 유지보수 및 비상시 대응 절차를 통합적으로 다루는 과정입니다. 수변전설비부터 배관·영선 보수까지 기전 전 분야를 실무 중심으로 학습합니다.</p><p>실제 현장 고장 사례와 점검 체크리스트를 기반으로, 기전영선 업무를 폭넓게 수행할 수 있도록 구성된 실무형 과정입니다.</p>',
+                edu_method: 'MIX', edu_period: '2026-09-10 ~ 09-24', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '김기전', instructor_bio: '20년간 대형 오피스빌딩 기전실 총괄 관리 경력을 보유한 실무 전문가로, 다수의 기전영선 실무 교육을 진행해왔습니다.',
+                status: 'OPEN', view_count: 356, enroll_count: 288
+            },
+            'cert-5': {
+                id: 'cert-5', title: '전기 실무관리사', slug: 'electrical-manager', category: '전기 실무',
+                description: '<p>수배전반 등 현장에서 일하는 베테랑 전기 전문가의 밀착 지도를 통해 즉시 투입 가능한 실무를 배웁니다.</p><p>이론과 현장 실습을 병행하며, 자체 평가를 거쳐 확실한 자격을 부여받는 실무형 과정으로 구성했습니다.</p>',
+                edu_method: 'MIX', edu_period: '2026-09-05 ~ 09-19', cert_price: 250000,
+                pass_criteria: { progress_rate: 80, exam_score: 60 },
+                instructor_name: '정전기', instructor_bio: '수배전반 및 고압전기설비 현장 실무 17년 경력을 보유한 베테랑 전기 전문가로, 전기기사 실무 교육을 다수 진행해왔습니다.',
+                status: 'OPEN', view_count: 132, enroll_count: 76
+            }
+        };
+
+        const dummyCurriculumMap = {
+            'dummy-1': [
+                { id: 1, chapter_no: 1, title: '기전 당직 업무 개요와 근무 체계', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '수변전설비 구조와 점검 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '비상발전기 운영 및 정기 시운전', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '공조설비(냉동기·보일러) 운전관리', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '당직 중 전기 고장 대응 및 안전조치', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 6, chapter_no: 6, title: '기전 설비 일일점검표 작성과 인수인계 실무', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'dummy-2': [
+                { id: 1, chapter_no: 1, title: '전기방재설비 개론 및 법정 점검 기준', duration_min: 40, content_type: 'LIVE', is_preview: true },
+                { id: 2, chapter_no: 2, title: '자동화재탐지설비 구조와 점검 실무', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 3, chapter_no: 3, title: '비상방송 및 피난유도설비 점검', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '방재시스템 통합 관제 및 연동 시험', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 5, chapter_no: 5, title: '화재 및 비상 상황 대응 실무 시나리오', duration_min: 45, content_type: 'LIVE', is_preview: false }
+            ],
+            'dummy-3': [
+                { id: 1, chapter_no: 1, title: '기계설비 개론과 유지관리 기준', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '냉동기 운전관리 및 점검 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '보일러 설비 안전관리와 정기검사', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '공조설비 에너지 효율 관리', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 5, chapter_no: 5, title: '기계설비 고장 진단 및 트러블슈팅', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 6, chapter_no: 6, title: '현장 실습: 설비 점검표 작성', duration_min: 30, content_type: 'DOCUMENT', is_preview: false }
+            ],
+            'dummy-4': [
+                { id: 1, chapter_no: 1, title: '건물 영선 업무 개요와 안전수칙', duration_min: 35, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '도장 및 방수 보수 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '타일 및 마감재 보수 기법', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '목공 및 창호 유지보수 실무', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '하자 유형별 대응 사례 연구', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'dummy-5': [
+                { id: 1, chapter_no: 1, title: '배관설비 개론 및 급배수 시스템', duration_min: 40, content_type: 'LIVE', is_preview: true },
+                { id: 2, chapter_no: 2, title: '소방배관 점검 및 법정 기준', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 3, chapter_no: 3, title: '누수 진단 및 배관 부식 관리', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '긴급 배관 고장 대응 실무', duration_min: 40, content_type: 'LIVE', is_preview: false }
+            ],
+            'dummy-6': [
+                { id: 1, chapter_no: 1, title: '집합건물 관리규약의 이해', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '관리비 회계 처리 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '행정 서류 작성 및 관리 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '관련 법령과 분쟁 사례 연구', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '입주자대표회의 운영 실무', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'dummy-7': [
+                { id: 1, chapter_no: 1, title: '환경위생관리 개론과 법정 기준', duration_min: 35, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '저수조 및 급수설비 소독 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '실내 공기질 관리와 측정 실무', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '수질검사 및 위생 점검 체크리스트', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '위생관리 실무 사례 연구', duration_min: 35, content_type: 'LIVE', is_preview: false }
+            ],
+            'dummy-8': [
+                { id: 1, chapter_no: 1, title: '집합건물 관리비 회계 기초', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '예산 편성 및 집행 관리', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '세무 실무(부가세·원천징수·4대보험)', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '재무제표 분석 및 감사 대응', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '관리비 정산 및 입주민 고지', duration_min: 40, content_type: 'VOD', is_preview: false }
+            ],
+            'dummy-9': [
+                { id: 1, chapter_no: 1, title: '환경미화 기초 및 안전교육', duration_min: 35, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '청소 약품 및 장비 사용법', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '구역별 청소 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '특수 청소 및 위생 관리', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '환경미화 관리 계획 수립', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'cert-1': [
+                { id: 1, chapter_no: 1, title: '관리소장 직무 개요와 법적 책임', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '입주자대표회의 운영 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '관리규약 작성 및 개정 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '민원 응대 및 분쟁 조정 사례', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '시설 운영 총괄 및 예산 관리', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 6, chapter_no: 6, title: '관리소장 행정서류 작성 실무', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'cert-2': [
+                { id: 1, chapter_no: 1, title: '관리사무소 경리 실무 개요', duration_min: 40, content_type: 'LIVE', is_preview: true },
+                { id: 2, chapter_no: 2, title: '관리비 부과 및 회계 처리', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 3, chapter_no: 3, title: '예산 편성 및 결산 실무', duration_min: 45, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '세무 실무(부가세·원천징수·4대보험)', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 5, chapter_no: 5, title: '관리비 정산 및 입주민 고지', duration_min: 40, content_type: 'LIVE', is_preview: false }
+            ],
+            'cert-3': [
+                { id: 1, chapter_no: 1, title: '환경미화 기초 및 안전교육', duration_min: 35, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '청소 약품 및 장비 사용법', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '구역별 청소 실무', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 4, chapter_no: 4, title: '위생/소독 관리 실무', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '환경미화 관리 계획 수립', duration_min: 35, content_type: 'VOD', is_preview: false }
+            ],
+            'cert-4': [
+                { id: 1, chapter_no: 1, title: '기전영선 업무 개요와 안전수칙', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '수변전설비 및 전기설비 점검 실무', duration_min: 50, content_type: 'VOD', is_preview: false },
+                { id: 3, chapter_no: 3, title: '기계·공조설비 운전관리', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '배관설비 점검 및 누수 대응', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '영선(도장·방수·목공) 보수 실무', duration_min: 40, content_type: 'VOD', is_preview: false },
+                { id: 6, chapter_no: 6, title: '비상시 대응 절차 및 사례 연구', duration_min: 35, content_type: 'LIVE', is_preview: false }
+            ],
+            'cert-5': [
+                { id: 1, chapter_no: 1, title: '수배전반 구조와 안전수칙', duration_min: 40, content_type: 'VOD', is_preview: true },
+                { id: 2, chapter_no: 2, title: '저압/고압 전기설비 점검 실무', duration_min: 50, content_type: 'LIVE', is_preview: false },
+                { id: 3, chapter_no: 3, title: '수배전반 현장 실습(베테랑 밀착 지도)', duration_min: 60, content_type: 'LIVE', is_preview: false },
+                { id: 4, chapter_no: 4, title: '전기 고장 진단 및 응급 대응', duration_min: 45, content_type: 'VOD', is_preview: false },
+                { id: 5, chapter_no: 5, title: '실무 자체 평가 및 자격 부여', duration_min: 30, content_type: 'LIVE', is_preview: false }
+            ]
+        };
+
+        const dummyCourse = dummyCourseMap['dummy-1'];
+        const dummyCurriculum = dummyCurriculumMap['dummy-1'];
+
+        function statusBadgeHtml(status) {
+            if (status === 'OPEN') return '<span class="bg-blue-600 text-white px-3 py-1 rounded text-[13px] font-bold">접수중</span>';
+            if (status === 'CLOSED') return '<span class="bg-gray-500 text-white px-3 py-1 rounded text-[13px] font-bold">마감</span>';
+            return '<span class="bg-yellow-400 text-white px-3 py-1 rounded text-[13px] font-bold">준비중</span>';
+        }
+
+        function methodLabel(method) {
+            if (method === 'VOD') return '동영상(VOD)';
+            if (method === 'LIVE') return '실시간(Zoom)';
+            if (method === 'MIX') return '혼합형';
+            return '-';
+        }
+
+        function contentTypeLabel(type) {
+            if (type === 'VOD') return '<span class="text-gray-600">VOD</span>';
+            if (type === 'LIVE') return '<span class="text-indigo-600 font-bold">실시간</span>';
+            if (type === 'DOCUMENT') return '<span class="text-gray-600">문서</span>';
+            return '-';
+        }
+
+        function priceHtml(course, enrollment) {
+            let progressRate = 0;
+            if (enrollment && enrollment.progress_rate !== undefined && enrollment.progress_rate !== null) {
+                progressRate = Math.round(enrollment.progress_rate);
+            } else if (isDummyId(course.id)) {
+                progressRate = 45;
+            }
+
+            return `
+                <div class="price-box-free">
+                    <span class="text-[13px] text-gray-500 mr-2">수강료</span>
+                    <span class="text-lg font-black text-green-600">무료 <span class="text-[12px] font-bold text-green-500">(100% 장학지원)</span></span>
+                </div>
+                <div class="progress-box-cert">
+                    <img src="../../assets/img/cert-progress-illustration.png" alt="학습 진행률" class="progress-illust">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[13px] text-gray-500">나의 학습 진행률</span>
+                            <span class="text-lg font-black text-[#12387a]">${progressRate}%</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" style="width:${progressRate}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function resolveFallbackCourse() {
+            if (courseId && dummyCourseMap[courseId]) return dummyCourseMap[courseId];
+            if (courseSlug) {
+                const bySlug = Object.values(dummyCourseMap).find(c => c.slug === courseSlug);
+                if (bySlug) return bySlug;
+            }
+            return dummyCourse;
+        }
+
+        async function fetchCourse() {
+            try {
+                let query = supabaseClient.from('cert_courses').select('*');
+                if (courseId) query = query.eq('id', courseId);
+                else if (courseSlug) query = query.eq('slug', courseSlug);
+                else throw new Error('식별자 없음');
+
+                const { data, error } = await query.maybeSingle();
+                if (error) throw error;
+
+                currentCourse = data || resolveFallbackCourse();
+            } catch (error) {
+                console.error('과정 정보 조회 실패, 폴백 데이터로 대체합니다:', error);
+                currentCourse = resolveFallbackCourse();
+            }
+        }
+
+        async function fetchCurriculum() {
+            try {
+                const cid = currentCourse.id;
+                if (typeof cid === 'string' && (cid.startsWith('dummy') || cid.startsWith('cert-'))) {
+                    return dummyCurriculumMap[cid] || dummyCurriculum;
+                }
+                const { data, error } = await supabaseClient
+                    .from('cert_curriculum')
+                    .select('*')
+                    .eq('course_id', cid)
+                    .order('chapter_no', { ascending: true });
+
+                if (error) throw error;
+                return (data && data.length > 0) ? data : dummyCurriculum;
+            } catch (error) {
+                console.error('커리큘럼 조회 실패:', error);
+                const cid = currentCourse && currentCourse.id;
+                return dummyCurriculumMap[cid] || dummyCurriculum;
+            }
+        }
+
+        async function fetchUserAndEnrollment() {
+            try {
+                const { data: userData } = await supabaseClient.auth.getUser();
+                currentUser = userData ? userData.user : null;
+
+                if (currentUser && currentCourse && typeof currentCourse.id !== 'string') {
+                    const { data, error } = await supabaseClient
+                        .from('cert_enrollments')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .eq('course_id', currentCourse.id)
+                        .maybeSingle();
+
+                    if (!error) currentEnrollment = data || null;
+                }
+            } catch (error) {
+                console.error('사용자/수강 정보 조회 실패:', error);
+            }
+        }
+
+        function renderEnrollButton() {
+            const course = currentCourse;
+            const status = course.status || 'OPEN';
+
+            if (!currentUser) {
+                return `
+                    <div class="flex flex-col gap-2">
+                        <button disabled class="w-full py-4 bg-gray-300 text-white font-bold text-lg rounded-lg cursor-not-allowed">수강 신청하기</button>
+                        <div class="text-center text-sm text-gray-500">로그인 후 신청 가능합니다. <a href="../../login.html" class="text-[#12387a] font-bold underline">로그인 하기</a></div>
+                    </div>
+                `;
+            }
+
+            if (currentEnrollment && currentEnrollment.status === 'ACTIVE') {
+                return `<button onclick="location.href='cert-player.html?course_id=${course.id}'" class="w-full py-4 bg-[#0B2A5B] hover:bg-[#153b80] text-white font-bold text-lg rounded-lg transition">수강 중입니다 - 이어서 학습하기</button>`;
+            }
+
+            if (currentEnrollment && currentEnrollment.status === 'COMPLETED') {
+                return `<button onclick="location.href='cert-player.html?course_id=${course.id}'" class="w-full py-4 bg-gray-500 hover:bg-gray-600 text-white font-bold text-lg rounded-lg transition">수료 완료 - 강의 다시보기</button>`;
+            }
+
+            if (status === 'CLOSED') {
+                return `<button disabled class="w-full py-4 bg-gray-300 text-white font-bold text-lg rounded-lg cursor-not-allowed">접수 마감</button>`;
+            }
+
+            if (status === 'UPCOMING') {
+                return `<button disabled class="w-full py-4 bg-yellow-300 text-white font-bold text-lg rounded-lg cursor-not-allowed">준비중입니다</button>`;
+            }
+
+            return `<button onclick="location.href='cert-enroll.html?course_id=${course.id}'" class="w-full py-4 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-lg rounded-lg transition shadow-md">수강 신청하기</button>`;
+        }
+
+        function renderCurriculum(list) {
+            const totalMin = list.reduce((sum, c) => sum + (c.duration_min || 0), 0);
+            const hours = Math.floor(totalMin / 60);
+            const mins = totalMin % 60;
+            const totalLabel = hours > 0 ? `${hours}시간 ${mins}분` : `${mins}분`;
+
+            const rows = list.map(c => `
+                <tr>
+                    <td class="font-bold text-[#12387a]">${c.chapter_no}차시</td>
+                    <td class="text-left">${c.title}</td>
+                    <td>${c.duration_min || 0}분</td>
+                    <td>${contentTypeLabel(c.content_type)}</td>
+                    <td>${c.is_preview ? '<button class="text-xs bg-[#e0e7ff] text-[#1e3a8a] font-bold px-3 py-1 rounded hover:bg-[#c7d2fe] transition">미리보기</button>' : '<span class="text-gray-300">-</span>'}</td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-sm text-gray-500">총 ${list.length}차시</span>
+                    <span class="text-sm font-bold text-[#12387a]">총 강의시간 ${totalLabel}</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="curr-table">
+                        <thead>
+                            <tr>
+                                <th style="width:70px;">차시</th>
+                                <th class="text-left" style="padding-left:16px;">강의 제목</th>
+                                <th style="width:80px;">시간</th>
+                                <th style="width:90px;">유형</th>
+                                <th style="width:100px;">미리보기</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderInstructor(course) {
+            if (!course.instructor_name) return '';
+            const photo = course.instructor_img
+                ? `<img src="${course.instructor_img}" alt="${course.instructor_name}" class="instructor-photo">`
+                : `<div class="instructor-photo flex items-center justify-center text-gray-400"><i class="fas fa-user text-3xl"></i></div>`;
+
+            return `
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-chalkboard-teacher"></i> 강사 소개</div>
+                    <div class="instructor-card">
+                        ${photo}
+                        <div>
+                            <div class="font-bold text-lg text-[#0B2A5B] mb-2">${course.instructor_name} 강사</div>
+                            <div class="text-sm text-gray-600 leading-relaxed">${course.instructor_bio || '강사 소개 정보가 준비 중입니다.'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGuide(course) {
+            let progressRate = 80, examScore = 60;
+            try {
+                const pc = course.pass_criteria;
+                if (pc) {
+                    progressRate = pc.progress_rate ?? 80;
+                    examScore = pc.exam_score ?? 60;
+                }
+            } catch (e) {}
+
+            return `
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-info-circle"></i> 수강 안내</div>
+                    <div class="step-flow">
+                        <div class="step-box"><div class="step-num">1</div><div class="step-label">수강 신청</div></div>
+                        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="step-box"><div class="step-num">2</div><div class="step-label">강의 수강<br>(진도율 ${progressRate}%+)</div></div>
+                        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="step-box"><div class="step-num">3</div><div class="step-label">온라인 시험<br>(${examScore}점+)</div></div>
+                        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="step-box"><div class="step-num">4</div><div class="step-label">자격증 발급</div></div>
+                    </div>
+                    ${course.required_field_course_count ? `
+                        <div class="notice-box mt-5" style="margin-bottom:0;">
+                            <div class="notice-icon-wrapper self-start"><i class="fas fa-hard-hat"></i></div>
+                            <div class="notice-content">
+                                <div class="notice-title">시험 응시 자격 요건</div>
+                                <ul class="notice-list">
+                                    <li>같은 분야("${course.category}")의 <a href="edu-field-list.html" class="text-[#12387a] font-bold underline">현장교육</a>에 <strong>${course.required_field_course_count}회 이상</strong> 참석하셔야 온라인 시험 응시가 가능합니다.</li>
+                                    <li>참석 처리는 각 현장교육 담당 운영진이 현장에서 확인 후 진행하며, 진행 현황은 마이페이지 &gt; 내 수강 목록에서 확인하실 수 있습니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function render() {
+            const course = currentCourse;
+            const curriculum = await fetchCurriculum();
+
+            const root = document.getElementById('detail-root');
+            const visual = CERT_VISUAL_MAP[course.id] || { icon: 'fa-certificate', gradient: 'linear-gradient(135deg,#12387a,#274bce)' };
+            root.innerHTML = `
+                <div class="detail-hero" style="background:${visual.gradient};">
+                    <i class="fas ${visual.icon}"></i>
+                </div>
+                <div class="section-card" style="border-top-left-radius:0; border-top-right-radius:0; margin-top:-6px;">
+                    <div class="flex items-center gap-3 mb-4">
+                        ${statusBadgeHtml(course.status)}
+                        <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i>조회 ${course.view_count || 0}</span>
+                        <span class="text-sm text-gray-400"><i class="fas fa-user-graduate mr-1"></i>신청 ${course.enroll_count || 0}명</span>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-black text-[#0B2A5B] mb-5 leading-snug">${course.title}</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-gray-50 border border-gray-100 rounded-lg p-4 text-sm">
+                        <div><div class="text-gray-500 mb-1">분야</div><div class="font-bold text-gray-800">${course.category || '-'}</div></div>
+                        <div><div class="text-gray-500 mb-1">수강 기간</div><div class="font-bold text-gray-800">${course.edu_period || '상시 수강'}</div></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">${priceHtml(course, currentEnrollment)}</div>
+                    ${renderEnrollButton()}
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-book-open"></i> 과정 소개</div>
+                    <div class="text-[14.5px] leading-[1.9] text-gray-700">${course.description || '<p>과정 소개 정보가 준비 중입니다.</p>'}</div>
+                    <div class="cert-fee-note">
+                        <i class="fas fa-circle-info mt-[2px]"></i>
+                        <span>본 과정은 수강료 없이 진행되며, 수료 및 시험 합격 후 자격증을 발급받으실 때 소정의 발급 수수료가 발생합니다.</span>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title"><i class="fas fa-list-ol"></i> 커리큘럼</div>
+                    ${renderCurriculum(curriculum)}
+                </div>
+
+                ${renderInstructor(course)}
+
+                ${renderGuide(course)}
+            `;
+        }
+
+        async function init() {
+            await fetchCourse();
+            await fetchUserAndEnrollment();
+            await render();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+</body>
+</html>

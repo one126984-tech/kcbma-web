@@ -1,0 +1,750 @@
+<!-- 파일명: bid-write.src.html -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>입찰공고 등록 | 대한집합건물관리협회</title>
+
+    <style>
+        /* [COMMON-CSS-CRITICAL] 자동 생성됨 */
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar {
+            background-color: #12387a; height: 6px;
+        }
+
+        #main-header header {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1400px; margin: 0 auto; width: 100%; height: 70px;
+            padding: 0 16px;
+        }
+        #main-header nav {
+            display: none; flex: 1; justify-content: space-between; align-items: center;
+            padding: 0 24px; white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            #main-header nav { display: flex; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #main-header nav { font-size: 12px; padding: 0 8px; gap: 2px; }
+            #main-header .sos-btn span { display: none; }
+        }
+        #main-header .sos-btn {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        #main-header > header > button { display: block; }
+        @media (min-width: 768px) {
+            #main-header > header > button { display: none; }
+        }
+        #sub-header-bar {
+            display: flex; align-items: center; width: 100%;
+        }
+        #sub-header-bar > div {
+            max-width: 1400px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; height: 100%; padding: 0 16px;
+        }
+    </style>
+
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* [COMMON-VIEW-TRANSITION] 자동 생성됨 */
+        #main-header { view-transition-name: site-header; }
+        #page-content { view-transition-name: page-content; }
+        @keyframes page-content-out { to { opacity: 0; } }
+        @keyframes page-content-in { from { opacity: 0; } }
+        ::view-transition-old(page-content) { animation: 150ms ease-in both page-content-out; }
+        ::view-transition-new(page-content) { animation: 200ms ease-out both page-content-in; }
+        ::view-transition-group(page-content) { animation: none; width: 100%; height: 100%; }
+        ::view-transition-group(site-header) { animation: none; }
+        ::view-transition-old(site-header), ::view-transition-new(site-header) { animation: none; }
+        html.no-page-transition #page-content, html.no-page-transition ::view-transition-group(page-content), html.no-page-transition ::view-transition-old(page-content), html.no-page-transition ::view-transition-new(page-content) { animation: none !important; transform: none !important; }
+    </style>
+
+    <style>
+        /* [COMMON-CSS] 자동 생성됨 */
+        html, body { overflow-x: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; color: #333; margin: 0; }
+
+        #main-header { background-color: #ffffff; }
+        #sub-header-bar { background-color: #12387a; height: 6px; }
+
+.sos-btn { background-color: transparent; color: #dc2626; border: none; cursor: pointer; padding: 5px 8px; margin-left: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+        .sos-btn:hover { color: #991b1b; }
+        .sos-btn-mobile { margin-top: 8px; margin-left: 0; display: inline-flex; }
+
+        .login-btn { background-color: #2c3e50; color: #ffffff; font-weight: 700; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; }
+        .login-btn:hover { background-color: #1a252f; }
+        .mypage-btn-mobile { background-color: #0088cc; color: #ffffff; transition: background-color 0.15s; }
+        .mypage-btn-mobile:hover { background-color: #0077b3; }
+    </style>
+
+    <style>
+        /* 이 페이지(입찰공고 등록) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .form-table { width: 100%; border-top: 2px solid #12387a; border-collapse: collapse; margin-bottom: 30px; background: #fff; }
+        .form-table th { width: 160px; background: #f9fafb; color: #333; font-weight: bold; text-align: left; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 14px; vertical-align: middle; }
+        .form-table td { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+
+        .req { color: #ef4444; margin-left: 4px; font-weight: bold; }
+
+        .input-text { width: 100%; max-width: 500px; border: 1px solid #d1d5db; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .input-text:focus { border-color: #3b82f6; }
+        .input-text.full { max-width: 100%; }
+
+        .input-date { border: 1px solid #d1d5db; border-radius: 4px; padding: 8px 12px; font-size: 14px; outline: none; color: #4b5563; }
+        .input-select { border: 1px solid #d1d5db; border-radius: 4px; padding: 10px 12px; font-size: 14px; outline: none; min-width: 180px; }
+
+        .custom-radio { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; margin-right: 20px; }
+
+        .textarea-box { width: 100%; height: 300px; border: 1px solid #d1d5db; border-radius: 4px; padding: 15px; font-size: 14px; outline: none; resize: vertical; line-height: 1.6; }
+        .textarea-box:focus { border-color: #3b82f6; }
+
+        .btn-wrap { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; margin-top: 20px; }
+        .btn-cancel { padding: 12px 30px; background: #fff; border: 1px solid #cbd5e1; color: #4b5563; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-cancel:hover { background: #f8fafc; border-color: #94a3b8; }
+        .btn-submit { padding: 12px 40px; background: #0B2A5B; border: 1px solid #0B2A5B; color: #fff; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-submit:hover { background: #12387a; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen page-bid-write">
+
+<!-- [COMMON-HEADER] 자동 생성됨 — 이 내용을 고치려면
+         _partials/header.html 파일만 고치고 build.js를 다시 실행할 것.
+         절대 각 페이지에서 직접 고치지 말 것 (다음 빌드 때 덮어써짐). -->
+<style>
+  /* 1. 페이지 길이에 따른 좌우 흔들림(우측 스크롤바 생성/소멸) 원천 차단 */
+  html {
+    overflow-y: scroll !important;
+  }
+
+  /* 2. 헤더 내비게이션(GNB) 간섭 방지 */
+  #main-header .gnb-item {
+    margin: 0 !important;
+    padding: 0 0 4px 0 !important;
+    line-height: 1.5 !important;
+    transform: none !important;
+    font-size: inherit !important;
+  }
+
+  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  #main-header .login-btn {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    padding: 6px 16px !important; /* 여유 공간 확보를 위해 패딩 소폭 감소 */
+    border-radius: 4px !important;
+    font-size: 13px !important; /* 기본 사이즈 소폭 감소 */
+    line-height: 1.5 !important;
+    height: auto !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.15s;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 0 0 4px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 86px !important; /* 추가: 로그인/로그아웃 텍스트 변경 시 흔들림 방지 */
+  }
+  #main-header .login-btn:hover {
+    background-color: #1e293b !important;
+  }
+  @media (min-width: 1280px) {
+    #main-header .login-btn {
+      padding: 7px 20px !important;
+      font-size: 14px !important;
+      min-width: 96px !important; /* 추가: PC 화면용 최소 너비 고정 */
+    }
+  }
+
+  /* 4. 긴급 SOS 호출 버튼 스타일 보호 (견적의뢰 페이지 등에서 위로 움직이는 현상 방지) */
+  #main-header .sos-btn {
+    color: #ef4444 !important;
+    font-weight: bold !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin: 0 0 0 4px !important;
+    padding: 0 0 4px 0 !important;
+    font-size: 14px !important; 
+    line-height: 1.5 !important;
+    transform: none !important; 
+  }
+  @media (min-width: 1280px) {
+    #main-header .sos-btn {
+      font-size: 16px !important;
+      gap: 6px !important;
+      margin: 0 0 0 8px !important;
+    }
+  }
+  #main-header .sos-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+  }
+
+  /* 5. 헤더 글씨 크기·간격 조정 — 메뉴가 로고~우측 영역 사이에 양끝까지 퍼지도록 (Tailwind 빌드와 무관하게 적용) */
+  #main-header nav {
+    justify-content: space-between !important; /* 첫 메뉴는 왼쪽, SOS는 오른쪽 끝으로 */
+    gap: 8px !important;                       /* 화면이 좁을 때 최소 간격 */
+    padding: 0 8px !important;
+    font-size: 14px !important;
+  }
+  #main-header .gnb-item { font-size: 14px !important; }
+  #main-header .sos-btn {
+    font-size: 14px !important;
+    margin: 0 !important;
+  }
+
+  /* 1100px 이상 (브라우저 배율 125%에서도 여기에 해당) */
+  @media (min-width: 1100px) {
+    #main-header > header { height: 76px !important; }
+    #main-header nav {
+      /* 화면 폭에 비례해 좌우 여백이 커짐: 왼쪽 = 로고와의 거리, 오른쪽 = 마이페이지와의 거리 */
+      padding-left: clamp(8px, calc((100vw - 1100px) * 0.28), 84px) !important;
+      padding-right: clamp(8px, calc((100vw - 1100px) * 0.19), 64px) !important;
+      font-size: 15px !important;
+    }
+    #main-header .gnb-item { font-size: 15px !important; }
+    #main-header .sos-btn { font-size: 15px !important; margin: 0 !important; }
+    /* 우측 마이페이지/알림 영역 */
+    #main-header header > div.lg\:flex {
+      gap: 16px !important;
+      font-size: 15px !important;
+    }
+    #main-header .login-btn {
+      font-size: 15px !important;
+      padding: 9px 22px !important;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    #main-header > header { max-width: 1600px !important; }
+    #main-header nav { font-size: 19px !important; }
+    #main-header .gnb-item { font-size: 19px !important; }
+    #main-header .sos-btn { font-size: 19px !important; }
+  }
+</style>
+
+<div class="sticky top-0 z-[1000] w-full flex flex-col bg-white border-b border-gray-200 shadow-sm shrink-0" id="main-header" style="box-sizing: border-box !important;">
+    <header class="flex justify-between items-center px-3 lg:px-2 xl:px-6 max-w-[1400px] mx-auto w-full h-[70px]" style="margin: 0 auto !important; padding-top: 0 !important; padding-bottom: 0 !important;">
+
+        <!-- 1) 좌측 로고 -->
+        <div class="flex items-center h-full cursor-pointer shrink-0 mr-2 xl:mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
+            <img src="../../assets/img/logo.png" class="h-[34px] lg:h-[36px] xl:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
+        </div>
+
+        <!-- 2) 중앙 메인 GNB (간격 및 폰트 축소 적용) -->
+        <nav class="hidden lg:flex flex-1 justify-center items-center gap-2.5 xl:gap-9 font-medium text-[13px] xl:text-[16px] text-gray-700 whitespace-nowrap" style="align-items: center !important; margin: 0 !important;">
+            <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
+            <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
+            <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
+            <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="board" onclick="location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
+            <div data-menu="consulting" onclick="location.href='../../consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
+            <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
+
+            <!-- 긴급 SOS 호출 -->
+            <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-1 xl:ml-2">
+                <i class="fa-solid fa-phone-volume"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+        </nav>
+
+        <!-- 3) 우측 유틸리티 영역 (간격 축소 적용) -->
+        <div class="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0 ml-2 xl:ml-6 whitespace-nowrap font-medium text-gray-700 text-[13px] xl:text-[15px]" style="align-items: center !important; margin-top: 0 !important; margin-bottom: 0 !important;">
+            <!-- 알림 종소리 및 드롭다운 컨테이너 -->
+            <div id="bell-container" class="relative cursor-pointer flex items-center justify-center w-[30px] xl:w-[36px] h-[30px] xl:h-[36px] rounded-full hover:bg-gray-100 transition-colors" title="알림 확인" style="margin: 0 !important;">
+                <i class="fa-regular fa-bell text-gray-700 text-[18px] xl:text-[20px]" style="margin: 0 !important;"></i>
+                <!-- 알림 개수 뱃지 -->
+                <span id="notification-badge" class="hidden absolute top-[1px] right-[1px] flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white" style="margin: 0 !important; padding: 0 !important;">
+                    0
+                </span>
+                <!-- 알림 목록 드롭다운 창 -->
+                <div id="notification-dropdown" class="absolute top-[45px] right-0 mt-2 w-72 bg-white border border-gray-200 shadow-lg rounded-md hidden z-50 text-left">
+                    <div class="px-4 py-2 text-sm font-semibold text-gray-700 border-b">알림</div>
+                    <ul id="notification-list" class="max-h-60 overflow-y-auto divide-y divide-gray-100 cursor-default"></ul>
+                </div>
+            </div>
+
+            <div onclick="location.href='../../mypage/dashboard.html'" class="cursor-pointer hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">마이페이지</div>
+            <div id="header-admin-link" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden cursor-pointer font-bold text-[#1e3a8a] hover:text-[#0088cc]" style="margin: 0 !important; line-height: 1.5 !important;">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자
+            </div>
+            <div id="header-login-btn" data-auth-btn="true" onclick="location.href='../../login.html'" class="login-btn">로그인</div>
+        </div>
+
+        <button class="lg:hidden p-2 text-[#0a1931] cursor-pointer ml-auto" onclick="toggleMobileMenu()" aria-label="메뉴열기" style="margin-right: 0 !important; padding: 8px !important;">
+            <svg class="pointer-events-none" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </header>
+</div>
+
+    <div class="sticky top-0 w-full flex flex-col bg-white shadow-md relative z-[800]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+</div>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" style="display:none;" class="fixed inset-0 z-[1100] bg-black/60 transition-opacity" role="dialog" aria-modal="true">
+        <div class="absolute top-0 right-0 bottom-0 w-4/5 max-w-[320px] bg-[#0a1931] shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+            <div class="flex items-center h-full">
+                <img src="../../assets/img/logo.png" alt="대한집합건물관리협회" class="h-[36px] w-auto object-contain" />
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-3xl text-gray-500 hover:text-gray-800 leading-none px-2">&times;</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 text-white font-medium text-[16px]">
+            <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
+            <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
+            <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
+            <div onclick="if(!location.pathname.endsWith('consulting-field.html')) location.href='../../consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
+            <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='../../community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
+
+            <!-- 모바일 긴급 SOS 호출 -->
+            <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
+                <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
+                <span>긴급 SOS 호출</span>
+            </div>
+            </div>
+
+            <div class="p-6 bg-[#061124] space-y-3 text-[14px] font-medium text-center text-gray-300">
+            <div class="flex gap-2 w-full">
+                <!-- 모바일 알림 버튼 -->
+                <div class="flex-1 py-3 bg-[#1e293b] text-white rounded-lg cursor-pointer hover:bg-gray-800 transition-colors relative">
+                    <i class="fa-regular fa-bell mr-1"></i> 알림
+                    <!-- 모바일 알림 개수 뱃지 (초기 숨김) -->
+                    <span id="mobile-notification-badge" class="hidden absolute top-1 right-2 bg-red-500 text-white text-[10px] px-[5px] py-[2px] rounded-full leading-none border border-[#1e293b]">
+                        0
+                    </span>
+                </div>
+                <div onclick="if(!location.pathname.endsWith('dashboard.html')) location.href='../../mypage/dashboard.html'" class="flex-1 py-3 mypage-btn-mobile rounded-lg cursor-pointer">마이페이지</div>
+            </div>
+            <div id="header-admin-link-mobile" data-admin-only="true" onclick="location.href='../../admin/admin-dashboard.html'" class="hidden w-full py-2.5 mt-2 bg-[#1e3a8a] text-white font-bold rounded-lg cursor-pointer text-center">
+                <i class="fa-solid fa-user-shield mr-1"></i>관리자 페이지
+            </div>
+            <div id="header-login-btn-mobile" data-auth-btn="true" onclick="location.href='../../login.html'" class="w-full py-2.5 mt-2 border border-gray-600 hover:text-white hover:bg-gray-800 rounded-lg cursor-pointer transition-colors">로그인</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 메뉴 열기/닫기 스크립트
+        function toggleMobileMenu() {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+            document.body.style.overflow = '';
+            } else {
+            menu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            }
+        }
+
+        async function ensureAuthClient() {
+            if (window.sb) return window.sb;
+            if (!window.supabase) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            if (!window.sb) {
+                window.sb = window.supabase.createClient(
+                    'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+                );
+            }
+            return window.sb;
+        }
+
+        function applyAuthUI(session) {
+            document.querySelectorAll('[data-auth-btn]').forEach(btn => {
+                if (session) {
+                    btn.textContent = '로그아웃';
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        await window.sb.auth.signOut();
+                        window.location.reload();
+                    };
+                } else {
+                    btn.textContent = '로그인';
+                    btn.onclick = () => { location.href = '../../login.html'; };
+                }
+            });
+
+            const isAdmin = !!(session && session.user && session.user.user_metadata && session.user.user_metadata.role === 'admin');
+            document.querySelectorAll('[data-admin-only]').forEach(el => {
+                el.classList.toggle('hidden', !isAdmin);
+            });
+        }
+
+        async function initAuthUI() {
+            const client = await ensureAuthClient();
+            const { data: { session } } = await client.auth.getSession();
+            applyAuthUI(session);
+            client.auth.onAuthStateChange((_event, session) => applyAuthUI(session));
+            return session;
+        }
+
+        // --- 알림 관련 데이터 로드 및 UI 제어 함수 ---
+        async function fetchUnreadCount() {
+            if (!window.sb) {
+                return;
+            }
+            
+            const { data: { user } } = await window.sb.auth.getUser();
+            if (!user) {
+                console.log("로그인된 사용자가 없습니다.");
+                return; 
+            }
+
+            const { count, error } = await window.sb
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false);
+
+            if (error) {
+                console.error('알림 개수 로드 오류:', error);
+                return;
+            }
+
+            console.log("알림 개수:", count, "로그인 유저:", user.id);
+
+            const pcBadge = document.getElementById('notification-badge');
+            const mobileBadge = document.getElementById('mobile-notification-badge');
+
+            if (count > 0) {
+                if (pcBadge) { pcBadge.innerText = count; pcBadge.classList.remove('hidden'); }
+                if (mobileBadge) { mobileBadge.innerText = count; mobileBadge.classList.remove('hidden'); }
+            } else {
+                if (pcBadge) pcBadge.classList.add('hidden');
+                if (mobileBadge) mobileBadge.classList.add('hidden');
+            }
+        }
+
+        async function loadNotifications() {
+            if (!window.sb) return;
+            const { data: { user } } = await window.sb.auth.getUser();
+            if (!user) return;
+
+            const listContainer = document.getElementById('notification-list');
+            if (!listContainer) return;
+
+            const { data, error } = await window.sb
+                .from('notifications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            listContainer.innerHTML = ''; 
+
+            if (error) {
+                console.error('알림 로드 오류:', error);
+                return;
+            }
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<li class="px-4 py-3 text-sm text-gray-500">새로운 알림이 없습니다.</li>';
+                return;
+            }
+
+            data.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = `px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 ${notification.is_read ? 'text-gray-500' : 'text-black font-medium bg-blue-50'}`;
+                li.innerText = notification.message;
+                
+                li.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (!notification.is_read) {
+                        await window.sb
+                            .from('notifications')
+                            .update({ is_read: true })
+                            .eq('id', notification.id);
+                    }
+                    if (notification.link_url) {
+                        window.location.href = notification.link_url;
+                    }
+                };
+                listContainer.appendChild(li);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.gnb-item').forEach(item => {
+                const menuKey = item.getAttribute('data-menu');
+                if (menuKey && currentPath.includes('/' + menuKey + '/')) {
+                    item.classList.add('text-[#0088cc]');
+                }
+            });
+
+            const headerEl = document.getElementById('main-header');
+            if (headerEl && 'ResizeObserver' in window) {
+                const updateHeaderHeightVar = () => {
+                    const h = headerEl.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--header-actual-height', h + 'px');
+                };
+                updateHeaderHeightVar();
+                const ro = new ResizeObserver(updateHeaderHeightVar);
+                ro.observe(headerEl);
+            }
+
+            initAuthUI().then(fetchUnreadCount).catch(console.error);
+
+            const bellContainer = document.getElementById('bell-container');
+            const dropdown = document.getElementById('notification-dropdown');
+            
+            if (bellContainer && dropdown) {
+                bellContainer.addEventListener('click', (e) => {
+                    if(e.target.closest('#notification-dropdown')) return;
+                    
+                    dropdown.classList.toggle('hidden');
+                    if (!dropdown.classList.contains('hidden')) {
+                        loadNotifications();
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!bellContainer.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+
+<div id="page-content" class="flex-1 flex flex-col">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
+
+        <!-- ★ 최신 3단 탭 사이드바 영역 -->
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[90px] h-fit z-40">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab-active" onclick="window.location.href='bid-list.html'">견적 및 입찰 정보</div>
+                <div class="side-menu-tab" onclick="window.location.href='company-ads.html'">협력업체 홍보관</div>
+                <div class="side-menu-tab" onclick="window.location.href='joint-bid.html'">우수업체 공동선정</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 bg-white p-6 md:p-8 border border-gray-200 rounded shadow-sm">
+
+            <h1 class="text-[20px] font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">입찰공고 등록</h1>
+
+            <form id="bid-form" onsubmit="submitBid(event)">
+                <table class="form-table">
+                    <tbody>
+                        <tr>
+                            <th>공고명 <span class="req">*</span></th>
+                            <td colspan="3">
+                                <input type="text" id="f-title" class="input-text full" placeholder="입찰공고 제목을 입력해주세요" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>발주업체명 <span class="req">*</span></th>
+                            <td>
+                                <input type="text" id="f-company" class="input-text" placeholder="예: OOO아파트 입주자대표회의" required>
+                            </td>
+                            <th>분류 <span class="req">*</span></th>
+                            <td>
+                                <!-- 💡 분류 선택 항목이 리스트 페이지와 동일하게 변경되었습니다 -->
+                                <select id="f-category" class="input-select" required>
+                                    <option value="">분류 선택</option>
+                                    <option value="전기">전기</option>
+                                    <option value="소방">소방</option>
+                                    <option value="승강기">승강기</option>
+                                    <option value="기계설비">기계설비</option>
+                                    <option value="배관설비">배관설비</option>
+                                    <option value="위생설비">위생설비</option>
+                                    <option value="인테리어">인테리어</option>
+                                    <option value="토목건축">토목건축</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>지역 <span class="req">*</span></th>
+                            <td>
+                                <select id="f-region" class="input-select" required>
+                                    <option value="">지역 선택</option>
+                                </select>
+                            </td>
+                            <th>상세 현장 위치</th>
+                            <td>
+                                <input type="text" id="f-location" class="input-text" placeholder="상세 주소 또는 아파트명">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>공고일 (시작일) <span class="req">*</span></th>
+                            <td>
+                                <input type="date" id="f-start-date" class="input-date" required>
+                            </td>
+                            <th>마감일 <span class="req">*</span></th>
+                            <td>
+                                <input type="date" id="f-end-date" class="input-date" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>상세 내용 <span class="req">*</span></th>
+                            <td colspan="3">
+                                <textarea id="f-description" class="textarea-box" placeholder="입찰 참가 자격, 제출 서류, 세부 공고 내용을 작성해 주세요." required></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="btn-wrap">
+                    <button type="button" class="btn-cancel" onclick="history.back()">취소</button>
+                    <button type="submit" id="btn-submit" class="btn-submit">등록하기</button>
+                </div>
+            </form>
+
+            <div id="footer-container"></div>
+            <script src="../../assets/js/region-data.js"></script>
+            <script src="../../assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+    </div>
+
+    <script>
+        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+
+        const DB_TABLE_NAME = 'bids'; 
+
+        function initApp() {
+            initForm();
+        }
+
+        function initForm() {
+            const today = new Date();
+            const offset = today.getTimezoneOffset() * 60000;
+            const todayStr = new Date(today.getTime() - offset).toISOString().split('T')[0];
+            document.getElementById('f-start-date').value = todayStr;
+
+            const regionSelect = document.getElementById('f-region');
+            if (typeof subRegionData !== 'undefined') {
+                for (const major in subRegionData) {
+                    if (major === '전국') continue;
+                    const option = document.createElement('option');
+                    option.value = major;
+                    option.text = major;
+                    regionSelect.appendChild(option);
+                }
+            } else {
+                const defaultRegions = ['서울', '경기', '인천', '부산', '대구', '광주', '대전', '울산', '세종', '강원', '경남', '경북', '전남', '전북', '충남', '충북', '제주'];
+                defaultRegions.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r;
+                    option.text = r;
+                    regionSelect.appendChild(option);
+                });
+            }
+        }
+
+        async function submitBid(event) {
+            event.preventDefault();
+
+            if(!supabaseClient) {
+                alert('데이터베이스 연결에 실패했습니다.');
+                return;
+            }
+
+            const { data: authData } = await supabaseClient.auth.getUser();
+            
+            // 테스트용으로는 주석 처리하여 누구나 등록할 수 있게 하려면 아래 코드를 주석처리 하세요.
+            if (!authData.user) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const title = document.getElementById('f-title').value.trim();
+            const company = document.getElementById('f-company').value.trim();
+            const category = document.getElementById('f-category').value;
+            const region = document.getElementById('f-region').value;
+            const locationStr = document.getElementById('f-location').value.trim();
+            const startDate = document.getElementById('f-start-date').value;
+            const endDate = document.getElementById('f-end-date').value;
+            const description = document.getElementById('f-description').value.trim();
+
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('마감일은 공고 시작일 이후여야 합니다.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('btn-submit');
+            submitBtn.disabled = true;
+            submitBtn.innerText = '등록 중...';
+            submitBtn.style.opacity = '0.7';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from(DB_TABLE_NAME)
+                    .insert([
+                        {
+                            title: title,
+                            company_name: company,
+                            category: category,
+                            region: region,
+                            location: locationStr,
+                            start_date: startDate,
+                            end_date: endDate,
+                            description: description,
+                            status: 'OPEN',
+                            views: 0,
+                            created_by: authData.user ? authData.user.id : null
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert('입찰공고가 성공적으로 등록되었습니다.');
+                window.location.href = 'bid-list.html';
+
+            } catch (error) {
+                console.error('Insert error:', error);
+                alert('공고 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = '등록하기';
+                submitBtn.style.opacity = '1';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

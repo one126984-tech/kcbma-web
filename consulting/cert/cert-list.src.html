@@ -1,0 +1,318 @@
+<!-- 파일명: cert-list.src.html -->
+<!-- @var PAGE_CLASS: page-cert -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>자격증 과정 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+    <script src="{{BASE}}assets/js/cert-common.js"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 좌측 메뉴: 아이콘을 뺀 상태로 폰트 크기(15px) 및 굵기(700) 통일 (job-list 2단 표준) */
+        .side-menu-tab { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: 700; font-size: 15px; cursor: pointer; transition: background-color .2s, color .2s; }
+        .side-menu-tab:hover { background-color: #f8fafc; }
+        .side-menu-tab-active { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+        /* 자격증 전용 CSS */
+        .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
+        .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .notice-content { flex: 1; }
+        .notice-title { font-size: 16px; font-weight: 700; color: #12387a; margin-bottom: 12px; }
+        .notice-list { list-style: none; padding: 0; margin: 0; }
+        .notice-list li { position: relative; padding-left: 14px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: #4b5563; }
+        .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
+
+        .filter-table { width: 100%; border-top: 2px solid #e5e7eb; background: #fff; border-collapse: collapse; margin-bottom: 15px; }
+        .filter-table th { background: #f9fafb; color: #1e3a8a; font-weight: bold; width: 80px; min-width: 80px; text-align: center; border-bottom: 1px dashed #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 15px; padding: 20px 5px; vertical-align: middle; }
+        .filter-table td { border-bottom: 1px dashed #e5e7eb; font-size: 14px; vertical-align: middle; }
+
+        .custom-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #333; font-size: 14px; font-weight: 500; white-space: nowrap; }
+        .custom-checkbox input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a8a; }
+
+        /* 수정된 부분: 파란색 배경을 삭제하고 노란색 사진을 배경으로 지정 */
+        .cert-showcase-wrap { 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 20px; 
+            padding: 40px 28px; 
+            margin-top: 22px; 
+            background-image: url('chenspec-yellow.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+        }
+        
+        .cert-showcase-wrap::before { content: ''; position: absolute; top: -90px; right: -90px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%); pointer-events: none; }
+        .cert-showcase-wrap::after { content: ''; position: absolute; bottom: -110px; left: -70px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 70%); pointer-events: none; }
+
+        .cert-premium-card { position: relative; z-index: 1; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px -14px rgba(0,0,0,0.4); display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: box-shadow 0.25s ease; }
+        .cert-premium-card:hover { box-shadow: 0 24px 46px -10px rgba(0,0,0,0.5), 0 0 0 2px #d4af37; }
+        .cert-accent-bar { height: 5px; }
+
+        .cert-card-head { display: flex; align-items: flex-start; gap: 14px; padding: 24px 26px 0; }
+        .cert-icon-badge { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 21px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-shrink: 0; }
+        .cert-head-text { flex: 1; min-width: 0; }
+        .cert-head-badges { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+        .cert-pill { font-size: 10.5px; font-weight: 800; padding: 2px 9px; border-radius: 999px; letter-spacing: -0.2px; }
+        .cert-pill-open { background: #ecfdf5; color: #047857; }
+        .cert-pill-closed { background: #f1f5f9; color: #64748b; }
+        .cert-pill-cat { background: #eef2ff; color: #4338ca; }
+
+        .cert-premium-title { font-size: 20px; font-weight: 900; color: #0B2A5B; line-height: 1.3; }
+
+        .cert-card-content { padding: 16px 26px 20px; flex: 1; display: flex; flex-direction: column; }
+        .cert-pitch { font-size: 14.5px; font-weight: 700; color: #92400e; background: #fffbeb; border-left: 3px solid #d4af37; padding: 10px 14px; border-radius: 6px; line-height: 1.55; margin-bottom: 14px; word-break: keep-all; }
+
+        .cert-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 4px; }
+        .badge-tag { display: inline-block; padding: 4px 10px; background-color: #f1f5f9; color: #475569; border-radius: 999px; font-size: 11.5px; font-weight: bold; }
+
+        .cert-card-actions { padding: 16px 26px; border-top: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.5); }
+        .btn-cert-detail { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 0; border-radius: 8px; font-size: 14px; font-weight: 800; transition: all 0.2s; cursor: pointer; background: #0B2A5B; color: #fff; letter-spacing: -0.2px; }
+        .btn-cert-detail:hover { background: #12387a; }
+
+        @media (max-width: 640px) {
+            .cert-showcase-wrap { padding: 24px 16px; border-radius: 14px; }
+        }
+
+        .cert-loading-box { text-align: center; padding: 90px 20px; color: #6b7280; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+        .cert-spinner { width: 36px; height: 36px; border: 4px solid #dbe4f5; border-top-color: #12387a; border-radius: 50%; margin: 0 auto 14px; animation: cert-spin 0.8s linear infinite; }
+        @keyframes cert-spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div class="w-full flex flex-col bg-white shadow-md relative z-[800] shrink-0">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+    
+<!-- @include header-close -->
+
+    <!-- 스크롤 컨테이너 구조 적용 -->
+    <div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+        <main class="flex-1 overflow-y-auto md:overflow-hidden max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 flex flex-col md:flex-row gap-8">
+
+            <!-- 좌측 메뉴바 -->
+            <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
+                <div class="pr-1 pt-1">
+                    <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                        <div class="side-menu-tab-active">자격증 과정</div>
+                        <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                        <div class="side-menu-tab" onclick="location.href='edu-field-list.html'">현장 교육</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 메인 스크롤 콘텐츠 영역 (가늘고 연한 커스텀 스크롤바 적용을 위해 custom-scroll 클래스 추가) -->
+            <div class="flex-1 min-w-0 h-full main-scroll-area custom-scroll relative flex flex-col">
+                <section class="flex-1 shrink-0 pb-8">
+                    
+                    <div class="notice-box mt-2">
+                        <div class="notice-icon-wrapper"><i class="fas fa-certificate"></i></div>
+                        <div class="notice-content">
+                            <div class="notice-title">대한집합건물관리협회 자격증 과정 안내</div>
+                            <ul class="notice-list">
+                                <li><strong>수료 기준:</strong> 진도율 80% 이상 달성 및 온라인 평가 60점 이상</li>
+                                <li><strong>수강료:</strong> 전 과정 100% 장학지원으로 무료 수강</li>
+                                <li><strong>자격증 발급:</strong> 수료 및 시험 합격 후 발급비를 계좌이체 납부 시 발급</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <table class="filter-table shadow-sm" style="width: 100%;">
+                        <tr>
+                            <th style="background-color: #e0e7ff; color: #1e3a8a; white-space: nowrap; width: 80px;">분야</th>
+                            <td style="border-bottom: 2px solid #e5e7eb; padding: 12px 16px;">
+                                <div class="flex items-center justify-between w-full flex-wrap lg:flex-nowrap gap-2">
+                                    <div class="flex items-center gap-3 overflow-x-auto hide-scrollbar whitespace-nowrap py-1">
+                                        <label class="custom-checkbox text-[13.5px]"><input type="checkbox" class="cert-field-cb" value="관리소장 실무" onchange="applyFilters()"> 관리소장 실무</label>
+                                        <label class="custom-checkbox text-[13.5px]"><input type="checkbox" class="cert-field-cb" value="경리회계 실무" onchange="applyFilters()"> 경리실무</label>
+                                        <label class="custom-checkbox text-[13.5px]"><input type="checkbox" class="cert-field-cb" value="환경미화 실무" onchange="applyFilters()"> 미화실무</label>
+                                        <label class="custom-checkbox text-[13.5px]"><input type="checkbox" class="cert-field-cb" value="기전영선 실무" onchange="applyFilters()"> 기전영선 실무</label>
+                                        <label class="custom-checkbox text-[13.5px]"><input type="checkbox" class="cert-field-cb" value="전기 실무" onchange="applyFilters()"> 초보자용 전기실무</label>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0 ml-auto lg:ml-2">
+                                        <button onclick="clearFieldFilters()" class="bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 px-4 py-1.5 font-bold text-[13px] rounded transition-colors whitespace-nowrap">선택해제</button>
+                                        <button onclick="applyFilters()" class="bg-[#008000] hover:bg-green-800 text-white px-6 py-1.5 font-bold text-[14px] rounded transition-colors whitespace-nowrap">검 색</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="cert-showcase-wrap">
+                        <div id="cert-list-body" class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full"></div>
+                    </div>
+
+                    <div id="pagination-container" class="flex justify-center items-center gap-1 mt-10"></div>
+                </section>
+
+                <div id="footer-container" class="w-full shrink-0 mt-auto"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../assets/js/footer.js?v=1.3"></script>
+
+    <script>
+        const supabaseClient = window.sb;
+        let allCert = [], filteredCert = [], currentPage = 1, itemsPerPage = 10;
+
+        const dummyCertCourses = [
+            { id: 'cert-1', title: '관리소장 실무관리사', short_desc: '집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다.', status: 'OPEN', enroll_count: 320, category: '관리소장 실무' },
+            { id: 'cert-2', title: '경리회계 실무관리사', short_desc: '관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양합니다.', status: 'OPEN', enroll_count: 215, category: '경리회계 실무' },
+            { id: 'cert-3', title: '환경미화 실무관리사', short_desc: '건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습합니다.', status: 'OPEN', enroll_count: 142, category: '환경미화 실무' }
+        ];
+
+        async function fetchCertData() {
+            const container = document.getElementById('cert-list-body');
+            container.innerHTML = `<div class="col-span-full cert-loading-box"><div class="cert-spinner"></div><p>데이터를 불러오는 중입니다...</p></div>`;
+            try {
+                if(!supabaseClient) throw new Error("No supabase client");
+                const { data, error } = await supabaseClient.from('cert_courses').select('*').in('status', ['OPEN', 'CLOSED']).order('created_at', { ascending: false });
+                if (error) throw error;
+                allCert = (data && data.length > 0) ? data : dummyCertCourses;
+                applyFilters();
+            } catch (error) {
+                allCert = dummyCertCourses;
+                applyFilters();
+            }
+        }
+
+        function clearFieldFilters() {
+            document.querySelectorAll('.cert-field-cb:checked').forEach(cb => cb.checked = false);
+            applyFilters();
+        }
+
+        function applyFilters() {
+            filteredCert = [...allCert];
+            const checkedFields = Array.from(document.querySelectorAll('.cert-field-cb:checked')).map(cb => cb.value);
+            if (checkedFields.length > 0) filteredCert = filteredCert.filter(item => checkedFields.includes(item.category));
+            currentPage = 1;
+            renderPagination();
+            renderCert(filteredCert.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage));
+        }
+
+        function getCertGradient(category) {
+            if (category === '경리회계 실무') return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            if (category === '환경미화 실무') return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+            if (category === '기전영선 실무') return 'linear-gradient(135deg, #eab308 0%, #d97706 100%)';
+            if (category === '전기 실무') return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
+            return 'linear-gradient(135deg, #12387a 0%, #1e40af 100%)';
+        }
+
+        function getCertBg(category) {
+            if (category === '경리회계 실무') return '#f0fdf6';
+            if (category === '환경미화 실무') return '#eff8ff';
+            if (category === '기전영선 실무') return '#fffaf0';
+            if (category === '전기 실무') return '#f8f5ff';
+            return '#f4f7fc';
+        }
+
+        function getCertIcon(category) {
+            if (category === '경리회계 실무') return 'fa-file-invoice-dollar';
+            if (category === '환경미화 실무') return 'fa-broom';
+            if (category === '기전영선 실무') return 'fa-screwdriver-wrench';
+            if (category === '전기 실무') return 'fa-bolt';
+            return 'fa-user-tie';
+        }
+
+        function renderCert(data) {
+            const container = document.getElementById('cert-list-body');
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-16 text-white/80"><i class="fas fa-magnifying-glass" style="font-size:32px;margin-bottom:12px;display:block;"></i><p class="font-bold">조건에 맞는 결과가 없습니다.</p></div>`;
+                return;
+            }
+            container.innerHTML = data.map(item => {
+                const status = item.status || 'OPEN';
+                const isOpen = status === 'OPEN';
+                const gradient = getCertGradient(item.category);
+                const cardBg = getCertBg(item.category);
+                const iconClass = getCertIcon(item.category);
+                const pitch = item.short_desc || '이 과정만의 강점을 담은 소개 문구를 준비 중입니다.';
+
+                return `
+                    <div class="cert-premium-card" style="background: ${cardBg};" onclick="location.href='cert-detail.html?id=${item.id}'">
+                        <div class="cert-accent-bar" style="background: ${gradient};"></div>
+                        <div class="cert-card-head">
+                            <div class="cert-icon-badge" style="background: ${gradient};"><i class="fas ${iconClass}"></i></div>
+                            <div class="cert-head-text">
+                                <div class="cert-head-badges">
+                                    <span class="cert-pill cert-pill-cat">${item.category || '-'}</span>
+                                    <span class="cert-pill ${isOpen ? 'cert-pill-open' : 'cert-pill-closed'}">${isOpen ? '접수중' : '마감'}</span>
+                                </div>
+                                <h3 class="cert-premium-title">${item.title || '-'}</h3>
+                            </div>
+                        </div>
+                        <div class="cert-card-content">
+                            <div class="cert-pitch">${pitch}</div>
+                            <div class="cert-meta-row">
+                                <span class="badge-tag"><i class="fas fa-circle-check text-gray-400 mr-1"></i>무료</span>
+                                <span class="badge-tag"><i class="fas fa-user-graduate text-gray-400 mr-1"></i>${item.enroll_count || 0}명 수강</span>
+                            </div>
+                        </div>
+                        <div class="cert-card-actions">
+                            <button type="button" class="btn-cert-detail" onclick="event.stopPropagation(); location.href='cert-detail.html?id=${item.id}';">자세히 보기 <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredCert.length / itemsPerPage);
+            const container = document.getElementById('pagination-container');
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+            let html = `<button onclick="goToPage(${Math.max(1, currentPage - 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                const act = i === currentPage ? 'bg-[#12387a] text-white font-bold' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300';
+                html += `<button class="w-9 h-9 rounded text-sm ${act}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            html += `<button onclick="goToPage(${Math.min(totalPages, currentPage + 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&gt;</button>`;
+            container.innerHTML = html;
+        }
+
+        window.goToPage = function(page) {
+            currentPage = page;
+            renderPagination();
+            renderCert(filteredCert.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage));
+            
+            const scrollArea = document.querySelector('.main-scroll-area');
+            if(scrollArea) {
+                scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            fetchCertData(); 
+        });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+</body>
+</html>
