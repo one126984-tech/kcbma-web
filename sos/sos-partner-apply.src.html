@@ -1,0 +1,474 @@
+<!-- 파일명: sos-partner-apply.src.html -->
+<!-- @var PAGE_CLASS: page-sos-partner -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전문가 파트너 신청 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+  <style>
+      #partner-top-banner { background-color: #1f2937; } /* 다크 그레이 톤으로 신뢰감 부여 */
+      /* 전문 분야: 3개씩 2줄, 누른 순서대로 1·2순위 표시 */
+      .pa-cat { position:relative; border:2px solid #e5e7eb; border-radius:12px; padding:12px 2px; font-weight:800; font-size:13px; background:#fff; color:#1f2937; cursor:pointer; white-space:nowrap; }
+      .pa-cat:hover { border-color:#93c5fd; }
+      .pa-cat.on { border-color:#ef4444; background:#fef2f2; color:#b91c1c; }
+      .pa-rank { position:absolute; top:-9px; left:-6px; color:#fff; font-size:11px; font-weight:900; padding:1px 7px; border-radius:999px; background:#dc2626; }
+      .pa-rank.r2 { background:#2563eb; }
+      @media (max-width: 380px) { .pa-cat { font-size:12px; } }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+    .break-keep { word-break: keep-all; }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="w-full max-w-md mx-auto bg-white min-h-full shadow-lg flex flex-col relative">
+
+            <!-- 상단 배너 -->
+            <div id="partner-top-banner" class="text-white py-4 shadow-sm shrink-0 flex flex-col items-center justify-center relative z-20">
+                <button onclick="location.href=MODAL_URL" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-gray-700 p-2 rounded-full transition z-30 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[20px] font-black tracking-wider text-center break-keep">
+                    <span style="display:inline-block;background:#16a34a;color:#fff;font-size:13px;padding:2px 10px;border-radius:999px;margin-bottom:4px;">1단계</span><br>
+                    SOS 서비스 공급자<br><span class="text-yellow-400">파트너 전문가 지원하기</span>
+                </h1>
+            </div>
+
+            <!-- 본문 양식 -->
+            <div class="flex-1 flex flex-col bg-gray-50 relative z-30">
+                <div class="p-5 flex-1 space-y-6 pb-8">
+                    <div id="app-status" class="hidden" style="background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.6;word-break:keep-all;"></div>
+                    <div class="bg-blue-50 border border-blue-200 py-4 px-4 rounded-xl text-center shadow-sm">
+                        <p class="font-bold text-blue-900 text-sm leading-relaxed break-keep">
+                        정보를 입력해주시면 <strong class="text-blue-700">관리자 심사 후 개별 연락</strong>을 드리며, 최종 승인 시 파트너 전문가로 활동하실 수 있습니다.
+                        </p>
+                    </div>
+
+                    <form id="partner-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">1. 이름 또는 상호명 <span class="text-red-500">*</span></label>
+                            <input type="text" id="pf-name" required placeholder=" 예 : 홍길동 또는 한국설비" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-1">2. 전문 분야 (최대 2개) <span class="text-red-500">*</span></label>
+                            <p class="text-[12px] text-gray-500 mb-2 break-keep">잘하는 순서대로 최대 2개까지 눌러 주세요. (1순위 → 2순위)</p>
+                            <div class="grid grid-cols-3 gap-2" id="pf-categories">
+                                <button type="button" class="pa-cat" data-cat="화재">🔥 화재/소방</button>
+                                <button type="button" class="pa-cat" data-cat="전기">⚡ 정전/전기</button>
+                                <button type="button" class="pa-cat" data-cat="누수">💧 누수/배관</button>
+                                <button type="button" class="pa-cat" data-cat="가스">🧯 가스누출</button>
+                                <button type="button" class="pa-cat" data-cat="화장실">🚽 화장실 기기</button>
+                                <button type="button" class="pa-cat" data-cat="기타">✏️ 기타(입력)</button>
+                            </div>
+                            <input type="text" id="pf-category-other-text" maxlength="30" placeholder="기타 분야를 적어 주세요 (예: 승강기, 방수)" class="hidden w-full border-2 border-gray-300 rounded-xl p-3 mt-2 text-sm focus:outline-none focus:border-blue-500">
+                            <p id="cat-limit-msg" class="text-[12px] text-red-600 font-bold mt-1.5 hidden">전문 분야는 최대 2개까지 선택할 수 있습니다.</p>
+                        </div>
+
+                        <!-- 3. 주요 출동 가능 지역 (교체된 영역) -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 출동 가능 지역 <span class="text-red-500">*</span></label>
+                            <div class="relative w-full z-[50]">
+                                <!-- 드롭다운 토글 버튼 -->
+                                <button type="button" onclick="toggleDropdown('region-mega-dropdown')" class="w-full bg-white border-2 border-gray-300 rounded-xl p-3.5 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
+                                    <span class="text-[14px] font-medium text-gray-700 text-left" style="white-space:normal;word-break:keep-all;line-height:1.5;" id="region-btn-text">지역 선택</span>
+                                    <i class="fas fa-chevron-down text-gray-400 text-[12px] ml-1 shrink-0"></i>
+                                </button>
+
+                                <!-- 메가 드롭다운 -->
+                                <div id="region-mega-dropdown" class="hidden absolute top-full left-0 mt-1 w-full sm:w-[360px] bg-white border border-gray-300 rounded-xl shadow-xl z-[9999] flex flex-col overflow-hidden">
+                                    <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
+                                        <span class="font-bold text-[14px] text-[#12387a]">
+                                            <span class="text-purple-600">대분류</span> 지역 선택
+                                        </span>
+                                        <button type="button" onclick="toggleDropdown('region-mega-dropdown')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
+                                    </div>
+                                    
+                                    <div class="flex flex-col w-full" id="region-mega-dropdown-inner">
+                                        <!-- 대분류 섹션 -->
+                                        <div id="region-major-section" class="flex flex-col">
+                                            <div class="p-4 overflow-y-auto custom-scroll" style="max-height: 240px;">
+                                                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2" id="mega-major-list">
+                                                    <!-- JS로 렌더링 됨 -->
+                                                </div>
+                                            </div>
+                                            <div class="p-3 border-t border-gray-200 bg-gray-50 text-center shrink-0">
+                                                <button type="button" onclick="openMinorView()" class="w-full border border-[#12387a] text-[#12387a] bg-blue-50 hover:bg-blue-100 font-bold px-4 py-2.5 rounded text-[14px] transition-colors shadow-sm">
+                                                    <i class="fas fa-level-down-alt mr-1"></i> 소분류 넣기
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 소분류 섹션 -->
+                                        <div id="region-minor-section" class="hidden flex-col h-full">
+                                            <div class="px-4 py-2.5 bg-[#f8fafc] border-b border-gray-200 flex justify-between items-center shrink-0">
+                                                <span class="font-bold text-[13px] text-[#12387a]">소분류 <span class="text-gray-500 font-normal ml-1 text-[11px]">(원하는 지역 체크)</span></span>
+                                                <button type="button" onclick="closeMinorView()" class="text-[12px] text-gray-600 hover:text-black font-medium hover:underline bg-white border border-gray-300 px-2 py-1 rounded">
+                                                    <i class="fas fa-undo mr-1"></i>대분류 다시보기
+                                                </button>
+                                            </div>
+                                            <div class="p-4 overflow-y-auto custom-scroll" style="max-height: 240px;" id="minor-regions-container">
+                                                <!-- JS로 렌더링 됨 -->
+                                            </div>
+                                            <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
+                                                <button type="button" onclick="applyRegion()" class="w-full bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold px-6 py-2.5 rounded text-[14px] transition-colors shadow-sm">적용하기</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- // 3. 주요 출동 가능 지역 끝 -->
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">4. 개인 연락처 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="pf-phone" required placeholder=" 예: 010-1234-5678" class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">5. 자기소개 및 경력사항 <span class="text-red-500">*</span></label>
+                            <textarea id="pf-bio" required rows="4" placeholder="예: 누수 탐지 전문 경력 10년. 보유 자격증 및 본인 소개를 자유롭게 적어주세요." class="w-full border-2 border-gray-300 rounded-xl p-3.5 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">6. 증빙 서류 첨부 <span class="text-gray-400 font-normal">(사업자등록증명원 등)</span></label>
+                            <input type="file" id="pf-file" accept="image/*,.pdf" class="w-full border-2 border-gray-300 rounded-xl p-3 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                            <p id="pf-file-status" class="text-[11px] text-gray-500 mt-2 ml-1">외부에 공개되지 않으며 심사용으로만 사용됩니다.</p>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="sticky bottom-0 p-4 bg-gray-50 border-t border-gray-200 z-10 flex gap-2">
+                    <button type="button" onclick="location.href=MODAL_URL" class="shrink-0 bg-gray-200 text-gray-700 font-bold text-base py-4 px-5 rounded-xl hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> <span>이전</span>
+                    </button>
+                    <button id="submit-partner-btn" class="flex-1 bg-[#1f2937] hover:bg-black text-white font-black text-lg py-4 rounded-xl shadow-lg transition duration-300 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> 검토용 지원서 제출하기
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- 지역 데이터 JS 연동 -->
+<script src="{{BASE}}assets/js/region-data.js"></script>
+
+<script>
+    const partnerSb = window.sb;
+    const isPractice = new URLSearchParams(location.search).get('practice') === '1';   // 연습: 로그인·제출 없이 실제와 같은 화면
+    const MODAL_URL = 'sos-request.html?expert=1' + (isPractice ? '&practice=1' : '');
+    let prevApp = null;   // 이전 지원서 (다시 낼 때 2·3단계 저장 내용을 이어받음)
+
+    // ===== 지역 메가 드롭다운 관련 변수 및 함수 시작 =====
+    const majorsList = ['전국', '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+    let selectedRegions = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderMegaMajor();
+        initApply();
+    });
+
+    // ===== 1단계: 회원만, 기존 지원서가 있으면 불러오기 =====
+    const MAX_CATS = 2;
+    let selectedCats = [];   // 누른 순서 = 1순위, 2순위
+    function renderPaCats() {
+        document.querySelectorAll('#pf-categories .pa-cat').forEach(b => {
+            const i = selectedCats.indexOf(b.dataset.cat);
+            b.classList.toggle('on', i > -1);
+            const old = b.querySelector('.pa-rank'); if (old) old.remove();
+            if (i > -1) { const s = document.createElement('span'); s.className = 'pa-rank r' + (i + 1); s.textContent = (i + 1) + '순위'; b.appendChild(s); }
+        });
+        document.getElementById('pf-category-other-text').classList.toggle('hidden', !selectedCats.includes('기타'));
+        document.getElementById('cat-limit-msg').classList.add('hidden');
+    }
+    function setPaCats(arr) { selectedCats = (arr || []).filter((k, i, a) => a.indexOf(k) === i).slice(0, MAX_CATS); renderPaCats(); }
+    async function initApply() {
+        if (isPractice) {
+            const box = document.getElementById('app-status');
+            box.innerHTML = '🧪 <b>연습 모드</b> · 가상 자료가 채워져 있습니다. 고쳐 보고 아래 제출 버튼을 누르면 2단계로 넘어갑니다. 실제로 제출되지 않습니다.';
+            box.style.background = '#f3e8ff'; box.style.borderColor = '#d8b4fe'; box.style.color = '#6b21a8';
+            box.classList.remove('hidden');
+            document.querySelector('#partner-top-banner h1 span').textContent = '[연습] 1단계';
+            document.querySelector('#partner-top-banner h1 span').style.background = '#7c3aed';
+            document.getElementById('pf-name').value = '한국전기 홍길동';
+            document.getElementById('pf-phone').value = '010-0000-1234';
+            document.getElementById('pf-bio').value = '전기기사, 전기공사 기사 / 전기안전관리 경력 15년';
+            setPaCats(['전기', '화재']);
+            selectedRegions = ['서울 강남구', '서울 서초구'];
+            const labelEl = document.getElementById('region-btn-text');
+            labelEl.textContent = selectedRegions.join(', '); labelEl.classList.add('text-blue-700', 'font-bold');
+            document.getElementById('pf-file').disabled = true;
+            document.getElementById('pf-file-status').textContent = '[연습] 연습에서는 파일을 올리지 않습니다.';
+            return;
+        }
+        let user = null;
+        try { ({ data: { user } } = await partnerSb.auth.getUser()); } catch (e) { user = null; }
+        if (!user) {
+            alert('전문가 지원은 회원만 할 수 있습니다.\n로그인(또는 회원가입) 후 이용해 주세요.');
+            window.location.href = '{{BASE}}login.html';
+            return;
+        }
+        const { data: ex } = await partnerSb.from('sos_experts').select('id').eq('user_id', user.id).eq('is_active', true).maybeSingle();
+        if (ex) {
+            alert('이미 승인된 전문가입니다.\n2단계(신상자료 입력)부터 진행해 주세요.');
+            window.location.href = 'sos-request.html?expert=1';
+            return;
+        }
+        const { data: app } = await partnerSb.from('sos_applications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+        if (!app) return;
+        prevApp = app;
+        const box = document.getElementById('app-status');
+        box.innerHTML = `이미 제출한 지원서가 있습니다 (상태: <b>${String(app.status || '대기중').replace(/[<>&]/g, '')}</b>).<br>내용을 고쳐 다시 제출하면 운영진은 최신 지원서를 봅니다.`;
+        box.classList.remove('hidden');
+        document.getElementById('pf-name').value = app.name || '';
+        document.getElementById('pf-phone').value = app.phone || '';
+        document.getElementById('pf-bio').value = app.bio || '';
+        const map = { '화재': '화재', '소방': '화재', '전기': '전기', '정전': '전기', '누수': '누수', '배관': '누수', '가스': '가스', '화장실': '화장실' };
+        const picked = [];
+        String(app.categories || '').split(',').forEach(part => {
+            const k = Object.keys(map).find(x => part.includes(x));
+            if (k && !picked.includes(map[k])) picked.push(map[k]);
+        });
+        setPaCats(picked);
+        if (app.region) {
+            selectedRegions = String(app.region).split(',').map(x => x.trim()).filter(Boolean);
+            const labelEl = document.getElementById('region-btn-text');
+            labelEl.textContent = selectedRegions.join(', ');
+            labelEl.classList.add('text-blue-700', 'font-bold');
+        }
+    }
+    document.getElementById('pf-categories').addEventListener('click', e => {
+        const b = e.target.closest('.pa-cat'); if (!b) return;
+        const k = b.dataset.cat, i = selectedCats.indexOf(k);
+        if (i > -1) selectedCats.splice(i, 1);
+        else if (selectedCats.length >= MAX_CATS) { renderPaCats(); document.getElementById('cat-limit-msg').classList.remove('hidden'); return; }
+        else selectedCats.push(k);
+        renderPaCats();
+        if (k === '기타' && selectedCats.includes('기타')) document.getElementById('pf-category-other-text').focus();
+    });
+
+    function renderMegaMajor() {
+        const list = document.getElementById('mega-major-list');
+        if(!list) return;
+        list.innerHTML = majorsList.map(m => `
+            <label class="flex items-center gap-1.5 cursor-pointer p-1 hover:bg-gray-100 rounded border border-transparent hover:border-gray-200 transition-colors">
+                <input type="checkbox" value="${m}" class="major-region-chk w-4 h-4 cursor-pointer accent-[#12387a] shrink-0 border-gray-300">
+                <span class="text-[14px] text-gray-700 font-medium whitespace-nowrap">${m}</span>
+            </label>
+        `).join('');
+    }
+
+    function toggleDropdown(targetId) {
+        const targetMenu = document.getElementById(targetId);
+        if (targetMenu) targetMenu.classList.toggle('hidden');
+    }
+
+    function openMinorView() {
+        const checkedMajors = Array.from(document.querySelectorAll('.major-region-chk:checked')).map(cb => cb.value);
+        if (checkedMajors.length === 0) { 
+            alert('먼저 1개 이상의 대분류(지역)를 체크해주세요.'); 
+            return; 
+        }
+
+        document.getElementById('region-major-section').classList.add('hidden');
+        document.getElementById('region-minor-section').classList.remove('hidden');
+        document.getElementById('region-minor-section').classList.add('flex');
+
+        const container = document.getElementById('minor-regions-container');
+        let html = '';
+        
+        checkedMajors.forEach(major => {
+            html += `<div class="mb-5"><div class="font-bold text-[#12387a] mb-2 text-[14px] border-b border-gray-200 pb-1">[${major}]</div><div class="grid grid-cols-3 gap-x-2 gap-y-3">`;
+            if(major === '전국') {
+                const isChecked = selectedRegions.includes('전국 전체') ? 'checked' : '';
+                html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="전국 전체" class="mega-region-chk w-4 h-4 cursor-pointer accent-blue-600" ${isChecked}> <span class="text-gray-700 truncate">지역무관</span></label>`;
+            } else {
+                const majorAllVal = `${major} 전체`;
+                const isAllChecked = selectedRegions.includes(majorAllVal) ? 'checked' : '';
+                html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${majorAllVal}" class="mega-region-chk w-4 h-4 cursor-pointer accent-blue-600" ${isAllChecked}> <span class="font-bold text-[#12387a] truncate">${majorAllVal}</span></label>`;
+
+                if(typeof subRegionData !== 'undefined' && subRegionData[major]) {
+                    [...subRegionData[major]].sort((a, b) => a.localeCompare(b, 'ko')).forEach(minor => {   // 가나다순
+                        if(minor.replace(/\s/g,'') !== `${major}전체` && minor !== '전국전체') {
+                            const isChecked = selectedRegions.includes(minor) ? 'checked' : '';
+                            html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${minor}" class="mega-region-chk w-4 h-4 cursor-pointer accent-blue-600" ${isChecked}> <span class="text-gray-700 truncate">${minor}</span></label>`;
+                        }
+                    });
+                }
+            }
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function closeMinorView() {
+        document.getElementById('region-minor-section').classList.remove('flex');
+        document.getElementById('region-minor-section').classList.add('hidden');
+        document.getElementById('region-major-section').classList.remove('hidden');
+    }
+
+    function applyRegion() {
+        const checkboxes = document.querySelectorAll('.mega-region-chk:checked');
+        selectedRegions = Array.from(checkboxes).map(cb => cb.value);
+        
+        const labelEl = document.getElementById('region-btn-text');
+        if (selectedRegions.length > 0) {
+            const displayTxt = selectedRegions.join(', ');   // 고른 지역을 모두 콤마로 이어서 표시
+            labelEl.textContent = displayTxt;
+            labelEl.classList.remove('text-gray-700');
+            labelEl.classList.add('text-blue-700', 'font-bold');
+        } else {
+            labelEl.textContent = '지역 선택';
+            labelEl.classList.remove('text-blue-700', 'font-bold');
+            labelEl.classList.add('text-gray-700');
+        }
+        
+        document.getElementById('region-mega-dropdown').classList.add('hidden');
+    }
+
+    // 드롭다운 외부 영역 클릭 시 닫기
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.relative.z-\\[50\\]')) {
+            document.getElementById('region-mega-dropdown')?.classList.add('hidden');
+        }
+    });
+    // ===== 지역 메가 드롭다운 관련 변수 및 함수 끝 =====
+
+
+    // 연락처 자동 하이픈 추가
+    const pfPhoneInput = document.getElementById('pf-phone');
+    pfPhoneInput.addEventListener('input', function(e) {
+      let val = this.value.replace(/[^0-9]/g, '');
+      let res = '';
+      if(val.length < 4) res = val;
+      else if(val.length < 7) res = val.substr(0, 3) + '-' + val.substr(3);
+      else if(val.length < 11) res = val.substr(0, 3) + '-' + val.substr(3, 3) + '-' + val.substr(6);
+      else res = val.substr(0, 3) + '-' + val.substr(3, 4) + '-' + val.substr(7);
+      this.value = res;
+    });
+
+    document.getElementById('submit-partner-btn').addEventListener('click', async function(e) {
+        e.preventDefault();
+
+        // 폼 유효성 검사 (드롭다운 포함) - 지역은 selectedRegions 배열로 확인
+        const inputs = document.querySelectorAll('#partner-form input[required], #partner-form textarea[required]');
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!input.value.trim()) isValid = false;
+        });
+
+        const checkedCats = selectedCats.slice(0, MAX_CATS);
+        const otherText = document.getElementById('pf-category-other-text').value.trim();
+        if (checkedCats.includes('기타') && !otherText) { alert('기타 분야를 적어 주세요.'); return; }
+
+        if (!isValid || checkedCats.length === 0 || selectedRegions.length === 0) {
+            alert('필수 항목(*)을 모두 입력해 주세요. (전문 분야 및 출동 지역은 최소 1개 이상 선택)');
+            return;
+        }
+
+        if (isPractice) {
+            alert('[연습] 실제에서는 여기서 지원서가 제출되고, 운영진 심사가 시작됩니다.\n승인을 기다리는 동안 2단계(신상자료)를 미리 저장할 수 있습니다.\n2단계로 이동합니다.');
+            window.location.href = 'sos-expert-profile.html?practice=1';
+            return;
+        }
+        const btn = this;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 처리 중...';
+        btn.disabled = true;
+
+        try {
+            // 로그인한 본인 명의로만 신청 (비로그인 신청 차단)
+            const { data: { user } } = await partnerSb.auth.getUser();
+            if (!user) {
+                alert('전문가 신청은 로그인 후 가능합니다. 로그인 화면으로 이동합니다.');
+                window.location.href = '{{BASE}}login.html';
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                return;
+            }
+
+            let fileUrl = null;
+            const fileInput = document.getElementById('pf-file');
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const path = `partner/${user.id}/${Date.now()}_${file.name.replace(/[^\w.\-]/g, '_')}`;
+                const { error: uploadError } = await partnerSb.storage.from('sos-applications').upload(path, file);
+                if (uploadError) {
+                    console.error('파일 업로드 오류:', uploadError);
+                    alert('증빙 서류 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
+                fileUrl = path;   // 공개 주소가 아니라 저장 위치만 기록 (운영진만 열람)
+            }
+
+            // 다중 선택된 지역을 콤마로 이어붙여서 DB에 저장
+            const combinedRegion = selectedRegions.join(', ');
+
+            const { error } = await partnerSb.from('sos_applications').insert([{
+                source: 'partner',
+                name: document.getElementById('pf-name').value.trim(),
+                categories: checkedCats.join(',') + (checkedCats.includes('기타') ? ` (기타: ${otherText})` : ''),
+                region: combinedRegion,
+                phone: document.getElementById('pf-phone').value.trim(),
+                bio: document.getElementById('pf-bio').value.trim() || null,
+                file_url: fileUrl,
+                user_id: user.id,
+                status: '대기중',
+                // 지원서를 다시 낼 때 앞서 저장한 2·3단계 내용을 이어받음
+                profile_done_at: prevApp ? prevApp.profile_done_at : null,
+                service_scope: prevApp ? prevApp.service_scope : null,
+                contact_mode: prevApp ? prevApp.contact_mode : null
+            }]);
+
+            if (error) {
+                console.error('파트너 지원서 저장 오류:', error);
+                alert('신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                return;
+            }
+
+            alert('1단계 전문가 지원서가 제출되었습니다.\n운영진 심사 후 기재해 주신 연락처로 안내해 드리겠습니다.\n승인을 기다리는 동안 2단계(신상자료)를 미리 저장할 수 있습니다.');
+            window.location.href = 'sos-request.html?expert=1';
+        } catch (err) {
+            console.error('제출 중 예외:', err);
+            alert('신청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

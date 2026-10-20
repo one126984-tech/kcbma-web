@@ -1,0 +1,246 @@
+<!-- 파일명: sos-recharge.src.html -->
+<!-- @var PAGE_CLASS: page-recharge -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>예치금 쾌속 충전 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+  <style>
+      #recharge-top-banner { background-color: #12387a; }
+      .charge-btn.selected { border-color: #2563eb !important; background-color: #eff6ff !important; box-shadow: 0 0 0 2px #2563eb; }
+      .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+      .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+      .break-keep { word-break: keep-all; }
+      /* PC(마우스 사용 화면): 결제 버튼바를 화면 맨 아래 고정 대신 내용 끝에 붙임 (작업표시줄에 가리지 않게) */
+      @media (hover: hover) and (pointer: fine) {
+        #pay-bar { position: static !important; width: auto !important; margin: 0 20px 220px; border: 1px solid #e5e7eb !important;
+                   border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important; }
+      }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+  <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}} bg-gray-100">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 relative">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100 pb-24">
+        <div class="w-full max-w-md mx-auto min-h-full bg-white shadow-lg flex flex-col relative">
+
+            <div id="recharge-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
+                <button onclick="history.back()" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-blue-800 p-2 rounded-full transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[20px] font-black tracking-wider flex items-center gap-2">
+                    예치금 쾌속 충전
+                </h1>
+            </div>
+
+            <div class="p-5 flex-1 flex flex-col bg-gray-50 pb-8">
+                
+                <!-- B2B 후불 안내 배너 -->
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-4 shadow-sm">
+                    <p class="text-[14px] text-green-900 font-bold mb-0.5">🏢 협회 정회원사이신가요?</p>
+                    <p class="text-[12px] text-green-700 font-medium break-keep">매번 충전할 필요 없이 <strong>월말 세금계산서 후불 정산</strong>을 이용하실 수 있습니다. 협회 사무국에 문의해 주세요.</p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm">
+                    <p class="text-[13px] text-blue-900 font-bold leading-relaxed break-keep">
+                        예치금을 충전해 두시면 긴급 상황 발생 시 <strong class="text-blue-700">결제 과정 없이 1초 만에 전문가를 호출</strong>할 수 있습니다.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8 flex justify-between items-center">
+                    <span class="text-gray-500 font-bold text-[14px]">현재 내 예치금 잔액</span>
+                    <span id="current-balance" class="text-[20px] font-black text-[#dc2626]">조회 중...</span>
+                </div>
+                <p class="text-[12px] text-gray-500 font-bold -mt-5 mb-8 px-1 break-keep">상담 1회 30,000원 · 전문가 번호 확인 후 10분이 지나거나 상담을 종료하면 차감됩니다. (출동비는 현장에서 전문가에게 직접 결제)</p>
+
+                <h2 class="text-[16px] font-black text-gray-800 mb-3">충전하실 금액을 선택해 주세요</h2>
+                <div class="grid grid-cols-3 gap-2 mb-8">
+                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition selected" data-amount="30000">30,000원</button>
+                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition" data-amount="50000">50,000원</button>
+                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition" data-amount="100000">100,000원</button>
+                </div>
+                
+                <p class="text-[12px] text-gray-400 font-bold text-center mt-auto pb-4 pt-10 break-keep">미사용 예치금 환불은 협회 사무국으로 문의해 주세요.</p>
+            </div>
+
+            <div id="pay-bar" class="fixed bottom-0 w-full max-w-md p-3 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
+                <button id="pay-btn" class="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-black text-[17px] py-4 rounded-xl shadow-md flex justify-center items-center gap-2 transition">
+                    <span id="pay-amount-display">30,000</span>원 간편 결제하기
+                </button>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const supabaseClient = window.sb;
+    let selectedAmount = 30000;
+    let currentUser = null;
+    let balanceBefore = 0;
+
+    const STORE_ID = 'imp38872420';
+    const CHANNEL_KEY = 'channel-key-00ff5d17-d191-4de1-a1c6-2a221c26f3f6';
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const won = n => Number(n || 0).toLocaleString() + '원';
+
+    function showBalance(b) { document.getElementById('current-balance').innerText = won(b); }
+
+    async function fetchBalance() {
+        const { data, error } = await supabaseClient.from('user_profiles').select('prepaid_balance').eq('id', currentUser.id).single();
+        if (error || !data) return null;
+        return data.prepaid_balance || 0;
+    }
+
+    function cameFromRequest() { return !!new URLSearchParams(location.search).get('return'); }
+    function doneNote() { return cameFromRequest() ? "\n\n입력하시던 접수 화면으로 돌아갑니다." : ""; }
+
+    function goBack() {
+        const ret = new URLSearchParams(location.search).get('return');
+        // 돌아갈 곳은 접수 화면 또는 진행 중인 접수의 방 화면만 허용 (다른 사이트로 보내는 주소 차단)
+        const ok = ret && (/^sos-request\.html$/i.test(ret) || /^sos-room\.html\?request_id=[0-9a-f-]{36}$/i.test(ret));
+        window.location.href = ok ? ret : 'sos-request.html';
+    }
+
+    function resetPayButton() {
+        const btn = document.getElementById('pay-btn');
+        btn.disabled = false;
+        btn.innerHTML = `<span id="pay-amount-display">${selectedAmount.toLocaleString()}</span>원 간편 결제하기`;
+    }
+
+    async function initRecharge() {
+        if (typeof IMP !== 'undefined') IMP.init(STORE_ID);
+
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError || !user) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "{{BASE}}login.html";
+            return;
+        }
+        currentUser = user;
+
+        const b = await fetchBalance();
+        balanceBefore = b === null ? 0 : b;
+        showBalance(balanceBefore);
+    }
+
+    document.querySelectorAll('.charge-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.charge-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedAmount = parseInt(this.getAttribute('data-amount'));
+            document.getElementById('pay-amount-display').innerText = selectedAmount.toLocaleString();
+        });
+    });
+
+    async function confirmCharge(merchantUid, impUid) {
+        // 결제 직후에는 포트원 조회가 잠깐 늦을 수 있어, 서버 확인을 최대 4번(약 8초) 다시 시도합니다.
+        for (let attempt = 0; attempt < 4; attempt++) {
+            try {
+                const { data, error } = await supabaseClient.functions.invoke('super-endpoint', {
+                    body: { merchant_uid: merchantUid, imp_uid: impUid }
+                });
+                if (!error && data && (data.credited || data.already)) {
+                    showBalance(data.balance);
+                    alert("충전이 완료되었습니다.\n현재 예치금 잔액: " + won(data.balance) + doneNote());
+                    goBack();
+                    return;
+                }
+                // 반영 실패 원인을 개발자 도구(F12 > Console)에서 볼 수 있게 기록 (고객 화면에는 표시하지 않음)
+                if (error) {
+                    let detail = null;
+                    try { detail = error.context ? await error.context.json() : null; } catch (e2) {}
+                    console.error("충전 확인 실패(" + (attempt + 1) + "회):", error.context ? error.context.status : '', detail || error.message || error);
+                } else {
+                    console.error("충전 확인 응답이 예상과 다릅니다:", data);
+                }
+            } catch (e) {
+                console.error("충전 확인 호출 오류(" + (attempt + 1) + "회):", e);
+            }
+            if (attempt < 3) await sleep(2500);
+        }
+
+        alert("결제는 완료되었습니다.\n예치금 반영을 확인하는 중입니다. 잠시만 기다려 주세요.");
+        for (let i = 0; i < 10; i++) {
+            await sleep(3000);
+            const b = await fetchBalance();
+            if (b !== null && b > balanceBefore) {
+                showBalance(b);
+                alert("충전이 완료되었습니다.\n현재 예치금 잔액: " + won(b) + doneNote());
+                goBack();
+                return;
+            }
+        }
+        alert("예치금 반영이 지연되고 있습니다.\n주문번호: " + merchantUid);
+    }
+
+    document.getElementById('pay-btn').addEventListener('click', async function() {
+        if (typeof IMP === 'undefined') { alert("결제 모듈을 불러오는 중입니다."); return; }
+        if (!currentUser) { alert("로그인이 필요합니다."); window.location.href = "{{BASE}}login.html"; return; }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 주문 준비 중...';
+
+        const amount = selectedAmount;
+        const { data: merchantUid, error: orderError } = await supabaseClient.rpc('create_charge_order', { p_amount: amount });
+        if (orderError || !merchantUid) {
+            alert("주문을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
+            resetPayButton(); return;
+        }
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 결제창 여는 중...';
+
+       IMP.request_pay({
+            channelKey: CHANNEL_KEY,
+            pg: "html5_inicis",
+            pay_method: "card",
+            merchant_uid: merchantUid,
+            name: "긴급 SOS 예치금 충전",
+            amount: amount,
+            buyer_email: currentUser?.email || "user@example.com",
+            buyer_name: "예치금 회원",
+        }, async function (rsp) {
+            if (rsp.success) {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 결제 확인 중...';
+                await confirmCharge(merchantUid, rsp.imp_uid);
+            } else {
+                alert("결제를 취소하셨거나 실패하였습니다. (" + rsp.error_msg + ")");
+            }
+            resetPayButton();
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', initRecharge);
+</script>
+</body>
+</html>
