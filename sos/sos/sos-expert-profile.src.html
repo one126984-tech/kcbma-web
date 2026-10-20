@@ -1,0 +1,409 @@
+<!-- 파일명: sos-expert-profile.src.html
+     SOS 파트너 전문가 프로필 (2쪽)
+     - 기본: 전문가(희망자)가 이름·연락처·전문 분야·소개·증빙 서류를 입력하고 [다음] → 서비스 제공 범위(sos-expert-scope.html)
+     - ?view=전문가ID : 요청자가 보는 '전문가 상세 소개' (읽기 전용, 전화번호 없음) -->
+<!-- @var PAGE_CLASS: page-sos-partner -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>파트너 전문가 프로필 | 대한집합건물관리협회</title>
+<!-- @include critical-css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+    .xp-wrap { width: 100%; max-width: 28rem; margin: 0 auto; background: #f9fafb; min-height: 100%; box-shadow: 0 10px 25px rgba(0,0,0,.08); }
+    .xp-banner { background: #1f2937; color: #fff; text-align: center; padding: 18px 48px; position: relative; }
+    .xp-banner h1 { margin: 0; font-size: 20px; font-weight: 900; line-height: 1.45; word-break: keep-all; }
+    .xp-banner .hl { color: #facc15; }
+    .xp-banner .tag { background: #1e3a8a; color: #fde047; padding: 0 6px; border-radius: 4px; }
+    .xp-back { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: #fff; font-size: 18px; padding: 8px; border-radius: 999px; cursor: pointer; }
+    .xp-body { padding: 18px 18px 40px; }
+    .xp-status { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #374151; line-height: 1.6; word-break: keep-all; margin-bottom: 12px; }
+    .xp-links { display: flex; gap: 8px; margin-bottom: 18px; }
+    .xp-links a { flex: 1; text-align: center; text-decoration: none; font-size: 13px; font-weight: 800; padding: 10px 6px; border-radius: 10px; border: 1px solid #d1d5db; background: #fff; color: #1f2937; }
+    .xp-links a.live { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; }
+    .xp-sec { margin-bottom: 22px; }
+    .xp-label { display: block; font-size: 15px; font-weight: 900; color: #1f2937; margin-bottom: 8px; }
+    .xp-label .req { color: #ef4444; }
+    .xp-help { font-size: 12px; color: #6b7280; margin: -4px 0 8px; word-break: keep-all; line-height: 1.5; }
+    .xp-input, .xp-textarea { width: 100%; box-sizing: border-box; border: 2px solid #d1d5db; border-radius: 12px; padding: 12px 14px; font-size: 14px; background: #fff; font-family: inherit; }
+    .xp-input:focus, .xp-textarea:focus { outline: none; border-color: #3b82f6; }
+    .xp-input[readonly] { background: #f3f4f6; color: #4b5563; }
+    .xp-textarea { resize: vertical; min-height: 120px; }
+    .xp-count { text-align: right; font-size: 11px; color: #9ca3af; margin-top: 4px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-btn { position: relative; border: 2px solid #e5e7eb; border-radius: 12px; padding: 11px 4px; font-weight: 800; font-size: 13px; background: #fff; color: #1f2937; cursor: pointer; }
+    .cat-btn.on { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
+    .rank { position: absolute; top: -9px; left: -6px; color: #fff; font-size: 11px; font-weight: 900; padding: 1px 7px; border-radius: 999px; background: #dc2626; }
+    .rank.r2 { background: #2563eb; } .rank.r3 { background: #7c3aed; }
+    .file-box { background: #fff; border: 2px solid #d1d5db; border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+    .file-state { font-size: 12px; color: #6b7280; margin-top: 6px; word-break: keep-all; }
+    .xp-bar { display: flex; gap: 8px; margin-top: 8px; }
+    .xp-btn { border: 0; border-radius: 12px; font-weight: 900; font-size: 16px; padding: 15px 0; cursor: pointer; white-space: nowrap; }
+    .xp-btn-prev { flex: 0 0 auto; padding: 15px 18px; background: #2563eb; color: #fff; }
+    .xp-btn-next { flex: 1; background: #1f2937; color: #fff; }
+    .xp-btn-next:hover { background: #000; }
+    .xp-btn:disabled { opacity: .5; cursor: not-allowed; }
+    /* 상세 소개 보기 */
+    .vw-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+    .vw-name { font-size: 20px; font-weight: 900; color: #111827; margin: 0 0 6px; }
+    .chip { display: inline-block; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; margin: 0 4px 4px 0; }
+    .chip-cat { background: #fef2f2; color: #b91c1c; } .chip-mode { background: #ecfdf5; color: #047857; }
+    .vw-h { font-size: 13px; font-weight: 900; color: #dc2626; margin: 0 0 8px; }
+    .vw-intro { font-size: 14px; color: #1f2937; line-height: 1.7; white-space: pre-wrap; word-break: keep-all; }
+    .vw-row { font-size: 13px; color: #374151; line-height: 1.6; margin: 0 0 6px; word-break: keep-all; }
+    .vw-row b { color: #111827; }
+    .vw-note { font-size: 12px; color: #6b7280; text-align: center; word-break: keep-all; line-height: 1.6; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="xp-wrap">
+            <div class="xp-banner">
+                <button type="button" class="xp-back" onclick="goBack()" aria-label="뒤로"><i class="fa-solid fa-arrow-left"></i></button>
+                <h1><span id="step-badge" style="display:inline-block;background:#1d4ed8;color:#fff;font-size:13px;padding:2px 10px;border-radius:999px;margin-bottom:4px;">2단계 · 신상자료 입력</span><br>SOS 서비스 공급자<br><span class="hl">파트너 전문가 <span class="tag">프로필</span></span></h1>
+            </div>
+
+            <!-- ============ 편집 모드 ============ -->
+            <div id="edit-mode" class="xp-body">
+                <div id="my-status" class="xp-status">불러오는 중입니다...</div>
+                <div class="xp-links">
+                    <a id="live-link" class="live hidden" href="sos-standby.html">📋 긴급 SOS 요청현황 바로가기</a>
+                </div>
+
+                <div class="xp-sec">
+                    <label class="xp-label" for="pf-name">1. 이름 또는 상호명 <span class="req">*</span></label>
+                    <input id="pf-name" class="xp-input" type="text" maxlength="40" placeholder="예 : 홍길동 또는 한국설비">
+                </div>
+
+                <div class="xp-sec">
+                    <label class="xp-label" for="pf-phone">2. 연락처 <span class="req">*</span></label>
+                    <p id="phone-help" class="xp-help">요청자가 '전화번호 보기'를 눌렀을 때만 공개됩니다.</p>
+                    <input id="pf-phone" class="xp-input" type="tel" maxlength="13" placeholder="예 : 010-1234-5678">
+                </div>
+
+                <div class="xp-sec">
+                    <span class="xp-label">3. 전문 분야 <span class="req">*</span></span>
+                    <p class="xp-help">잘하는 순서대로 최대 2개까지 눌러 주세요. (1순위 → 2순위)</p>
+                    <div id="cat-grid" class="cat-grid"></div>
+                    <input id="pf-cat-other" class="xp-input hidden" style="margin-top:8px;" type="text" maxlength="30" placeholder="기타 분야를 적어 주세요 (예: 승강기, 방수)">
+                </div>
+
+                <div class="xp-sec">
+                    <label class="xp-label" for="pf-intro">4. 전문가 소개 <span class="req">*</span></label>
+                    <p class="xp-help">요청자가 전문가를 고를 때 보는 소개입니다. 자격, 경력, 강점을 적어 주세요.</p>
+                    <textarea id="pf-intro" class="xp-textarea" maxlength="500" placeholder="예) 전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 서울 서부, 고양, 김포, 파주 출동 가능"></textarea>
+                    <p class="xp-count"><span id="intro-count">0</span> / 500</p>
+                </div>
+
+                <div class="xp-sec">
+                    <span class="xp-label">5. 증빙 서류 <span style="font-size:12px;color:#9ca3af;font-weight:700;">(자격증, 사업자등록증 등)</span></span>
+                    <div class="file-box"><input id="pf-file" type="file" accept="image/*,.pdf"></div>
+                    <p id="file-state" class="file-state">운영진 심사용으로만 쓰이며 외부에 공개되지 않습니다.</p>
+                </div>
+
+                <div class="xp-bar">
+                    <button type="button" class="xp-btn xp-btn-prev" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+                    <button type="button" id="next-btn" class="xp-btn xp-btn-next">저장하고 다음 (3단계) →</button>
+                </div>
+            </div>
+
+            <!-- ============ 상세 소개 보기 (요청자용) ============ -->
+            <div id="view-mode" class="xp-body hidden">
+                <div class="vw-card">
+                    <p id="vw-name" class="vw-name">-</p>
+                    <div id="vw-chips"></div>
+                </div>
+                <div class="vw-card">
+                    <p class="vw-h">★ 전문가 소개 ★</p>
+                    <div id="vw-intro" class="vw-intro">등록된 소개가 없습니다.</div>
+                </div>
+                <div class="vw-card">
+                    <p class="vw-h">서비스 제공 범위</p>
+                    <div id="vw-scope"><p class="vw-row">등록된 범위가 없습니다.</p></div>
+                </div>
+                <p class="vw-note">전화번호는 매칭 화면에서 '전화번호 보기'를 누르면 표시됩니다.</p>
+                <div class="xp-bar" style="margin-top:16px;">
+                    <button type="button" class="xp-btn xp-btn-next" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i> 매칭 화면으로 돌아가기</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const supabaseClient = window.sb;
+    const params = new URLSearchParams(location.search);
+    const viewId = params.get('view');
+    const isPractice = params.get('practice') === '1';   // 연습: 로그인·저장 없이 실제와 같은 화면
+    const MODAL_URL = 'sos-request.html?expert=1' + (isPractice ? '&practice=1' : '');
+
+    // 요청 화면·대기실과 같은 분야 이름을 씁니다 (전문가 매칭이 이 이름으로 이루어짐)
+    const CATS = [
+        { key: '화재', label: '🔥 화재/소방' }, { key: '전기', label: '⚡ 정전/전기' }, { key: '누수', label: '💧 누수/배관' },
+        { key: '가스', label: '🧯 가스누출' }, { key: '화장실', label: '🚽 화장실 기기' }, { key: '기타', label: '✏️ 기타(입력)' }
+    ];
+    const MAX_CATS = 2;
+    const DRAFT_KEY = 'sosExpertDraft';
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function digits(s) { return String(s || '').replace(/\D/g, ''); }
+    function fmtPhone(v) {
+        v = digits(v).slice(0, 11);
+        if (v.length < 4) return v;
+        if (v.length < 7) return v.slice(0, 3) + '-' + v.slice(3);
+        if (v.length < 11) return v.slice(0, 3) + '-' + v.slice(3, 6) + '-' + v.slice(6);
+        return v.slice(0, 3) + '-' + v.slice(3, 7) + '-' + v.slice(7);
+    }
+    function goBack() {
+        if (viewId) { if (history.length > 1) history.back(); else location.href = 'sos-room.html'; return; }
+        location.href = MODAL_URL;
+    }
+    function scopeLines(scope) {
+        if (!scope) return '';
+        const one = (k, title) => {
+            const s = scope[k];
+            if (!s || !s.on) return '';
+            const regions = (s.regions || []).join(', ') || '-';
+            const times = s.all_day ? '24시간' : (s.times || []).map(t => `${t.from}~${t.to}`).join(', ');
+            return `<p class="vw-row"><b>${title}</b><br>지역: ${esc(regions)}<br>시간: ${esc(times || '-')}</p>`;
+        };
+        return one('phone', '📞 전화상담') + one('dispatch', '🚚 출동서비스');
+    }
+
+    // ===================== 상세 소개 보기 =====================
+    async function initView() {
+        document.getElementById('edit-mode').classList.add('hidden');
+        document.getElementById('view-mode').classList.remove('hidden');
+        document.querySelector('.xp-banner .tag').textContent = '상세 소개';
+        document.getElementById('step-badge').style.display = 'none';
+        let p = null;
+        if (/^[0-9a-f-]{36}$/i.test(viewId)) {
+            const { data, error } = await supabaseClient.rpc('get_expert_public_profile', { p_expert_id: viewId });
+            if (error) console.error('전문가 소개 조회 오류:', error);
+            p = Array.isArray(data) ? data[0] : data;
+        }
+        if (!p) { document.getElementById('vw-name').textContent = '전문가 정보를 찾을 수 없습니다.'; return; }
+        document.getElementById('vw-name').textContent = p.name || '-';
+        const cats = String(p.categories || '').split(',').map(x => x.trim()).filter(Boolean);
+        const catLabel = k => (CATS.find(c => c.key === k) || { label: k }).label;
+        document.getElementById('vw-chips').innerHTML =
+            cats.map((c, i) => `<span class="chip chip-cat">${i + 1}순위 ${esc(catLabel(c))}</span>`).join('') +
+            `<span class="chip chip-mode">${p.contact_mode === 'text' ? '💬 문자 후 10분 내 회신' : '📞 전화하면 바로 받음'}</span>`;
+        document.getElementById('vw-intro').textContent = p.intro || '등록된 소개가 없습니다.';
+        const lines = scopeLines(p.service_scope);
+        if (lines) document.getElementById('vw-scope').innerHTML = lines;
+    }
+
+    // ===================== 편집 모드 =====================
+    let selectedCats = [];
+    let me = null;          // 승인된 전문가 정보
+    let lastApp = null;     // 최근 지원서
+    let currentUser = null;
+    let filePath = null, fileName = null;
+    let uploading = false;
+
+    function renderCats() {
+        document.getElementById('cat-grid').innerHTML = CATS.map(c => {
+            const i = selectedCats.indexOf(c.key);
+            return `<button type="button" class="cat-btn ${i > -1 ? 'on' : ''}" data-cat="${c.key}">${i > -1 ? `<span class="rank r${i + 1}">${i + 1}순위</span>` : ''}${c.label}</button>`;
+        }).join('');
+        document.getElementById('pf-cat-other').classList.toggle('hidden', !selectedCats.includes('기타'));
+    }
+    document.getElementById('cat-grid').addEventListener('click', e => {
+        const b = e.target.closest('.cat-btn'); if (!b) return;
+        const k = b.dataset.cat, i = selectedCats.indexOf(k);
+        if (i > -1) selectedCats.splice(i, 1);
+        else if (selectedCats.length >= MAX_CATS) { alert('전문 분야는 최대 2개까지 선택할 수 있습니다. 하나를 해제한 뒤 선택해 주세요.'); return; }
+        else selectedCats.push(k);
+        renderCats();
+    });
+    document.getElementById('pf-intro').addEventListener('input', function () { document.getElementById('intro-count').textContent = this.value.length; });
+    document.getElementById('pf-phone').addEventListener('input', function () { if (!this.readOnly) this.value = fmtPhone(this.value); });
+
+    function readDraft() { try { return JSON.parse(sessionStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { return null; } }
+    function writeDraft(extra) {
+        const prev = readDraft() || {};
+        const d = Object.assign(prev, {
+            savedAt: Date.now(),
+            name: document.getElementById('pf-name').value.trim(),
+            phone: document.getElementById('pf-phone').value.trim(),
+            cats: selectedCats.slice(),
+            catOther: document.getElementById('pf-cat-other').value.trim(),
+            intro: document.getElementById('pf-intro').value.trim(),
+            filePath, fileName
+        }, extra || {});
+        try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch (e) {}
+        return d;
+    }
+    function fill(d) {
+        document.getElementById('pf-name').value = d.name || '';
+        if (!document.getElementById('pf-phone').readOnly) document.getElementById('pf-phone').value = fmtPhone(d.phone || '');
+        selectedCats = (d.cats || []).filter(k => CATS.some(c => c.key === k)).slice(0, MAX_CATS);
+        document.getElementById('pf-cat-other').value = d.catOther || '';
+        document.getElementById('pf-intro').value = d.intro || '';
+        document.getElementById('intro-count').textContent = (d.intro || '').length;
+        filePath = d.filePath || null; fileName = d.fileName || null;
+        if (fileName) document.getElementById('file-state').textContent = '✔ 업로드됨: ' + fileName;
+        renderCats();
+    }
+    function catsFromText(t) {
+        // 예전 지원서의 분야 이름(화재/소방, 정전/전기 …)도 새 이름으로 맞춰 불러옴
+        const map = { '화재': '화재', '소방': '화재', '전기': '전기', '정전': '전기', '누수': '누수', '배관': '누수', '가스': '가스', '화장실': '화장실', '기타': '기타' };
+        const out = [];
+        String(t || '').split(',').forEach(part => {
+            const hit = Object.keys(map).find(k => part.includes(k));
+            if (hit && !out.includes(map[hit])) out.push(map[hit]);
+        });
+        return out.slice(0, MAX_CATS);
+    }
+
+    async function initEdit() {
+        const status = document.getElementById('my-status');
+        if (isPractice) {
+            document.getElementById('step-badge').textContent = '[연습] 2단계 · 신상자료 입력';
+            document.getElementById('step-badge').style.background = '#7c3aed';
+            status.innerHTML = '🧪 <b>연습 모드</b> · 가상 자료가 채워져 있습니다. 고쳐 보고 \'저장하고 다음\'을 누르면 3단계로 넘어갑니다. 실제로 저장되지 않습니다.';
+            status.style.background = '#f3e8ff'; status.style.borderColor = '#d8b4fe'; status.style.color = '#6b21a8';
+            document.getElementById('pf-phone').value = '010-0000-1234'; document.getElementById('pf-phone').readOnly = true;
+            document.getElementById('phone-help').textContent = '[연습] 실제에서는 1단계에서 입력한 연락처가 표시됩니다.';
+            document.getElementById('pf-file').disabled = true;
+            document.getElementById('file-state').textContent = '[연습] 연습에서는 파일을 올리지 않습니다.';
+            fill({ name: '한국전기 홍길동', cats: ['전기', '화재'], intro: '전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 서울 서부, 고양, 김포, 파주 출동 가능' });
+            return;
+        }
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            currentUser = user || null;
+        } catch (e) { currentUser = null; }
+
+        if (currentUser) {
+            const { data: ex } = await supabaseClient.from('sos_experts').select('*').eq('user_id', currentUser.id).eq('is_active', true).maybeSingle();
+            me = ex || null;
+            if (!me) {
+                const { data: app } = await supabaseClient.from('sos_applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                lastApp = app || null;
+            }
+        }
+
+        if (!currentUser) {
+            // 회원만 진행할 수 있음
+            alert('전문가 신청은 회원만 할 수 있습니다.\n로그인(또는 회원가입) 후 이용해 주세요.');
+            location.href = '{{BASE}}login.html';
+            return;
+        }
+        else if (!me && !lastApp) {
+            // 2단계는 1단계 지원서를 낸 회원부터
+            alert('1단계부터 진행하세요.\n"전문가 지원하기"로 지원서를 먼저 제출해 주세요.');
+            location.href = MODAL_URL;
+            return;
+        }
+        else if (!me) {
+            // 지원서만 낸 회원: 승인 전에도 2단계를 미리 저장 (승인되면 자동으로 옮겨짐)
+            status.innerHTML = `지원서 심사 상태: <b>${esc(lastApp.status || '대기중')}</b><br><span style="font-weight:500;color:#6b7280;">승인 전에도 신상자료를 미리 저장해 둘 수 있습니다. 승인되면 그대로 적용됩니다.</span>`;
+            const ph = document.getElementById('pf-phone');
+            ph.value = fmtPhone(lastApp.phone || ''); ph.readOnly = true;
+            document.getElementById('phone-help').textContent = '1단계 지원서에 적은 연락처입니다. 바꾸려면 1단계에서 지원서를 다시 내 주세요.';
+            const d0 = readDraft();
+            if (d0 && d0.savedAt && Date.now() - d0.savedAt < 6 * 60 * 60 * 1000) fill(d0);
+            else fill({ name: lastApp.name, cats: catsFromText(lastApp.categories), intro: lastApp.bio });
+            return;
+        }
+        else {
+            status.innerHTML = `<span style="color:#15803d;">✔ 승인된 전문가</span> · ${me.can_dispatch ? '전화상담 + 출동 가능' : '전화상담 가능'}${me.is_standby ? ' · 현재 대기중' : ''}<br><span style="font-weight:500;color:#6b7280;">신상자료를 확인·수정하고 '저장하고 다음'을 누르면 3단계(콜대기 조건)로 넘어갑니다.</span>`;
+            if (me.service_scope) document.getElementById('live-link').classList.remove('hidden');
+            const ph = document.getElementById('pf-phone');
+            ph.value = fmtPhone(me.phone || ''); ph.readOnly = true;
+            document.getElementById('phone-help').textContent = '승인된 연락처입니다. 바꾸시려면 협회 사무국에 문의해 주세요. (요청자가 "전화번호 보기"를 눌렀을 때만 공개)';
+            document.getElementById('file-state').textContent = '이미 승인된 전문가는 서류를 다시 올리지 않아도 됩니다. (자격이 추가되면 올려 주세요)';
+        }
+
+        const d = readDraft();
+        if (d && d.savedAt && Date.now() - d.savedAt < 6 * 60 * 60 * 1000) fill(d);
+        else if (me.profile_done_at || me.intro) fill({ name: me.name, cats: catsFromText(me.categories || me.category), intro: me.intro });
+        else {
+            // 처음 2단계에 들어오면 승인된 지원서 내용으로 미리 채움
+            const { data: app } = await supabaseClient.from('sos_applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+            fill({ name: me.name || (app && app.name), cats: catsFromText(me.categories || me.category || (app && app.categories)), intro: me.intro || (app && app.bio) });
+        }
+    }
+
+    document.getElementById('pf-file').addEventListener('change', async function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        const st = document.getElementById('file-state');
+        if (!currentUser) { alert('서류를 올리려면 먼저 로그인해 주세요.'); this.value = ''; return; }
+        if (file.size > 10 * 1024 * 1024) { alert('파일은 10MB 이하로 올려 주세요.'); this.value = ''; return; }
+        uploading = true; document.getElementById('next-btn').disabled = true;
+        st.textContent = '올리는 중입니다...';
+        const path = `partner/${currentUser.id}/${Date.now()}_${file.name.replace(/[^\w.\-]/g, '_')}`;
+        const { error } = await supabaseClient.storage.from('sos-applications').upload(path, file);
+        uploading = false; document.getElementById('next-btn').disabled = false;
+        if (error) { console.error('서류 업로드 오류:', error); st.textContent = '업로드에 실패했습니다. 다시 선택해 주세요.'; this.value = ''; return; }
+        filePath = path; fileName = file.name;
+        st.textContent = '✔ 업로드됨: ' + file.name + ' (운영진 심사용, 외부 비공개)';
+        writeDraft();
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+        if (uploading) return;
+        const name = document.getElementById('pf-name').value.trim();
+        const phone = document.getElementById('pf-phone').value.trim();
+        const intro = document.getElementById('pf-intro').value.trim();
+        if (!name) { alert('이름 또는 상호명을 입력해 주세요.'); return; }
+        if (digits(phone).length < 10) { alert('연락처를 정확히 입력해 주세요.'); return; }
+        if (!selectedCats.length) { alert('전문 분야를 1개 이상 선택해 주세요.'); return; }
+        if (selectedCats.includes('기타') && !document.getElementById('pf-cat-other').value.trim()) { alert('기타 분야를 적어 주세요.'); return; }
+        if (intro.length < 10) { alert('전문가 소개를 10자 이상 적어 주세요.'); return; }
+        saveStep2(name, intro);
+    });
+
+    async function saveStep2(name, intro) {
+        const btn = document.getElementById('next-btn');
+        btn.disabled = true; const old = btn.innerHTML; btn.innerHTML = '저장 중...';
+        const cats = selectedCats.slice(0, MAX_CATS).join(',');
+        if (isPractice) {
+            btn.disabled = false; btn.innerHTML = old;
+            writeDraft();
+            alert('[연습] 실제에서는 여기서 신상자료가 저장됩니다.\n3단계(콜대기 조건)로 이동합니다.');
+            location.href = 'sos-expert-scope.html?practice=1';
+            return;
+        }
+        const args = { p_name: name, p_categories: cats, p_intro: intro, p_doc_path: filePath || null };
+        const { error } = await supabaseClient.rpc(me ? 'set_my_profile_basic' : 'set_my_application_profile', args);
+        btn.disabled = false; btn.innerHTML = old;
+        if (error) {
+            console.error('신상자료 저장 오류:', error);
+            const msg = String(error.message || '');
+            if (msg.includes('NOT_EXPERT') || msg.includes('NO_APPLICATION')) alert('1단계 지원서가 없습니다. 1단계부터 진행해 주세요.');
+            else alert('저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            return;
+        }
+        writeDraft();
+        location.href = 'sos-expert-scope.html';
+    }
+
+    if (viewId) initView(); else initEdit();
+</script>
+</body>
+</html>

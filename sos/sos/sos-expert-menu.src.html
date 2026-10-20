@@ -1,0 +1,207 @@
+<!-- 파일명: sos-expert-menu.src.html -->
+<!-- @var PAGE_CLASS: page-sos-expert -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS 파트너 전문가 코너 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+  <style>
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+      body { height: 100vh; height: 100dvh !important; }
+      #main-content { scrollbar-gutter: stable; overscroll-behavior: contain; }
+      .break-keep { word-break: keep-all; }
+      .custom-scroll::-webkit-scrollbar { width: 6px; }
+      .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+
+      /* 메뉴 카드 (순수 CSS) */
+      .menu-card { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; border-radius:16px;
+                   border:2px solid; text-decoration:none; transition:.15s; box-sizing:border-box; width:100%; text-align:left; background:#fff; cursor:pointer; }
+      .menu-card:active { transform: scale(.99); }
+      .menu-card h3 { margin:0 0 4px; font-size:19px; font-weight:900; }
+      .menu-card p  { margin:0; font-size:13px; color:#374151; line-height:1.55; word-break:keep-all; }
+      .menu-arrow { font-size:26px; font-weight:900; flex-shrink:0; }
+      .menu-live     { border-color:#3b82f6; background:#eff6ff; }
+      .menu-live h3, .menu-live .menu-arrow { color:#1d4ed8; }
+      .menu-practice { border-color:#d1d5db; background:#f9fafb; }
+      .menu-practice h3 { color:#111827; }
+      .menu-practice .menu-arrow { color:#3b82f6; }
+      .menu-apply    { border-color:#22c55e; border-width:3px; }
+      .menu-apply h3, .menu-apply .menu-arrow { color:#15803d; }
+      .badge-practice { display:inline-block; background:#d1d5db; color:#374151; font-size:13px; font-weight:900; padding:2px 8px; border-radius:6px; margin-right:6px; }
+      .apply-choices { display:none; margin-top:10px; gap:8px; flex-direction:column; }
+      .apply-choices.open { display:flex; }
+      .apply-choices a { display:block; text-align:center; text-decoration:none; font-weight:900; font-size:15px; padding:14px 10px; border-radius:12px; color:#fff; }
+      .back-btn { display:block; width:100%; text-align:center; background:#d1d5db; color:#111827; font-weight:900; font-size:16px; padding:16px; border-radius:14px; text-decoration:none; }
+      #my-status { background:#fff; border:1px solid #e5e7eb; border-radius:12px; box-sizing:border-box; min-height:84px; padding:16px 14px; overflow:hidden;
+                   font-size:13px; line-height:21px; text-align:center; word-break:keep-all; transition: background .2s; }
+      #my-status.st-new { background:linear-gradient(135deg,#fef3c7,#fde68a); border:2px solid #f59e0b; }
+      #my-status.st-new #st1 { color:#92400e; font-size:15px; }
+      #my-status.st-new #st2 { color:#78350f; font-weight:700; }
+      #my-status.st-wait { background:#eff6ff; border:2px solid #93c5fd; }
+      #my-status.st-ok { background:#f0fdf4; border:2px solid #86efac; }
+      #my-status #st-wrap { opacity:1; transition:opacity .25s; }
+      #my-status.loading #st-wrap { opacity:0; }
+      #st1 { font-weight:900; color:#1f2937; min-height:21px; }
+      #st2 { font-weight:400; color:#6b7280; min-height:21px; margin-top:2px; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}} bg-gray-100">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center justify-center shadow-md" style="padding:16px 0;">
+            <span class="text-white font-bold text-[17px] tracking-wide">전문가 파트너 시스템</span>
+        </div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="w-full max-w-md mx-auto bg-gray-50 min-h-full shadow-lg" style="padding:32px 20px 100px;">
+
+            <h1 class="text-center font-black" style="font-size:22px; line-height:30px; height:30px; white-space:nowrap; color:#12387a; margin:0 0 18px;">SOS 파트너 전문가 메뉴</h1>
+
+            <!-- 내 상태 -->
+            <div id="my-status" class="loading" style="margin-bottom:18px;"><div id="st-wrap"><div id="st1"></div><div id="st2"></div></div></div>
+
+            <!-- 콜대기 -->
+            <div style="border:3px solid #ef4444; border-radius:22px; padding:14px; display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+                <a href="sos-standby.html" class="menu-card menu-live">
+                    <div>
+                        <h3>실시간 콜대기</h3>
+                        <p>승인된 전문가가 콜 대기 상태로 전환합니다. (분야·지역·시간은 '프로필·서비스 범위'에서 설정)</p>
+                    </div>
+                    <span class="menu-arrow">→</span>
+                </a>
+                <a href="sos-standby.html?practice=1" class="menu-card menu-practice">
+                    <div>
+                        <h3><span class="badge-practice">연습용</span>콜대기</h3>
+                        <p>실제 콜 없이 가상의 자료로 실전과 동일하게 연습합니다. 로그인 없이 해 볼 수 있습니다.</p>
+                    </div>
+                    <span class="menu-arrow">→</span>
+                </a>
+            </div>
+
+            <!-- 전문가 신청 -->
+            <button type="button" id="apply-btn" class="menu-card menu-apply" style="margin-bottom:0;">
+                <div>
+                    <h3 id="apply-title">SOS 전문가 신청하기</h3>
+                    <p id="apply-desc">새롭게 파트너 전문가로 활동하기 위해 신청합니다. (전화상담 · 출동 모두 이 신청 하나로)</p>
+                </div>
+                <span class="menu-arrow">→</span>
+            </button>
+
+            <div style="margin-top:20px;">
+                <a href="sos-request.html" id="back-btn" class="back-btn">← 뒤로가기</a>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const supabaseClient = window.sb;
+
+    // 신청하기(또는 승인된 전문가의 프로필 수정): 회원만 진행. 로그인하지 않았으면 로그인 화면으로
+    let loggedIn = false;
+    document.getElementById('apply-btn').addEventListener('click', async () => {
+        try { const { data: { user } } = await supabaseClient.auth.getUser(); loggedIn = !!user; } catch (e) { loggedIn = false; }
+        if (!loggedIn) {
+            alert('전문가 신청은 회원만 할 수 있습니다.\n로그인(또는 회원가입) 후 다시 눌러 주세요.');
+            window.location.href = '{{BASE}}login.html';
+            return;
+        }
+        window.location.href = 'sos-expert-profile.html';
+    });
+    // 뒤로가기: 바로 전 화면으로 (없으면 긴급 SOS 첫 화면)
+    document.getElementById('back-btn').addEventListener('click', (e) => {
+        if (document.referrer && document.referrer.indexOf(location.host) > -1 && history.length > 1) { e.preventDefault(); history.back(); }
+    });
+
+    function esc(str) {
+        const d = document.createElement('div');
+        d.innerText = str || '';
+        return d.innerHTML;
+    }
+
+    // 내 상태: 줄 위치는 고정하고 글만 교체 (위로 올라붙지 않음)
+    const STATUS_KEY = 'sosMenuStatus';
+    function setStatus(l1, l2, cache, kind) {
+        document.getElementById('st1').innerHTML = l1 || '';
+        document.getElementById('st2').innerHTML = l2 || '';
+        const box = document.getElementById('my-status');
+        box.classList.remove('loading', 'st-new', 'st-wait', 'st-ok');
+        if (kind) box.classList.add(kind);
+        try {
+            if (cache) sessionStorage.setItem(STATUS_KEY, JSON.stringify([l1, l2, kind || '']));
+            else sessionStorage.removeItem(STATUS_KEY);
+        } catch (e) {}
+    }
+
+    // 직전에 확인한 상태가 있으면 바로 보여 줌 (이름 같은 개인정보는 저장하지 않음)
+    (function () {
+        try {
+            const c = JSON.parse(sessionStorage.getItem(STATUS_KEY) || 'null');
+            if (c) {
+                document.getElementById('st1').innerHTML = c[0];
+                document.getElementById('st2').innerHTML = c[1];
+                document.getElementById('my-status').classList.remove('loading');
+                if (c[2]) document.getElementById('my-status').classList.add(c[2]);
+            }
+        } catch (e) {}
+    })();
+
+    async function loadStatus() {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                setStatus('전문가가 아니시군요! 🙌', '아래 "SOS 전문가 신청하기"로 가입 신청을 하시고, 주변에 도움도 주시고 수익도 만들어 보세요.<br>(신청은 로그인 후 가능합니다 · 연습용 콜대기는 로그인 없이 해 볼 수 있습니다)', false, 'st-new');
+                return;
+            }
+            const { data: ex } = await supabaseClient
+                .from('sos_experts')
+                .select('can_dispatch, is_standby')
+                .eq('user_id', user.id).eq('is_active', true).maybeSingle();
+            if (ex) {
+                setStatus('<span style="color:#15803d;">✔ 승인된 전문가</span>',
+                          (ex.can_dispatch ? '전화상담 + 출동 가능' : '전화상담 가능') + (ex.is_standby ? ' · 현재 대기중' : ''), true, 'st-ok');
+                document.getElementById('apply-title').textContent = '프로필·서비스 범위 수정하기';
+                document.getElementById('apply-desc').textContent = '전문 분야, 소개, 서비스 지역·시간, 연락 방식을 고칩니다.';
+                return;
+            }
+            const { data: app } = await supabaseClient
+                .from('sos_applications')
+                .select('status, created_at')
+                .eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+            if (app) {
+                setStatus(`전문가 신청 내역이 있습니다 (상태: <b>${esc(app.status)}</b>)`,
+                          '운영진 승인 후 실시간 콜대기를 이용할 수 있습니다. 내용을 고쳐 다시 신청할 수도 있습니다.', true, 'st-wait');
+            } else {
+                setStatus('전문가가 아니시군요! 🙌', '아래 "SOS 전문가 신청하기"로 가입 신청을 하시고, 주변에 도움도 주시고 수익도 만들어 보세요.', true, 'st-new');
+            }
+        } catch (e) {
+            console.error('상태 조회 오류:', e);
+            document.getElementById('my-status').classList.remove('loading');
+        }
+    }
+    loadStatus();
+</script>
+</body>
+</html>
