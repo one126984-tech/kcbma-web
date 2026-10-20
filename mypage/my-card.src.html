@@ -1,0 +1,295 @@
+<!-- 파일명: mypage-cards.src.html -->
+<!-- @var PAGE_CLASS: page-mypage-cards -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>결제수단 관리 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+  <style>
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; background-color: #f9fafb; }
+      .break-keep { word-break: keep-all; }
+      
+      /* 카드 UI 디자인 요소 */
+      .card-item { background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%); color: white; }
+      .card-chip { width: 40px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; position: relative; overflow: hidden; }
+      .card-chip::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.3); }
+      .card-chip::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.3); }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+  <!-- 포트원 SDK -->
+  <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-50 relative pb-24">
+        <div class="w-full max-w-md mx-auto bg-gray-50 min-h-full flex flex-col relative">
+
+            <!-- 상단 헤더 -->
+            <div class="bg-white py-4 px-5 shadow-sm shrink-0 flex items-center justify-between sticky top-0 z-20">
+                <button onclick="history.back()" class="text-gray-700 hover:text-black transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[18px] font-black text-gray-900 tracking-tight">결제수단 관리</h1>
+                <div class="w-5"></div> <!-- 균형 맞추기용 빈 공간 -->
+            </div>
+
+            <!-- 본문 영역 -->
+            <div class="p-5 flex-1 space-y-6">
+                
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm">
+                    <p class="font-bold text-blue-900 text-[14px] mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> 안전한 간편결제 시스템</p>
+                    <p class="text-[12px] text-blue-700 break-keep leading-relaxed">
+                        실제 카드 정보는 당사 서버에 저장되지 않으며, 금융결제원과 포트원(PortOne)의 철저한 보안 심사를 거친 암호화 키만 보관됩니다.
+                    </p>
+                </div>
+
+                <label class="flex items-start gap-3 bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer">
+                    <input type="checkbox" id="auto-pay-consent" class="w-5 h-5 mt-0.5 accent-blue-600" onchange="updateRegisterBtn()">
+                    <div class="flex-1">
+                        <span class="block font-black text-gray-900 text-[14px] mb-1">[필수] 자동결제 이용 동의</span>
+                        <span class="block text-[12px] text-gray-600 break-keep leading-relaxed">긴급 호출 후 전문가 번호를 확인하고 10분이 지나거나 상담을 종료하면, 상담료(현재 30,000원)가 등록한 결제수단으로 자동 결제됩니다. 출동비는 포함되지 않으며 현장에서 전문가와 직접 정산합니다. 결제수단을 삭제하면 언제든 자동결제가 중단됩니다.</span>
+                    </div>
+                </label>
+
+                <div class="flex justify-between items-end mb-2 px-1">
+                    <h2 class="font-black text-gray-800 text-[16px]">등록된 결제수단</h2>
+                    <span id="card-count" class="text-[12px] font-bold text-gray-500">조회 중...</span>
+                </div>
+
+                <!-- 카드 리스트 출력 영역 -->
+                <div id="card-list-container" class="space-y-4">
+                    <!-- 로딩 스켈레톤 -->
+                    <div class="animate-pulse bg-gray-200 rounded-2xl h-[120px] w-full"></div>
+                </div>
+
+            </div>
+
+            <!-- 하단 고정 버튼 (새 카드 등록) -->
+            <div class="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md p-4 bg-white border-t border-gray-200 z-50 flex gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-safe">
+                <button id="add-card-btn" onclick="startCardRegistration()" disabled class="w-full bg-[#12387a] text-white font-black text-[16px] py-4 rounded-xl hover:bg-blue-900 transition shadow-sm flex justify-center items-center gap-2 opacity-50 cursor-not-allowed">
+                    <i class="fa-solid fa-plus"></i> 새 결제수단 등록하기
+                </button>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const supabaseClient = window.sb;
+    const IMP = window.IMP;
+    const STORE_ID = 'imp38872420';                 // 포트원 가맹점 식별코드 (충전 화면과 동일)
+    const BILLING_PG = 'kakaopay.TCSUBSCRIP';      // TODO: 계약된 정기결제(빌링) 채널로 교체 (채널키 사용 권장)
+    if (IMP) IMP.init(STORE_ID);
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+    }
+
+    let currentUser = null;
+    let registering = false;
+
+    function updateRegisterBtn() {
+        const ok = document.getElementById('auto-pay-consent').checked && !registering;
+        const btn = document.getElementById('add-card-btn');
+        btn.disabled = !ok;
+        btn.classList.toggle('opacity-50', !ok);
+        btn.classList.toggle('cursor-not-allowed', !ok);
+    }
+
+    // 페이지 로드 시 유저 정보 및 카드 리스트 가져오기
+    document.addEventListener('DOMContentLoaded', async () => {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
+            alert('로그인이 필요한 메뉴입니다.');
+            window.location.href = '{{BASE}}login.html';
+            return;
+        }
+        currentUser = user;
+        await loadCards();
+    });
+
+    // DB에서 등록된 빌링키(카드) 목록 조회
+    async function loadCards() {
+        const container = document.getElementById('card-list-container');
+        const countLabel = document.getElementById('card-count');
+
+        try {
+            const { data: cards, error } = await supabaseClient
+                .from('user_billing_keys')
+                .select('id, card_name, is_default, created_at')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            countLabel.innerText = `총 ${cards.length}개`;
+
+            if (cards.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa-regular fa-credit-card text-2xl text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-800 font-bold text-[15px] mb-1">등록된 결제수단이 없습니다.</p>
+                        <p class="text-gray-500 text-[12px] break-keep">1초 자동결제를 위해 카드를 등록해 보세요.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = cards.map(card => {
+                const dateStr = new Date(card.created_at).toLocaleDateString('ko-KR');
+                const badge = card.is_default 
+                    ? `<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">기본 결제수단</span>` 
+                    : '';
+                
+                return `
+                    <div class="card-item rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
+                        
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex flex-col gap-2">
+                                ${badge}
+                                <div class="card-chip"></div>
+                            </div>
+                            <button onclick="deleteCard('${esc(card.id)}')" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition" title="삭제하기">
+                                <i class="fa-solid fa-trash-can text-white text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-white/70 text-[11px] font-bold mb-0.5">결제 수단 명칭</p>
+                                <p class="text-white font-black text-[18px] tracking-wide">${esc(card.card_name || '간편결제 카드')}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-white/70 text-[10px] font-bold mb-0.5">등록일</p>
+                                <p class="text-white font-bold text-[13px] font-mono">${dateStr}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (e) {
+            console.error('카드 로드 실패:', e);
+            container.innerHTML = '<p class="text-center text-red-500 font-bold text-sm py-8">결제수단 정보를 불러오지 못했습니다.</p>';
+        }
+    }
+
+    // 카드 삭제 로직
+    async function deleteCard(cardId) {
+        if (!confirm('이 결제수단을 삭제하시겠습니까?\n삭제 후 긴급 호출 시 다시 등록해야 합니다.')) return;
+
+        try {
+            // DB에서 해당 빌링키 레코드 삭제
+            const { error } = await supabaseClient
+                .from('user_billing_keys')
+                .delete()
+                .eq('id', cardId)
+                .eq('user_id', currentUser.id);
+
+            if (error) throw error;
+            
+            alert('결제수단이 안전하게 삭제되었습니다.');
+            await loadCards(); // 목록 새로고침
+
+        } catch (e) {
+            console.error('카드 삭제 실패:', e);
+            alert('삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+    }
+
+    // 포트원 빌링키(정기결제) 창 호출 및 DB 저장
+    async function startCardRegistration() {
+        if (registering) return;
+        if (!document.getElementById('auto-pay-consent').checked) { alert('자동결제 이용 동의에 체크해 주세요.'); return; }
+        if (!IMP) { alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.'); return; }
+
+        registering = true;
+        const btn = document.getElementById('add-card-btn');
+        const oldHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 결제창 여는 중...';
+
+        // 연락처는 기본 정보에 저장된 번호를 사용 (없으면 생략)
+        let phone = '';
+        try {
+            const { data: prof } = await supabaseClient.from('member_sos_profile').select('phone').eq('user_id', currentUser.id).maybeSingle();
+            phone = (prof && prof.phone) || '';
+        } catch (e) {}
+
+        // 1. 추측할 수 없는 고유 customer_uid (사용자 id 를 포함하지 않음)
+        const rand = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '_' + Math.random().toString(36).slice(2));
+        const customerUid = 'bill_' + rand;
+        const merchantUid = 'issue_' + Date.now();
+
+        const params = {
+            pg: BILLING_PG,
+            pay_method: "card",
+            merchant_uid: merchantUid,
+            name: "긴급 SOS 1초 결제 카드 등록",
+            amount: 0, // 빌링키 발급 목적
+            customer_uid: customerUid,
+            buyer_email: currentUser.email,
+            buyer_name: (currentUser.user_metadata && currentUser.user_metadata.full_name) || "회원"
+        };
+        if (phone) params.buyer_tel = phone;
+
+        // 2. 포트원 빌링키 발급 창
+        IMP.request_pay(params, async function (rsp) {
+            if (rsp.success) {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 안전하게 등록 중...';
+
+                // 3. 서버에 저장 (카드 정보는 서버가 포트원에서 확인한 값으로 저장해야 안전합니다)
+                const { error } = await supabaseClient.rpc('save_billing_key', {
+                    p_customer_uid: customerUid,
+                    p_card_name: "카카오페이(등록됨)"
+                });
+
+                if (error) {
+                    console.error("DB 저장 실패:", error);
+                    alert("카드 발급은 완료되었으나 저장 중 문제가 발생했습니다.");
+                } else {
+                    alert("결제수단이 성공적으로 등록되었습니다!");
+                    await loadCards(); // 리스트 새로고침
+                }
+            } else {
+                alert("등록이 취소되었거나 실패했습니다: " + rsp.error_msg);
+            }
+
+            registering = false;
+            btn.innerHTML = oldHtml;
+            updateRegisterBtn();
+        });
+    }
+</script>
+</body>
+</html>

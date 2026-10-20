@@ -1,0 +1,581 @@
+<!-- 파일명: sos-expert-scope.src.html
+     SOS 파트너 전문가 - 서비스 제공 범위 (3쪽)
+     - 프로필(sos-expert-profile.html)에서 [다음]으로 들어옴 (입력 내용은 같은 탭에 임시 보관)
+     - 전화상담 / 출동서비스를 각각 체크하면 모달에서 지역(다중 선택)과 시간(행 추가)을 고름
+     - 아래 버튼: 뒤로가기 / 전문가 지원하기(지원서 제출) / 저장 후 진행하기(승인된 전문가 → 콜대기) -->
+<!-- @var PAGE_CLASS: page-sos-partner -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>서비스 제공 범위 | 대한집합건물관리협회</title>
+<!-- @include critical-css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+    .xs-wrap { width: 100%; max-width: 28rem; margin: 0 auto; background: #f9fafb; min-height: 100%; box-shadow: 0 10px 25px rgba(0,0,0,.08); }
+    .xs-banner { background: #1e3a8a; color: #fde047; text-align: center; padding: 20px 48px; position: relative; }
+    .xs-banner h1 { margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 2px; }
+    .xs-back { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: #fff; font-size: 18px; padding: 8px; cursor: pointer; }
+    .xs-body { padding: 18px 18px 40px; }
+    .xs-who { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 18px; word-break: keep-all; line-height: 1.6; }
+    .xs-sec { margin-bottom: 22px; }
+    .xs-label { display: block; font-size: 15px; font-weight: 900; color: #1f2937; margin-bottom: 8px; }
+    .xs-help { font-size: 12px; color: #6b7280; margin: -4px 0 8px; word-break: keep-all; line-height: 1.5; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pill { border: 2px solid #e5e7eb; background: #fff; border-radius: 12px; padding: 13px 6px; font-size: 14px; font-weight: 800; color: #374151; cursor: pointer; }
+    .pill:hover { border-color: #93c5fd; }
+    .pill.on { border-color: #2563eb; color: #fff; background: #2563eb; }
+    .load-msg { margin: 8px 2px 0; font-size: 13px; font-weight: 800; color: #1d4ed8; word-break: keep-all; line-height: 1.5; }
+    @keyframes flashSec { 0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); } 30%, 70% { box-shadow: 0 0 0 4px rgba(37,99,235,.45); } }
+    .flash { animation: flashSec 1.4s ease 1; border-radius: 12px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-btn { position: relative; border: 2px solid #e5e7eb; border-radius: 12px; padding: 11px 4px; font-weight: 800; font-size: 13px; background: #fff; color: #1f2937; cursor: pointer; }
+    .cat-btn.on { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
+    .rank { position: absolute; top: -9px; left: -6px; color: #fff; font-size: 11px; font-weight: 900; padding: 1px 7px; border-radius: 999px; background: #dc2626; }
+    .rank.r2 { background: #2563eb; } .rank.r3 { background: #7c3aed; }
+    .mode { display: flex; align-items: center; gap: 10px; border: 2px solid #e5e7eb; background: #fff; border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; cursor: pointer; font-size: 14px; font-weight: 800; color: #1f2937; }
+    .mode.on { border-color: #3b82f6; background: #eff6ff; }
+    .mode input { width: 18px; height: 18px; }
+    .svc { border: 2px solid #e5e7eb; background: #fff; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+    .svc.on { border-color: #3b82f6; }
+    .svc-head { display: flex; align-items: center; gap: 10px; padding: 14px; cursor: pointer; font-size: 15px; font-weight: 900; color: #1f2937; }
+    .svc-head input { width: 20px; height: 20px; }
+    .svc-sum { border-top: 1px dashed #cbd5e1; padding: 10px 14px 12px 44px; font-size: 13px; color: #374151; line-height: 1.7; word-break: keep-all; background: #f8fafc; }
+    .svc-sum b { color: #111827; }
+    .svc-edit { margin-top: 4px; font-size: 12px; font-weight: 800; color: #2563eb; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+    .svc-note { font-size: 12px; color: #b45309; padding: 0 14px 12px 44px; word-break: keep-all; }
+    .xs-bar { display: flex; gap: 6px; margin-top: 8px; }
+    .xs-btn { border: 0; border-radius: 12px; font-weight: 900; font-size: 15px; padding: 15px 6px; cursor: pointer; white-space: nowrap; }
+    .xs-btn-back { flex: 0 0 auto; padding: 15px 14px; background: #e5e7eb; color: #374151; }
+    .xs-btn-apply { flex: 1; background: #16a34a; color: #fff; }
+    .xs-btn-apply:hover { background: #15803d; }
+    .xs-btn-save { flex: 1; background: #2563eb; color: #fff; }
+    .xs-btn-save:hover { background: #1d4ed8; }
+    .xs-btn:disabled { opacity: .5; cursor: not-allowed; }
+    /* 모달 */
+    .md-back { position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+    .md-back.open { display: flex; }
+    @media (min-width: 640px) { .md-back { align-items: center; } }
+    .md { background: #fff; width: 100%; max-width: 28rem; max-height: 92vh; overflow-y: auto; border-radius: 18px 18px 0 0; padding: 18px 18px 16px; box-sizing: border-box; }
+    @media (min-width: 640px) { .md { border-radius: 18px; } }
+    .md-title { font-size: 17px; font-weight: 900; color: #111827; margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; }
+    .md-x { background: none; border: 0; font-size: 20px; color: #6b7280; cursor: pointer; }
+    .md-sec { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .md-label { font-size: 14px; font-weight: 900; color: #1f2937; margin: 0 0 8px; }
+    .md-label .req { color: #ef4444; }
+    .rg-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; line-height: 1.5; word-break: keep-all; border: 2px solid #d1d5db; border-radius: 12px; background: #fff; padding: 11px 14px; font-size: 14px; color: #374151; cursor: pointer; }
+    .rg-panel { border: 1px solid #d1d5db; border-radius: 12px; margin-top: 6px; overflow: hidden; }
+    .rg-ph { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 10px 12px; font-size: 13px; font-weight: 900; color: #12387a; }
+    .rg-ph .p { color: #7c3aed; }
+    .rg-ph button { background: #fff; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; padding: 3px 8px; cursor: pointer; }
+    .rg-list { max-height: 210px; overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 6px; }
+    .rg-list label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rg-list input { width: 16px; height: 16px; flex-shrink: 0; }
+    .rg-group { grid-column: 1 / -1; font-size: 13px; font-weight: 900; color: #12387a; border-bottom: 1px solid #e5e7eb; padding-bottom: 3px; margin-top: 4px; }
+    .rg-foot { border-top: 1px solid #e5e7eb; padding: 10px 12px; background: #f9fafb; }
+    .rg-foot button { width: 100%; border-radius: 8px; padding: 10px 0; font-size: 14px; font-weight: 900; cursor: pointer; }
+    .rg-next { background: #eff6ff; color: #12387a; border: 1px solid #12387a; }
+    .rg-apply { background: #0b2a5b; color: #fff; border: 0; }
+    .rg-chips { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .rg-chip { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 999px; padding: 3px 4px 3px 10px; font-size: 12px; font-weight: 800; }
+    .rg-chip button { background: none; border: 0; color: #64748b; cursor: pointer; font-size: 12px; padding: 0 4px; }
+    .tm-24 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; color: #1f2937; margin-bottom: 10px; cursor: pointer; }
+    .tm-24 input { width: 18px; height: 18px; }
+    .tm-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .tm-row input { flex: 1; min-width: 0; border: 2px solid #d1d5db; border-radius: 10px; padding: 9px 8px; font-size: 14px; }
+    .tm-row button { flex: 0 0 auto; background: #fff; border: 1px solid #fca5a5; color: #dc2626; border-radius: 8px; padding: 7px 9px; cursor: pointer; font-size: 12px; font-weight: 800; }
+    .tm-off { opacity: .4; pointer-events: none; }
+    .tm-add { display: block; margin-left: auto; background: none; border: 0; color: #1f2937; font-size: 13px; font-weight: 900; cursor: pointer; padding: 4px 0; }
+    .md-bar { display: flex; gap: 8px; margin-top: 6px; }
+    .md-bar button { flex: 1; border: 0; border-radius: 12px; padding: 14px 0; font-size: 15px; font-weight: 900; cursor: pointer; }
+    .md-cancel { background: #e5e7eb; color: #374151; }
+    .md-ok { background: #2563eb; color: #fff; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100">
+        <div class="xs-wrap">
+            <div class="xs-banner">
+                <button type="button" class="xs-back" onclick="goProfile()" aria-label="뒤로"><i class="fa-solid fa-arrow-left"></i></button>
+                <span id="step-tag" style="display:inline-block;background:#dc2626;color:#fff;font-size:13px;font-weight:900;padding:2px 10px;border-radius:999px;margin-bottom:6px;letter-spacing:0;">3단계 · 콜대기 조건 설정</span>
+                <h1>서비스 제공 범위</h1>
+            </div>
+            <div class="xs-body">
+                <div id="who" class="xs-who">불러오는 중입니다...</div>
+
+                <div class="xs-sec">
+                    <span class="xs-label">1. 기존 정보 불러오기</span>
+                    <div class="two">
+                        <button type="button" id="load-saved" class="pill">기존 정보입력</button>
+                        <button type="button" id="load-new" class="pill">새로 직접 입력하기</button>
+                    </div>
+                    <p id="load-msg" class="load-msg hidden"></p>
+                </div>
+
+                <div class="xs-sec">
+                    <span class="xs-label">2. 전문 분야</span>
+                    <p class="xs-help">프로필에서 고른 분야입니다. 여기서 바꿔도 됩니다. (최대 2개, 1순위부터)</p>
+                    <div id="cat-grid" class="cat-grid"></div>
+                </div>
+
+                <div class="xs-sec">
+                    <span class="xs-label">3. 전화 대기 방식</span>
+                    <label class="mode" id="mode-call"><input type="radio" name="cmode" value="call"> 📞 전화 주시면 바로 받습니다</label>
+                    <label class="mode" id="mode-text"><input type="radio" name="cmode" value="text"> 💬 문자 주시면 10분 안에 제가 전화드립니다</label>
+                </div>
+
+                <div class="xs-sec" id="sec-svc">
+                    <span class="xs-label">4. 서비스 항목</span>
+                    <p class="xs-help">둘 다 선택할 수 있습니다. 체크하면 지역과 시간을 고르는 창이 열립니다.</p>
+                    <div class="svc" id="svc-phone">
+                        <label class="svc-head"><input type="checkbox" id="chk-phone"> 📞 전화상담</label>
+                        <div id="sum-phone" class="svc-sum hidden"></div>
+                    </div>
+                    <div class="svc" id="svc-dispatch">
+                        <label class="svc-head"><input type="checkbox" id="chk-dispatch"> 🚚 출동서비스 (현장 방문)</label>
+                        <div id="sum-dispatch" class="svc-sum hidden"></div>
+                        <p id="dispatch-note" class="svc-note hidden">※ 출동서비스는 운영진의 출동 자격 승인 후 적용됩니다. 그 전에는 전화상담으로만 대기합니다.</p>
+                    </div>
+                </div>
+
+                <div class="xs-bar">
+                    <button type="button" class="xs-btn xs-btn-back" onclick="goProfile()"><i class="fa-solid fa-arrow-left"></i> 뒤로가기</button>
+                    <button type="button" id="save-btn" class="xs-btn xs-btn-save">저장 후 요청현황 보기 →</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 전화상담 / 출동서비스 공통 모달 -->
+<div id="md-back" class="md-back" role="dialog" aria-modal="true">
+    <div class="md">
+        <p class="md-title"><span id="md-title">전화상담 범위</span><button type="button" class="md-x" onclick="closeModal(false)" aria-label="닫기">✕</button></p>
+        <div class="md-sec">
+            <p class="md-label">1. 서비스 지역 <span class="req">*</span></p>
+            <button type="button" id="rg-toggle" class="rg-toggle"><span id="rg-text">지역 선택</span><i class="fa-solid fa-chevron-down" style="font-size:12px;color:#9ca3af;"></i></button>
+            <div id="rg-panel" class="rg-panel hidden">
+                <div id="rg-major">
+                    <div class="rg-ph"><span><span class="p">대분류</span> 지역 선택</span><button type="button" onclick="toggleRegionPanel(false)">✕</button></div>
+                    <div id="rg-major-list" class="rg-list"></div>
+                    <div class="rg-foot"><button type="button" class="rg-next" onclick="openMinor()">↳ 소분류 고르기 (시·군·구)</button></div>
+                </div>
+                <div id="rg-minor" class="hidden">
+                    <div class="rg-ph"><span>소분류 <span style="font-weight:500;color:#6b7280;font-size:11px;">(원하는 지역 체크)</span></span><button type="button" onclick="backToMajor()">↺ 대분류 다시보기</button></div>
+                    <div id="rg-minor-list" class="rg-list"></div>
+                    <div class="rg-foot"><button type="button" class="rg-apply" onclick="applyMinor()">적용하기</button></div>
+                </div>
+            </div>
+            <div id="rg-chips" class="rg-chips"></div>
+        </div>
+        <div class="md-sec">
+            <p class="md-label">2. 서비스 시간</p>
+            <label class="tm-24"><input type="checkbox" id="tm-24"> 24시간 가능</label>
+            <div id="tm-rows"></div>
+            <button type="button" id="tm-add" class="tm-add">행추가 ▼</button>
+        </div>
+        <div class="md-bar">
+            <button type="button" class="md-cancel" onclick="closeModal(false)">취소</button>
+            <button type="button" class="md-ok" onclick="closeModal(true)">선택 완료</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{BASE}}assets/js/region-data.js"></script>
+<script>
+    const supabaseClient = window.sb;
+    const DRAFT_KEY = 'sosExpertDraft';
+    const isPractice = new URLSearchParams(location.search).get('practice') === '1';   // 연습: 로그인·저장 없이 실제와 같은 화면
+    const MODAL_URL = 'sos-request.html?expert=1' + (isPractice ? '&practice=1' : '');
+    const CATS = [
+        { key: '화재', label: '🔥 화재/소방' }, { key: '전기', label: '⚡ 정전/전기' }, { key: '누수', label: '💧 누수/배관' },
+        { key: '가스', label: '🧯 가스누출' }, { key: '화장실', label: '🚽 화장실 기기' }, { key: '기타', label: '✏️ 기타(입력)' }
+    ];
+    const MAX_CATS = 2;
+    const MAJORS = ['전국', '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+    const SVC_TITLE = { phone: '📞 전화상담 범위', dispatch: '🚚 출동서비스 범위' };
+
+    let draft = null;          // 프로필에서 넘어온 내용 + 이 화면 입력
+    let me = null, lastApp = null, currentUser = null;
+    let scope = emptyScope();
+    let contactMode = 'call';
+    let busy = false;
+
+    function emptyScope() {
+        return { phone: { on: false, regions: [], all_day: true, times: [] }, dispatch: { on: false, regions: [], all_day: true, times: [] } };
+    }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function digits(s) { return String(s || '').replace(/\D/g, ''); }
+    function readDraft() { try { return JSON.parse(sessionStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { return null; } }
+    function saveDraft() {
+        draft = Object.assign(draft || {}, { savedAt: Date.now(), cats: draft && draft.cats ? draft.cats : [], scope, contactMode });
+        try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {}
+    }
+    function goProfile() { saveDraft(); location.href = 'sos-expert-profile.html' + (isPractice ? '?practice=1' : ''); }
+
+    // ---------- 2. 전문 분야 ----------
+    function renderCats() {
+        const cats = draft.cats || [];
+        document.getElementById('cat-grid').innerHTML = CATS.map(c => {
+            const i = cats.indexOf(c.key);
+            return `<button type="button" class="cat-btn ${i > -1 ? 'on' : ''}" data-cat="${c.key}">${i > -1 ? `<span class="rank r${i + 1}">${i + 1}순위</span>` : ''}${c.label}</button>`;
+        }).join('');
+    }
+    document.getElementById('cat-grid').addEventListener('click', e => {
+        const b = e.target.closest('.cat-btn'); if (!b) return;
+        const cats = draft.cats || (draft.cats = []);
+        const k = b.dataset.cat, i = cats.indexOf(k);
+        if (i > -1) cats.splice(i, 1);
+        else if (cats.length >= MAX_CATS) { alert('전문 분야는 최대 2개까지 선택할 수 있습니다.'); return; }
+        else {
+            if (k === '기타' && !draft.catOther) {
+                const t = prompt('기타 분야를 적어 주세요 (예: 승강기, 방수)');
+                if (!t || !t.trim()) return;
+                draft.catOther = t.trim();
+            }
+            cats.push(k);
+        }
+        renderCats(); saveDraft();
+    });
+
+    // ---------- 3. 전화 대기 방식 ----------
+    function renderMode() {
+        ['call', 'text'].forEach(k => {
+            const el = document.getElementById('mode-' + k);
+            el.classList.toggle('on', contactMode === k);
+            el.querySelector('input').checked = contactMode === k;
+        });
+    }
+    document.querySelectorAll('input[name="cmode"]').forEach(r => r.addEventListener('change', function () { if (this.checked) { contactMode = this.value; renderMode(); saveDraft(); } }));
+
+    // ---------- 4. 서비스 항목 ----------
+    function timesText(s) { return s.all_day ? '24시간' : (s.times || []).map(t => `${t.from}~${t.to}`).join(', '); }
+    function renderSvc() {
+        ['phone', 'dispatch'].forEach(k => {
+            const s = scope[k];
+            document.getElementById('chk-' + k).checked = !!s.on;
+            document.getElementById('svc-' + k).classList.toggle('on', !!s.on);
+            const sum = document.getElementById('sum-' + k);
+            if (s.on) {
+                sum.classList.remove('hidden');
+                sum.innerHTML = `<b>지역 :</b> ${esc(s.regions.join(', '))}<br><b>시간 :</b> ${esc(timesText(s))}<br><button type="button" class="svc-edit" onclick="openModal('${k}')">지역·시간 수정</button>`;
+            } else { sum.classList.add('hidden'); sum.innerHTML = ''; }
+        });
+        document.getElementById('dispatch-note').classList.toggle('hidden', !(scope.dispatch.on && me && !me.can_dispatch));
+    }
+    ['phone', 'dispatch'].forEach(k => {
+        document.getElementById('chk-' + k).addEventListener('change', function () {
+            if (this.checked) { this.checked = false; openModal(k); }   // 모달에서 '선택 완료'를 눌러야 체크됨
+            else {
+                if (!confirm((k === 'phone' ? '전화상담' : '출동서비스') + ' 선택을 해제할까요? 입력한 지역과 시간이 지워집니다.')) { this.checked = true; return; }
+                scope[k] = { on: false, regions: [], all_day: true, times: [] };
+                renderSvc(); saveDraft();
+            }
+        });
+    });
+
+    // ---------- 모달: 지역(다중) + 시간(행 추가) ----------
+    let mdKey = null, mdRegions = [], mdAllDay = true, mdTimes = [];
+    function openModal(k) {
+        mdKey = k;
+        const s = scope[k];
+        mdRegions = s.regions.slice();
+        mdAllDay = s.on ? !!s.all_day : true;
+        mdTimes = (s.times && s.times.length) ? s.times.map(t => ({ ...t })) : [{ from: '09:00', to: '18:00' }];
+        document.getElementById('md-title').textContent = SVC_TITLE[k];
+        toggleRegionPanel(false);
+        renderChips(); renderTimes();
+        document.getElementById('md-back').classList.add('open');
+    }
+    function closeModal(ok) {
+        if (ok) {
+            if (!mdRegions.length) { alert('서비스 지역을 1곳 이상 선택해 주세요.'); return; }
+            if (!mdAllDay) {
+                readTimeInputs();
+                const rows = mdTimes.filter(t => t.from && t.to);
+                if (!rows.length) { alert('서비스 시간을 입력하거나 "24시간 가능"을 선택해 주세요.'); return; }
+                if (rows.some(t => t.from === t.to)) { alert('시작 시간과 종료 시간이 같은 행이 있습니다. 확인해 주세요.'); return; }
+                mdTimes = rows;
+            }
+            scope[mdKey] = { on: true, regions: mdRegions.slice(), all_day: mdAllDay, times: mdAllDay ? [] : mdTimes.map(t => ({ from: t.from, to: t.to })) };
+            renderSvc(); saveDraft();
+        }
+        document.getElementById('md-back').classList.remove('open');
+        mdKey = null;
+    }
+
+    function renderChips() {
+        document.getElementById('rg-chips').innerHTML = mdRegions.map((r, i) => `<span class="rg-chip">${esc(r)}<button type="button" onclick="removeRegion(${i})" aria-label="삭제">✕</button></span>`).join('');
+        document.getElementById('rg-text').textContent = mdRegions.length ? mdRegions.join(', ') : '지역 선택';
+    }
+    function removeRegion(i) { mdRegions.splice(i, 1); renderChips(); }
+    function toggleRegionPanel(open) {
+        const p = document.getElementById('rg-panel');
+        const show = open === undefined ? p.classList.contains('hidden') : open;
+        p.classList.toggle('hidden', !show);
+        if (show) {
+            backToMajor();
+            const pickedMajors = new Set(mdRegions.map(r => r.split(' ')[0]));
+            document.getElementById('rg-major-list').innerHTML = MAJORS.map(m =>
+                `<label><input type="checkbox" class="rg-maj" value="${m}" ${pickedMajors.has(m) ? 'checked' : ''}> ${m}</label>`).join('');
+        }
+    }
+    document.getElementById('rg-toggle').addEventListener('click', () => toggleRegionPanel());
+    function backToMajor() { document.getElementById('rg-major').classList.remove('hidden'); document.getElementById('rg-minor').classList.add('hidden'); }
+    function openMinor() {
+        const majors = [...document.querySelectorAll('.rg-maj:checked')].map(x => x.value);
+        if (!majors.length) { alert('먼저 대분류(시·도)를 1개 이상 체크해 주세요.'); return; }
+        let html = '';
+        majors.forEach(m => {
+            html += `<div class="rg-group">[${m}]</div>`;
+            if (m === '전국') {
+                html += `<label><input type="checkbox" class="rg-min" value="전국 전체" ${mdRegions.includes('전국 전체') ? 'checked' : ''}> 전국(지역무관)</label>`;
+                return;
+            }
+            html += `<label><input type="checkbox" class="rg-min" value="${m} 전체" ${mdRegions.includes(m + ' 전체') ? 'checked' : ''}> <b style="color:#12387a;">${m} 전체</b></label>`;
+            const subs = (typeof subRegionData !== 'undefined' && subRegionData[m]) ? [...subRegionData[m]].sort((a, b) => a.localeCompare(b, 'ko')) : [];   // 가나다순
+            subs.forEach(s => {
+                if (s.replace(/\s/g, '') === `${m}전체` || s === '전국전체') return;
+                const v = `${m} ${s}`;
+                html += `<label title="${esc(s)}"><input type="checkbox" class="rg-min" value="${esc(v)}" ${mdRegions.includes(v) ? 'checked' : ''}> ${esc(s)}</label>`;
+            });
+        });
+        document.getElementById('rg-minor-list').innerHTML = html;
+        document.getElementById('rg-major').classList.add('hidden');
+        document.getElementById('rg-minor').classList.remove('hidden');
+    }
+    function applyMinor() {
+        const shown = [...document.querySelectorAll('.rg-min')].map(x => x.value);
+        const checked = [...document.querySelectorAll('.rg-min:checked')].map(x => x.value);
+        // 이번에 펼친 시·도의 선택만 바꾸고, 다른 시·도에서 고른 지역은 그대로 둠
+        mdRegions = mdRegions.filter(r => !shown.includes(r)).concat(checked);
+        // '전국 전체'를 고르면 나머지는 의미가 없으므로 정리
+        if (mdRegions.includes('전국 전체')) mdRegions = ['전국 전체'];
+        else {
+            const allMajors = mdRegions.filter(r => / 전체$/.test(r)).map(r => r.split(' ')[0]);
+            mdRegions = mdRegions.filter(r => / 전체$/.test(r) || !allMajors.includes(r.split(' ')[0]));
+        }
+        if (mdRegions.length > 60) { alert('지역은 60곳까지 고를 수 있습니다. 넓은 지역은 "○○ 전체"를 이용해 주세요.'); mdRegions = mdRegions.slice(0, 60); }
+        renderChips(); toggleRegionPanel(false);
+    }
+
+    function readTimeInputs() {
+        document.querySelectorAll('#tm-rows .tm-row').forEach((row, i) => {
+            if (!mdTimes[i]) return;
+            mdTimes[i].from = row.querySelector('.tm-from').value;
+            mdTimes[i].to = row.querySelector('.tm-to').value;
+        });
+    }
+    function renderTimes() {
+        document.getElementById('tm-24').checked = mdAllDay;
+        const box = document.getElementById('tm-rows');
+        box.classList.toggle('tm-off', mdAllDay);
+        document.getElementById('tm-add').classList.toggle('tm-off', mdAllDay);
+        box.innerHTML = mdTimes.map((t, i) => `
+            <div class="tm-row">
+                <input type="time" class="tm-from" value="${t.from || ''}" aria-label="시작 시간">
+                <span style="color:#9ca3af;font-weight:900;">~</span>
+                <input type="time" class="tm-to" value="${t.to || ''}" aria-label="종료 시간">
+                ${mdTimes.length > 1 ? `<button type="button" onclick="removeTime(${i})">삭제</button>` : ''}
+            </div>`).join('');
+    }
+    function removeTime(i) { readTimeInputs(); mdTimes.splice(i, 1); renderTimes(); }
+    document.getElementById('tm-add').addEventListener('click', () => {
+        readTimeInputs();
+        if (mdTimes.length >= 10) { alert('시간대는 10개까지 추가할 수 있습니다.'); return; }
+        mdTimes.push({ from: '', to: '' }); renderTimes();
+    });
+    document.getElementById('tm-24').addEventListener('change', function () { readTimeInputs(); mdAllDay = this.checked; renderTimes(); });
+
+    // ---------- 1. 기존 정보 불러오기 ----------
+    function normalizeScope(s) {
+        const base = emptyScope();
+        if (!s || typeof s !== 'object') return base;
+        ['phone', 'dispatch'].forEach(k => {
+            const v = s[k];
+            if (v && v.on) base[k] = { on: true, regions: Array.isArray(v.regions) ? v.regions.slice(0, 60) : [], all_day: !!v.all_day, times: Array.isArray(v.times) ? v.times.slice(0, 10) : [] };
+        });
+        return base;
+    }
+    function legacyScope(ex) {
+        // 예전 방식(지역 1개·시간 1개)으로 저장된 전문가는 그 값으로 범위를 만들어 줌
+        const region = [ex.region_main, ex.region_sub].filter(Boolean).join(' ') || '전국 전체';
+        const allDay = !ex.avail_from || !ex.avail_to;
+        const times = allDay ? [] : [{ from: String(ex.avail_from).slice(0, 5), to: String(ex.avail_to).slice(0, 5) }];
+        const s = emptyScope();
+        s.phone = { on: true, regions: ['전국 전체'], all_day: allDay, times };
+        if (ex.service_level === 'dispatch') s.dispatch = { on: true, regions: [region], all_day: allDay, times };
+        return s;
+    }
+    document.getElementById('load-saved').addEventListener('click', () => {
+        let src = null;
+        if (me) src = { scope: me.service_scope ? normalizeScope(me.service_scope) : legacyScope(me), mode: me.contact_mode };
+        else if (lastApp && lastApp.service_scope) src = { scope: normalizeScope(lastApp.service_scope), mode: lastApp.contact_mode };
+        if (!src) { alert('저장된 서비스 범위가 없습니다. 아래에서 직접 입력해 주세요.'); return; }
+        scope = src.scope; contactMode = src.mode === 'text' ? 'text' : 'call';
+        setLoadButtons('saved', '✔ 저장해 둔 전화 대기 방식과 서비스 항목(지역·시간)을 불러왔습니다. 바꿀 부분만 고치세요.');
+        renderMode(); renderSvc(); saveDraft();
+        guideTo('sec-svc');
+    });
+    document.getElementById('load-new').addEventListener('click', () => {
+        if ((scope.phone.on || scope.dispatch.on) && !confirm('입력한 서비스 범위(지역·시간)를 지우고 새로 입력할까요?')) return;
+        scope = emptyScope(); contactMode = 'call';
+        setLoadButtons('new', '✏️ 새로 입력합니다. 3번에서 전화 대기 방식을 고르고, 4번에서 전화상담·출동서비스를 체크해 지역과 시간을 넣어 주세요.');
+        renderMode(); renderSvc(); saveDraft();
+        guideTo('sec-svc');
+    });
+    function setLoadButtons(which, msg) {
+        document.getElementById('load-saved').classList.toggle('on', which === 'saved');
+        document.getElementById('load-new').classList.toggle('on', which === 'new');
+        const el = document.getElementById('load-msg');
+        el.textContent = msg; el.classList.remove('hidden');
+    }
+    // 입력할 곳으로 화면을 옮기고 잠깐 테두리를 반짝여 알려 줌
+    function guideTo(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+        el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    }
+
+    // ---------- 확인 / 제출 ----------
+    function validateAll() {
+        if (!draft || !draft.name || digits(draft.phone).length < 10) { alert('프로필(이름·연락처)이 비어 있습니다. 뒤로가기를 눌러 프로필부터 입력해 주세요.'); return false; }
+        if (!draft.cats || !draft.cats.length) { alert('전문 분야를 1개 이상 선택해 주세요.'); return false; }
+        if (!scope.phone.on && !scope.dispatch.on) { alert('서비스 항목(전화상담 또는 출동서비스)을 1개 이상 선택해 주세요.'); return false; }
+        return true;
+    }
+    function scopeForSave() {
+        const out = {};
+        ['phone', 'dispatch'].forEach(k => {
+            const s = scope[k];
+            out[k] = s.on ? { on: true, regions: s.regions, all_day: !!s.all_day, times: s.all_day ? [] : s.times } : { on: false };
+        });
+        return out;
+    }
+    function regionSummary() {
+        const parts = [];
+        if (scope.phone.on) parts.push('전화: ' + scope.phone.regions.join(', '));
+        if (scope.dispatch.on) parts.push('출동: ' + scope.dispatch.regions.join(', '));
+        return parts.join(' / ');
+    }
+
+    document.getElementById('save-btn').addEventListener('click', async function () {
+        if (busy || !validateAll()) return;
+        if (isPractice) {
+            alert('[연습] 실제에서는 여기서 콜대기 조건이 저장되고, 바로 콜 대기가 시작됩니다.\n연습용 긴급 SOS 요청현황으로 이동합니다.');
+            location.href = 'sos-standby.html?practice=1';
+            return;
+        }
+        if (!currentUser) { alert('로그인 후 이용할 수 있습니다. 로그인 화면으로 이동합니다.'); saveDraft(); location.href = '{{BASE}}login.html'; return; }
+        busy = true; this.disabled = true; const old = this.innerHTML; this.innerHTML = '저장 중...';
+        let error;
+        if (me) {
+            ({ error } = await supabaseClient.rpc('set_my_service_setup', {
+                p_name: draft.name, p_categories: draft.cats.join(','), p_intro: draft.intro || '',
+                p_contact_mode: contactMode, p_scope: scopeForSave()
+            }));
+        } else {
+            // 승인 전 지원자: 내 지원서에 저장 (분야를 여기서 바꿨을 수 있으므로 신상자료도 함께 저장)
+            ({ error } = await supabaseClient.rpc('set_my_application_profile', { p_name: draft.name, p_categories: draft.cats.join(','), p_intro: draft.intro || '', p_doc_path: null }));
+            if (!error) ({ error } = await supabaseClient.rpc('set_my_application_scope', { p_contact_mode: contactMode, p_scope: scopeForSave() }));
+        }
+        busy = false; this.disabled = false; this.innerHTML = old;
+        if (error) {
+            console.error('서비스 범위 저장 오류:', error);
+            const msg = String(error.message || '');
+            if (msg.includes('INVALID_SCOPE')) alert('서비스 범위에 빠진 내용이 있습니다. 지역과 시간을 확인해 주세요.');
+            else if (msg.includes('STEP2_REQUIRED')) alert('2단계(신상자료)를 먼저 저장해 주세요.');
+            else if (msg.includes('NOT_EXPERT') || msg.includes('NO_APPLICATION')) alert('1단계 지원서가 없습니다. 1단계부터 진행해 주세요.');
+            else alert('저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            return;
+        }
+        try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) {}
+        if (me) {
+            location.href = 'sos-standby.html?start=1';   // 저장과 동시에 콜 대기 시작 → 긴급 SOS 요청현황
+        } else {
+            alert('3단계까지 저장했습니다.\n운영진 승인이 끝나면 저장한 조건이 그대로 적용되고, 3단계에서 다음을 누르면 바로 콜 대기가 시작됩니다.');
+            location.href = MODAL_URL;
+        }
+    });
+    async function init() {
+        draft = readDraft();
+        if (isPractice) {
+            document.getElementById('step-tag').textContent = '[연습] 3단계 · 콜대기 조건 설정';
+            document.getElementById('step-tag').style.background = '#7c3aed';
+            me = { id: 'practice', name: '한국전기 홍길동', can_dispatch: true, contact_mode: 'call' };
+            draft = Object.assign(draft || {}, { name: (draft && draft.name) || '한국전기 홍길동', phone: '010-0000-1234', intro: (draft && draft.intro) || '연습용 소개', cats: (draft && draft.cats && draft.cats.length) ? draft.cats.slice(0, MAX_CATS) : ['전기', '화재'] });
+            scope = draft.scope ? normalizeScope(draft.scope) : { phone: { on: true, regions: ['전국 전체'], all_day: false, times: [{ from: '09:00', to: '18:00' }] }, dispatch: { on: true, regions: ['서울 강남구', '서울 서초구'], all_day: true, times: [] } };
+            contactMode = draft.contactMode === 'text' ? 'text' : 'call';
+            me.service_scope = JSON.parse(JSON.stringify(scope));   // '기존 정보입력' 연습용
+            document.getElementById('who').innerHTML = '🧪 <b>연습 모드</b> · 가상 조건이 채워져 있습니다. 전화상담·출동 체크, 지역·시간을 바꿔 보고 아래 <b>다음</b>을 누르면 연습용 요청현황으로 갑니다. 실제로 저장되지 않습니다.';
+            document.getElementById('who').style.background = '#f3e8ff'; document.getElementById('who').style.color = '#6b21a8';
+            document.getElementById('save-btn').textContent = '다음 (연습 콜대기) →';
+            renderCats(); renderMode(); renderSvc(); saveDraft();
+            return;
+        }
+        try { const { data: { user } } = await supabaseClient.auth.getUser(); currentUser = user || null; } catch (e) { currentUser = null; }
+        if (currentUser) {
+            const { data: ex } = await supabaseClient.from('sos_experts').select('*').eq('user_id', currentUser.id).eq('is_active', true).maybeSingle();
+            me = ex || null;
+            if (!me) {
+                const { data: app } = await supabaseClient.from('sos_applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                lastApp = app || null;
+            }
+        }
+        // 3단계는 1단계 지원 + 2단계 저장을 마친 회원만 (승인 전 지원자도 미리 저장 가능)
+        if (!currentUser) {
+            alert('전문가 활동은 회원만 할 수 있습니다.\n로그인(또는 회원가입) 후 이용해 주세요.');
+            location.href = '{{BASE}}login.html'; return;
+        }
+        if (!me && !lastApp) { alert('1단계부터 진행하세요.'); location.href = MODAL_URL; return; }
+        const step2Done = me ? !!(me.profile_done_at || me.service_scope) : !!lastApp.profile_done_at;
+        if (!step2Done) {
+            alert('2단계부터 진행하세요.\n신상자료를 먼저 저장해 주세요.');
+            location.href = 'sos-expert-profile.html'; return;
+        }
+        // 3단계에서는 저장된 신상자료를 기준으로 함 (2단계에서 방금 저장한 내용 포함)
+        const src = me ? { name: me.name, phone: me.phone, intro: me.intro, cats: me.categories || me.category }
+                       : { name: lastApp.name, phone: lastApp.phone, intro: lastApp.bio, cats: String(lastApp.categories || '').split(' (')[0] };
+        draft = Object.assign(draft || {}, { name: src.name, phone: src.phone, intro: src.intro || '',
+            cats: String(src.cats || '').split(',').map(x => x.trim()).filter(k => CATS.some(c => c.key === k)) });
+        draft.cats = (draft.cats || []).slice(0, MAX_CATS);
+        if (draft.scope) scope = normalizeScope(draft.scope);
+        else if (me) scope = me.service_scope ? normalizeScope(me.service_scope) : legacyScope(me);
+        else if (lastApp && lastApp.service_scope) scope = normalizeScope(lastApp.service_scope);
+        contactMode = draft.contactMode || (me && me.contact_mode) || (lastApp && lastApp.contact_mode) || 'call';
+        if (contactMode !== 'text') contactMode = 'call';
+
+        if (me) {
+            document.getElementById('who').innerHTML = `<span style="color:#15803d;">✔ 승인된 전문가</span> · ${esc(draft.name)}<br><span style="font-weight:500;color:#6b7280;">바꿀 조건(시간·지역 등)만 고치고 아래 <b>다음</b>을 누르면 바로 콜 대기가 시작됩니다.</span>`;
+            document.getElementById('save-btn').textContent = '다음 (콜대기 시작) →';
+        } else {
+            document.getElementById('who').innerHTML = `지원서 심사 상태: <b>${esc(lastApp.status || '대기중')}</b> · ${esc(draft.name)}<br><span style="font-weight:500;color:#6b7280;">승인 전에도 콜대기 조건을 미리 저장해 둘 수 있습니다. 승인되면 그대로 적용됩니다.</span>`;
+            document.getElementById('save-btn').textContent = '저장하기';
+        }
+        renderCats(); renderMode(); renderSvc(); saveDraft();
+    }
+    init();
+</script>
+</body>
+</html>

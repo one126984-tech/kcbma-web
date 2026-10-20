@@ -22,17 +22,7 @@
 <!-- @include common-css -->
 
     <style>
-        :root {
-            --primary: #3730a3;
-            --primary-focus: rgba(55, 48, 163, 0.15);
-            --bg-gradient: linear-gradient(135deg, #eef2f6 0%, #d9e2ec 100%);
-            --border-color: #cbd5e1;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --input-bg: #ffffff;
-            --danger: #ef4444;
-        }
-
+        :root { --primary: #3730a3; --primary-focus: rgba(55, 48, 163, 0.15); --bg-gradient: linear-gradient(135deg, #eef2f6 0%, #d9e2ec 100%); --border-color: #cbd5e1; --text-main: #1e293b; --text-sub: #64748b; --input-bg: #ffffff; --danger: #ef4444; }
         body { font-family: 'Pretendard', sans-serif; color: var(--text-main); }
         .form-page-bg { background: var(--bg-gradient); min-height: 0; }
         .form-wrapper { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 6px solid var(--primary); }
@@ -57,7 +47,6 @@
         .flex-row select { flex: 1; }
         .form-footer { padding: 30px 40px 40px 40px; display: flex; justify-content: center; gap: 16px; }
         .btn { padding: 14px 32px; font-size: 15px; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
-        .btn-delete { border: 1px solid var(--danger); color: var(--danger); background: #ffffff; }
         .btn-outline { border: 1px solid #cbd5e1; color: #475569; background: #ffffff; }
         .btn-primary { border: 1px solid #0f172a; background: #0f172a; color: white; }
     </style>
@@ -74,16 +63,11 @@
     <main class="w-full form-page-bg pt-8 pb-12 px-4 flex-1">
         <div class="max-w-[1400px] mx-auto w-full flex flex-col md:flex-row gap-4 md:gap-8 relative items-start">
             
-            <!-- 왼쪽 사이드바 영역 -->
             <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit z-40">
                 <div class="pr-1 pt-1">
                     <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-4 flex flex-col gap-2">
-                        <button onclick="window.location.href='job-list.html'" class="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-300 text-gray-700 rounded font-bold hover:bg-gray-50 transition-colors text-[15px]">
-                            <i class="fas fa-search text-lg"></i> 구인 (채용)
-                        </button>
-                        <button onclick="window.location.href='resume-list.html'" class="flex items-center justify-center gap-2 w-full py-3 bg-[#274bce] text-white rounded font-bold shadow-sm transition-colors text-[15px]">
-                            <i class="fas fa-edit text-lg"></i> 구직 (인재)
-                        </button>
+                        <button onclick="window.location.href='job-list.html'" class="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-300 text-gray-700 rounded font-bold hover:bg-gray-50 transition-colors text-[15px]"><i class="fas fa-search text-lg"></i> 구인 (채용)</button>
+                        <button onclick="window.location.href='resume-list.html'" class="flex items-center justify-center gap-2 w-full py-3 bg-[#274bce] text-white rounded font-bold shadow-sm transition-colors text-[15px]"><i class="fas fa-edit text-lg"></i> 구직 (인재)</button>
                     </div>
                 </div>
             </aside>
@@ -102,22 +86,10 @@
 
                             <div class="section-title"><i class="fas fa-user"></i> 기본 인적 사항</div>
                             <div class="grid-2">
-                                <div class="form-group">
-                                    <label class="required"> 이름</label>
-                                    <input type="text" id="custom_name" class="form-control" required placeholder="예: 홍길동">
-                                </div>
-                                <div class="form-group">
-                                    <label class="required"> 연락처</label>
-                                    <input type="text" id="custom_phone" class="form-control" required placeholder="예: 010-0000-0000">
-                                </div>
-                                <div class="form-group">
-                                    <label> 이메일</label>
-                                    <input type="email" id="custom_email" class="form-control" placeholder="예: abc@email.com">
-                                </div>
-                                <div class="form-group">
-                                    <label class="required"> 현재 거주지 (시/군/구)</label>
-                                    <input type="text" id="custom_address" class="form-control" required placeholder="예: 경기 고양시 덕양구">
-                                </div>
+                                <div class="form-group"><label class="required"> 이름</label><input type="text" id="custom_name" class="form-control" required placeholder="예: 홍길동"></div>
+                                <div class="form-group"><label class="required"> 연락처</label><input type="text" id="custom_phone" class="form-control" required placeholder="예: 010-0000-0000"></div>
+                                <div class="form-group"><label> 이메일</label><input type="email" id="custom_email" class="form-control" placeholder="예: abc@email.com"></div>
+                                <div class="form-group"><label class="required"> 현재 거주지 (시/군/구)</label><input type="text" id="custom_address" class="form-control" required placeholder="예: 경기 고양시 덕양구"></div>
                             </div>
 
                             <div class="section-title"><i class="fas fa-hand-holding-heart"></i> 희망 근무 조건</div>
@@ -126,47 +98,34 @@
                                     <label class="required"> 희망 직종</label>
                                     <select id="custom_job_category" class="form-control" required>
                                         <option value="" disabled selected>직종 선택</option>
-                                        <option value="관리소장">관리소장</option>
-                                        <option value="전기과장">전기과장</option>
-                                        <option value="시설기사">시설기사</option>
-                                        <option value="경비">경비</option>
-                                        <option value="미화/청소">미화/청소</option>
-                                        <option value="기타">기타</option>
+                                        <option value="관리소장">관리소장</option><option value="전기과장">전기과장</option><option value="시설기사">시설기사</option>
+                                        <option value="경비">경비</option><option value="미화/청소">미화/청소</option><option value="기타">기타</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label class="required"> 희망 근무 지역</label>
-                                    <input type="text" id="custom_desired_location" class="form-control" required placeholder="예: 고양, 파주, 김포 전지역">
-                                </div>
+                                <div class="form-group"><label class="required"> 희망 근무 지역</label><input type="text" id="custom_desired_location" class="form-control" required placeholder="예: 고양, 파주, 김포 전지역"></div>
                                 <div class="form-group">
                                     <label> 희망 급여</label>
                                     <div class="flex-row">
                                         <input type="text" id="custom_desired_salary" class="form-control" placeholder="예: 월 300만원">
                                         <select id="custom_salary_condition" class="form-control">
-                                            <option value="정도">정도</option>
-                                            <option value="이상">이상</option>
-                                            <option value="협의">협의</option>
-                                            <option value="내규">내규</option>
-                                            <option value="미정">미정</option>
+                                            <option value="정도">정도</option><option value="이상">이상</option><option value="협의">협의</option><option value="내규">내규</option><option value="미정">미정</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label> 희망 근무 형태</label>
                                     <select id="custom_employment_type" class="form-control">
-                                        <option value="무관">무관</option>
-                                        <option value="정규직">정규직</option>
-                                        <option value="계약직">계약직</option>
-                                        <option value="일근직">일근직</option>
-                                        <option value="교대직">교대직(격일제 등)</option>
+                                        <option value="무관">무관</option><option value="정규직">정규직</option><option value="계약직">계약직</option><option value="일근직">일근직</option><option value="교대직">교대직(격일제 등)</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label> 즉시 출근 여부</label>
                                     <select id="custom_immediate_start" class="form-control">
-                                        <option value="가능함">가능함</option>
-                                        <option value="협의">협의</option>
-                                        <option value="기타">기타</option>
+                                        <!-- ★ 보다 실용적인 옵션으로 변경 -->
+                                        <option value="즉시가능">즉시 출근 가능</option>
+                                        <option value="1주내">1주 이내</option>
+                                        <option value="1개월내">1개월 이내</option>
+                                        <option value="협의">협의 후 결정</option>
                                     </select>
                                 </div>
                             </div>
@@ -176,33 +135,16 @@
                                 <div class="form-group">
                                     <label class="required"> 총 경력</label>
                                     <select id="custom_experience" class="form-control" required>
-                                        <option value="신입">신입</option>
-                                        <option value="1~3년">1~3년</option>
-                                        <option value="3~5년">3~5년</option>
-                                        <option value="5~10년">5~10년</option>
-                                        <option value="10년 이상">10년 이상</option>
+                                        <option value="신입">신입</option><option value="1~3년">1~3년</option><option value="3~5년">3~5년</option><option value="5~10년">5~10년</option><option value="10년 이상">10년 이상</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label> 최종 학력</label>
-                                    <input type="text" id="custom_education" class="form-control" placeholder="예: 고등학교 졸업">
-                                </div>
-                                <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label> 보유 자격증</label>
-                                    <input type="text" id="custom_certification" class="form-control" placeholder="예: 전기기사, 소방안전관리자 1급 (취득일자 기재 가능)">
-                                </div>
-                                <div class="form-group" style="grid-column: 1 / -1;">
-                                    <label> 기타 특기/우대사항</label>
-                                    <input type="text" id="custom_skills" class="form-control" placeholder="예: 1종 보통 운전면허 소지, 엑셀 활용 능숙">
-                                </div>
+                                <div class="form-group"><label> 최종 학력</label><input type="text" id="custom_education" class="form-control" placeholder="예: 고등학교 졸업"></div>
+                                <div class="form-group" style="grid-column: 1 / -1;"><label> 보유 자격증</label><input type="text" id="custom_certification" class="form-control" placeholder="예: 전기기사, 소방안전관리자 1급 (취득일자 기재 가능)"></div>
+                                <div class="form-group" style="grid-column: 1 / -1;"><label> 기타 특기/우대사항</label><input type="text" id="custom_skills" class="form-control" placeholder="예: 1종 보통 운전면허 소지, 엑셀 활용 능숙"></div>
                             </div>
 
-                            <div class="section-title no-border" style="margin-top: 40px;">
-                                <i class="fas fa-file-alt" style="color:var(--primary)"></i> 자기소개 및 상세 경력
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <textarea id="content" class="form-control" required></textarea>
-                            </div>
+                            <div class="section-title no-border" style="margin-top: 40px;"><i class="fas fa-file-alt" style="color:var(--primary)"></i> 자기소개 및 상세 경력</div>
+                            <div class="form-group" style="margin-bottom: 0;"><textarea id="content" class="form-control" required></textarea></div>
                         </div>
 
                         <div class="form-footer">
@@ -232,7 +174,6 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
     const salaryCondition = document.getElementById('custom_salary_condition').value;
     const finalSalary = salaryAmount ? `${salaryAmount} (${salaryCondition})` : salaryCondition;
 
-    // 즉시 출근 여부 데이터 추가 수집
     const customDataObj = {
         name: document.getElementById('custom_name').value,
         phone: document.getElementById('custom_phone').value,
@@ -257,13 +198,11 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
         title: mainTitle,
         content: document.getElementById('content').value,
         custom_data: JSON.stringify(customDataObj),
-        status: 'OPEN'
+        status: 'OPEN',
+        view_count: 0 // ★ 최초 등록 시 조회수 Null 방지
     };
 
-    if (!supabaseClient) {
-        alert('데이터베이스 연결에 실패했습니다.');
-        return;
-    }
+    if (!supabaseClient) { alert('데이터베이스 연결에 실패했습니다.'); return; }
 
     const submitBtn = document.querySelector('#resumePostForm button[type="submit"]');
     submitBtn.innerText = '등록 중...';
@@ -279,8 +218,6 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
     }
 });
 </script>
-<script>
-    window.BASE_PATH = '{{BASE}}';
-</script>
+<script>window.BASE_PATH = '{{BASE}}';</script>
 </body>
 </html>

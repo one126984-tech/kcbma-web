@@ -382,7 +382,6 @@
         .notice-list li::before { content: "-"; position: absolute; left: 0; top: 0; color: #94a3b8; font-weight: bold; }
         .text-highlight { color: #dc2626; font-weight: bold; }
 
-        /* 좌측 메뉴: 아이콘을 뺀 상태로 폰트 크기(15px) 및 굵기(700) 통일 */
         .side-menu-tab { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; color: #4b5563; font-weight: 700; font-size: 15px; cursor: pointer; transition: background-color .2s, color .2s; }
         .side-menu-tab:hover { background-color: #f8fafc; }
         .side-menu-tab-active { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
@@ -916,13 +915,9 @@
         <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
             <div class="pr-1 pt-1">
                 <div id="side-menu-container" class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab" data-menu-url="job-list.html" onclick="loadContent('job-list.html', this)">
-                        <span>구인 (채용)</span>
-                    </div>
+                    <div class="side-menu-tab" data-menu-url="job-list.html" onclick="loadContent('job-list.html', this)"><span>구인 (채용)</span></div>
                     <div class="h-px bg-gray-100 mx-2 my-1"></div>
-                    <div class="side-menu-tab-active" data-menu-url="resume-list.html" onclick="loadContent('resume-list.html', this)">
-                        <span>구직 (인재)</span>
-                    </div>
+                    <div class="side-menu-tab-active" data-menu-url="resume-list.html" onclick="loadContent('resume-list.html', this)"><span>구직 (인재)</span></div>
                 </div>
             </div>
         </aside>
@@ -934,7 +929,7 @@
                 <div class="notice-content">
                     <div class="notice-title">안전한 구직 활동 및 개인정보 보호 안내</div>
                     <ul class="notice-list">
-                        <li><strong>개인정보 보호 유의:</strong> 이력서 등록 시 주민등록번호 전체, 정확한 자택 상세 주소 등 민감한 개인정보가 불필요하게 노출되지 않도록 주의하세요.</li>
+                        <li><strong>개인정보 보호 유의:</strong> 이력서 등록 시 민감한 개인정보가 불필요하게 노출되지 않도록 주의하세요.</li>
                         <li><strong>목적 외 사용 금지:</strong> 본 게시판의 인재 정보는 <span class="text-highlight">'채용 목적'</span>으로만 열람이 가능합니다.</li>
                     </ul>
                 </div>
@@ -945,11 +940,8 @@
                 <span class="text-[12px] text-gray-400">상세 조건 설정 <i class="fas fa-chevron-right ml-1"></i></span>
             </button>
 
-            <!-- =========================================================
-                 ★ 데스크탑 전용 상단 통합 필터 (구인페이지 양식 반영)
-                 ========================================================= -->
+            <!-- 데스크탑 전용 상단 통합 필터 -->
             <div id="desktop-top-filter" class="hidden md:block bg-white border border-gray-300 rounded-lg shadow-sm mb-6 px-5 py-4">
-                
                 <div class="flex items-center mb-4">
                     <span class="w-[90px] mr-3 font-bold text-[14px] text-gray-800 shrink-0 text-center">검색어</span>
                     <div class="flex flex-1 items-center gap-3 pr-4">
@@ -965,35 +957,26 @@
 
                 <div class="flex items-center relative">
                     <span class="w-[90px] mr-3 font-bold text-[14px] text-gray-800 shrink-0 text-center">상세조건</span>
-                    
                     <div class="flex flex-1 gap-3 pr-[10px] xl:pr-[90px]">
-                        
                         <div class="relative z-[40]" style="flex: 1.6;">
                             <button type="button" onclick="toggleDropdown('region-mega-dropdown')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
-                                <span class="text-[13.5px] font-medium text-gray-700 truncate">지역 선택</span>
-                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">지역 선택</span><i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
                             </button>
-
                             <div id="region-mega-dropdown" class="hidden absolute top-full left-0 mt-1 w-[340px] max-w-[90vw] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
                                 <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
-                                    <span class="font-bold text-[13px] text-[#12387a]">
-                                        <span class="text-purple-600">대분류</span> 지역 선택
-                                        <span class="text-gray-400 font-normal text-[11px] ml-1 tracking-tighter">(1개 이상 선택 후 소분류 선택)</span>
-                                    </span>
+                                    <span class="font-bold text-[13px] text-[#12387a]"><span class="text-purple-600">대분류</span> 지역 선택</span>
                                     <button type="button" onclick="document.getElementById('region-mega-dropdown').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-lg leading-none"><i class="fas fa-times"></i></button>
                                 </div>
                                 <div class="flex flex-col w-full" id="region-mega-dropdown-inner">
                                     <div id="region-major-section" class="flex flex-col">
-                                        <div class="p-3 overflow-y-auto custom-scroll" style="height: 240px;">
-                                            <div class="grid grid-cols-4 gap-1.5" id="mega-major-list"></div>
-                                        </div>
+                                        <div class="p-3 overflow-y-auto custom-scroll" style="height: 240px;"><div class="grid grid-cols-4 gap-1.5" id="mega-major-list"></div></div>
                                         <div class="p-3 border-t border-gray-200 bg-gray-50 text-center shrink-0">
                                             <button type="button" onclick="openMinorView()" class="w-full border border-[#12387a] text-[#12387a] bg-blue-50 hover:bg-blue-100 font-bold px-4 py-2 rounded text-[13px] transition-colors shadow-sm"><i class="fas fa-level-down-alt mr-1"></i> 소분류 넣기</button>
                                         </div>
                                     </div>
                                     <div id="region-minor-section" class="hidden flex-col h-full">
                                         <div class="px-4 py-2 bg-[#f8fafc] border-b border-gray-200 flex justify-between items-center shrink-0">
-                                            <span class="font-bold text-[13px] text-[#12387a]">소분류 <span class="text-gray-500 font-normal ml-1 text-[11px]">(원하는 지역 체크)</span></span>
+                                            <span class="font-bold text-[13px] text-[#12387a]">소분류</span>
                                             <button type="button" onclick="closeMinorView()" class="text-[11px] text-gray-600 hover:text-black font-medium hover:underline bg-white border border-gray-300 px-2 py-1 rounded"><i class="fas fa-undo mr-1"></i>대분류 다시보기</button>
                                         </div>
                                         <div class="p-3 overflow-y-auto custom-scroll" style="height: 240px;" id="minor-regions-container"></div>
@@ -1007,8 +990,7 @@
 
                         <div class="relative flex-1 z-[30]">
                             <button type="button" onclick="toggleDropdown('category-dropdown-menu')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
-                                <span class="text-[13.5px] font-medium text-gray-700 truncate">직종 선택</span>
-                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">직종 선택</span><i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
                             </button>
                             <div id="category-dropdown-menu" class="hidden absolute top-full left-0 mt-1 w-[380px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
                                 <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
@@ -1017,17 +999,17 @@
                                 </div>
                                 <div class="p-4 dropdown-scroll-area custom-scroll">
                                     <div class="grid grid-cols-2 gap-y-3 gap-x-6 w-full" id="category-filter-content">
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리소장"> <span class="text-[13px]">관리소장</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기과장"> <span class="text-[13px]">전기과장</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기기사"> <span class="text-[13px]">전기기사</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기전직"> <span class="text-[13px]">기전직</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설 반장"> <span class="text-[13px]">시설 반장</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설기사"> <span class="text-[13px]">시설기사</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리직"> <span class="text-[13px]">관리직</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경비"> <span class="text-[13px]">경비</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경리(회계)"> <span class="text-[13px]">경리(회계)</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="청소"> <span class="text-[13px]">청소</span></label>
-                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기타"> <span class="text-[13px]">기타</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리소장"> <span>관리소장</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기과장"> <span>전기과장</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="전기기사"> <span>전기기사</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기전직"> <span>기전직</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설 반장"> <span>시설 반장</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="시설기사"> <span>시설기사</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="관리직"> <span>관리직</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경비"> <span>경비</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="경리(회계)"> <span>경리(회계)</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="청소"> <span>청소</span></label>
+                                        <label class="custom-checkbox"><input type="checkbox" class="job-category-chk" value="기타"> <span>기타</span></label>
                                     </div>
                                 </div>
                                 <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
@@ -1038,8 +1020,7 @@
 
                         <div class="relative flex-1 z-[25]">
                             <button type="button" onclick="toggleDropdown('period-dropdown-menu')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
-                                <span class="text-[13.5px] font-medium text-gray-700 truncate">조회기간 선택</span>
-                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">조회기간 선택</span><i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
                             </button>
                             <div id="period-dropdown-menu" class="hidden absolute top-full left-0 mt-1 w-[320px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
                                 <div class="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 shrink-0">
@@ -1054,9 +1035,9 @@
                                         <button class="period-btn px-2 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 text-[13.5px] rounded transition-colors" onclick="setPeriod('6m', this)">6개월</button>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <input type="date" id="resume-start-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600 focus:border-[#12387a]">
+                                        <input type="date" id="resume-start-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600">
                                         <span class="text-gray-400 font-bold">~</span>
-                                        <input type="date" id="resume-end-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600 focus:border-[#12387a]">
+                                        <input type="date" id="resume-end-date" class="flex-1 border border-gray-300 rounded px-2 py-2 text-[12.5px] outline-none text-gray-600">
                                     </div>
                                 </div>
                                 <div class="p-3 border-t border-gray-200 bg-gray-50 text-right shrink-0">
@@ -1065,15 +1046,13 @@
                             </div>
                         </div>
 
-                        <!-- 이력서용 월급 필터 -->
                         <div id="salary-filter-container" class="relative z-[20] shrink-0 flex items-stretch w-[230px]">
-                            <input type="text" id="resume-filter-salary-amount" class="w-full h-full bg-white border border-gray-300 rounded px-2.5 text-[13px] text-gray-800 outline-none focus:border-[#12387a] transition-colors placeholder-gray-400 font-medium" placeholder="월급: 280만이상,협의,내규따름..">
+                            <input type="text" id="resume-filter-salary-amount" class="w-full h-full bg-white border border-gray-300 rounded px-2.5 text-[13px] text-gray-800 outline-none focus:border-[#12387a] transition-colors placeholder-gray-400 font-medium" placeholder="월급: 280만이상,협의..">
                         </div>
 
                         <div class="relative z-[15] w-[130px] shrink-0">
                             <button type="button" onclick="toggleDropdown('status-dropdown-menu')" class="w-full bg-white border border-gray-300 rounded px-3 py-2 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
-                                <span class="text-[13.5px] font-medium text-gray-700 truncate">구직상태</span>
-                                <i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
+                                <span class="text-[13.5px] font-medium text-gray-700 truncate">구직상태</span><i class="fas fa-chevron-down text-gray-400 text-[11px] ml-1 shrink-0"></i>
                             </button>
                             <div id="status-dropdown-menu" class="hidden absolute top-full right-0 mt-1 w-[140px] bg-white border border-gray-400 rounded shadow-xl z-[9999] flex flex-col overflow-hidden">
                                 <div class="flex justify-between items-center px-3 py-2 border-b border-gray-300 bg-gray-50 shrink-0">
@@ -1081,9 +1060,9 @@
                                     <button type="button" onclick="document.getElementById('status-dropdown-menu').classList.add('hidden')" class="text-gray-500 hover:text-red-500 text-sm leading-none"><i class="fas fa-times"></i></button>
                                 </div>
                                 <div class="p-3 flex flex-col gap-2.5" id="status-filter-content">
-                                    <label class="custom-radio text-[13px] whitespace-nowrap tracking-tight"><input type="radio" name="status" class="status-radio" value="ALL" checked> <span>전체보기</span></label>
-                                    <label class="custom-radio text-[13px] whitespace-nowrap tracking-tight"><input type="radio" name="status" class="status-radio" value="OPEN"> <span>구직중만</span></label>
-                                    <label class="custom-radio text-[13px] whitespace-nowrap tracking-tight"><input type="radio" name="status" class="status-radio" value="CLOSED"> <span>종료된 이력서</span></label>
+                                    <label class="custom-radio text-[13px]"><input type="radio" name="status" class="status-radio" value="ALL" checked> <span>전체보기</span></label>
+                                    <label class="custom-radio text-[13px]"><input type="radio" name="status" class="status-radio" value="OPEN"> <span>구직중만</span></label>
+                                    <label class="custom-radio text-[13px]"><input type="radio" name="status" class="status-radio" value="CLOSED"> <span>종료된 이력서</span></label>
                                 </div>
                                 <div class="p-2 border-t border-gray-200 bg-gray-50 text-center shrink-0">
                                     <button type="button" onclick="document.getElementById('status-dropdown-menu').classList.add('hidden')" class="w-full bg-[#0B2A5B] hover:bg-[#1d3893] text-white font-bold py-1.5 rounded text-[12px] transition-colors shadow-sm">적용하기</button>
@@ -1104,17 +1083,16 @@
                             <option value="20">20개씩보기</option>
                             <option value="50">50개씩보기</option>
                         </select>
-
                         <div class="flex border border-gray-400 border-b-0 rounded-t-md text-xs bg-white h-[34px] shadow-sm overflow-hidden">
                             <button id="btn-sort-latest" onclick="setSort('latest')" class="bg-[#333] text-white px-4 flex items-center justify-center h-full transition-colors cursor-pointer font-bold">최신순</button>
                             <button id="btn-sort-views" onclick="setSort('views')" class="bg-white text-gray-600 hover:bg-gray-50 px-4 border-l border-gray-300 flex items-center justify-center h-full transition-colors cursor-pointer font-normal">조회순</button>
                         </div>
-
                         <a href="resume-write.html" class="bg-[#ffc107] hover:bg-[#ffb300] text-gray-900 font-bold px-5 h-[34px] rounded-t-md border border-[#ffc107] border-b-0 text-[13px] transition-colors ml-1 flex items-center justify-center cursor-pointer shadow-sm">이력서 등록하기</a>
                     </div>
                 </div>
 
-                <div class="data-table-wrapper border border-gray-200 border-t-0 rounded-b shadow-sm relative z-20">
+                <!-- ★ 레이아웃 깨짐 버그 수정: min-height 래퍼 이동 -->
+                <div class="data-table-wrapper border border-gray-200 border-t-0 rounded-b shadow-sm relative z-20 custom-scroll" style="min-height: 400px;">
                     <table class="data-table">
                         <colgroup>
                             <col style="width: 50px;">  
@@ -1140,7 +1118,7 @@
                                 <th class="text-center text-[14px]">조회수</th>
                             </tr>
                         </thead>
-                        <tbody id="resume-list-body" style="min-height: 400px;">
+                        <tbody id="resume-list-body">
                             <tr><td colspan="9" class="text-center py-10 text-gray-500">데이터를 불러오는 중입니다...</td></tr>
                         </tbody>
                     </table>
@@ -1160,14 +1138,11 @@
     if (!window.__tabSwitcherInit) {
         window.__tabSwitcherInit = true;
         window.mainContent = document.getElementById('main-content');
-
         (function wrapOwnContent() {
             const ownPanel = document.createElement('div');
             ownPanel.className = 'tab-panel';
             ownPanel.dataset.tabUrl = 'resume-list.html';
-            while (window.mainContent.firstChild) {
-                ownPanel.appendChild(window.mainContent.firstChild);
-            }
+            while (window.mainContent.firstChild) { ownPanel.appendChild(window.mainContent.firstChild); }
             window.mainContent.appendChild(ownPanel);
         })();
 
@@ -1176,7 +1151,6 @@
             document.documentElement.classList.add('no-page-transition');
             if (document.activeViewTransition) { document.activeViewTransition.skipTransition(); }
             window.scrollTo(0, 0);
-
             const activateMenu = () => {
                 const menuContainer = document.getElementById('side-menu-container');
                 if (menuContainer) {
@@ -1202,7 +1176,6 @@
                     window.mainContent.querySelectorAll('.tab-panel').forEach(p => { p.style.display = 'none'; });
                     const newPanel = document.createElement('div'); newPanel.className = 'tab-panel'; newPanel.dataset.tabUrl = url; newPanel.innerHTML = newContent.innerHTML;
                     window.mainContent.appendChild(newPanel); activateMenu();
-
                     const SHARED_SCRIPT_PATTERN = /header\.js|footer\.js|region\.js|region-data\.js|tailwindcss\.com|supabase-js/;
                     const alreadyLoadedSrcs = Array.from(document.scripts).map(s => s.src).filter(Boolean);
                     doc.querySelectorAll('script').forEach(oldScript => {
@@ -1224,14 +1197,11 @@
 
     <script>
     (function() {
-        let tags = [];
-        let excludeTags = [];
-        
+        let tags = []; let excludeTags = [];
         const includeContainer = document.getElementById('resume-include-word-container');
         const manualInput = document.getElementById('resume-manual-word-input');
         const excludeContainer = document.getElementById('resume-exclude-word-container');
         const manualExcludeInput = document.getElementById('resume-manual-exclude-input');
-        
         const rData = typeof subRegionData !== 'undefined' ? subRegionData : {};
         const majorsList = ['전국', '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
 
@@ -1247,34 +1217,18 @@
             });
             if(manualInput) manualInput.placeholder = tags.length > 0 ? "" : "제목, 이름, 지역 등 포함할 단어 입력 후 엔터";
         }
-
-        function addTag(word) {
-            const trimmed = word.trim();
-            if (trimmed && !tags.includes(trimmed)) { tags.push(trimmed); renderTags(); applyFilters(); }
-        }
-
-        function removeTag(word) {
-            tags = tags.filter(t => t !== word);
-            document.querySelectorAll(`input[type="checkbox"][value="${word}"]`).forEach(cb => cb.checked = false);
-            renderTags(); applyFilters();
-        }
+        function addTag(word) { const trimmed = word.trim(); if (trimmed && !tags.includes(trimmed)) { tags.push(trimmed); renderTags(); applyFilters(); } }
+        function removeTag(word) { tags = tags.filter(t => t !== word); document.querySelectorAll(`input[type="checkbox"][value="${word}"]`).forEach(cb => cb.checked = false); renderTags(); applyFilters(); }
 
         if(includeContainer) {
             includeContainer.addEventListener('click', (e) => {
-                if (e.target.closest('.tag-remove')) { removeTag(e.target.closest('.tag-remove').dataset.word); } 
-                else if (manualInput) { manualInput.focus(); }
+                if (e.target.closest('.tag-remove')) { removeTag(e.target.closest('.tag-remove').dataset.word); } else if (manualInput) { manualInput.focus(); }
             });
         }
-
         if(manualInput) {
             manualInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    manualInput.value.split(',').forEach(w => addTag(w));
-                    manualInput.value = '';
-                } else if (e.key === 'Backspace' && manualInput.value === '' && tags.length > 0) {
-                    removeTag(tags[tags.length - 1]);
-                }
+                if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); manualInput.value.split(',').forEach(w => addTag(w)); manualInput.value = ''; }
+                else if (e.key === 'Backspace' && manualInput.value === '' && tags.length > 0) { removeTag(tags[tags.length - 1]); }
             });
         }
 
@@ -1288,40 +1242,24 @@
             });
             if(manualExcludeInput) manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
         }
-
-        function addExcludeTag(word) {
-            const trimmed = word.trim();
-            if (trimmed && !excludeTags.includes(trimmed)) { excludeTags.push(trimmed); renderExcludeTags(); applyFilters(); }
-        }
-
-        function removeExcludeTag(word) {
-            excludeTags = excludeTags.filter(t => t !== word); renderExcludeTags(); applyFilters();
-        }
+        function addExcludeTag(word) { const trimmed = word.trim(); if (trimmed && !excludeTags.includes(trimmed)) { excludeTags.push(trimmed); renderExcludeTags(); applyFilters(); } }
+        function removeExcludeTag(word) { excludeTags = excludeTags.filter(t => t !== word); renderExcludeTags(); applyFilters(); }
 
         if(excludeContainer) {
             excludeContainer.addEventListener('click', (e) => {
-                if (e.target.closest('.tag-remove')) { removeExcludeTag(e.target.closest('.tag-remove').dataset.word); } 
-                else if(manualExcludeInput) { manualExcludeInput.focus(); }
+                if (e.target.closest('.tag-remove')) { removeExcludeTag(e.target.closest('.tag-remove').dataset.word); } else if(manualExcludeInput) { manualExcludeInput.focus(); }
             });
         }
-
         if(manualExcludeInput) {
             manualExcludeInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    manualExcludeInput.value.split(',').forEach(w => addExcludeTag(w));
-                    manualExcludeInput.value = '';
-                } else if (e.key === 'Backspace' && manualExcludeInput.value === '' && excludeTags.length > 0) {
-                    removeExcludeTag(excludeTags[excludeTags.length - 1]);
-                }
+                if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); manualExcludeInput.value.split(',').forEach(w => addExcludeTag(w)); manualExcludeInput.value = ''; }
+                else if (e.key === 'Backspace' && manualExcludeInput.value === '' && excludeTags.length > 0) { removeExcludeTag(excludeTags[excludeTags.length - 1]); }
             });
         }
 
         document.addEventListener('change', (e) => {
             const target = e.target;
-            if (target.matches('.job-category-chk, .mega-region-chk')) {
-                if (target.checked) addTag(target.value); else removeTag(target.value);
-            }
+            if (target.matches('.job-category-chk, .mega-region-chk')) { if (target.checked) addTag(target.value); else removeTag(target.value); }
             if (target.matches('.status-radio')) applyFilters();
         });
 
@@ -1339,25 +1277,19 @@
         window.openMinorView = function() {
             const checkedMajors = Array.from(document.querySelectorAll('.major-region-chk:checked')).map(cb => cb.value);
             if (checkedMajors.length === 0) { alert('먼저 1개 이상의 대분류(지역)를 체크해주세요.'); return; }
-
             document.getElementById('region-major-section').classList.add('hidden');
             document.getElementById('region-minor-section').classList.remove('hidden');
             document.getElementById('region-minor-section').classList.add('flex');
-
             const container = document.getElementById('minor-regions-container');
             let html = '';
-            
             checkedMajors.forEach(major => {
                 html += `<div class="mb-5"><div class="font-bold text-[#12387a] mb-2 text-[14px] border-b border-gray-200 pb-1">[${major}]</div><div class="grid grid-cols-3 gap-x-1 gap-y-2.5">`;
-                
                 if(major === '전국') {
                     const isChecked = tags.includes('전국 전체') ? 'checked' : '';
                     html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="전국 전체" class="mega-region-chk w-3.5 h-3.5 cursor-pointer" ${isChecked}> <span class="text-gray-700 truncate">지역무관</span></label>`;
                 } else {
-                    const majorAllVal = `${major} 전체`;
-                    const isAllChecked = tags.includes(majorAllVal) ? 'checked' : '';
+                    const majorAllVal = `${major} 전체`; const isAllChecked = tags.includes(majorAllVal) ? 'checked' : '';
                     html += `<label class="flex items-center gap-1.5 cursor-pointer text-[13px] whitespace-nowrap overflow-hidden text-ellipsis"><input type="checkbox" value="${majorAllVal}" class="mega-region-chk w-3.5 h-3.5 cursor-pointer" ${isAllChecked}> <span class="font-bold text-[#12387a] truncate">${majorAllVal}</span></label>`;
-
                     if(rData[major]) {
                         rData[major].forEach(minor => {
                             if(minor.replace(/\s/g,'') !== `${major}전체` && minor !== '전국전체') {
@@ -1401,7 +1333,6 @@
                 else if (period === '1m') start.setMonth(start.getMonth() - 1);
                 else if (period === '2m') start.setMonth(start.getMonth() - 2);
                 else if (period === '6m') start.setMonth(start.getMonth() - 6);
-
                 const offset = start.getTimezoneOffset() * 60000;
                 if(startInput) startInput.value = new Date(start.getTime() - offset).toISOString().split('T')[0];
                 if(endInput) endInput.value = new Date(end.getTime() - offset).toISOString().split('T')[0];
@@ -1439,9 +1370,9 @@
             }
         }
 
-        // ★ 조회수 생성 해시 함수 (view_count 사용)
+        // ★ view_count 컬럼 표준화
         function getDisplayViews(resume) {
-            if (resume.view_count && resume.view_count > 0) return resume.view_count; // ★ 수정됨
+            if (resume.view_count && resume.view_count > 0) return resume.view_count;
             const idStr = String(resume.id || Math.random());
             let hash = 0;
             for (let i = 0; i < idStr.length; i++) { hash = idStr.charCodeAt(i) + ((hash << 5) - hash); }
@@ -1450,11 +1381,8 @@
 
         window.applyFilters = function() {
             filteredResumes = [...allResumes];
-
-            const startInput = document.getElementById('resume-start-date');
-            const endInput = document.getElementById('resume-end-date');
-            const startDateStr = startInput ? startInput.value : '';
-            const endDateStr = endInput ? endInput.value : '';
+            const startInput = document.getElementById('resume-start-date'); const endInput = document.getElementById('resume-end-date');
+            const startDateStr = startInput ? startInput.value : ''; const endDateStr = endInput ? endInput.value : '';
             
             if (startDateStr) {
                 const sd = new Date(startDateStr); sd.setHours(0, 0, 0, 0);
@@ -1467,11 +1395,8 @@
 
             let selectedStatus = 'ALL';
             document.getElementsByName('status').forEach(r => { if (r.checked) selectedStatus = r.value; });
-            if (selectedStatus === 'OPEN') {
-                filteredResumes = filteredResumes.filter(j => (j.status || 'OPEN') === 'OPEN');
-            } else if (selectedStatus === 'CLOSED') {
-                filteredResumes = filteredResumes.filter(j => j.status === 'CLOSED');
-            }
+            if (selectedStatus === 'OPEN') { filteredResumes = filteredResumes.filter(j => (j.status || 'OPEN') === 'OPEN'); } 
+            else if (selectedStatus === 'CLOSED') { filteredResumes = filteredResumes.filter(j => j.status === 'CLOSED'); }
 
             const checkedCategories = Array.from(document.querySelectorAll('.job-category-chk:checked')).map(cb => cb.value);
             if (checkedCategories.length > 0) {
@@ -1520,33 +1445,20 @@
                 });
             }
 
-            if (currentSort === 'latest') {
-                filteredResumes.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-            } else if (currentSort === 'views') {
-                filteredResumes.sort((a, b) => getDisplayViews(b) - getDisplayViews(a));
-            }
+            if (currentSort === 'latest') { filteredResumes.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)); } 
+            else if (currentSort === 'views') { filteredResumes.sort((a, b) => getDisplayViews(b) - getDisplayViews(a)); }
 
-            currentPage = 1;
-            updateDisplay();
+            currentPage = 1; updateDisplay();
         };
 
-        // ★ 강력해진 에러 방지 포맷팅 함수
         function formatSalary(sal, resumeId) {
             let amount = String(sal || '').trim();
-
-            if (amount === '협의' || amount === '내규따름' || amount === '면접 후 결정') {
-                return `<span class="font-bold text-[#111] tracking-tight text-[14px]">${amount}</span>`;
-            }
-
-            const idStr = String(resumeId || Math.random());
-            let hash = 0;
+            if (amount === '협의' || amount === '내규따름' || amount === '면접 후 결정') { return `<span class="font-bold text-[#111] tracking-tight text-[14px]">${amount}</span>`; }
+            const idStr = String(resumeId || Math.random()); let hash = 0;
             for (let i = 0; i < idStr.length; i++) { hash = idStr.charCodeAt(i) + ((hash << 5) - hash); }
             const rand = Math.abs(hash);
-
-            let numMatch = amount.match(/\d+/);
-            let baseNum = numMatch ? numMatch[0] : '';
+            let numMatch = amount.match(/\d+/); let baseNum = numMatch ? numMatch[0] : '';
             if (!baseNum) baseNum = (rand % 3 === 0) ? '250' : (rand % 3 === 1) ? '280' : '300';
-
             const rv = rand % 10;
             if (rv === 0) return `<span class="font-bold text-[#111] tracking-tight text-[14px]">협의</span>`;
             if (rv === 1) return `<span class="font-bold text-[#111] tracking-tight text-[14px]">내규따름</span>`;
@@ -1558,14 +1470,12 @@
             if (rv === 7) return `<span class="font-bold text-[#111] tracking-tight">300만</span>`;
             if (rv === 8) return `<span class="font-bold text-[#111] tracking-tight">350만</span><span class="text-[12px] text-gray-500 font-normal ml-0.5">협의</span>`;
             if (rv === 9) return `<span class="font-bold text-[#111] tracking-tight">${baseNum}만</span><span class="text-[12px] text-gray-500 font-normal ml-0.5">내규따름</span>`;
-
             return `<span class="font-bold text-[#111] tracking-tight">${baseNum}만</span><span class="text-[12px] text-gray-500 font-normal ml-0.5">협의</span>`;
         }
 
         function updateDisplay() {
             const countElem = document.getElementById('resume-total-count');
             if (countElem) countElem.innerText = filteredResumes.length;
-            
             const startIndex = (currentPage - 1) * itemsPerPage;
             const paginated = filteredResumes.slice(startIndex, startIndex + itemsPerPage);
             renderResumesList(paginated, startIndex);
@@ -1576,20 +1486,13 @@
             const tbody = document.getElementById('resume-list-body');
             if(!tbody) return;
             tbody.innerHTML = '';
-
-            if (jobs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-gray-500">조건에 맞는 이력서가 없습니다.</td></tr>';
-                return;
-            }
+            if (jobs.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-gray-500">조건에 맞는 이력서가 없습니다.</td></tr>'; return; }
 
             jobs.forEach((resume, i) => {
-                let c = {};
-                try { c = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {}); } catch(e) {}
-                
+                let c = {}; try { c = typeof resume.custom_data === 'string' ? JSON.parse(resume.custom_data) : (resume.custom_data || {}); } catch(e) {}
                 const isOpen = resume.status === 'OPEN' || !resume.status;
                 const badge = isOpen ? '<span class="badge-open">구직중</span>' : '<span class="badge-closed">종료</span>';
                 const tClass = isOpen ? 'text-[#0B2A5B]' : 'text-gray-400';
-                
                 let title = String(resume.title || '제목 없음').replace(/\[.*?\]\s*/g, ''); 
                 
                 const rawRegion = String(c.desired_location || c.address_short || c.address || '-');
@@ -1608,24 +1511,19 @@
                 
                 let immediateStart = String(c.immediate_start || '').trim();
                 if (!immediateStart || immediateStart === '-' || immediateStart === 'null') {
-                    const idStr = String(resume.id || Math.random());
-                    let hash = 0;
+                    const idStr = String(resume.id || Math.random()); let hash = 0;
                     for (let j = 0; j < idStr.length; j++) { hash = idStr.charCodeAt(j) + ((hash << 5) - hash); }
                     const rv = Math.abs(hash) % 4;
-                    if (rv === 0) immediateStart = '즉시가능';
-                    else if (rv === 1) immediateStart = '10/12<span class="text-[12px] text-gray-500 font-normal ml-0.5">이후</span>';
-                    else if (rv === 2) immediateStart = '1주내';
-                    else immediateStart = '협의';
+                    if (rv === 0) immediateStart = '즉시가능'; else if (rv === 1) immediateStart = '10/12<span class="text-[12px] text-gray-500 font-normal ml-0.5">이후</span>';
+                    else if (rv === 2) immediateStart = '1주내'; else immediateStart = '협의';
                 } else {
                     if (immediateStart.includes('이후')) { immediateStart = immediateStart.replace('이후', `<span class="text-[12px] text-gray-500 font-normal ml-0.5">이후</span>`); }
                 }
                 
                 const displayViews = getDisplayViews(resume);
-
                 const tr = document.createElement('tr');
                 tr.className = 'cursor-pointer';
                 tr.onclick = () => goToResumeDetail(resume.id, displayViews);
-                
                 tr.innerHTML = `
                     <td class="text-center text-gray-500">${filteredResumes.length - startIndex - i}</td>
                     <td class="text-center">${badge}</td>
@@ -1645,7 +1543,6 @@
             const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
             const container = document.getElementById('resume-pagination-container');
             if (!container) return;
-
             let html = `<button onclick="changeJobPage(${Math.max(1, currentPage - 1)})" class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded text-xs hover:bg-gray-50">&lt;</button>`;
             for (let i = 1; i <= totalPages; i++) {
                 html += (i === currentPage)
@@ -1658,10 +1555,10 @@
 
         window.changeJobPage = function(page) { currentPage = page; updateDisplay(); };
 
-        // ★ 조회수 업데이트 (view_count 사용)
-        window.goToResumeDetail = function(id, currentViews) {
+        // ★ 페이지 이동 시 통신 취소 방지를 위해 async/await 적용
+        window.goToResumeDetail = async function(id, currentViews) {
             if (supabaseClient) {
-                supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).then(); // ★ 수정됨
+                await supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).catch(e=>console.error(e));
             }
             window.location.href = `resume-detail.html?id=${id}`;
         };
@@ -1683,19 +1580,10 @@
             moveNode(document.getElementById('period-box'), document.getElementById('mas-slot-registration'));
         }
 
-        window.openMobileAdvancedSearch = function() {
-            document.getElementById('mobile-advanced-search').classList.add('mas-open');
-            document.body.style.overflow = 'hidden';
-        };
-        window.closeMobileAdvancedSearch = function() {
-            document.getElementById('mobile-advanced-search').classList.remove('mas-open');
-            document.body.style.overflow = '';
-        };
+        window.openMobileAdvancedSearch = function() { document.getElementById('mobile-advanced-search').classList.add('mas-open'); document.body.style.overflow = 'hidden'; };
+        window.closeMobileAdvancedSearch = function() { document.getElementById('mobile-advanced-search').classList.remove('mas-open'); document.body.style.overflow = ''; };
         window.openMasPicker = function(type) {
-            ['category', 'region'].forEach(t => {
-                const panel = document.getElementById('mas-picker-panel-' + t);
-                if (panel) panel.classList.toggle('hidden', t !== type);
-            });
+            ['category', 'region'].forEach(t => { const panel = document.getElementById('mas-picker-panel-' + t); if (panel) panel.classList.toggle('hidden', t !== type); });
             const titles = { category: '직종 선택', region: '지역 선택' };
             document.getElementById('mas-picker-title').textContent = titles[type] || '선택';
             document.getElementById('mas-picker').classList.add('mas-open');
@@ -1705,10 +1593,8 @@
         window.resetMobileAdvancedSearch = function() {
             document.querySelectorAll('.job-category-chk:checked, .mega-region-chk:checked, .major-region-chk:checked').forEach(cb => cb.checked = false);
             tags = []; renderTags(); excludeTags = []; renderExcludeTags();
-            const statusAll = document.querySelector('.status-radio[value="ALL"]');
-            if (statusAll) statusAll.checked = true;
-            const regBtn = document.querySelector('#period-box .period-btn');
-            if (regBtn) window.setPeriod('all', regBtn);
+            const statusAll = document.querySelector('.status-radio[value="ALL"]'); if (statusAll) statusAll.checked = true;
+            const regBtn = document.querySelector('#period-box .period-btn'); if (regBtn) window.setPeriod('all', regBtn);
             if(document.getElementById('resume-filter-salary-amount')) document.getElementById('resume-filter-salary-amount').value = '';
             document.querySelectorAll('#mas-body input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('#mas-body select').forEach(s => s.selectedIndex = 0);
@@ -1732,12 +1618,9 @@
                 document.getElementById('status-dropdown-menu')?.classList.add('hidden');
             }
         });
-
         initMobileAdvancedSearch(); initApp();
     })();
     </script>
-    <script>
-      window.BASE_PATH = '/';
-    </script>
+    <script>window.BASE_PATH = '/';</script>
 </body>
 </html>
