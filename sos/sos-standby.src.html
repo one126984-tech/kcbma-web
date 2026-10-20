@@ -54,6 +54,34 @@
       .bd-note { border:1px solid #94a3b8; border-top:0; background:#fff; padding:10px 12px; font-size:13px; font-weight:700; color:#111827; line-height:1.75; word-break:keep-all; }
       .bd-hint { font-size:11.5px; color:#6b7280; margin:4px 2px 0; }
       @media (min-width: 720px) { .bd-hint { display:none; } }
+      /* ===== 휴대폰용 카드 목록 (640px 이하에서 표 대신 표시) ===== */
+      .mb-bar, .mb-list, .help-mo { display:none; }
+      .mb-bar { flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+      .mb-bar .mfbtn { border:1px solid #cbd5e1; background:#fff; color:#111827; border-radius:999px; padding:6px 12px; font-size:13px; font-weight:800; cursor:pointer; }
+      .mb-bar .mfbtn.act { background:#dbe4ff; border-color:#1d4ed8; color:#1d4ed8; }
+      .mb-list { flex-direction:column; gap:10px; }
+      .mb-card { background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:14px; }
+      .mb-card.mine { border:2px solid #16a34a; background:#f0fdf4; }
+      .mb-card.inv { border:2px solid #f59e0b; background:#fefce8; }
+      .mb-card.closed { background:#f8fafc; }
+      .mb-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+      .mb-tags { display:flex; flex-wrap:wrap; gap:6px; }
+      .mb-tag { font-size:13px; font-weight:900; padding:3px 9px; border-radius:6px; background:#f1f5f9; color:#111827; }
+      .mb-tag.k { background:#fef3c7; color:#92400e; }
+      .mb-ago { font-size:12.5px; color:#6b7280; white-space:nowrap; font-weight:700; }
+      .mb-ago.new { color:#dc2626; }
+      .mb-rg { font-size:14px; color:#374151; margin-top:8px; word-break:keep-all; }
+      .mb-seat { display:flex; align-items:center; gap:5px; font-size:13.5px; color:#4b5563; margin-top:6px; font-weight:700; }
+      .mb-dot { width:10px; height:10px; border-radius:50%; border:2px solid #1d4ed8; }
+      .mb-dot.f { background:#1d4ed8; }
+      .mb-card .bd-btn { display:block; width:100%; margin-top:10px; padding:13px 0; font-size:16px; border-radius:8px; }
+      .mb-empty { background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:22px 12px; text-align:center; color:#9ca3af; font-size:13px; word-break:keep-all; }
+      @media (max-width: 640px) {
+        .bd-wrap, .bd-hint, .help-pc { display:none !important; }
+        .mb-bar, .mb-list { display:flex; }
+        .help-mo { display:inline; }
+        .bd-note { border:1px solid #cbd5e1; border-radius:12px; margin-top:10px; }
+      }
       #bd-pop { position:fixed; z-index:99999; background:#fff; border:1px solid #94a3b8; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,.2); width:220px; padding:10px; display:none; font-size:13px; }
       #bd-pop.open { display:block; }
       #bd-pop .pt { font-weight:900; margin:0 0 6px; color:#12387a; }
@@ -180,8 +208,16 @@
                         <h2 class="font-black text-gray-800 text-[15px] border-b-2 border-red-500 pb-1">내 조건에 맞는 요청 <span id="open-count" class="text-red-600">0건</span></h2>
                         <button type="button" id="bd-reset" class="text-[12px] font-bold text-blue-700 underline" style="display:none;">필터·정렬 모두 해제</button>
                     </div>
-                    <p class="text-[12px] text-gray-500 px-1 -mt-2 break-keep">'신청하기'를 누르면 내 프로필이 요청자 화면에 표시됩니다. 한 요청에 3명까지 신청할 수 있고, 다 차면 '마감'됩니다. 표 머리의 ▼를 누르면 엑셀처럼 거르거나 정렬할 수 있습니다.</p>
+                    <p class="text-[12px] text-gray-500 px-1 -mt-2 break-keep">'신청하기'를 누르면 내 프로필이 요청자 화면에 표시됩니다. 한 요청에 3명까지 신청할 수 있고, 다 차면 '마감'됩니다. <span class="help-pc">표 머리의 ▼를 누르면 엑셀처럼 거르거나 정렬할 수 있습니다.</span><span class="help-mo">아래 버튼으로 거르거나 정렬할 수 있습니다.</span></p>
                     <div>
+                        <div class="mb-bar" id="mb-bar">
+                            <button type="button" class="mfbtn" data-col="elapsed">경과시간 ▼</button>
+                            <button type="button" class="mfbtn" data-col="cat">종류 ▼</button>
+                            <button type="button" class="mfbtn" data-col="type">유형 ▼</button>
+                            <button type="button" class="mfbtn" data-col="region">지역 ▼</button>
+                            <button type="button" class="mfbtn" data-col="state">신청 ▼</button>
+                        </div>
+                        <div class="mb-list" id="open-cards"></div>
                         <div class="bd-wrap">
                             <table class="bd" id="board">
                                 <thead>
@@ -656,6 +692,38 @@
         renderBoard();
     }
 
+    // 휴대폰용: 경과시간을 "15분 전" 식으로
+    function agoText(m) {
+        if (m < 60) return m + '분 전';
+        const h = Math.floor(m / 60), r = m % 60;
+        return h + '시간' + (r ? ' ' + r + '분' : '') + ' 전';
+    }
+    // 휴대폰용 카드 목록 (NO·요청시각·신청인원 숫자는 숨기고 경과시간·남은 자리만 표시)
+    function renderCards(rows, btnOf) {
+        const box = document.getElementById('open-cards');
+        if (!boardRows.length) { box.innerHTML = '<div class="mb-empty">아직 도착한 요청이 없습니다.<br>새 요청이 오면 여기에 바로 나타납니다.</div>'; return; }
+        if (!rows.length) { box.innerHTML = '<div class="mb-empty">거른 조건에 맞는 요청이 없습니다.<br>위 버튼에서 조건을 바꾸거나 "필터·정렬 모두 해제"를 누르세요.</div>'; return; }
+        box.innerHTML = rows.map(r => {
+            const state = rowState(r);
+            const remain = Math.max(0, BOARD_MAX - r.offer_count);
+            const m = elapsedMin(r.created_at);
+            let dots = '';
+            for (let i = 0; i < BOARD_MAX; i++) dots += `<span class="mb-dot${i < r.offer_count ? ' f' : ''}"></span>`;
+            const cls = r.id === invitedReqId && !r.my_offer ? 'inv' : (r.my_offer ? 'mine' : (state === '마감' ? 'closed' : ''));
+            const seat = state === '신청완료' ? '<span style="color:#16a34a">내가 신청함 · 요청자 선택 대기 중</span>'
+                       : remain ? `남은 자리 ${remain}명` : '<span style="color:#dc2626">마감 (3명 신청 완료)</span>';
+            return `<div class="mb-card ${cls}">
+                <div class="mb-head">
+                    <div class="mb-tags"><span class="mb-tag k">${escapeHtml(r.cat_label)}</span><span class="mb-tag">${escapeHtml(r.type_label)}</span></div>
+                    <span class="mb-ago${m < 30 ? ' new' : ''}">${agoText(m)}</span>
+                </div>
+                <p class="mb-rg"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${r.id === invitedReqId ? '📩 ' : ''}${escapeHtml(r.region_short) || '-'}</p>
+                <div class="mb-seat">${dots}<span>${seat}</span></div>
+                ${btnOf(r)}
+            </div>`;
+        }).join('');
+    }
+
     function renderBoard() {
         let rows = boardRows.filter(r => Object.keys(boardFilter).every(col => boardFilter[col].has(String(cellValue(r, col)))));
         const { col, dir } = boardSort;
@@ -672,9 +740,23 @@
             b.classList.toggle('act', on);
             b.textContent = boardSort.col === c ? (boardSort.dir === 'asc' ? '▲' : '▼') + (boardFilter[c] ? '·' : '') : (boardFilter[c] ? '▼·' : '▼');
         });
+        document.querySelectorAll('#mb-bar .mfbtn').forEach(b => {
+            const c = b.dataset.col;
+            b.classList.toggle('act', !!boardFilter[c] || boardSort.col === c);
+            b.textContent = COL_TITLE[c].replace('신청', '신청상태') + ' ' + (boardSort.col === c ? (boardSort.dir === 'asc' ? '▲' : '▼') : '▼') + (boardFilter[c] ? '·' : '');
+        });
         document.getElementById('bd-reset').style.display = (Object.keys(boardFilter).length || boardSort.col !== 'no' || boardSort.dir !== 'desc') ? 'inline' : 'none';
 
         const body = document.getElementById('open-list');
+        const canDispatchCard = !!me.can_dispatch && selectedLevel === 'dispatch';
+        renderCards(rows, r => {
+            const state = rowState(r);
+            const offerType = r.service_type === 'phone' ? 'phone' : 'dispatch';
+            if (state === '신청완료') return `<button type="button" class="bd-btn bd-done" onclick="withdrawOffer('${r.id}')">신청완료 (누르면 취소)</button>`;
+            if (state === '마감') return '<button type="button" class="bd-btn bd-closed" disabled>마감</button>';
+            if (offerType === 'dispatch' && !canDispatchCard) return '<button type="button" class="bd-btn bd-closed" disabled>출동 가능 전문가만 신청할 수 있습니다</button>';
+            return `<button type="button" class="bd-btn bd-apply" onclick="offerRequest('${r.id}', '${offerType}')">신청하기</button>`;
+        });
         if (!boardRows.length) { body.innerHTML = '<tr class="bd-empty"><td colspan="9">아직 도착한 요청이 없습니다. 새 요청이 오면 이 표에 바로 나타납니다.</td></tr>'; return; }
         if (!rows.length) { body.innerHTML = '<tr class="bd-empty"><td colspan="9">거른 조건에 맞는 요청이 없습니다. ▼에서 조건을 바꾸거나 "필터·정렬 모두 해제"를 누르세요.</td></tr>'; return; }
         const canDispatchNow = !!me.can_dispatch && selectedLevel === 'dispatch';
@@ -733,7 +815,8 @@
     }
     function clearBoardFilter(col) { delete boardFilter[col]; closeBoardPop(); renderBoard(); }
     document.getElementById('board').addEventListener('click', e => { const b = e.target.closest('.fbtn'); if (b) { e.stopPropagation(); openBoardPop(b.dataset.col, b); } });
-    document.addEventListener('click', e => { if (!e.target.closest('#bd-pop') && !e.target.closest('.fbtn')) closeBoardPop(); });
+    document.getElementById('mb-bar').addEventListener('click', e => { const b = e.target.closest('.mfbtn'); if (b) { e.stopPropagation(); openBoardPop(b.dataset.col, b); } });
+    document.addEventListener('click', e => { if (!e.target.closest('#bd-pop') && !e.target.closest('.fbtn') && !e.target.closest('.mfbtn')) closeBoardPop(); });
     document.getElementById('main-content').addEventListener('scroll', closeBoardPop);
     document.getElementById('bd-reset').addEventListener('click', () => { boardFilter = {}; boardSort = { col: 'no', dir: 'desc' }; renderBoard(); });
     setInterval(() => { if (isStandby && boardRows.length) renderBoard(); }, 30000);   // 경과시간 갱신
