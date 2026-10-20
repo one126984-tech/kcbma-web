@@ -1075,10 +1075,11 @@
   .st-links { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
   .st-links a, .st-links button { display:block; text-align:center; text-decoration:none; font-size:15px; font-weight:900; padding:13px 0; border-radius:12px; cursor:pointer; border:0; }
   .st-board { background:#1e3a8a; color:#fff; }
-  .st-practice { background:linear-gradient(135deg,#7c3aed,#db2777); color:#fff; box-shadow:0 4px 12px rgba(124,58,237,.35); }
-  .st-practice:hover { filter:brightness(1.08); }
-  .st-real { background:#dc2626; color:#fff; box-shadow:0 4px 12px rgba(220,38,38,.3); }
-  .st-real:hover { background:#b91c1c; }
+  /* 연습용 = 노란 바탕(안내 상자와 같은 색), 실전용 = 보라 바탕 */
+  .st-practice { background:#fef3c7; color:#92400e !important; border:1px solid #fcd34d !important; }
+  .st-practice:hover { background:#fde68a; }
+  .st-real { background:linear-gradient(135deg,#7c3aed,#db2777); color:#fff; box-shadow:0 4px 12px rgba(124,58,237,.35); }
+  .st-real:hover { filter:brightness(1.08); }
   #step-box .sub b { color:#dc2626; }
   .st-back { background:#e5e7eb; color:#111827; }
 </style>
