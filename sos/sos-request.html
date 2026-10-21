@@ -1843,11 +1843,13 @@
   .st-links { display:flex; flex-direction:column; gap:10px; margin-top:22px; }
   .st-links a, .st-links button { display:block; text-align:center; text-decoration:none; font-size:15px; font-weight:900; padding:13px 0; border-radius:12px; cursor:pointer; border:0; }
   .st-board { background:#1e3a8a; color:#fff; }
-  /* 연습용 = 노란 바탕(안내 상자와 같은 색), 실전용 = 보라 바탕 */
-  .st-practice { background:#fef3c7; color:#92400e !important; border:1px solid #fcd34d !important; }
-  .st-practice:hover { background:#fde68a; }
-  .st-real { background:linear-gradient(135deg,#7c3aed,#db2777); color:#fff; box-shadow:0 4px 12px rgba(124,58,237,.35); }
-  .st-real:hover { filter:brightness(1.08); }
+  /* 연습용 = 녹색 바탕 (로그인 전 첫 화면에만 보임) */
+  .st-practice { background:#dcfce7; color:#166534 !important; border:1px solid #86efac !important; }
+  .st-practice:hover { background:#bbf7d0; }
+  /* 로그인 전 첫 화면: 단계 목록 없이 안내와 버튼만 */
+  #step-box.guest { padding-top:56px; }
+  #step-box.guest .sub { margin:16px 0 40px; }
+  #step-box.guest .st-links { margin-top:0; gap:28px; }
   #step-box .sub b { color:#dc2626; }
   .st-back { background:#e5e7eb; color:#111827; }
 </style>
@@ -1855,7 +1857,7 @@
   <div id="step-box">
     <h3 id="step-title">어느 위치인가요?</h3>
     <p class="sub" id="step-sub">본인의 레벨을 선택하시고 다음을 누르세요</p>
-    <div class="st-list">
+    <div class="st-list" id="st-list">
       <div class="st-row" id="st-row3" onclick="selectStep(3)"><span class="st-radio" id="st-r3"></span><span class="st-num">3 단계</span><button type="button" class="st-btn st-3" id="st-b3">콜대기 조건 설정하기</button></div>
       <div class="st-up" aria-hidden="true"></div>
       <div class="st-row" id="st-row2" onclick="selectStep(2)"><span class="st-radio" id="st-r2"></span><span class="st-num">2 단계</span><button type="button" class="st-btn st-2" id="st-b2">신상자료 입력하기</button></div>
@@ -1865,7 +1867,6 @@
     <p id="st-status" hidden>확인 중입니다...</p>
     <div class="st-links">
       <a id="st-board-link" class="st-board" href="sos-standby.html" style="display:none;">📋 긴급 SOS 요청현황 바로가기</a>
-      <button type="button" id="st-real-btn" class="st-real" onclick="goRealCall()">🚨 실전용 콜대기 하기</button>
       <button type="button" id="st-practice-btn" class="st-practice" onclick="togglePracticeSteps()">🧪 연습용 콜대기 해보기 (로그인 없이)</button>
       <div class="st-nav">
         <button type="button" id="st-back-btn" class="st-back" onclick="stepBack()">← 뒤로</button>
@@ -1904,13 +1905,6 @@
     const pages = { 1: 'sos-partner-apply.html', 2: 'sos-expert-profile.html', 3: 'sos-expert-scope.html' };
     location.href = pages[i.stage];
   }
-  // 🚨 실전용 콜대기 하기: 로그인 안 했으면 로그인 → 돌아와서 자동으로 내 레벨 화면으로
-  async function goRealCall() {
-    if (stepPractice) { stepPractice = false; }
-    if (!stepInfo) stepInfo = await loadExpertStage();
-    if (!stepInfo.loggedIn) { goLogin('&go=1'); return; }
-    goMyStage();
-  }
   function goSelectedStep() {
     if (!stepPractice && stepInfo && !stepInfo.loggedIn) { goLogin(); return; }
     if (!selectedStep) { alert('단계를 선택한 뒤 다음을 눌러 주세요.'); return; }
@@ -1943,11 +1937,14 @@
   }
   function renderStepModal() {
     const box = document.getElementById('step-box');
+    const guest = !stepPractice && !(stepInfo && stepInfo.loggedIn);   // 로그인 전 첫 화면
     box.classList.toggle('practice', stepPractice);
-    document.getElementById('step-title').textContent = stepPractice ? '[연습] 어느 위치인가요?' : '어느 위치인가요?';
+    box.classList.toggle('guest', guest);
+    document.getElementById('step-title').textContent = stepPractice ? '[연습] 어느 위치인가요?' : (guest ? '실전 콜대기 하려면' : '어느 위치인가요?');
     document.getElementById('step-sub').textContent = '[연습] 아무 단계나 선택하고 다음을 누르세요';
-    document.getElementById('st-real-btn').style.display = stepPractice ? 'none' : 'block';
-    document.getElementById('st-practice-btn').textContent = stepPractice ? '↩ 실제 단계 선택으로 돌아가기' : '🧪 연습용 콜대기 해보기 (로그인 없이)';
+    // 단계 목록은 로그인한 뒤(실전)와 연습에서만, 연습용 버튼은 로그인 전 첫 화면에서만 보임
+    document.getElementById('st-list').style.display = guest ? 'none' : 'block';
+    document.getElementById('st-practice-btn').style.display = guest ? 'block' : 'none';
     const st = document.getElementById('st-status');
     if (stepPractice) {
       [1, 2, 3].forEach(n => {
@@ -1966,7 +1963,7 @@
     if (i.expert && i.done[3]) help = '조건만 고치고 다음을 누르면 콜대기가 시작됩니다';
     else if (i.app && i.done[3]) help = '모두 저장 완료! 승인되면 바로 콜대기할 수 있습니다';
     else if (i.app && !i.expert) help = '승인 전에 ' + i.stage + '단계를 미리 저장해 두세요';
-    if (!i.loggedIn) sub.innerHTML = '<span class="sub-main need">🔒 먼저 로그인하세요</span><span class="sub-help">로그인하면 내 레벨에 자동으로 표시됩니다</span>';
+    if (!i.loggedIn) sub.innerHTML = '<span class="sub-main need">🔒 먼저 로그인하세요</span>';
     else if (i.expert && i.done[3]) sub.innerHTML = '<span class="sub-main lv">현재 당신의 레벨은 <b>3단계 (승인 완료)</b>입니다</span><span class="sub-help">' + help + '</span>';
     else sub.innerHTML = '<span class="sub-main lv">현재 당신의 레벨은 <b>' + i.stage + '단계</b>입니다</span><span class="sub-help">' + help + '</span>';
     const label = n => {
@@ -2006,7 +2003,7 @@
     renderStepModal();
   }
   function closeStepModal() { document.getElementById('step-modal').classList.remove('open'); }
-  function togglePracticeSteps() { if (stepPractice) openStepModal(false); else openStepModal(true); }
+  function togglePracticeSteps() { openStepModal(true); }   // 연습용: 로그인 없이 바로 [연습] 단계 선택으로
   function stepBack() { if (stepPractice) openStepModal(false); else closeStepModal(); }
   function hintStep(n, msg) {
     alert(msg);
