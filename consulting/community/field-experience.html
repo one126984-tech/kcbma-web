@@ -883,7 +883,7 @@
             const container = document.getElementById('post-list-container');
             if (!supabaseClient) return;
             try {
-                const { data, error } = await supabaseClient.from('master_board').select('*').eq('board_type', 'experience').order('likes_count', { ascending: false }).order('created_at', { ascending: false });
+                const { data, error } = await supabaseClient.from('master_board_public').select('*').eq('board_type', 'experience').order('likes_count', { ascending: false }).order('created_at', { ascending: false });
                 if (error) throw error;
                 allPosts = data || [];
                 applyFilters();

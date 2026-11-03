@@ -137,7 +137,7 @@
         async function fetchPostDetail() {
             try {
                 const { data, error } = await supabaseClient
-                    .from('master_board')
+                    .from('master_board_public')
                     .select('*')
                     .eq('id', postId)
                     .single();
@@ -178,13 +178,9 @@
                 return;
             }
 
-            const newLikes = currentLikes + 1;
-
             try {
-                const { error } = await supabaseClient
-                    .from('master_board')
-                    .update({ likes_count: newLikes })
-                    .eq('id', postId);
+                const { data: newLikes, error } = await supabaseClient
+                    .rpc('master_board_like', { p_id: String(postId) });
 
                 if (error) throw error;
 
@@ -207,19 +203,16 @@
             const inputPw = prompt('글을 삭제하려면 작성 시 입력한 비밀번호를 입력해주세요.');
             if (inputPw === null || inputPw.trim() === '') return;
 
-            if (inputPw !== currentPostData.password) {
-                alert('비밀번호가 일치하지 않습니다.');
-                return;
-            }
-
             if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
                 try {
-                    const { error } = await supabaseClient
-                        .from('master_board')
-                        .delete()
-                        .eq('id', postId);
+                    const { data: deleted, error } = await supabaseClient
+                        .rpc('master_board_delete_post', { p_id: String(postId), p_password: inputPw });
 
                     if (error) throw error;
+                    if (!deleted) {
+                        alert('비밀번호가 일치하지 않습니다.');
+                        return;
+                    }
 
                     alert('글이 성공적으로 삭제되었습니다.');
                     location.href = 'field-experience.html';
@@ -230,11 +223,18 @@
             }
         }
 
-        function editPost() {
+        async function editPost() {
             const inputPw = prompt('글을 수정하려면 작성 시 입력한 비밀번호를 입력해주세요.');
             if (inputPw === null || inputPw.trim() === '') return;
 
-            if (inputPw !== currentPostData.password) {
+            const { data: ok, error } = await supabaseClient
+                .rpc('master_board_verify_password', { p_id: String(postId), p_password: inputPw });
+            if (error) {
+                console.error('비밀번호 확인 에러:', error);
+                alert('비밀번호 확인 중 오류가 발생했습니다.');
+                return;
+            }
+            if (!ok) {
                 alert('비밀번호가 일치하지 않습니다.');
                 return;
             }

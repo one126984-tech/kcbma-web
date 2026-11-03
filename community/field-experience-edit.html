@@ -910,7 +910,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
 
-        let originalPassword = '';
 
         document.addEventListener('DOMContentLoaded', async () => {
             if (!postId) {
@@ -921,7 +920,7 @@
 
             try {
                 const { data, error } = await supabaseClient
-                    .from('master_board')
+                    .from('master_board_public')
                     .select('*')
                     .eq('id', postId)
                     .single();
@@ -932,7 +931,6 @@
                 document.getElementById('title').value = data.title;
                 document.getElementById('main_content').value = data.content;
                 document.getElementById('lesson_content').value = data.lesson_content;
-                originalPassword = data.password;
 
                 const fullAuthorStr = data.author_name || '';
                 const match = fullAuthorStr.match(/^\[(.*?)\]\s*(.*)$/);
@@ -956,8 +954,8 @@
             e.preventDefault();
 
             const inputPw = document.getElementById('post_password').value;
-            if (inputPw !== originalPassword) {
-                alert('비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
+            if (inputPw.trim() === '') {
+                alert('비밀번호를 입력해 주세요.');
                 return;
             }
 
@@ -977,18 +975,24 @@
             submitBtn.textContent = '수정 중...';
 
             try {
-                const { error } = await supabaseClient
-                    .from('master_board')
-                    .update({
-                        category: category,
-                        title: title,
-                        content: mainContent,
-                        lesson_content: lessonContent,
-                        author_name: finalAuthorName
-                    })
-                    .eq('id', postId);
+                const { data: updated, error } = await supabaseClient
+                    .rpc('master_board_update_post', {
+                        p_id: String(postId),
+                        p_password: inputPw,
+                        p_category: category,
+                        p_title: title,
+                        p_content: mainContent,
+                        p_lesson_content: lessonContent,
+                        p_author_name: finalAuthorName
+                    });
 
                 if (error) throw error;
+                if (!updated) {
+                    alert('비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '수정 완료하기';
+                    return;
+                }
 
                 alert('게시글이 성공적으로 수정되었습니다.');
 

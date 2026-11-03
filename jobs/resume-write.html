@@ -970,7 +970,7 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
     submitBtn.innerText = '등록 중...';
 
     try {
-        const { data, error } = await supabaseClient.from(DB_TABLE_NAME).insert([postData]).select();
+        const { data, error } = await supabaseClient.from(DB_TABLE_NAME).insert([postData]).select('id');
         if (error) throw error;
         alert('이력서가 성공적으로 등록되었습니다!');
         window.location.href = data[0] && data[0].id ? `resume-detail.html?id=${data[0].id}` : 'resume-list.html';

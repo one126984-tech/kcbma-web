@@ -1361,7 +1361,7 @@
             const tbody = document.getElementById('resume-list-body');
             if (!supabaseClient) return;
             try {
-                const { data, error } = await supabaseClient.from(DB_TABLE_NAME).select('*').eq('board_type', 'RESUME').order('created_at', { ascending: false });
+                const { data, error } = await supabaseClient.from('master_board_public').select('*').eq('board_type', 'RESUME').order('created_at', { ascending: false });
                 if (error) throw error;
                 allResumes = data || [];
                 applyFilters();
@@ -1557,9 +1557,7 @@
 
         // ★ 페이지 이동 시 통신 취소 방지를 위해 async/await 적용
         window.goToResumeDetail = async function(id, currentViews) {
-            if (supabaseClient) {
-                await supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).catch(e=>console.error(e));
-            }
+            // 조회수는 상세 페이지에서 서버 함수(master_board_increment_view)로 1회만 올립니다.
             window.location.href = `resume-detail.html?id=${id}`;
         };
 

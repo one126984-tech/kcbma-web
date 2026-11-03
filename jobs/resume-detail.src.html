@@ -122,7 +122,7 @@
 
             try {
                 const { data, error } = await supabaseClient
-                    .from(DB_TABLE_NAME).select('*').eq('id', resumeId).eq('board_type', 'RESUME').single();
+                    .from('master_board_public').select('*').eq('id', resumeId).eq('board_type', 'RESUME').single();
 
                 if (error) throw error;
                 if (!data) throw new Error('Data not found');
@@ -130,8 +130,8 @@
                 renderResumeDetail(data);
 
                 // ★ view_count로 명칭 통합
-                supabaseClient.from(DB_TABLE_NAME).update({ view_count: (data.view_count || 0) + 1 })
-                    .eq('id', resumeId).then(() => {}).catch(e => console.error('조회수 업데이트 실패:', e));
+                supabaseClient.rpc('master_board_increment_view', { p_id: String(resumeId) })
+                    .then(({ error }) => { if (error) console.error('조회수 업데이트 실패:', error); });
 
             } catch (error) { console.error(error); renderMockData(); }
         }
