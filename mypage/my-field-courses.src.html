@@ -150,15 +150,15 @@
 
         function reviewBadge(rs) {
             const status = rs || '심사중';
-            return `<span class="rs-badge rs-${status}">${status}</span>`;
+            return `<span class="rs-badge rs-${KC.esc(status)}">${KC.esc(status)}</span>`;
         }
 
         function actionButton(item) {
             const rs = item.review_status || '심사중';
             if (rs === '승인') {
-                return `<button onclick="location.href='../cert/edu-field-detail.html?id=${item.id}'" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">게시글 보기</button>`;
+                return `<button onclick="location.href='../cert/edu-field-detail.html?id=${KC.esc(item.id)}'" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">게시글 보기</button>`;
             }
-            return `<button onclick="location.href='../cert/edu-field-write.html?id=${item.id}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>수정 후 재제출</button>`;
+            return `<button onclick="location.href='../cert/edu-field-write.html?id=${KC.esc(item.id)}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>수정 후 재제출</button>`;
         }
 
         function renderList() {
@@ -186,9 +186,9 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-2">
                                     ${reviewBadge(rs)}
-                                    <span class="text-[12px] text-gray-500 font-medium">${item.category || '-'} · ${item.region || '-'}</span>
+                                    <span class="text-[12px] text-gray-500 font-medium">${KC.esc(item.category || '-')} · ${KC.esc(item.region || '-')}</span>
                                 </div>
-                                <div class="font-bold text-[16px] text-[#0B2A5B] mb-2 truncate">${item.title || '-'}</div>
+                                <div class="font-bold text-[16px] text-[#0B2A5B] mb-2 truncate">${KC.esc(item.title || '-')}</div>
                                 <div class="flex flex-wrap items-center gap-2 md:gap-4 text-[12.5px] text-gray-500">
                                     <span>교육일자 ${formatDate(item.edu_date)}</span>
                                     <span>신청일 ${formatDate(item.created_at)}</span>

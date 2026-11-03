@@ -450,7 +450,7 @@
             includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             tags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             if(manualInput) manualInput.placeholder = tags.length > 0 ? "" : "제목, 이름, 지역 등 포함할 단어 입력 후 엔터";
@@ -475,7 +475,7 @@
             excludeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             excludeTags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip !bg-red-100 !text-red-700'; 
-                chip.innerHTML = `${word} <span class="tag-remove hover:!text-red-900" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
                 excludeContainer.insertBefore(chip, manualExcludeInput);
             });
             if(manualExcludeInput) manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
@@ -599,7 +599,8 @@
             const tbody = document.getElementById('resume-list-body');
             if (!supabaseClient) return;
             try {
-                const { data, error } = await supabaseClient.from('master_board_public').select('*').eq('board_type', 'RESUME').order('created_at', { ascending: false });
+                // 이력서는 서버 함수로 조회 (비로그인이면 연락처 제외·이름 가림)
+                const { data, error } = await supabaseClient.rpc('resume_list');
                 if (error) throw error;
                 allResumes = data || [];
                 applyFilters();
@@ -765,12 +766,12 @@
                 tr.innerHTML = `
                     <td class="text-center text-gray-500">${filteredResumes.length - startIndex - i}</td>
                     <td class="text-center">${badge}</td>
-                    <td class="text-left pl-4 font-bold ${tClass} hover:underline">${title}</td>
-                    <td class="text-center">${category}</td>
-                    <td class="text-center">${shortRegion}</td>
-                    <td class="text-center text-gray-600">${exp}</td>
+                    <td class="text-left pl-4 font-bold ${tClass} hover:underline">${KC.esc(title)}</td>
+                    <td class="text-center">${KC.esc(category)}</td>
+                    <td class="text-center">${KC.esc(shortRegion)}</td>
+                    <td class="text-center text-gray-600">${KC.esc(exp)}</td>
                     <td class="text-center text-[13px]">${formatSalary(salary, resume.id)}</td>
-                    <td class="text-center text-[13.5px] font-bold text-gray-700">${immediateStart}</td>
+                    <td class="text-center text-[13.5px] font-bold text-gray-700">${KC.esc(immediateStart)}</td>
                     <td class="text-center">${displayViews}</td>
                 `;
                 tbody.appendChild(tr);

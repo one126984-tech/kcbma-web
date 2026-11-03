@@ -133,7 +133,7 @@
                 '취소됨': 'bg-gray-100 text-gray-500'
             };
             const cls = map[s] || 'bg-gray-100 text-gray-500';
-            return `<span class="${cls} px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap">${s}</span>`;
+            return `<span class="${cls} px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap">${KC.esc(s)}</span>`;
         }
 
         function escapeHtml(str) {
@@ -183,7 +183,7 @@
                         <div class="text-[13px] text-gray-500 truncate">${escapeHtml(r.region) || '-'} · ${escapeHtml(r.contact_phone) || '-'}</div>
                         ${feeLine(r)}
                     </div>
-                    <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${r.id}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
+                    <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${KC.esc(r.id)}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
                 </div>
             `).join('');
         }

@@ -615,7 +615,7 @@
         document.getElementById('q-sum-phone').innerText = savedProfile.phone || '';
         const chips = document.getElementById('q-place-chips');
         chips.innerHTML = savedProfile.places.length > 1
-            ? savedProfile.places.map(p => `<button type="button" class="place-chip ${p.key === pl.key ? 'on' : ''}" onclick="renderQuickPlace('${p.key}')">${p.label}</button>`).join('')
+            ? savedProfile.places.map(p => `<button type="button" class="place-chip ${p.key === pl.key ? 'on' : ''}" onclick="renderQuickPlace('${KC.esc(p.key)}')">${KC.esc(p.label)}</button>`).join('')
             : '';
     }
 

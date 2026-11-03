@@ -425,7 +425,7 @@
         const one = (k, title) => {
             const v = sc[k]; if (!v || !v.on) return '';
             const t = v.all_day ? '24시간' : (v.times || []).map(x => `${x.from}~${x.to}`).join(', ');
-            return `<p><b>${title}</b> ${escapeHtml((v.regions || []).join(', '))} · ${escapeHtml(t)}</p>`;
+            return `<p><b>${KC.esc(title)}</b> ${escapeHtml((v.regions || []).join(', '))} · ${escapeHtml(t)}</p>`;
         };
         html += one('phone', '📞 전화상담') + one('dispatch', '🚚 출동서비스');
         if (sc.dispatch && sc.dispatch.on && !me.can_dispatch) html += '<p style="color:#b45309;font-weight:800;margin-top:6px;">출동서비스는 운영진의 출동 자격 승인 후 적용됩니다. 지금은 전화상담으로 대기합니다.</p>';
@@ -769,10 +769,10 @@
         renderCards(rows, r => {
             const state = rowState(r);
             const offerType = r.service_type === 'phone' ? 'phone' : 'dispatch';
-            if (state === '신청완료') return `<button type="button" class="bd-btn bd-done" onclick="withdrawOffer('${r.id}')">신청완료 (누르면 취소)</button>`;
+            if (state === '신청완료') return `<button type="button" class="bd-btn bd-done" onclick="withdrawOffer('${KC.esc(r.id)}')">신청완료 (누르면 취소)</button>`;
             if (state === '마감') return '<button type="button" class="bd-btn bd-closed" disabled>마감</button>';
             if (offerType === 'dispatch' && !canDispatchCard) return '<button type="button" class="bd-btn bd-closed" disabled>출동 가능 전문가만 신청할 수 있습니다</button>';
-            return `<button type="button" class="bd-btn bd-apply" onclick="offerRequest('${r.id}', '${offerType}')">신청하기</button>`;
+            return `<button type="button" class="bd-btn bd-apply" onclick="offerRequest('${KC.esc(r.id)}', '${offerType}')">신청하기</button>`;
         });
         if (!boardRows.length) { body.innerHTML = '<tr class="bd-empty"><td colspan="9">아직 도착한 요청이 없습니다. 새 요청이 오면 이 표에 바로 나타납니다.</td></tr>'; return; }
         if (!rows.length) { body.innerHTML = '<tr class="bd-empty"><td colspan="9">거른 조건에 맞는 요청이 없습니다. ▼에서 조건을 바꾸거나 "필터·정렬 모두 해제"를 누르세요.</td></tr>'; return; }
@@ -781,20 +781,20 @@
             const state = rowState(r);
             const offerType = r.service_type === 'phone' ? 'phone' : 'dispatch';
             let btn;
-            if (state === '신청완료') btn = `<button type="button" class="bd-btn bd-done" onclick="withdrawOffer('${r.id}')" title="누르면 신청을 취소합니다">신청완료</button>`;
+            if (state === '신청완료') btn = `<button type="button" class="bd-btn bd-done" onclick="withdrawOffer('${KC.esc(r.id)}')" title="누르면 신청을 취소합니다">신청완료</button>`;
             else if (state === '마감') btn = '<button type="button" class="bd-btn bd-closed" disabled>마 감</button>';
             else if (offerType === 'dispatch' && !canDispatchNow) btn = '<button type="button" class="bd-btn bd-closed" disabled title="출동 가능 전문가만 신청할 수 있습니다">출동불가</button>';
-            else btn = `<button type="button" class="bd-btn bd-apply" onclick="offerRequest('${r.id}', '${offerType}')">신청하기</button>`;
+            else btn = `<button type="button" class="bd-btn bd-apply" onclick="offerRequest('${KC.esc(r.id)}', '${offerType}')">신청하기</button>`;
             const remain = Math.max(0, BOARD_MAX - r.offer_count);
             const cls = r.id === invitedReqId && !r.my_offer ? 'inv' : (r.my_offer ? 'mine' : '');
             return `<tr class="${cls}">
-                <td class="num">${r.req_no || '-'}</td>
+                <td class="num">${KC.esc(r.req_no || '-')}</td>
                 <td>${escapeHtml(r.cat_label)}</td>
                 <td>${escapeHtml(r.type_label)}</td>
                 <td class="tm">${hhmm(r.created_at)}</td>
                 <td class="tm">${elapsedText(elapsedMin(r.created_at))}</td>
                 <td class="rg" title="${escapeHtml(r.region_short || '')}">${r.id === invitedReqId ? '📩 ' : ''}${escapeHtml(r.region_short) || '-'}</td>
-                <td class="num">${r.offer_count}</td>
+                <td class="num">${KC.esc(r.offer_count)}</td>
                 <td class="num" style="color:${remain ? '#111827' : '#dc2626'}">${remain}</td>
                 <td>${btn}</td>
             </tr>`;
@@ -899,7 +899,7 @@
                 <div class="mt-3 pt-3 border-t border-blue-200">
                     <p class="text-[12px] font-bold text-gray-700 mb-2">요청자와 통화가 연결되었나요? <span class="text-gray-400 font-normal">(${callDone ? '통화 연결됨으로 표시됨' : '아직 표시하지 않음'})</span></p>
                     <div class="flex gap-2">
-                        <button onclick="markCall('${r.id}', true)" class="flex-1 font-bold text-[13px] py-2.5 rounded-lg border-2 ${callDone ? 'bg-green-600 text-white border-green-600' : 'bg-white text-green-700 border-green-300 hover:bg-green-50'}">통화 연결됨</button>
+                        <button onclick="markCall('${KC.esc(r.id)}', true)" class="flex-1 font-bold text-[13px] py-2.5 rounded-lg border-2 ${callDone ? 'bg-green-600 text-white border-green-600' : 'bg-white text-green-700 border-green-300 hover:bg-green-50'}">통화 연결됨</button>
                         ${callDone ? `<button onclick="markCall('${r.id}', false)" class="font-bold text-[13px] px-4 py-2.5 rounded-lg border-2 bg-white text-gray-600 border-gray-300 hover:bg-gray-50">표시 취소</button>` : ''}
                     </div>
                 </div>`;
@@ -908,8 +908,8 @@
                 <div class="mt-3 pt-3 border-t border-blue-200">
                     <p class="text-[12px] font-bold text-gray-700 mb-2">실제로 현장 조치/출동하셨나요?</p>
                     <div class="flex gap-2">
-                        <button onclick="markDispatched('${r.id}', true)" class="flex-1 text-[13px] font-bold py-2.5 rounded-lg border-2 ${r.expert_dispatched === true ? 'bg-red-600 text-white border-red-600' : 'bg-white text-red-600 border-red-300 hover:bg-red-50'} transition">조치 완료</button>
-                        <button onclick="markDispatched('${r.id}', false)" class="flex-1 text-[13px] font-bold py-2.5 rounded-lg border-2 ${r.expert_dispatched === false ? 'bg-gray-700 text-white border-gray-700' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'} transition">조치 못함</button>
+                        <button onclick="markDispatched('${KC.esc(r.id)}', true)" class="flex-1 text-[13px] font-bold py-2.5 rounded-lg border-2 ${r.expert_dispatched === true ? 'bg-red-600 text-white border-red-600' : 'bg-white text-red-600 border-red-300 hover:bg-red-50'} transition">조치 완료</button>
+                        <button onclick="markDispatched('${KC.esc(r.id)}', false)" class="flex-1 text-[13px] font-bold py-2.5 rounded-lg border-2 ${r.expert_dispatched === false ? 'bg-gray-700 text-white border-gray-700' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'} transition">조치 못함</button>
                     </div>
                 </div>` : '';
 

@@ -11,6 +11,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>내 현장교육 신청내역 | 대한집합건물관리협회</title>
 
+<script>
+    /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
+       <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
+    window.KC = window.KC || {};
+    KC.esc = KC.esc || function (v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+</script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -913,15 +923,15 @@
 
         function reviewBadge(rs) {
             const status = rs || '심사중';
-            return `<span class="rs-badge rs-${status}">${status}</span>`;
+            return `<span class="rs-badge rs-${KC.esc(status)}">${KC.esc(status)}</span>`;
         }
 
         function actionButton(item) {
             const rs = item.review_status || '심사중';
             if (rs === '승인') {
-                return `<button onclick="location.href='../cert/edu-field-detail.html?id=${item.id}'" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">게시글 보기</button>`;
+                return `<button onclick="location.href='../cert/edu-field-detail.html?id=${KC.esc(item.id)}'" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap">게시글 보기</button>`;
             }
-            return `<button onclick="location.href='../cert/edu-field-write.html?id=${item.id}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>수정 후 재제출</button>`;
+            return `<button onclick="location.href='../cert/edu-field-write.html?id=${KC.esc(item.id)}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-pen mr-1"></i>수정 후 재제출</button>`;
         }
 
         function renderList() {
@@ -949,9 +959,9 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-2">
                                     ${reviewBadge(rs)}
-                                    <span class="text-[12px] text-gray-500 font-medium">${item.category || '-'} · ${item.region || '-'}</span>
+                                    <span class="text-[12px] text-gray-500 font-medium">${KC.esc(item.category || '-')} · ${KC.esc(item.region || '-')}</span>
                                 </div>
-                                <div class="font-bold text-[16px] text-[#0B2A5B] mb-2 truncate">${item.title || '-'}</div>
+                                <div class="font-bold text-[16px] text-[#0B2A5B] mb-2 truncate">${KC.esc(item.title || '-')}</div>
                                 <div class="flex flex-wrap items-center gap-2 md:gap-4 text-[12.5px] text-gray-500">
                                     <span>교육일자 ${formatDate(item.edu_date)}</span>
                                     <span>신청일 ${formatDate(item.created_at)}</span>

@@ -6,6 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>긴급 SOS 매칭 현황 | 대한집합건물관리협회</title>
 
+<script>
+    /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
+       <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
+    window.KC = window.KC || {};
+    KC.esc = KC.esc || function (v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+</script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -1582,12 +1592,12 @@
                     <p class="truncate"><i class="fa-solid fa-location-dot w-3 text-center text-gray-400 mr-1"></i> ${escapeHtml(region)}</p>
                     <p class="truncate"><i class="fa-solid ${levelIcon} w-3 text-center mr-1"></i> ${levelHtml}</p>
                     <p class="truncate font-bold text-gray-700">${contactLabel(expert.id)}</p>
-                    <p class="truncate"><i class="fa-regular fa-clock w-3 text-center text-gray-400 mr-1"></i> ${hours}</p>
+                    <p class="truncate"><i class="fa-regular fa-clock w-3 text-center text-gray-400 mr-1"></i> ${KC.esc(hours)}</p>
                     <p class="truncate"><i class="fa-solid fa-camera w-3 text-center text-gray-400 mr-1"></i> ${photoHtml}</p>
                     <div class="pt-1.5 border-t border-gray-200 mt-1 text-[10px] text-center text-gray-500 font-bold">★ ${rating} | ${cases}건</div>
                 </div>
-                <button type="button" onclick="openExpertDetail('${expert.id}')" class="detail-link">전문가 상세 소개 보기 ›</button>
-                <button onclick="requestExpert('${expert.id}')" class="pick-btn pick-btn-blue">전화번호 보기</button>
+                <button type="button" onclick="openExpertDetail('${KC.esc(expert.id)}')" class="detail-link">전문가 상세 소개 보기 ›</button>
+                <button onclick="requestExpert('${KC.esc(expert.id)}')" class="pick-btn pick-btn-blue">전화번호 보기</button>
             `;
             grid.appendChild(card);
         });
@@ -1645,13 +1655,13 @@
         const live = isLive(e.id);
         const stateChip = live
             ? `<span class="chip chip-live">🟢 ${minsAgo(p.last_checkin_at)} 대기 확인</span>`
-            : `<span class="chip chip-timed">⚪ 대기 시간 등록 · ${hours}</span>`;
+            : `<span class="chip chip-timed">⚪ 대기 시간 등록 · ${KC.esc(hours)}</span>`;
         let inviteHtml;
         if (p.invited_at) {
             inviteHtml = `<div class="invite-sent">📩 콜 문자 보냄 · ${minsAgo(p.invited_at)}<br>응답 기다리는 중</div>`;
         } else {
             const on = inviteChecked.has(e.id);
-            inviteHtml = `<label class="invite-chk"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${e.id}', this)" style="width:16px;height:16px;"> 콜 문자 보내기</label>`;
+            inviteHtml = `<label class="invite-chk"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)" style="width:16px;height:16px;"> 콜 문자 보내기</label>`;
         }
         const card = document.createElement('div');
         card.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-col items-center text-center shadow-sm relative overflow-hidden';
@@ -1667,12 +1677,12 @@
                 <p class="truncate"><i class="fa-solid fa-location-dot w-3 text-center text-gray-400 mr-1"></i> ${escapeHtml(region)}</p>
                 <p class="truncate"><i class="fa-solid ${canDispatch ? 'fa-truck-fast text-red-500' : 'fa-phone text-blue-500'} w-3 text-center mr-1"></i> ${canDispatch ? '<span class="text-red-600 font-bold">전화+출동 가능</span>' : '<span class="text-blue-600 font-bold">전화상담 가능</span>'}</p>
                 <p class="truncate font-bold text-gray-700">${contactLabel(e.id)}</p>
-                <p class="truncate"><i class="fa-regular fa-clock w-3 text-center text-gray-400 mr-1"></i> ${hours}</p>
-                <div class="pt-1.5 border-t border-gray-200 mt-1 text-[10px] text-center text-gray-500 font-bold">★ ${rating} | ${e.total_cases || 0}건</div>
+                <p class="truncate"><i class="fa-regular fa-clock w-3 text-center text-gray-400 mr-1"></i> ${KC.esc(hours)}</p>
+                <div class="pt-1.5 border-t border-gray-200 mt-1 text-[10px] text-center text-gray-500 font-bold">★ ${rating} | ${KC.esc(e.total_cases || 0)}건</div>
             </div>
             ${inviteHtml}
-            <button type="button" onclick="openExpertDetail('${e.id}')" class="detail-link">전문가 상세 소개 보기 ›</button>
-            <button onclick="requestRegisteredExpert('${e.id}')" class="pick-btn pick-btn-green">전화번호 보기</button>
+            <button type="button" onclick="openExpertDetail('${KC.esc(e.id)}')" class="detail-link">전문가 상세 소개 보기 ›</button>
+            <button onclick="requestRegisteredExpert('${KC.esc(e.id)}')" class="pick-btn pick-btn-green">전화번호 보기</button>
         `;
         return card;
     }

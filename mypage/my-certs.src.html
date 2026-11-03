@@ -256,7 +256,7 @@
                     ? `<div class="cert-row"><span class="label">발급일</span><span class="value">${formatDate(cert.issued_at)}</span></div>`
                     : `<div class="cert-row"><span class="label">신청일</span><span class="value">${formatDate(cert.created_at)}</span></div>`;
                 const numberRow = cert.status === 'ISSUED'
-                    ? `<div class="cert-row"><span class="label">자격증번호</span><span class="value font-mono">${cert.cert_number || '-'}</span></div>`
+                    ? `<div class="cert-row"><span class="label">자격증번호</span><span class="value font-mono">${KC.esc(cert.cert_number || '-')}</span></div>`
                     : `<div class="cert-row"><span class="label">발급비</span><span class="value">${(cert.payment_amount || 250000).toLocaleString()}원</span></div>`;
                 const footerHtml = cert.status === 'ISSUED' ? `
                     <a href="../cert/cert-verify.html" class="flex-1 text-center bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 rounded-lg transition-colors">
@@ -277,12 +277,12 @@
                             <div class="cert-emblem"><i class="fas ${emblemIcon}"></i></div>
                             <div>
                                 <div class="cert-org-name">대한집합건물관리협회 공식 인증</div>
-                                <div class="cert-title">${cert.cert_name || course.title || '-'}</div>
+                                <div class="cert-title">${KC.esc(cert.cert_name || course.title || '-')}</div>
                             </div>
                         </div>
                         <div class="cert-card-body">
                             ${numberRow}
-                            <div class="cert-row"><span class="label">취득자명</span><span class="value">${cert.holder_name || '-'}</span></div>
+                            <div class="cert-row"><span class="label">취득자명</span><span class="value">${KC.esc(cert.holder_name || '-')}</span></div>
                             ${dateRow}
                             <div class="cert-row"><span class="label">상태</span><span class="value">${statusBadge(cert.status)}</span></div>
                         </div>

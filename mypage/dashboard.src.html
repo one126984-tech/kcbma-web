@@ -244,7 +244,7 @@
                 return `
                     <div class="course-row">
                         <div class="flex-1 min-w-0">
-                            <div class="font-bold text-[15px] text-[#0B2A5B] mb-2 truncate">${course.title || '-'}</div>
+                            <div class="font-bold text-[15px] text-[#0B2A5B] mb-2 truncate">${KC.esc(course.title || '-')}</div>
                             <div class="progress-bar-bg">
                                 <div class="progress-bar-fill" style="width:${rate}%;"></div>
                             </div>
@@ -253,7 +253,7 @@
                                 <span class="text-[12.5px] font-bold text-[#12387a]">${rate}%</span>
                             </div>
                         </div>
-                        <button onclick="location.href='../cert/cert-player.html?enrollment_id=${e.id}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-4 rounded transition-colors whitespace-nowrap">이어서 학습하기</button>
+                        <button onclick="location.href='../cert/cert-player.html?enrollment_id=${KC.esc(e.id)}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-4 rounded transition-colors whitespace-nowrap">이어서 학습하기</button>
                     </div>
                 `;
             }).join('');

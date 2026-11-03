@@ -839,7 +839,7 @@
                     <td class="text-center font-bold text-[#12387a]">${KC.esc(salary)}</td>
                     <td class="text-center text-gray-500 text-[13px]">${KC.esc(workType)}</td>
                     <td class="text-center text-[13px]">${period}</td>
-                    <td class="text-center text-[14px] ${ddayInfo.color}">${ddayInfo.text}</td>
+                    <td class="text-center text-[14px] ${KC.esc(ddayInfo.color)}">${KC.esc(ddayInfo.text)}</td>
                     <td class="text-center">${views}</td>
                 `;
                 tbody.appendChild(tr);

@@ -186,7 +186,7 @@
             if (!s || !s.on) return '';
             const regions = (s.regions || []).join(', ') || '-';
             const times = s.all_day ? '24시간' : (s.times || []).map(t => `${t.from}~${t.to}`).join(', ');
-            return `<p class="vw-row"><b>${title}</b><br>지역: ${esc(regions)}<br>시간: ${esc(times || '-')}</p>`;
+            return `<p class="vw-row"><b>${KC.esc(title)}</b><br>지역: ${esc(regions)}<br>시간: ${esc(times || '-')}</p>`;
         };
         return one('phone', '📞 전화상담') + one('dispatch', '🚚 출동서비스');
     }
@@ -226,7 +226,7 @@
     function renderCats() {
         document.getElementById('cat-grid').innerHTML = CATS.map(c => {
             const i = selectedCats.indexOf(c.key);
-            return `<button type="button" class="cat-btn ${i > -1 ? 'on' : ''}" data-cat="${c.key}">${i > -1 ? `<span class="rank r${i + 1}">${i + 1}순위</span>` : ''}${c.label}</button>`;
+            return `<button type="button" class="cat-btn ${i > -1 ? 'on' : ''}" data-cat="${KC.esc(c.key)}">${i > -1 ? `<span class="rank r${i + 1}">${i + 1}순위</span>` : ''}${KC.esc(c.label)}</button>`;
         }).join('');
         document.getElementById('pf-cat-other').classList.toggle('hidden', !selectedCats.includes('기타'));
     }

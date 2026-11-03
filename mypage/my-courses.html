@@ -9,6 +9,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>내 수강 목록 | 대한집합건물관리협회</title>
 
+<script>
+    /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
+       <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
+    window.KC = window.KC || {};
+    KC.esc = KC.esc || function (v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+</script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -1089,7 +1099,7 @@
             const courseId = course.id;
             const certPrice = (course.cert_price !== undefined && course.cert_price !== null) ? course.cert_price : CERT_PAYMENT_ACCOUNT.amount;
             if (e.status === 'ACTIVE') {
-                return `<button onclick="location.href='../cert/cert-player.html?enrollment_id=${e.id}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-play mr-1"></i>학습하기</button>`;
+                return `<button onclick="location.href='../cert/cert-player.html?enrollment_id=${KC.esc(e.id)}'" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded-lg transition-colors whitespace-nowrap"><i class="fas fa-play mr-1"></i>학습하기</button>`;
             }
             if (e.status === 'COMPLETED') {
                 const cert = certificateByCourse[courseId];
@@ -1099,7 +1109,7 @@
                             <span class="pay-badge-issued text-[12.5px] font-bold px-3 py-1.5 rounded whitespace-nowrap">
                                 <i class="fas fa-certificate mr-1"></i>자격증 발급 완료
                             </span>
-                            <span class="text-[11.5px] text-gray-500 whitespace-nowrap">번호: ${cert.cert_number || '-'}</span>
+                            <span class="text-[11.5px] text-gray-500 whitespace-nowrap">번호: ${KC.esc(cert.cert_number || '-')}</span>
                             <a href="../cert/cert-verify.html" class="text-[12px] text-[#12387a] font-bold underline whitespace-nowrap">진위확인 페이지</a>
                         </div>
                     `;
@@ -1120,7 +1130,7 @@
                             <span class="pay-badge-pending text-[12.5px] font-bold px-3 py-1.5 rounded whitespace-nowrap">
                                 <i class="fas fa-clock mr-1"></i>입금 확인 대기 중
                             </span>
-                            <span class="text-[11px] text-gray-400 whitespace-nowrap">입금자명: ${cert.depositor_name || '-'}</span>
+                            <span class="text-[11px] text-gray-400 whitespace-nowrap">입금자명: ${KC.esc(cert.depositor_name || '-')}</span>
                         </div>
                     `;
                 }
@@ -1131,7 +1141,7 @@
                                 <i class="fas fa-award mr-1"></i>자격증 발급 신청 (${certPrice.toLocaleString()}원)
                             </button>
                             <div class="cert-account-mini text-right">
-                                <b>${CERT_PAYMENT_ACCOUNT.bank} ${CERT_PAYMENT_ACCOUNT.number}</b><br>예금주: ${CERT_PAYMENT_ACCOUNT.holder}
+                                <b>${KC.esc(CERT_PAYMENT_ACCOUNT.bank)} ${KC.esc(CERT_PAYMENT_ACCOUNT.number)}</b><br>예금주: ${KC.esc(CERT_PAYMENT_ACCOUNT.holder)}
                             </div>
                         </div>
                     `;
@@ -1174,9 +1184,9 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-2">
                                 ${statusBadge(e.status)}
-                                <span class="text-[12px] text-gray-500 font-medium">${course.category || '-'}</span>
+                                <span class="text-[12px] text-gray-500 font-medium">${KC.esc(course.category || '-')}</span>
                             </div>
-                            <div class="font-bold text-[16px] text-[#0B2A5B] mb-3 truncate">${course.title || '-'}</div>
+                            <div class="font-bold text-[16px] text-[#0B2A5B] mb-3 truncate">${KC.esc(course.title || '-')}</div>
                             <div class="progress-bar-bg mb-2">
                                 <div class="progress-bar-fill" style="width:${rate}%;"></div>
                             </div>

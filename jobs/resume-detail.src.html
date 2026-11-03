@@ -121,8 +121,8 @@
             if (!resumeId || !supabaseClient) { renderMockData(); return; }
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('master_board_public').select('*').eq('id', resumeId).eq('board_type', 'RESUME').single();
+                // 이력서는 서버 함수로 조회 (비로그인이면 연락처 제외·이름 가림)
+                const { data, error } = await supabaseClient.rpc('resume_get', { p_id: String(resumeId) });
 
                 if (error) throw error;
                 if (!data) throw new Error('Data not found');
@@ -157,12 +157,18 @@
 
             document.getElementById('resume-title').innerText = data.title || '-';
             document.getElementById('resume-job-category').innerText = cData.job_category || '-';
-            document.getElementById('resume-region').innerText = cData.address || cData.address_short || '-';
+            document.getElementById('resume-region').innerText = cData.address_short || cData.address || '-';
             document.getElementById('resume-views').innerText = getDisplayViews(data);
 
             const btnCall = document.getElementById('btn-call');
-            if (cData.phone) {
-                if (cData.phone_display === 'exposed') { btnCall.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${cData.phone}`; } 
+            const goLogin = () => { try { localStorage.setItem('returnUrl', location.pathname + location.search); } catch (e) {} location.href = '/login.html'; };
+            if (cData.contact_locked) {
+                // 비로그인: 연락처는 회원에게만 공개
+                btnCall.innerHTML = '<i class="fas fa-lock mr-2"></i> 로그인하면 연락처 보기';
+                btnCall.removeAttribute('href'); btnCall.style.backgroundColor = '#12387a'; btnCall.style.cursor = 'pointer';
+                btnCall.onclick = goLogin;
+            } else if (cData.phone) {
+                if (cData.phone_display === 'exposed') { btnCall.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${KC.esc(cData.phone)}`; } 
                 else { btnCall.innerHTML = '<i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭'; }
                 btnCall.href = `tel:${cData.phone}`; btnCall.style.backgroundColor = '#12387a'; btnCall.style.cursor = 'pointer';
             } else {
@@ -171,8 +177,8 @@
             }
 
             document.getElementById('info-name').innerText = cData.name || '-';
-            document.getElementById('info-email').innerText = cData.email || '-';
-            document.getElementById('info-address').innerText = cData.address || '-';
+            document.getElementById('info-email').innerText = cData.contact_locked ? '로그인 후 확인' : (cData.email || '-');
+            document.getElementById('info-address').innerText = cData.contact_locked ? (cData.address_short || '로그인 후 확인') : (cData.address || '-');
             document.getElementById('info-employment-type').innerText = cData.employment_type || '무관';
             document.getElementById('info-salary').innerText = cData.desired_salary || '-';
             document.getElementById('info-experience').innerText = cData.experience || '-';

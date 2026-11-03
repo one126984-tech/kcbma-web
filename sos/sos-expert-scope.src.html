@@ -238,7 +238,7 @@
         const cats = draft.cats || [];
         document.getElementById('cat-grid').innerHTML = CATS.map(c => {
             const i = cats.indexOf(c.key);
-            return `<button type="button" class="cat-btn ${i > -1 ? 'on' : ''}" data-cat="${c.key}">${i > -1 ? `<span class="rank r${i + 1}">${i + 1}순위</span>` : ''}${c.label}</button>`;
+            return `<button type="button" class="cat-btn ${i > -1 ? 'on' : ''}" data-cat="${KC.esc(c.key)}">${i > -1 ? `<span class="rank r${i + 1}">${i + 1}순위</span>` : ''}${KC.esc(c.label)}</button>`;
         }).join('');
     }
     document.getElementById('cat-grid').addEventListener('click', e => {
@@ -393,9 +393,9 @@
         document.getElementById('tm-add').classList.toggle('tm-off', mdAllDay);
         box.innerHTML = mdTimes.map((t, i) => `
             <div class="tm-row">
-                <input type="time" class="tm-from" value="${t.from || ''}" aria-label="시작 시간">
+                <input type="time" class="tm-from" value="${KC.esc(t.from || '')}" aria-label="시작 시간">
                 <span style="color:#9ca3af;font-weight:900;">~</span>
-                <input type="time" class="tm-to" value="${t.to || ''}" aria-label="종료 시간">
+                <input type="time" class="tm-to" value="${KC.esc(t.to || '')}" aria-label="종료 시간">
                 ${mdTimes.length > 1 ? `<button type="button" onclick="removeTime(${i})">삭제</button>` : ''}
             </div>`).join('');
     }
