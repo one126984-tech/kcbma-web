@@ -892,7 +892,7 @@
 
             const { data, error } = await supabaseClient
                 .from('management_biddings')
-                .select('*')
+                .select('id, title, location, building_summary, status, unlock_fee, created_at')
                 .eq('id', biddingId)
                 .single();
 
@@ -904,10 +904,16 @@
             document.getElementById('detail-status').innerText = data.status;
             document.getElementById('detail-title').innerText = data.title;
             document.getElementById('detail-summary').innerText = data.building_summary;
-            document.getElementById('detail-contact').innerText = `${data.contact_person} (${data.contact_phone})`;
-
-            let formattedProposal = KC.esc(data.detailed_proposal || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-            document.getElementById('detail-proposal').innerHTML = formattedProposal;
+            // 연락처·상세 제안은 결제(열람) 기록이 있는 회원에게만 서버가 내줌
+            const { data: priv } = await supabaseClient.rpc('get_private_info', { p_kind: 'bidding', p_id: String(biddingId) });
+            if (priv) {
+                document.getElementById('detail-contact').innerText = `${priv.contact_person || '-'} (${priv.contact_phone || '-'})`;
+                let formattedProposal = KC.esc(priv.detailed_proposal || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+                document.getElementById('detail-proposal').innerHTML = formattedProposal;
+            } else {
+                document.getElementById('detail-contact').innerText = '관리단 코너에서 정보열람(결제) 후 확인할 수 있습니다.';
+                document.getElementById('detail-proposal').innerText = '관리단 코너에서 정보열람(결제) 후 확인할 수 있습니다.';
+            }
         });
     </script>
 </body>

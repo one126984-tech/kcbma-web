@@ -957,7 +957,7 @@
 
             const { data, error } = await supabaseClient
                 .from('fee_evaluations')
-                .select('*')
+                .select('id, title, location, building_summary, status, unlock_fee, created_at')
                 .eq('id', evaluationId)
                 .single();
 
@@ -973,22 +973,10 @@
             document.getElementById('detail-title').innerText = data.title;
             document.getElementById('detail-summary').innerText = data.building_summary;
 
-            // 블라인드 대상 정보는 미리 채워두되(unlock 즉시 보이도록), 화면에는
-            // #locked-section의 blur로 가려져 있으므로 로그인 전에는 노출되지 않음.
-            document.getElementById('detail-contact').innerText = `${data.client_name} (${data.client_contact})`;
-
-            let formattedPurpose = KC.esc(data.evaluation_purpose || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-            document.getElementById('detail-purpose').innerHTML = formattedPurpose;
-
-            const attachmentWrapper = document.getElementById('detail-attachment-wrapper');
-            if (data.attachment_url) {
-                attachmentWrapper.innerHTML = `
-                    <a href="${KC.esc(data.attachment_url)}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit">
-                        <i class="fa-regular fa-file-image text-green-600 text-lg"></i> 관리비 고지서 원본 보기
-                    </a>`;
-            } else {
-                attachmentWrapper.innerHTML = `<p class="text-sm text-gray-400">첨부된 고지서가 없습니다.</p>`;
-            }
+            // 의뢰인·연락처·평가 목적·고지서는 결제 후 서버에서 받아옴 (미리 넣어두지 않음)
+            document.getElementById('detail-contact').innerText = '결제 후 확인할 수 있습니다.';
+            document.getElementById('detail-purpose').innerText = '결제 후 확인할 수 있습니다.';
+            document.getElementById('detail-attachment-wrapper').innerHTML = '<p class="text-sm text-gray-400">결제 후 확인할 수 있습니다.</p>';
 
             // 이미 결제(열람권 보유)한 사용자는 자동으로 블라인드 해제
             const { data: authData } = await supabaseClient.auth.getUser();
@@ -1009,11 +997,21 @@
             renderLockOverlay();
         });
 
-        function removeLock() {
+        async function removeLock() {
             const lockedSection = document.getElementById('locked-section');
             lockedSection.classList.remove('blur-locked');
             const overlay = document.getElementById('lock-overlay');
             if (overlay) overlay.remove();
+            // 결제(열람) 기록이 있는 회원에게만 서버가 비공개 정보를 내줌
+            const { data: priv } = await supabaseClient.rpc('get_private_info', { p_kind: 'fee', p_id: String(currentEvaluationId) });
+            if (!priv) return;
+            document.getElementById('detail-contact').innerText = `${priv.client_name || '-'} (${priv.client_contact || '-'})`;
+            document.getElementById('detail-purpose').innerHTML = KC.esc(priv.evaluation_purpose || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            const attachmentWrapper = document.getElementById('detail-attachment-wrapper');
+            const url = String(priv.attachment_url || '');
+            attachmentWrapper.innerHTML = /^https?:\/\//i.test(url)
+                ? `<a href="${KC.esc(url)}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit"><i class="fa-regular fa-file-image text-green-600 text-lg"></i> 관리비 고지서 원본 보기</a>`
+                : '<p class="text-sm text-gray-400">첨부된 고지서가 없습니다.</p>';
         }
 
         function renderLockOverlay() {

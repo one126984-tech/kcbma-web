@@ -520,7 +520,7 @@
 
             const { data, error } = await supabaseClient
                 .from('assembly_requests')
-                .select('*')
+                .select('id, title, location, building_summary, assembly_type, expected_date, status, unlock_fee, created_at')
                 .order('created_at', { ascending: false });
 
             if (error) {

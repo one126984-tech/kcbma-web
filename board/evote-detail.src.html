@@ -189,7 +189,7 @@
 
             const { data, error } = await supabaseClient
                 .from('assembly_requests')
-                .select('*')
+                .select('id, title, location, building_summary, assembly_type, expected_date, status, unlock_fee, created_at')
                 .eq('id', requestId)
                 .single();
 
@@ -208,12 +208,11 @@
             document.getElementById('detail-summary').innerText = `[${data.location}] ${data.building_summary} | 주요안건: ${data.assembly_type}`;
 
             // 블라인드 처리된 비공개 정보 바인딩
-            document.getElementById('detail-contact').innerText = `${data.client_name} (${data.client_contact})`;
-            document.getElementById('detail-date').innerText = data.expected_date;
-            document.getElementById('detail-type').innerText = data.assembly_type;
-
-            let formattedDetails = KC.esc(data.details || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-            document.getElementById('detail-purpose').innerHTML = formattedDetails;
+            // 의뢰인·연락처·상세 내용은 결제 후 서버에서 받아옴 (미리 넣어두지 않음)
+            document.getElementById('detail-contact').innerText = '결제 후 확인할 수 있습니다.';
+            document.getElementById('detail-date').innerText = data.expected_date || '-';
+            document.getElementById('detail-type').innerText = data.assembly_type || '-';
+            document.getElementById('detail-purpose').innerText = '결제 후 확인할 수 있습니다.';
 
             // 이미 결제(열람권 보유)한 사용자는 자동으로 블라인드 해제
             const { data: authData } = await supabaseClient.auth.getUser();
@@ -234,11 +233,16 @@
             renderLockOverlay();
         });
 
-        function removeLock() {
+        async function removeLock() {
             const lockedSection = document.getElementById('locked-section');
             lockedSection.classList.remove('blur-locked');
             const overlay = document.getElementById('lock-overlay');
             if (overlay) overlay.remove();
+            // 결제(열람) 기록이 있는 회원에게만 서버가 비공개 정보를 내줌
+            const { data: priv } = await supabaseClient.rpc('get_private_info', { p_kind: 'assembly', p_id: String(currentRequestId) });
+            if (!priv) return;
+            document.getElementById('detail-contact').innerText = `${priv.client_name || '-'} (${priv.client_contact || '-'})`;
+            document.getElementById('detail-purpose').innerHTML = KC.esc(priv.details || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
         }
 
         function renderLockOverlay() {

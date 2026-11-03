@@ -1294,7 +1294,7 @@
 
             const { data, error } = await supabaseClient
                 .from('fee_evaluations')
-                .select('*')
+                .select('id, title, location, building_summary, status, unlock_fee, created_at')
                 .order('created_at', { ascending: false });
 
             if (error) {
