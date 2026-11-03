@@ -55,7 +55,7 @@
       <div data-menu="board-corner" onclick="location.href='../../board/board-corner.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단코너</div>
       
       <!-- ⭐ 신규: 지식컨설팅 (업무 Q&A로 연결) -->
-      <div data-menu="consulting" onclick="location.href='../../community/work-qna.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors font-bold text-[#12387a]">지식컨설팅</div>
+      <div data-menu="consulting" onclick="location.href='/consulting/consulting-field.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors font-bold text-[#12387a]">지식컨설팅</div>
       
       <!-- ⭐ 기존 커뮤니티 (공지사항으로 연결) -->
       <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">커뮤니티</div>
@@ -106,7 +106,7 @@
       <div onclick="location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단코너</div>
       
       <!-- ⭐ 모바일 메뉴 신규 분리 -->
-      <div onclick="location.href='../../community/work-qna.html'" class="cursor-pointer hover:text-[#0088cc] text-blue-300">지식컨설팅</div>
+      <div onclick="location.href='/consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc] text-blue-300">지식컨설팅</div>
       <div onclick="location.href='../../community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
       
       <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn-mobile cursor-pointer" style="background-color: #ef4444; color: white;">
@@ -185,7 +185,7 @@
       let isActive = false;
       
       if (menuKey === 'consulting') {
-        if (currentPath.includes('work-qna.html') || currentPath.includes('field-experience.html') || currentPath.includes('work-qna-detail.html') || currentPath.includes('field-experience-detail.html')) {
+        if (currentPath.includes('/consulting/')) {
           isActive = true;
         }
       } else if (menuKey === 'community') {

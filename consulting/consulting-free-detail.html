@@ -369,9 +369,14 @@
 </style>
 
     <style>
-.qna-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; letter-spacing: -0.2px; margin-right: 5px; vertical-align: middle; }
+        .qna-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; letter-spacing: -0.2px; margin-right: 5px; vertical-align: middle; }
+        .badge-field { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
         .badge-free { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        .badge-paid { background: #fff5f5; color: #dc2626; border: 1px solid #feb2b2; }
+        .badge-waiting { background: #f1f5f9; color: #64748b; }
         .badge-answered { background: #eef2ff; color: #4338ca; }
+        #d-like-btn { cursor: pointer; }
+        #d-like-btn:hover { color: #ef4444; }
     </style>
 </head>
 
@@ -820,64 +825,47 @@
             
             <div class="border-b-2 border-[#12387a] pb-5 mb-8">
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="qna-badge badge-free">무료</span>
-                    <span class="qna-badge badge-answered">답변완료</span>
-                    <span class="text-[13.5px] text-gray-500 font-bold ml-2">전기 실무 / 인천 연수구</span>
+                    <span id="d-badges"></span>
+                    <span id="d-meta" class="text-[13.5px] text-gray-500 font-bold ml-2"></span>
                 </div>
-                
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-snug">수배전반 정기점검 주기, 법정 기준이 어떻게 되나요</h2>
-                
+
+                <h2 id="d-title" class="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-snug">불러오는 중...</h2>
+
                 <div class="flex flex-wrap justify-between items-center text-[13.5px] text-gray-500 bg-gray-50 px-4 py-3 rounded">
                     <div class="flex items-center gap-5">
-                        <span class="font-bold text-gray-700"><i class="fas fa-user-circle text-gray-400 mr-1.5 text-lg align-middle"></i> 박*영 소장</span>
-                        <span><i class="far fa-clock mr-1.5"></i> 2026-08-28 09:00</span>
+                        <span class="font-bold text-gray-700"><i class="fas fa-user-circle text-gray-400 mr-1.5 text-lg align-middle"></i> <span id="d-author"></span></span>
+                        <span><i class="far fa-clock mr-1.5"></i> <span id="d-date"></span></span>
                     </div>
                     <div class="flex items-center gap-5 mt-2 sm:mt-0">
-                        <span><i class="far fa-eye mr-1.5"></i> 조회 211</span>
-                        <span><i class="far fa-heart mr-1.5"></i> 관심 18</span>
+                        <span><i class="far fa-eye mr-1.5"></i> 조회 <span id="d-views">0</span></span>
+                        <span id="d-like-btn" title="관심 표시"><i class="far fa-heart mr-1.5"></i> 관심 <span id="d-likes">0</span></span>
                     </div>
                 </div>
             </div>
 
             <!-- 본문 내용 -->
-            <div class="py-4 text-[15.5px] leading-loose text-gray-800 min-h-[250px] border-b border-gray-200 mb-8 whitespace-pre-line">
-                단지 내 수배전반 정기점검 주기를 매월 진행해야 하는지 분기별로 해도 무방한지 의견이 분분합니다.
-                전기안전관리법상 명확한 점검 주기와 필수 점검 항목 가이드라인을 아시는 분이 계시면 답변 부탁드립니다.
-            </div>
+            <div id="d-content" class="py-4 text-[15.5px] leading-loose text-gray-800 min-h-[250px] border-b border-gray-200 mb-8 whitespace-pre-line"></div>
 
             <div class="flex justify-between items-center mb-12">
                 <button onclick="location.href='consulting-free.html'" class="px-6 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-700 hover:bg-gray-50 transition-colors"><i class="fas fa-list mr-1"></i> 목록으로</button>
                 <div class="flex gap-2">
-                    <button class="px-5 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-600 hover:bg-gray-50">수정</button>
-                    <button class="px-5 py-2.5 border border-red-300 text-red-500 rounded text-[14px] font-bold hover:bg-red-50">삭제</button>
+                    <button id="d-edit-btn" style="display:none" class="px-5 py-2.5 border border-gray-300 rounded text-[14px] font-bold text-gray-600 hover:bg-gray-50">수정</button>
+                    <button id="d-delete-btn" style="display:none" class="px-5 py-2.5 border border-red-300 text-red-500 rounded text-[14px] font-bold hover:bg-red-50">삭제</button>
                 </div>
             </div>
 
             <!-- 답변 영역 -->
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
-                <h3 class="text-lg font-bold text-[#12387a] mb-6">등록된 답변 <span class="text-red-500 ml-1">1</span></h3>
-                
-                <div class="bg-white border border-gray-200 rounded p-6 mb-8 shadow-sm">
-                    <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-lg">최</div>
-                        <div>
-                            <div class="font-bold text-gray-800 text-[15px]">최*환 기사</div>
-                            <div class="text-[12.5px] text-gray-400 mt-0.5">2026-08-28 13:20</div>
-                        </div>
-                    </div>
-                    <div class="text-[14.5px] text-gray-700 leading-loose whitespace-pre-line">
-                        전기안전관리법 시행규칙 제30조 제2항에 따르면 수전설비 용량에 따라 점검 주기가 다릅니다.
-                        일반적으로 1000kW 이상 아파트의 경우 '월 1회 이상' 직무고시에 따른 점검을 실시해야 합니다. 
-                        
-                        열화상 카메라 측정 및 절연저항 측정은 반기 1회 실시 후 기록을 반드시 남겨두셔야 과태료 처분을 피할 수 있습니다.
-                    </div>
-                </div>
+                <h3 class="text-lg font-bold text-[#12387a] mb-6">등록된 답변 <span id="d-answer-count" class="text-red-500 ml-1">0</span></h3>
 
+                <div id="d-answers"></div>
+
+                <!-- 답변 등록 폼 -->
                 <div class="bg-white border border-gray-300 rounded p-1 mb-2 focus-within:border-[#12387a]">
-                    <textarea class="w-full px-4 py-3 h-32 text-[14px] resize-none outline-none leading-relaxed" placeholder="답변을 입력해주세요. 따뜻한 지식 나눔에 감사드립니다."></textarea>
+                    <textarea id="d-answer-input" class="w-full px-4 py-3 h-32 text-[14px] resize-none outline-none leading-relaxed" placeholder="답변을 입력해주세요. 따뜻한 지식 나눔에 감사드립니다."></textarea>
                 </div>
                 <div class="flex justify-end">
-                    <button class="px-8 py-3 bg-[#12387a] text-white font-bold rounded text-[14px] hover:bg-[#0a2046] transition-colors">답변 등록하기</button>
+                    <button id="d-answer-submit" class="px-8 py-3 bg-[#12387a] text-white font-bold rounded text-[14px] hover:bg-[#0a2046] transition-colors">답변 등록하기</button>
                 </div>
             </div>
             
@@ -888,6 +876,12 @@
 </div>
 
 <script src="../../assets/js/footer.js?v=1.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../assets/js/supabase-config.js"></script>
+<script src="../../assets/js/consulting-board.js?v=1"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => ConsultBoard.initDetail('FREE'));
+</script>
 <script>
     window.BASE_PATH = '/';
 </script>

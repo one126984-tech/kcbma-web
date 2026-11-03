@@ -827,28 +827,37 @@
             
             <div class="flex items-center gap-3 border-b-2 border-[#12387a] pb-4 mb-6">
                 <i class="fas fa-pen-square text-[#12387a] text-2xl"></i>
-                <h2 class="text-2xl font-bold text-gray-900">무보상 질문 작성하기</h2>
+                <h2 id="write-heading" class="text-2xl font-bold text-gray-900">무보상 질문 작성하기</h2>
             </div>
 
             <form id="consult-write-form" class="flex flex-col gap-6 bg-white p-6 md:p-8 rounded shadow-sm border border-gray-200">
-                <input type="hidden" name="post_type" value="FREE">
 
                 <!-- 분류 -->
                 <div class="flex flex-col md:flex-row gap-6 border-b border-gray-100 pb-6">
                     <div class="flex flex-col md:flex-row gap-4 md:items-center w-full">
                         <span class="w-32 font-bold text-gray-700">분류 <span class="text-red-500">*</span></span>
-                        <select class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-[14px] outline-none focus:border-[#12387a] max-w-[300px]">
+                        <select id="f-category" class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-[14px] outline-none focus:border-[#12387a] max-w-[300px]">
                             <option value="">분류 선택</option>
-                            <option>관리소장 실무</option><option>경리회계</option><option>환경미화</option>
-                            <option>기전영선</option><option>전기실무</option><option>기타</option>
+                            <option value="관리소장 실무">관리소장 실무</option><option value="경리회계 실무">경리회계 실무</option><option value="환경미화 실무">환경미화 실무</option><option value="기전영선 실무">기전영선 실무</option><option value="전기 실무">전기 실무</option><option value="기타">기타</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- 지역 -->
+                <div class="flex flex-col md:flex-row gap-6 border-b border-gray-100 pb-6">
+                    <div class="flex flex-col md:flex-row gap-4 md:items-center w-full">
+                        <span class="w-32 font-bold text-gray-700">지역</span>
+                        <div class="flex flex-1 items-center gap-2">
+                            <select id="f-region-major" class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-[14px] outline-none focus:border-[#12387a] max-w-[300px]"></select>
+                            <select id="f-region-minor" class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-[14px] outline-none focus:border-[#12387a] max-w-[300px]"></select>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 제목 -->
                 <div class="flex flex-col md:flex-row gap-4 md:items-center border-b border-gray-100 pb-6">
                     <span class="w-32 font-bold text-gray-700">제목 <span class="text-red-500">*</span></span>
-                    <input type="text" class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-[14px] outline-none focus:border-[#12387a]" placeholder="제목을 입력하세요 (최대 100자)">
+                    <input type="text" id="f-title" maxlength="100" class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-[14px] outline-none focus:border-[#12387a]" placeholder="제목을 입력하세요 (최대 100자)">
                 </div>
 
                 <!-- 내용 -->
@@ -857,7 +866,7 @@
                         <span class="font-bold text-gray-700">내용 <span class="text-red-500">*</span></span>
                         <span class="text-[12px] text-gray-400">민감한 개인정보(이름, 단지명 등)는 포함하지 마세요.</span>
                     </div>
-                    <textarea class="w-full border border-gray-300 rounded px-4 py-3 h-80 text-[14.5px] resize-none outline-none focus:border-[#12387a] leading-relaxed" placeholder="질문 내용을 상세히 적어주시면 더 정확한 답변을 받을 수 있습니다."></textarea>
+                    <textarea id="f-content" class="w-full border border-gray-300 rounded px-4 py-3 h-80 text-[14.5px] resize-none outline-none focus:border-[#12387a] leading-relaxed" placeholder="질문 내용을 상세히 적어주시면 더 정확한 답변을 받을 수 있습니다."></textarea>
                 </div>
 
                 <!-- 경험 공유 안내 및 동의 섹션 -->
@@ -874,7 +883,7 @@
                 <!-- 하단 버튼 -->
                 <div class="flex justify-center gap-3 mt-4">
                     <button type="button" onclick="history.back()" class="px-10 py-3.5 border border-gray-300 text-gray-600 font-bold rounded text-[15px] hover:bg-gray-50 transition-colors">취소</button>
-                    <button type="button" onclick="submitForm()" class="px-10 py-3.5 bg-[#0B2A5B] text-white font-bold rounded text-[15px] hover:bg-[#12387a] transition-colors">질문 등록하기</button>
+                    <button type="submit" id="write-submit-btn" class="px-10 py-3.5 bg-[#0B2A5B] text-white font-bold rounded text-[15px] hover:bg-[#12387a] transition-colors">질문 등록하기</button>
                 </div>
             </form>
             
@@ -884,12 +893,12 @@
 </div>
 
 <script src="../../assets/js/footer.js?v=1.3"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../assets/js/supabase-config.js"></script>
+<script src="../../assets/js/region-data.js"></script>
+<script src="../../assets/js/consulting-board.js?v=1"></script>
 <script>
-    function submitForm() {
-        alert('성공적으로 등록되었습니다.');
-        location.href = 'consulting-free.html';
-    }
+    document.addEventListener('DOMContentLoaded', () => ConsultBoard.initWrite('FREE'));
 </script>
 
 <script>
