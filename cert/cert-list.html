@@ -489,7 +489,7 @@
     transform: none !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
-    min-width: 86px !important; /* 추가: 로그인/로그아웃 텍스트 변경 시 흔들림 방지 */
+    min-width: 92px !important; /* 로그인/로그아웃 글자가 바뀌어도 폭 고정 */
   }
   #main-header .login-btn:hover {
     background-color: #1e293b !important;
@@ -498,7 +498,7 @@
     #main-header .login-btn {
       padding: 7px 20px !important;
       font-size: 14px !important;
-      min-width: 96px !important; /* 추가: PC 화면용 최소 너비 고정 */
+      min-width: 104px !important; /* PC 화면: 로그인/로그아웃 폭 고정 */
     }
   }
 
@@ -560,6 +560,7 @@
     #main-header .login-btn {
       font-size: 15px !important;
       padding: 9px 22px !important;
+      min-width: 112px !important; /* 로그인/로그아웃 글자가 바뀌어도 폭 고정 */
     }
   }
 
@@ -576,7 +577,7 @@
 
         <!-- 1) 좌측 로고 -->
         <div class="flex items-center h-full cursor-pointer shrink-0 mr-2 xl:mr-4" onclick="location.href='../../index.html'" style="margin-top: 0 !important; margin-bottom: 0 !important;">
-            <img src="../../assets/img/logo.png" class="h-[34px] lg:h-[36px] xl:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
+            <img src="../../assets/img/logo.png" width="572" height="101" class="h-[34px] lg:h-[36px] xl:h-[44px] w-auto object-contain" alt="대한집합건물관리협회" style="max-width: none !important; margin: 0 !important;">
         </div>
 
         <!-- 2) 중앙 메인 GNB (간격 및 폰트 축소 적용) -->
