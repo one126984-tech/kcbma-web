@@ -449,7 +449,7 @@
             includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             tags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             manualInput.placeholder = tags.length > 0 ? "" : "제목, 업체명, 지역 등 포함할 단어 입력 후 엔터";
@@ -465,7 +465,7 @@
             excludeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             excludeTags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip !bg-red-100 !text-red-700';
-                chip.innerHTML = `${word} <span class="tag-remove hover:!text-red-900" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
                 excludeContainer.insertBefore(chip, manualExcludeInput);
             });
             manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
@@ -673,15 +673,15 @@
 
             return `
                 <tr onclick="location.href='notice-detail.html'">
-                    <td>${item.id}</td>
+                    <td>${KC.esc(item.id)}</td>
                     <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
-                    <td class="text-left pl-4 font-bold text-gray-800" title="${item.title}">${item.title}</td>
-                    <td title="${item.orderer}">${item.orderer}</td>
-                    <td>${item.category}</td>
-                    <td title="${item.region}">${item.region}</td>
+                    <td class="text-left pl-4 font-bold text-gray-800" title="${KC.esc(item.title)}">${KC.esc(item.title)}</td>
+                    <td title="${KC.esc(item.orderer)}">${KC.esc(item.orderer)}</td>
+                    <td>${KC.esc(item.category)}</td>
+                    <td title="${KC.esc(item.region)}">${KC.esc(item.region)}</td>
                     <td>${periodStr}</td>
-                    <td class="${ddayClass}">${ddayInfo.text}</td>
-                    <td>${item.views}</td>
+                    <td class="${ddayClass}">${KC.esc(ddayInfo.text)}</td>
+                    <td>${KC.esc(item.views)}</td>
                 </tr>
             `;
         }).join('');

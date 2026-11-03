@@ -158,8 +158,8 @@
                 <div class="section-card">
                     <div class="section-title"><i class="fas fa-file-alt"></i> 신청 과정 정보</div>
                     <div class="grid grid-cols-2 gap-4 text-sm bg-gray-50 border border-gray-100 rounded-lg p-5">
-                        <div class="col-span-2"><div class="text-gray-500 mb-1">자격증명</div><div class="font-bold text-lg text-[#0B2A5B]">${course.title}</div></div>
-                        <div><div class="text-gray-500 mb-1">분야</div><div class="font-bold text-gray-800">${course.category || '-'}</div></div>
+                        <div class="col-span-2"><div class="text-gray-500 mb-1">자격증명</div><div class="font-bold text-lg text-[#0B2A5B]">${KC.esc(course.title)}</div></div>
+                        <div><div class="text-gray-500 mb-1">분야</div><div class="font-bold text-gray-800">${KC.esc(course.category || '-')}</div></div>
                         <div><div class="text-gray-500 mb-1">수강 방식</div><div class="font-bold text-gray-800">${methodLabel(course.edu_method)}</div></div>
                         <div class="col-span-2"><div class="text-gray-500 mb-1">수강료</div><div class="font-black text-xl text-red-600">${priceLabel(course)}</div></div>
                     </div>

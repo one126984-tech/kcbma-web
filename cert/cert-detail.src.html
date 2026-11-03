@@ -509,11 +509,11 @@
             }
 
             if (currentEnrollment && currentEnrollment.status === 'ACTIVE') {
-                return `<button onclick="location.href='cert-player.html?course_id=${course.id}'" class="w-full py-4 bg-[#0B2A5B] hover:bg-[#153b80] text-white font-bold text-lg rounded-lg transition">수강 중입니다 - 이어서 학습하기</button>`;
+                return `<button onclick="location.href='cert-player.html?course_id=${KC.esc(course.id)}'" class="w-full py-4 bg-[#0B2A5B] hover:bg-[#153b80] text-white font-bold text-lg rounded-lg transition">수강 중입니다 - 이어서 학습하기</button>`;
             }
 
             if (currentEnrollment && currentEnrollment.status === 'COMPLETED') {
-                return `<button onclick="location.href='cert-player.html?course_id=${course.id}'" class="w-full py-4 bg-gray-500 hover:bg-gray-600 text-white font-bold text-lg rounded-lg transition">수료 완료 - 강의 다시보기</button>`;
+                return `<button onclick="location.href='cert-player.html?course_id=${KC.esc(course.id)}'" class="w-full py-4 bg-gray-500 hover:bg-gray-600 text-white font-bold text-lg rounded-lg transition">수료 완료 - 강의 다시보기</button>`;
             }
 
             if (status === 'CLOSED') {
@@ -524,7 +524,7 @@
                 return `<button disabled class="w-full py-4 bg-yellow-300 text-white font-bold text-lg rounded-lg cursor-not-allowed">준비중입니다</button>`;
             }
 
-            return `<button onclick="location.href='cert-enroll.html?course_id=${course.id}'" class="w-full py-4 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-lg rounded-lg transition shadow-md">수강 신청하기</button>`;
+            return `<button onclick="location.href='cert-enroll.html?course_id=${KC.esc(course.id)}'" class="w-full py-4 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-lg rounded-lg transition shadow-md">수강 신청하기</button>`;
         }
 
         function renderCurriculum(list) {
@@ -535,9 +535,9 @@
 
             const rows = list.map(c => `
                 <tr>
-                    <td class="font-bold text-[#12387a]">${c.chapter_no}차시</td>
-                    <td class="text-left">${c.title}</td>
-                    <td>${c.duration_min || 0}분</td>
+                    <td class="font-bold text-[#12387a]">${KC.esc(c.chapter_no)}차시</td>
+                    <td class="text-left">${KC.esc(c.title)}</td>
+                    <td>${KC.esc(c.duration_min || 0)}분</td>
                     <td>${contentTypeLabel(c.content_type)}</td>
                     <td>${c.is_preview ? '<button class="text-xs bg-[#e0e7ff] text-[#1e3a8a] font-bold px-3 py-1 rounded hover:bg-[#c7d2fe] transition">미리보기</button>' : '<span class="text-gray-300">-</span>'}</td>
                 </tr>
@@ -545,7 +545,7 @@
 
             return `
                 <div class="flex justify-between items-center mb-3">
-                    <span class="text-sm text-gray-500">총 ${list.length}차시</span>
+                    <span class="text-sm text-gray-500">총 ${KC.esc(list.length)}차시</span>
                     <span class="text-sm font-bold text-[#12387a]">총 강의시간 ${totalLabel}</span>
                 </div>
                 <div class="overflow-x-auto">
@@ -568,7 +568,7 @@
         function renderInstructor(course) {
             if (!course.instructor_name) return '';
             const photo = course.instructor_img
-                ? `<img src="${course.instructor_img}" alt="${course.instructor_name}" class="instructor-photo">`
+                ? `<img src="${KC.esc(course.instructor_img)}" alt="${KC.esc(course.instructor_name)}" class="instructor-photo">`
                 : `<div class="instructor-photo flex items-center justify-center text-gray-400"><i class="fas fa-user text-3xl"></i></div>`;
 
             return `
@@ -577,8 +577,8 @@
                     <div class="instructor-card">
                         ${photo}
                         <div>
-                            <div class="font-bold text-lg text-[#0B2A5B] mb-2">${course.instructor_name} 강사</div>
-                            <div class="text-sm text-gray-600 leading-relaxed">${course.instructor_bio || '강사 소개 정보가 준비 중입니다.'}</div>
+                            <div class="font-bold text-lg text-[#0B2A5B] mb-2">${KC.esc(course.instructor_name)} 강사</div>
+                            <div class="text-sm text-gray-600 leading-relaxed">${KC.esc(course.instructor_bio || '강사 소개 정보가 준비 중입니다.')}</div>
                         </div>
                     </div>
                 </div>
@@ -613,7 +613,7 @@
                             <div class="notice-content">
                                 <div class="notice-title">시험 응시 자격 요건</div>
                                 <ul class="notice-list">
-                                    <li>같은 분야("${course.category}")의 <a href="edu-field-list.html" class="text-[#12387a] font-bold underline">현장교육</a>에 <strong>${course.required_field_course_count}회 이상</strong> 참석하셔야 온라인 시험 응시가 가능합니다.</li>
+                                    <li>같은 분야("${KC.esc(course.category)}")의 <a href="edu-field-list.html" class="text-[#12387a] font-bold underline">현장교육</a>에 <strong>${course.required_field_course_count}회 이상</strong> 참석하셔야 온라인 시험 응시가 가능합니다.</li>
                                     <li>참석 처리는 각 현장교육 담당 운영진이 현장에서 확인 후 진행하며, 진행 현황은 마이페이지 &gt; 내 수강 목록에서 확인하실 수 있습니다.</li>
                                 </ul>
                             </div>
@@ -630,19 +630,19 @@
             const root = document.getElementById('detail-root');
             const visual = CERT_VISUAL_MAP[course.id] || { icon: 'fa-certificate', gradient: 'linear-gradient(135deg,#12387a,#274bce)' };
             root.innerHTML = `
-                <div class="detail-hero" style="background:${visual.gradient};">
-                    <i class="fas ${visual.icon}"></i>
+                <div class="detail-hero" style="background:${KC.esc(visual.gradient)};">
+                    <i class="fas ${KC.esc(visual.icon)}"></i>
                 </div>
                 <div class="section-card" style="border-top-left-radius:0; border-top-right-radius:0; margin-top:-6px;">
                     <div class="flex items-center gap-3 mb-4">
                         ${statusBadgeHtml(course.status)}
-                        <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i>조회 ${course.view_count || 0}</span>
-                        <span class="text-sm text-gray-400"><i class="fas fa-user-graduate mr-1"></i>신청 ${course.enroll_count || 0}명</span>
+                        <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i>조회 ${KC.esc(course.view_count || 0)}</span>
+                        <span class="text-sm text-gray-400"><i class="fas fa-user-graduate mr-1"></i>신청 ${KC.esc(course.enroll_count || 0)}명</span>
                     </div>
-                    <h1 class="text-2xl md:text-3xl font-black text-[#0B2A5B] mb-5 leading-snug">${course.title}</h1>
+                    <h1 class="text-2xl md:text-3xl font-black text-[#0B2A5B] mb-5 leading-snug">${KC.esc(course.title)}</h1>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-gray-50 border border-gray-100 rounded-lg p-4 text-sm">
-                        <div><div class="text-gray-500 mb-1">분야</div><div class="font-bold text-gray-800">${course.category || '-'}</div></div>
-                        <div><div class="text-gray-500 mb-1">수강 기간</div><div class="font-bold text-gray-800">${course.edu_period || '상시 수강'}</div></div>
+                        <div><div class="text-gray-500 mb-1">분야</div><div class="font-bold text-gray-800">${KC.esc(course.category || '-')}</div></div>
+                        <div><div class="text-gray-500 mb-1">수강 기간</div><div class="font-bold text-gray-800">${KC.esc(course.edu_period || '상시 수강')}</div></div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">${priceHtml(course, currentEnrollment)}</div>
                     ${renderEnrollButton()}

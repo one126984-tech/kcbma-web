@@ -315,7 +315,7 @@
             }
             tbody.innerHTML = courseStats.map(c => `
                 <tr>
-                    <td class="text-left font-medium text-[#0B2A5B]">${c.title}</td>
+                    <td class="text-left font-medium text-[#0B2A5B]">${KC.esc(c.title)}</td>
                     <td>${c.totalEnroll.toLocaleString()}</td>
                     <td>${c.completed.toLocaleString()}</td>
                     <td class="font-bold text-[#12387a]">${c.completionRate.toFixed(1)}%</td>

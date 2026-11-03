@@ -177,7 +177,7 @@
                 '승인': 'bg-green-600',
                 '반려': 'bg-red-600'
             };
-            return `<span class="${map[rs] || 'bg-gray-400'} text-white px-2 py-0.5 rounded text-[11px] font-bold">${rs}</span>`;
+            return `<span class="${map[rs] || 'bg-gray-400'} text-white px-2 py-0.5 rounded text-[11px] font-bold">${KC.esc(rs)}</span>`;
         }
 
         async function fetchCourses() {
@@ -234,19 +234,19 @@
             tbody.innerHTML = filteredCourses.map((item, idx) => `
                 <tr>
                     <td class="text-gray-400">${idx + 1}</td>
-                    <td class="text-left font-bold text-[#0B2A5B]">${item.title || '-'}</td>
-                    <td>${item.category || '-'}</td>
-                    <td>${item.region || '-'}</td>
+                    <td class="text-left font-bold text-[#0B2A5B]">${KC.esc(item.title || '-')}</td>
+                    <td>${KC.esc(item.category || '-')}</td>
+                    <td>${KC.esc(item.region || '-')}</td>
                     <td>${item.created_by ? '<span class="text-[11px] text-gray-500">관리소장</span>' : '<span class="text-[11px] text-gray-400">운영진</span>'}</td>
                     <td>${reviewStatusBadge(item)}</td>
                     <td>${statusBadge(item.status)}</td>
                     <td>${formatDate(item.edu_date)}</td>
                     <td>${formatDate(item.deadline)}</td>
-                    <td>${item.view_count || 0}</td>
+                    <td>${KC.esc(item.view_count || 0)}</td>
                     <td>
                         <div class="flex flex-wrap gap-1.5 justify-center">
-                            <span class="btn-manage btn-edit" onclick="location.href='admin-field-course-edit.html?id=${item.id}'">${item.created_by && (item.review_status || '심사중') !== '승인' ? '심사' : '수정'}</span>
-                            <span class="btn-manage btn-delete" onclick="deleteCourse('${item.id}')">삭제</span>
+                            <span class="btn-manage btn-edit" onclick="location.href='admin-field-course-edit.html?id=${KC.esc(item.id)}'">${item.created_by && (item.review_status || '심사중') !== '승인' ? '심사' : '수정'}</span>
+                            <span class="btn-manage btn-delete" onclick="deleteCourse('${KC.esc(item.id)}')">삭제</span>
                         </div>
                     </td>
                 </tr>

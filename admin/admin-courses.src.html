@@ -228,19 +228,19 @@
             tbody.innerHTML = filteredCourses.map((item, idx) => `
                 <tr>
                     <td class="text-gray-400">${idx + 1}</td>
-                    <td class="text-left font-bold text-[#0B2A5B]">${item.title || '-'}</td>
-                    <td>${item.category || '-'}</td>
+                    <td class="text-left font-bold text-[#0B2A5B]">${KC.esc(item.title || '-')}</td>
+                    <td>${KC.esc(item.category || '-')}</td>
                     <td>${methodText(item.edu_method)}</td>
                     <td>${statusBadge(item.status)}</td>
-                    <td>${item.enroll_count || 0}</td>
-                    <td>${item.view_count || 0}</td>
+                    <td>${KC.esc(item.enroll_count || 0)}</td>
+                    <td>${KC.esc(item.view_count || 0)}</td>
                     <td class="text-gray-500">${formatDate(item.created_at)}</td>
                     <td>
                         <div class="flex flex-wrap gap-1.5 justify-center">
-                            <span class="btn-manage btn-edit" onclick="location.href='admin-course-edit.html?id=${item.id}'">수정</span>
-                            <span class="btn-manage btn-curriculum" onclick="location.href='admin-curriculum.html?course_id=${item.id}'">커리큘럼</span>
-                            <span class="btn-manage btn-exam" onclick="location.href='admin-exams.html?course_id=${item.id}'">시험관리</span>
-                            <span class="btn-manage btn-delete" onclick="deleteCourse('${item.id}')">삭제</span>
+                            <span class="btn-manage btn-edit" onclick="location.href='admin-course-edit.html?id=${KC.esc(item.id)}'">수정</span>
+                            <span class="btn-manage btn-curriculum" onclick="location.href='admin-curriculum.html?course_id=${KC.esc(item.id)}'">커리큘럼</span>
+                            <span class="btn-manage btn-exam" onclick="location.href='admin-exams.html?course_id=${KC.esc(item.id)}'">시험관리</span>
+                            <span class="btn-manage btn-delete" onclick="deleteCourse('${KC.esc(item.id)}')">삭제</span>
                         </div>
                     </td>
                 </tr>

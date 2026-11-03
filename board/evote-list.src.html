@@ -362,7 +362,7 @@
                 tags.forEach(word => {
                     const chip = document.createElement('span');
                     chip.className = 'tag-chip';
-                    chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                    chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                     includeContainer.insertBefore(chip, manualInput);
                 });
                 manualInput.placeholder = tags.length > 0 ? "" : "공고명, 장소 등 포함할 단어 입력 후 엔터";
@@ -390,7 +390,7 @@
                 excludeTags.forEach(word => {
                     const chip = document.createElement('span'); 
                     chip.className = 'tag-chip !bg-red-100 !text-red-700'; 
-                    chip.innerHTML = `${word} <span class="tag-remove hover:!text-red-900" data-word="${word}">✕</span>`;
+                    chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
                     excludeContainer.insertBefore(chip, manualExcludeInput);
                 });
                 manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
@@ -608,12 +608,12 @@
                 const cardHtml = `
                     <div class="bg-white border border-gray-200 rounded-md p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-300 transition shadow-sm">
                         <div>
-                            <span class="${statusClass} text-xs font-bold px-2.5 py-1 rounded-sm mb-2.5 inline-block">${statusLabel}</span>
-                            <h4 class="text-[17px] font-bold text-gray-900 mb-1.5">${item.title}</h4>
-                            <p class="text-[14px] text-gray-500">${item.building_summary} <span class="text-gray-300 mx-1">|</span> 주요안건: ${item.assembly_type}</p>
+                            <span class="${statusClass} text-xs font-bold px-2.5 py-1 rounded-sm mb-2.5 inline-block">${KC.esc(statusLabel)}</span>
+                            <h4 class="text-[17px] font-bold text-gray-900 mb-1.5">${KC.esc(item.title)}</h4>
+                            <p class="text-[14px] text-gray-500">${KC.esc(item.building_summary)} <span class="text-gray-300 mx-1">|</span> 주요안건: ${KC.esc(item.assembly_type)}</p>
                         </div>
                         <div class="flex gap-2 shrink-0">
-                            <button onclick="location.href='evote-detail.html?id=${item.id}'" class="bg-transparent border border-gray-800 hover:bg-gray-50 text-gray-900 text-[14px] font-bold px-5 py-2.5 rounded-md transition flex items-center gap-2">
+                            <button onclick="location.href='evote-detail.html?id=${KC.esc(item.id)}'" class="bg-transparent border border-gray-800 hover:bg-gray-50 text-gray-900 text-[14px] font-bold px-5 py-2.5 rounded-md transition flex items-center gap-2">
                                 <i class="fas fa-lock"></i> 업체용 상세열람
                             </button>
                         </div>

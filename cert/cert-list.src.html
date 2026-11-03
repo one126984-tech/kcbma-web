@@ -254,27 +254,27 @@
                 const pitch = item.short_desc || '이 과정만의 강점을 담은 소개 문구를 준비 중입니다.';
 
                 return `
-                    <div class="cert-premium-card" style="background: ${cardBg};" onclick="location.href='cert-detail.html?id=${item.id}'">
+                    <div class="cert-premium-card" style="background: ${cardBg};" onclick="location.href='cert-detail.html?id=${KC.esc(item.id)}'">
                         <div class="cert-accent-bar" style="background: ${gradient};"></div>
                         <div class="cert-card-head">
                             <div class="cert-icon-badge" style="background: ${gradient};"><i class="fas ${iconClass}"></i></div>
                             <div class="cert-head-text">
                                 <div class="cert-head-badges">
-                                    <span class="cert-pill cert-pill-cat">${item.category || '-'}</span>
+                                    <span class="cert-pill cert-pill-cat">${KC.esc(item.category || '-')}</span>
                                     <span class="cert-pill ${isOpen ? 'cert-pill-open' : 'cert-pill-closed'}">${isOpen ? '접수중' : '마감'}</span>
                                 </div>
-                                <h3 class="cert-premium-title">${item.title || '-'}</h3>
+                                <h3 class="cert-premium-title">${KC.esc(item.title || '-')}</h3>
                             </div>
                         </div>
                         <div class="cert-card-content">
-                            <div class="cert-pitch">${pitch}</div>
+                            <div class="cert-pitch">${KC.esc(pitch)}</div>
                             <div class="cert-meta-row">
                                 <span class="badge-tag"><i class="fas fa-circle-check text-gray-400 mr-1"></i>무료</span>
-                                <span class="badge-tag"><i class="fas fa-user-graduate text-gray-400 mr-1"></i>${item.enroll_count || 0}명 수강</span>
+                                <span class="badge-tag"><i class="fas fa-user-graduate text-gray-400 mr-1"></i>${KC.esc(item.enroll_count || 0)}명 수강</span>
                             </div>
                         </div>
                         <div class="cert-card-actions">
-                            <button type="button" class="btn-cert-detail" onclick="event.stopPropagation(); location.href='cert-detail.html?id=${item.id}';">자세히 보기 <i class="fas fa-arrow-right"></i></button>
+                            <button type="button" class="btn-cert-detail" onclick="event.stopPropagation(); location.href='cert-detail.html?id=${KC.esc(item.id)}';">자세히 보기 <i class="fas fa-arrow-right"></i></button>
                         </div>
                     </div>
                 `;

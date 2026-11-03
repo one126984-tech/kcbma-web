@@ -8,6 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>온라인 시험 | 대한집합건물관리협회</title>
 
+<script>
+    /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
+       <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
+    window.KC = window.KC || {};
+    KC.esc = KC.esc || function (v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+</script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -1068,7 +1078,7 @@
             return `
                 <div class="section-card text-center py-16">
                     <i class="fas ${icon} text-5xl text-gray-300 mb-5"></i>
-                    <p class="text-xl font-bold text-gray-700 mb-2">${title}</p>
+                    <p class="text-xl font-bold text-gray-700 mb-2">${KC.esc(title)}</p>
                     <p class="text-sm text-gray-500 mb-7 leading-relaxed">${desc}</p>
                     <div class="flex items-center justify-center gap-3">${actions}</div>
                 </div>
@@ -1091,21 +1101,21 @@
                 <div class="section-card">
                     <div class="text-center mb-8">
                         <i class="fas fa-file-signature text-4xl text-[#12387a] mb-4"></i>
-                        <h1 class="text-2xl font-black text-[#0B2A5B] mb-2">${exam.title || '자격 평가'}</h1>
-                        <p class="text-sm text-gray-500">${currentCourse.title || ''}</p>
+                        <h1 class="text-2xl font-black text-[#0B2A5B] mb-2">${KC.esc(exam.title || '자격 평가')}</h1>
+                        <p class="text-sm text-gray-500">${KC.esc(currentCourse.title || '')}</p>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 bg-gray-50 border border-gray-100 rounded-lg p-5 text-sm">
-                        <div class="text-center"><div class="text-gray-500 mb-1">문제 수</div><div class="font-black text-lg text-[#0B2A5B]">${questions.length}문항</div></div>
-                        <div class="text-center"><div class="text-gray-500 mb-1">제한 시간</div><div class="font-black text-lg text-[#0B2A5B]">${exam.time_limit_min || 60}분</div></div>
-                        <div class="text-center"><div class="text-gray-500 mb-1">합격 점수</div><div class="font-black text-lg text-[#0B2A5B]">${exam.pass_score || 60}점</div></div>
+                        <div class="text-center"><div class="text-gray-500 mb-1">문제 수</div><div class="font-black text-lg text-[#0B2A5B]">${KC.esc(questions.length)}문항</div></div>
+                        <div class="text-center"><div class="text-gray-500 mb-1">제한 시간</div><div class="font-black text-lg text-[#0B2A5B]">${KC.esc(exam.time_limit_min || 60)}분</div></div>
+                        <div class="text-center"><div class="text-gray-500 mb-1">합격 점수</div><div class="font-black text-lg text-[#0B2A5B]">${KC.esc(exam.pass_score || 60)}점</div></div>
                         <div class="text-center"><div class="text-gray-500 mb-1">남은 응시 횟수</div><div class="font-black text-lg text-[#0B2A5B]">${remainingAttempts}회</div></div>
                     </div>
 
                     <div class="bg-[#fffbeb] border border-[#fde68a] rounded-lg p-5 mb-8 text-sm text-[#92400e] leading-relaxed">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
                         시험 시작 후에는 제한 시간 내에 모든 문제에 답변해야 합니다. 시간이 초과되면 자동으로 제출됩니다.
-                        총 <b>${exam.max_attempts || 0}회</b> 중 <b>${attemptCount}회</b> 응시하였습니다.
+                        총 <b>${KC.esc(exam.max_attempts || 0)}회</b> 중 <b>${attemptCount}회</b> 응시하였습니다.
                     </div>
 
                     <button id="start-exam-btn" onclick="startExam()" class="w-full py-4 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-lg rounded-lg transition shadow-md">
@@ -1193,9 +1203,9 @@
                 const text = q[`option_${n}`];
                 const isSelected = selected === n;
                 return `
-                    <div class="option-row ${isSelected ? 'selected' : ''}" onclick="selectAnswer(${q.id}, ${n})">
+                    <div class="option-row ${isSelected ? 'selected' : ''}" onclick="selectAnswer(${KC.esc(q.id)}, ${n})">
                         <div class="option-num">${n}</div>
-                        <div>${text}</div>
+                        <div>${KC.esc(text)}</div>
                     </div>
                 `;
             }).join('');
@@ -1203,7 +1213,7 @@
             const navGrid = questions.map((qq, idx) => {
                 const answered = userAnswers[qq.id] !== undefined;
                 const isCurrent = idx === currentQuestionIdx;
-                return `<div class="nav-cell ${answered ? 'answered' : ''} ${isCurrent ? 'current' : ''}" onclick="goToQuestion(${idx})">${qq.question_no}</div>`;
+                return `<div class="nav-cell ${answered ? 'answered' : ''} ${isCurrent ? 'current' : ''}" onclick="goToQuestion(${idx})">${KC.esc(qq.question_no)}</div>`;
             }).join('');
 
             const answeredCount = Object.keys(userAnswers).length;
@@ -1213,10 +1223,10 @@
                     <div class="flex-1 min-w-0">
                         <div class="question-card">
                             <div class="flex items-center gap-3">
-                                <div class="question-no-badge">${q.question_no}</div>
-                                <span class="text-sm text-gray-400 font-bold">${currentQuestionIdx + 1} / ${total} 문제 · 배점 ${q.points || 1}점</span>
+                                <div class="question-no-badge">${KC.esc(q.question_no)}</div>
+                                <span class="text-sm text-gray-400 font-bold">${currentQuestionIdx + 1} / ${total} 문제 · 배점 ${KC.esc(q.points || 1)}점</span>
                             </div>
-                            <div class="question-text">${q.question_text}</div>
+                            <div class="question-text">${KC.esc(q.question_text)}</div>
                             <div>${optionsHtml}</div>
                         </div>
 
@@ -1361,13 +1371,13 @@
                 return `
                     <div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
                         <div class="flex items-start justify-between gap-3 mb-2">
-                            <div class="font-bold text-gray-800">${q.question_no}. ${q.question_text}</div>
+                            <div class="font-bold text-gray-800">${KC.esc(q.question_no)}. ${KC.esc(q.question_text)}</div>
                             <span class="shrink-0 text-xs font-bold px-3 py-1 rounded-full ${isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
                                 ${isCorrect ? '정답' : '오답'}
                             </span>
                         </div>
-                        <div class="text-sm text-gray-600 mb-1">내 답안: <span class="font-medium ${isCorrect ? 'text-emerald-700' : 'text-red-600'}">${selectedLabel}</span></div>
-                        <div class="text-sm text-gray-600 mb-2">정답: <span class="font-medium text-[#12387a]">${correctLabel}</span></div>
+                        <div class="text-sm text-gray-600 mb-1">내 답안: <span class="font-medium ${isCorrect ? 'text-emerald-700' : 'text-red-600'}">${KC.esc(selectedLabel)}</span></div>
+                        <div class="text-sm text-gray-600 mb-2">정답: <span class="font-medium text-[#12387a]">${KC.esc(correctLabel)}</span></div>
                         ${r.explanation ? `<div class="text-sm text-gray-500 bg-gray-50 border border-gray-100 rounded p-3 mt-2"><i class="fas fa-lightbulb text-yellow-500 mr-1"></i> ${r.explanation}</div>` : ''}
                     </div>
                 `;
@@ -1381,7 +1391,7 @@
                     <i class="fas fa-trophy text-5xl text-emerald-500 mb-4"></i>
                     <h2 class="text-2xl font-black text-emerald-700 mb-2">축하합니다! 시험에 합격하셨습니다.</h2>
                     <p class="text-sm text-emerald-600 mb-5">자격증 발급을 위해 아래 계좌로 발급비를 입금해 주세요.</p>
-                    <div class="text-4xl font-black text-emerald-700 mb-2">${result.score}점 <span class="text-base font-bold text-emerald-500">/ 합격 기준 ${result.pass_score}점</span></div>
+                    <div class="text-4xl font-black text-emerald-700 mb-2">${KC.esc(result.score)}점 <span class="text-base font-bold text-emerald-500">/ 합격 기준 ${KC.esc(result.pass_score)}점</span></div>
 
                     ${renderCertAccountBox(certPrice)}
                     <p class="text-[13px] text-emerald-700 font-bold mb-5"><i class="fas fa-circle-info mr-1"></i>입금자명에 <b>본인 성명</b>을 기재해 주세요. 입금 완료 후 아래 버튼을 눌러주세요.</p>
@@ -1398,7 +1408,7 @@
                     <i class="fas fa-times-circle text-5xl text-red-400 mb-4"></i>
                     <h2 class="text-2xl font-black text-red-600 mb-2">아쉽습니다. 불합격입니다</h2>
                     <p class="text-sm text-red-500 mb-5">합격 기준 점수에 도달하지 못했습니다. 남은 응시 횟수 내에 재응시할 수 있습니다.</p>
-                    <div class="text-4xl font-black text-red-600 mb-2">${result.score}점 <span class="text-base font-bold text-red-400">/ 합격 기준 ${result.pass_score}점</span></div>
+                    <div class="text-4xl font-black text-red-600 mb-2">${KC.esc(result.score)}점 <span class="text-base font-bold text-red-400">/ 합격 기준 ${KC.esc(result.pass_score)}점</span></div>
                     <div class="text-sm font-bold text-red-500 mb-6">남은 응시 횟수: ${remainingAttempts}회</div>
                     ${remainingAttempts > 0
                         ? linkBtn(window.location.pathname + window.location.search, '다시 응시하기', true)

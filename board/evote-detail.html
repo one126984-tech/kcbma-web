@@ -16,6 +16,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>총회 전문가 매칭 상세정보 | 대한집합건물관리협회</title>
 
+<script>
+    /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
+       <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
+    window.KC = window.KC || {};
+    KC.esc = KC.esc || function (v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+</script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -922,11 +932,11 @@
             <h2 class="text-xl font-bold mb-4 text-gray-800">포인트 충전</h2>
             <div class="mb-6 text-gray-700 text-[15px]">
                 <p>포인트가 부족하여 열람할 수 없습니다.</p>
-                <p class="font-bold text-blue-600 mt-2">5,000 포인트를 충전하시겠습니까?</p>
+                <p class="font-bold text-blue-600 mt-2">포인트 충전은 협회 사무국에 문의해 주세요.</p>
             </div>
             <div class="flex justify-center gap-3">
                 <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">취소</button>
-                <button onclick="processCharge()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">충전하기</button>
+                <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">확인</button>
             </div>
         </div>
     </div>
@@ -975,7 +985,7 @@
             document.getElementById('detail-date').innerText = data.expected_date;
             document.getElementById('detail-type').innerText = data.assembly_type;
 
-            let formattedDetails = (data.details || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            let formattedDetails = KC.esc(data.details || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
             document.getElementById('detail-purpose').innerHTML = formattedDetails;
 
             // 이미 결제(열람권 보유)한 사용자는 자동으로 블라인드 해제
@@ -1072,23 +1082,7 @@
             document.getElementById('charge-modal').classList.add('hidden');
         }
 
-        async function processCharge() {
-            const { data: authData } = await supabaseClient.auth.getUser();
-            if (!authData.user) return;
-
-            const { data: profile } = await supabaseClient.from('user_profiles').select('points').eq('id', authData.user.id).single();
-            const newPoints = (profile ? profile.points : 0) + 5000;
-
-            const { error } = await supabaseClient.from('user_profiles').update({ points: newPoints }).eq('id', authData.user.id);
-
-            if (error) {
-                alert('충전에 실패했습니다.');
-            } else {
-                alert('5,000 포인트 충전이 완료되었습니다.');
-                closeChargeModal();
-                openPaymentModal();
-            }
-        }
+        function processCharge() { closeChargeModal(); }
 
         async function processPayment() {
             const confirmBtn = document.getElementById('payment-confirm-btn');

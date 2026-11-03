@@ -255,17 +255,17 @@
 
             tbody.innerHTML = curriculumList.map(item => `
                 <tr>
-                    <td class="font-bold text-[#12387a]">${item.chapter_no}</td>
-                    <td class="text-left font-medium text-[#0B2A5B]">${item.title || '-'}</td>
-                    <td>${item.duration_min || 0}</td>
+                    <td class="font-bold text-[#12387a]">${KC.esc(item.chapter_no)}</td>
+                    <td class="text-left font-medium text-[#0B2A5B]">${KC.esc(item.title || '-')}</td>
+                    <td>${KC.esc(item.duration_min || 0)}</td>
                     <td>${typeBadge(item.content_type)}</td>
-                    <td class="text-gray-500" title="${item.video_url || ''}">${truncateUrl(item.video_url)}</td>
-                    <td class="text-gray-500" title="${item.zoom_link || ''}">${truncateUrl(item.zoom_link)}</td>
+                    <td class="text-gray-500" title="${KC.esc(item.video_url || '')}">${KC.esc(truncateUrl(item.video_url))}</td>
+                    <td class="text-gray-500" title="${KC.esc(item.zoom_link || '')}">${KC.esc(truncateUrl(item.zoom_link))}</td>
                     <td>${item.is_preview ? '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[11px] font-bold">가능</span>' : '<span class="text-gray-400 text-[11px]">-</span>'}</td>
                     <td>
                         <div class="flex flex-wrap gap-1.5 justify-center">
                             <span class="btn-manage btn-edit" onclick='editCurriculum(${JSON.stringify(item).replace(/'/g, "&#39;")})'>수정</span>
-                            <span class="btn-manage btn-delete" onclick="deleteCurriculum('${item.id}')">삭제</span>
+                            <span class="btn-manage btn-delete" onclick="deleteCurriculum('${KC.esc(item.id)}')">삭제</span>
                         </div>
                     </td>
                 </tr>

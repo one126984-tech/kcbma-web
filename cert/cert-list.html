@@ -7,6 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>자격증 과정 | 대한집합건물관리협회</title>
 
+<script>
+    /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
+       <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
+    window.KC = window.KC || {};
+    KC.esc = KC.esc || function (v) {
+        return String(v == null ? '' : v)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+</script>
 <style>
         /* [COMMON-CSS-CRITICAL] 자동 생성됨 — 이 내용을 고치려면
            _partials/critical-css.html 파일만 고치고 build.js를 다시 실행할 것.
@@ -1017,27 +1027,27 @@
                 const pitch = item.short_desc || '이 과정만의 강점을 담은 소개 문구를 준비 중입니다.';
 
                 return `
-                    <div class="cert-premium-card" style="background: ${cardBg};" onclick="location.href='cert-detail.html?id=${item.id}'">
+                    <div class="cert-premium-card" style="background: ${cardBg};" onclick="location.href='cert-detail.html?id=${KC.esc(item.id)}'">
                         <div class="cert-accent-bar" style="background: ${gradient};"></div>
                         <div class="cert-card-head">
                             <div class="cert-icon-badge" style="background: ${gradient};"><i class="fas ${iconClass}"></i></div>
                             <div class="cert-head-text">
                                 <div class="cert-head-badges">
-                                    <span class="cert-pill cert-pill-cat">${item.category || '-'}</span>
+                                    <span class="cert-pill cert-pill-cat">${KC.esc(item.category || '-')}</span>
                                     <span class="cert-pill ${isOpen ? 'cert-pill-open' : 'cert-pill-closed'}">${isOpen ? '접수중' : '마감'}</span>
                                 </div>
-                                <h3 class="cert-premium-title">${item.title || '-'}</h3>
+                                <h3 class="cert-premium-title">${KC.esc(item.title || '-')}</h3>
                             </div>
                         </div>
                         <div class="cert-card-content">
-                            <div class="cert-pitch">${pitch}</div>
+                            <div class="cert-pitch">${KC.esc(pitch)}</div>
                             <div class="cert-meta-row">
                                 <span class="badge-tag"><i class="fas fa-circle-check text-gray-400 mr-1"></i>무료</span>
-                                <span class="badge-tag"><i class="fas fa-user-graduate text-gray-400 mr-1"></i>${item.enroll_count || 0}명 수강</span>
+                                <span class="badge-tag"><i class="fas fa-user-graduate text-gray-400 mr-1"></i>${KC.esc(item.enroll_count || 0)}명 수강</span>
                             </div>
                         </div>
                         <div class="cert-card-actions">
-                            <button type="button" class="btn-cert-detail" onclick="event.stopPropagation(); location.href='cert-detail.html?id=${item.id}';">자세히 보기 <i class="fas fa-arrow-right"></i></button>
+                            <button type="button" class="btn-cert-detail" onclick="event.stopPropagation(); location.href='cert-detail.html?id=${KC.esc(item.id)}';">자세히 보기 <i class="fas fa-arrow-right"></i></button>
                         </div>
                     </div>
                 `;

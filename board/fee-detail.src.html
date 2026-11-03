@@ -154,11 +154,11 @@
             <h2 class="text-xl font-bold mb-4 text-gray-800">포인트 충전</h2>
             <div class="mb-6 text-gray-700 text-[15px]">
                 <p>포인트가 부족하여 열람할 수 없습니다.</p>
-                <p class="font-bold text-blue-600 mt-2">5,000 포인트를 충전하시겠습니까?</p>
+                <p class="font-bold text-blue-600 mt-2">포인트 충전은 협회 사무국에 문의해 주세요.</p>
             </div>
             <div class="flex justify-center gap-3">
                 <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">취소</button>
-                <button onclick="processCharge()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">충전하기</button>
+                <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">확인</button>
             </div>
         </div>
     </div>
@@ -204,13 +204,13 @@
             // #locked-section의 blur로 가려져 있으므로 로그인 전에는 노출되지 않음.
             document.getElementById('detail-contact').innerText = `${data.client_name} (${data.client_contact})`;
 
-            let formattedPurpose = (data.evaluation_purpose || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            let formattedPurpose = KC.esc(data.evaluation_purpose || '').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
             document.getElementById('detail-purpose').innerHTML = formattedPurpose;
 
             const attachmentWrapper = document.getElementById('detail-attachment-wrapper');
             if (data.attachment_url) {
                 attachmentWrapper.innerHTML = `
-                    <a href="${data.attachment_url}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit">
+                    <a href="${KC.esc(data.attachment_url)}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-blue-700 font-medium hover:underline bg-white p-3 rounded-md border border-gray-200 shadow-sm transition hover:border-blue-300 w-fit">
                         <i class="fa-regular fa-file-image text-green-600 text-lg"></i> 관리비 고지서 원본 보기
                     </a>`;
             } else {
@@ -311,23 +311,7 @@
             document.getElementById('charge-modal').classList.add('hidden');
         }
 
-        async function processCharge() {
-            const { data: authData } = await supabaseClient.auth.getUser();
-            if (!authData.user) return;
-
-            const { data: profile } = await supabaseClient.from('user_profiles').select('points').eq('id', authData.user.id).single();
-            const newPoints = (profile ? profile.points : 0) + 5000;
-
-            const { error } = await supabaseClient.from('user_profiles').update({ points: newPoints }).eq('id', authData.user.id);
-
-            if (error) {
-                alert('충전에 실패했습니다.');
-            } else {
-                alert('5,000 포인트 충전이 완료되었습니다.');
-                closeChargeModal();
-                openPaymentModal();
-            }
-        }
+        function processCharge() { closeChargeModal(); }
 
         async function processPayment() {
             const confirmBtn = document.getElementById('payment-confirm-btn');

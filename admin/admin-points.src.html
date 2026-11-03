@@ -151,7 +151,7 @@
 
             if (error) {
                 console.error('회원 검색 오류:', error);
-                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-red-500">검색 중 오류가 발생했습니다: ${error.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-red-500">검색 중 오류가 발생했습니다: ${KC.esc(error.message)}</td></tr>`;
                 return;
             }
 
@@ -161,16 +161,16 @@
             }
 
             tbody.innerHTML = data.map(u => `
-                <tr id="row-${u.id}">
-                    <td class="text-left font-medium text-[#0B2A5B]">${u.email || '-'}</td>
-                    <td>${u.company_name || '-'}</td>
+                <tr id="row-${KC.esc(u.id)}">
+                    <td class="text-left font-medium text-[#0B2A5B]">${KC.esc(u.email || '-')}</td>
+                    <td>${KC.esc(u.company_name || '-')}</td>
                     <td class="text-gray-500">${formatDate(u.created_at)}</td>
-                    <td class="font-bold" id="points-${u.id}">${(u.points ?? 0).toLocaleString()}</td>
+                    <td class="font-bold" id="points-${KC.esc(u.id)}">${(u.points ?? 0).toLocaleString()}</td>
                     <td>
-                        <input type="number" id="amount-${u.id}" class="point-input" placeholder="예: 5000 / -1000" step="1000">
+                        <input type="number" id="amount-${KC.esc(u.id)}" class="point-input" placeholder="예: 5000 / -1000" step="1000">
                     </td>
                     <td>
-                        <button class="btn-give" onclick="givePoints('${u.id}')">지급/차감</button>
+                        <button class="btn-give" onclick="givePoints('${KC.esc(u.id)}')">지급/차감</button>
                     </td>
                 </tr>
             `).join('');

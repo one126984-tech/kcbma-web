@@ -368,18 +368,18 @@
 
             tbody.innerHTML = questionList.map(item => `
                 <tr>
-                    <td class="font-bold text-[#12387a]">${item.question_no}</td>
-                    <td class="text-left font-medium text-[#0B2A5B]" title="${(item.question_text||'').replace(/"/g,'&quot;')}">${truncateText(item.question_text, 30)}</td>
-                    <td class="text-gray-500">${truncateText(item.option_1, 12)}</td>
-                    <td class="text-gray-500">${truncateText(item.option_2, 12)}</td>
-                    <td class="text-gray-500">${truncateText(item.option_3, 12)}</td>
-                    <td class="text-gray-500">${truncateText(item.option_4, 12)}</td>
-                    <td><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[11px] font-bold">${item.correct_option}번</span></td>
-                    <td>${item.points}</td>
+                    <td class="font-bold text-[#12387a]">${KC.esc(item.question_no)}</td>
+                    <td class="text-left font-medium text-[#0B2A5B]" title="${KC.esc(item.question_text||'')}">${KC.esc(truncateText(item.question_text, 30))}</td>
+                    <td class="text-gray-500">${KC.esc(truncateText(item.option_1, 12))}</td>
+                    <td class="text-gray-500">${KC.esc(truncateText(item.option_2, 12))}</td>
+                    <td class="text-gray-500">${KC.esc(truncateText(item.option_3, 12))}</td>
+                    <td class="text-gray-500">${KC.esc(truncateText(item.option_4, 12))}</td>
+                    <td><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[11px] font-bold">${KC.esc(item.correct_option)}번</span></td>
+                    <td>${KC.esc(item.points)}</td>
                     <td>
                         <div class="flex flex-wrap gap-1.5 justify-center">
                             <span class="btn-manage btn-edit" onclick='editQuestion(${JSON.stringify(item).replace(/'/g, "&#39;")})'>수정</span>
-                            <span class="btn-manage btn-delete" onclick="deleteQuestion('${item.id}')">삭제</span>
+                            <span class="btn-manage btn-delete" onclick="deleteQuestion('${KC.esc(item.id)}')">삭제</span>
                         </div>
                     </td>
                 </tr>

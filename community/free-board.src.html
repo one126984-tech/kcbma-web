@@ -451,7 +451,7 @@
             includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             tags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             manualInput.placeholder = tags.length > 0 ? "" : "제목, 지역 등 포함할 단어 입력 후 엔터";
@@ -467,7 +467,7 @@
             excludeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             excludeTags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip !bg-red-100 !text-red-700';
-                chip.innerHTML = `${word} <span class="tag-remove hover:!text-red-900" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
                 excludeContainer.insertBefore(chip, manualExcludeInput);
             });
             manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
@@ -639,13 +639,13 @@
 
             return `
                 <tr class="${trClass}" onclick="location.href='free-board-detail.html'">
-                    <td>${item.id}</td>
-                    <td class="text-left pl-4 font-bold text-gray-800" title="${item.title}"><span class="hover:underline align-middle">${item.title}</span>${hotBadge}</td>
-                    <td class="text-gray-500">${item.region}</td>
-                    <td title="${item.author}">${item.author}</td>
+                    <td>${KC.esc(item.id)}</td>
+                    <td class="text-left pl-4 font-bold text-gray-800" title="${KC.esc(item.title)}"><span class="hover:underline align-middle">${KC.esc(item.title)}</span>${hotBadge}</td>
+                    <td class="text-gray-500">${KC.esc(item.region)}</td>
+                    <td title="${KC.esc(item.author)}">${KC.esc(item.author)}</td>
                     <td class="text-gray-500 text-[13.5px]">${dateStr}</td>
-                    <td class="text-gray-500 text-[13.5px]">${item.views}</td>
-                    <td class="text-red-500 font-bold">${item.likes}</td>
+                    <td class="text-gray-500 text-[13.5px]">${KC.esc(item.views)}</td>
+                    <td class="text-red-500 font-bold">${KC.esc(item.likes)}</td>
                 </tr>
             `;
         }).join('');

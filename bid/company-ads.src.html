@@ -468,13 +468,13 @@
                 
                 tr.innerHTML = `
                     <td>${no}</td>
-                    <td class="font-bold text-[#0B2A5B] truncate" title="${companyName}">${companyName}</td>
-                    <td class="text-left pl-6 text-gray-800 hover:underline font-medium truncate" title="${catchphrase}">${catchphrase}</td>
-                    <td class="text-gray-700">${category}</td>
-                    <td class="text-gray-600">${regionStr}</td>
-                    <td class="text-gray-600">${companyType}</td>
+                    <td class="font-bold text-[#0B2A5B] truncate" title="${KC.esc(companyName)}">${KC.esc(companyName)}</td>
+                    <td class="text-left pl-6 text-gray-800 hover:underline font-medium truncate" title="${KC.esc(catchphrase)}">${KC.esc(catchphrase)}</td>
+                    <td class="text-gray-700">${KC.esc(category)}</td>
+                    <td class="text-gray-600">${KC.esc(regionStr)}</td>
+                    <td class="text-gray-600">${KC.esc(companyType)}</td>
                     <td>${badgeHtml}</td>
-                    <td>${c.view_count || 0}</td> <!-- ★ 수정됨 -->
+                    <td>${KC.esc(c.view_count || 0)}</td> <!-- ★ 수정됨 -->
                 `;
                 tbody.appendChild(tr);
             });
@@ -582,7 +582,7 @@
             tags.forEach(word => {
                 const chip = document.createElement('span');
                 chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             if(manualInput) manualInput.placeholder = tags.length > 0 ? "" : "업체명, 핵심서비스, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로";

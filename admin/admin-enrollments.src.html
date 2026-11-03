@@ -250,11 +250,11 @@
                 return `
                 <tr>
                     <td class="text-gray-400">${idx + 1}</td>
-                    <td class="text-gray-500" title="${item.user_id || ''}">${item.user_id ? String(item.user_id).slice(0, 8) + '...' : '-'}</td>
-                    <td class="text-left font-bold text-[#0B2A5B]">${course.title || '-'}</td>
+                    <td class="text-gray-500" title="${KC.esc(item.user_id || '')}">${item.user_id ? String(item.user_id).slice(0, 8) + '...' : '-'}</td>
+                    <td class="text-left font-bold text-[#0B2A5B]">${KC.esc(course.title || '-')}</td>
                     <td>${Number(item.progress_rate || 0).toFixed(1)}%</td>
                     <td>
-                        <select class="status-select" onchange="changeStatus('${item.id}', this.value)">
+                        <select class="status-select" onchange="changeStatus('${KC.esc(item.id)}', this.value)">
                             <option value="ACTIVE" ${item.status === 'ACTIVE' ? 'selected' : ''}>수강중</option>
                             <option value="COMPLETED" ${item.status === 'COMPLETED' ? 'selected' : ''}>수료</option>
                             <option value="EXPIRED" ${item.status === 'EXPIRED' ? 'selected' : ''}>만료</option>
@@ -264,7 +264,7 @@
                     <td class="text-gray-500">${formatDate(item.enrolled_at)}</td>
                     <td class="text-gray-500">${formatDate(item.completed_at)}</td>
                     <td>
-                        <span class="btn-manage btn-delete" onclick="deleteEnrollment('${item.id}')">삭제</span>
+                        <span class="btn-manage btn-delete" onclick="deleteEnrollment('${KC.esc(item.id)}')">삭제</span>
                     </td>
                 </tr>
             `;

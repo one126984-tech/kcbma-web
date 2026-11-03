@@ -401,7 +401,7 @@
             includeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             tags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             if(manualInput) manualInput.placeholder = tags.length > 0 ? "" : "교육명, 장소 등 포함할 단어 입력 후 엔터";
@@ -442,7 +442,7 @@
             excludeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
             excludeTags.forEach(word => {
                 const chip = document.createElement('span'); chip.className = 'tag-chip !bg-red-100 !text-red-700'; 
-                chip.innerHTML = `${word} <span class="tag-remove hover:!text-red-900" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
                 excludeContainer.insertBefore(chip, manualExcludeInput);
             });
             if(manualExcludeInput) manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
@@ -746,13 +746,13 @@
                 
                 tr.innerHTML = `
                     <td class="text-center">${badge}</td>
-                    <td class="font-bold text-[#0B2A5B] text-left pl-4 hover:underline">${c.title || '제목 없음'}</td>
-                    <td class="text-center">${displayRegion}</td>
-                    <td class="text-center truncate px-2" title="${c.location || ''}">${c.location || '-'}</td>
-                    <td class="text-center">${c.category || '-'}</td>
+                    <td class="font-bold text-[#0B2A5B] text-left pl-4 hover:underline">${KC.esc(c.title || '제목 없음')}</td>
+                    <td class="text-center">${KC.esc(displayRegion)}</td>
+                    <td class="text-center truncate px-2" title="${KC.esc(c.location || '')}">${KC.esc(c.location || '-')}</td>
+                    <td class="text-center">${KC.esc(c.category || '-')}</td>
                     <td class="text-center text-[13px]">${period}</td>
-                    <td class="text-center text-[14px] ${ddayInfo.color}">${ddayInfo.text}</td>
-                    <td class="text-center">${c.view_count || 0}</td>
+                    <td class="text-center text-[14px] ${KC.esc(ddayInfo.color)}">${KC.esc(ddayInfo.text)}</td>
+                    <td class="text-center">${KC.esc(c.view_count || 0)}</td>
                 `;
                 tbody.appendChild(tr);
             });

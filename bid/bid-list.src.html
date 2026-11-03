@@ -490,12 +490,12 @@
                 tr.innerHTML = `
                     <td>${no}</td>
                     <td>${statusBadge}</td>
-                    <td class="text-left font-bold text-[#0B2A5B] hover:underline" title="${displayTitle}">${displayTitle}</td>
-                    <td>${category}</td>
-                    <td>${regionStr}</td>
+                    <td class="text-left font-bold text-[#0B2A5B] hover:underline" title="${KC.esc(displayTitle)}">${KC.esc(displayTitle)}</td>
+                    <td>${KC.esc(category)}</td>
+                    <td>${KC.esc(regionStr)}</td>
                     <td>${formatPeriod(bid.start_date, bid.end_date)}</td>
                     <td class="font-bold text-[#333]">${calcDday(bid.end_date)}</td>
-                    <td>${bid.view_count || 0}</td>
+                    <td>${KC.esc(bid.view_count || 0)}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -599,7 +599,7 @@
             tags.forEach(word => {
                 const chip = document.createElement('span');
                 chip.className = 'tag-chip';
-                chip.innerHTML = `${word} <span class="tag-remove" data-word="${word}">✕</span>`;
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove" data-word="${KC.esc(word)}">✕</span>`;
                 includeContainer.insertBefore(chip, manualInput);
             });
             manualInput.placeholder = tags.length > 0 ? "" : "제목, 업체명, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로";

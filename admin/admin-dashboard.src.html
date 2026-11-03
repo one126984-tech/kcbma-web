@@ -294,8 +294,8 @@
                 const userId = item.user_id ? String(item.user_id).slice(0, 8) + '...' : '-';
                 return `
                     <tr>
-                        <td class="text-gray-500">${userId}</td>
-                        <td class="text-left font-medium text-[#0B2A5B]">${course.title || '-'}</td>
+                        <td class="text-gray-500">${KC.esc(userId)}</td>
+                        <td class="text-left font-medium text-[#0B2A5B]">${KC.esc(course.title || '-')}</td>
                         <td class="text-gray-500">${formatDate(item.enrolled_at)}</td>
                         <td>${enrollStatusBadge(item.status)}</td>
                     </tr>
@@ -313,8 +313,8 @@
                 const course = item.cert_courses || {};
                 return `
                     <tr>
-                        <td class="font-bold text-[#12387a]">${item.cert_number || '-'}</td>
-                        <td class="text-left font-medium text-[#0B2A5B]">${course.title || '-'}</td>
+                        <td class="font-bold text-[#12387a]">${KC.esc(item.cert_number || '-')}</td>
+                        <td class="text-left font-medium text-[#0B2A5B]">${KC.esc(course.title || '-')}</td>
                         <td class="text-gray-500">${formatDate(item.issued_at)}</td>
                     </tr>
                 `;

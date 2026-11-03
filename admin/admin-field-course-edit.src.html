@@ -346,9 +346,9 @@
                 }
                 tbody.innerHTML = rows.map(a => `
                     <tr>
-                        <td>${a.user_email || a.user_id}</td>
+                        <td>${KC.esc(a.user_email || a.user_id)}</td>
                         <td>${formatDateTime(a.attended_at)}</td>
-                        <td><span class="btn-manage btn-delete" onclick="removeAttendee('${a.id}')">삭제</span></td>
+                        <td><span class="btn-manage btn-delete" onclick="removeAttendee('${KC.esc(a.id)}')">삭제</span></td>
                     </tr>
                 `).join('');
             } catch (e) {
@@ -376,8 +376,8 @@
                 }
                 resultBox.innerHTML = data.map(u => `
                     <div class="flex items-center justify-between border border-gray-200 rounded px-4 py-2.5 mb-2">
-                        <div class="text-[13.5px]"><b class="text-[#0B2A5B]">${u.email || '-'}</b> <span class="text-gray-400">${u.company_name || ''}</span></div>
-                        <span class="btn-manage btn-add" onclick="addAttendee('${u.id}', '${(u.email || '').replace(/'/g, "\\'")}')">참석 처리</span>
+                        <div class="text-[13.5px]"><b class="text-[#0B2A5B]">${KC.esc(u.email || '-')}</b> <span class="text-gray-400">${KC.esc(u.company_name || '')}</span></div>
+                        <span class="btn-manage btn-add" onclick="addAttendee('${KC.esc(u.id)}', '${(u.email || '').replace(/'/g, "\\'")}')">참석 처리</span>
                     </div>
                 `).join('');
             } catch (e) {

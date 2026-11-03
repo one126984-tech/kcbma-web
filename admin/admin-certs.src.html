@@ -216,16 +216,16 @@
             if (item.status === 'PENDING_PAYMENT') {
                 return `
                     <div class="flex gap-1.5 justify-center">
-                        <span class="btn-manage btn-confirm" onclick="confirmPayment('${item.id}')"><i class="fas fa-check mr-1"></i>입금 확인</span>
-                        <span class="btn-manage btn-delete" onclick="rejectRequest('${item.id}')">반려</span>
+                        <span class="btn-manage btn-confirm" onclick="confirmPayment('${KC.esc(item.id)}')"><i class="fas fa-check mr-1"></i>입금 확인</span>
+                        <span class="btn-manage btn-delete" onclick="rejectRequest('${KC.esc(item.id)}')">반려</span>
                     </div>
                 `;
             }
             if (item.status === 'PAYMENT_CONFIRMED') {
                 return `
                     <div class="flex gap-1.5 justify-center">
-                        <span class="btn-manage btn-issue" onclick="finalizeIssue('${item.id}')"><i class="fas fa-award mr-1"></i>발급 처리</span>
-                        <span class="btn-manage btn-delete" onclick="rejectRequest('${item.id}')">반려</span>
+                        <span class="btn-manage btn-issue" onclick="finalizeIssue('${KC.esc(item.id)}')"><i class="fas fa-award mr-1"></i>발급 처리</span>
+                        <span class="btn-manage btn-delete" onclick="rejectRequest('${KC.esc(item.id)}')">반려</span>
                     </div>
                 `;
             }
@@ -249,11 +249,11 @@
                 return `
                 <tr>
                     <td class="text-gray-400">${idx + 1}</td>
-                    <td class="font-bold text-[#12387a]">${item.cert_number || '-'}</td>
-                    <td class="text-left font-medium text-[#0B2A5B]">${item.cert_name || '-'}</td>
-                    <td>${item.holder_name || '-'}</td>
-                    <td class="text-left text-gray-600">${course.title || '-'}</td>
-                    <td>${item.depositor_name || '-'}</td>
+                    <td class="font-bold text-[#12387a]">${KC.esc(item.cert_number || '-')}</td>
+                    <td class="text-left font-medium text-[#0B2A5B]">${KC.esc(item.cert_name || '-')}</td>
+                    <td>${KC.esc(item.holder_name || '-')}</td>
+                    <td class="text-left text-gray-600">${KC.esc(course.title || '-')}</td>
+                    <td>${KC.esc(item.depositor_name || '-')}</td>
                     <td class="text-gray-600">${(item.payment_amount || 250000).toLocaleString()}원</td>
                     <td class="text-gray-500">${dateLabel}</td>
                     <td>${certStatusBadge(item.status)}</td>

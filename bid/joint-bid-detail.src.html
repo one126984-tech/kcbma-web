@@ -380,8 +380,8 @@
                         const isReached = currentCount >= t.target;
                         return `
                             <div class="flex-1 flex flex-col justify-center items-center py-4 px-2 rounded-lg ${isReached ? 'bg-red-50 border-2 border-red-400 shadow-sm' : 'bg-white border border-gray-200'}">
-                                <span class="text-[13px] font-bold ${isReached ? 'text-red-600' : 'text-gray-500'} mb-1">${t.target}곳 이상 모집 시</span>
-                                <span class="text-[18px] font-black ${isReached ? 'text-red-600' : 'text-gray-800'}">${t.rate} 혜택</span>
+                                <span class="text-[13px] font-bold ${isReached ? 'text-red-600' : 'text-gray-500'} mb-1">${KC.esc(t.target)}곳 이상 모집 시</span>
+                                <span class="text-[18px] font-black ${isReached ? 'text-red-600' : 'text-gray-800'}">${KC.esc(t.rate)} 혜택</span>
                             </div>
                         `;
                     }).join('');
@@ -389,7 +389,7 @@
                     throw new Error("Invalid tier format");
                 }
             } catch(e) {
-                benefitHtml = `<div class="text-lg font-black text-red-600">${bid.benefit_text || '-'}</div>`;
+                benefitHtml = `<div class="text-lg font-black text-red-600">${KC.esc(bid.benefit_text || '-')}</div>`;
             }
 
             document.getElementById('detail-benefit-tiers').innerHTML = benefitHtml;
@@ -425,7 +425,7 @@
                 if (p.unit_count) specs.push(`<span class="p-spec">${Number(p.unit_count).toLocaleString()}세대(점포)</span>`);
                 return `
                     <li class="participant-item">
-                        <span class="p-name">${p.building_name}${p.building_type ? ` (${p.building_type})` : ''}</span>
+                        <span class="p-name">${KC.esc(p.building_name)}${p.building_type ? ` (${KC.esc(p.building_type)})` : ''}</span>
                         <div class="flex gap-2">${specs.join('')}</div>
                     </li>
                 `;

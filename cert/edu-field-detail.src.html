@@ -213,7 +213,7 @@
             document.getElementById('info-category').innerText = category;
 
             let contentStr = course.description || '상세 안내가 없습니다.';
-            contentStr = contentStr.replace(/\n/g, '<br>');
+            contentStr = KC.esc(contentStr).replace(/\n/g, '<br>');
             document.getElementById('edu-content').innerHTML = contentStr;
         }
     </script>

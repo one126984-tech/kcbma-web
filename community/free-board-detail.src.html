@@ -213,10 +213,10 @@
                     commentDiv.className = 'border-b border-gray-200 pb-3 last:border-0';
                     commentDiv.innerHTML = `
                         <div class="flex justify-between items-start mb-1">
-                            <span class="font-bold text-gray-800 text-sm">${comment.author}</span>
+                            <span class="font-bold text-gray-800 text-sm">${KC.esc(comment.author)}</span>
                             <span class="text-[11px] text-gray-400">${formattedDate}</span>
                         </div>
-                        <div class="text-gray-700 text-sm break-all">${comment.content}</div>
+                        <div class="text-gray-700 text-sm break-all">${KC.esc(comment.content)}</div>
                     `;
                     commentList.appendChild(commentDiv);
                 });

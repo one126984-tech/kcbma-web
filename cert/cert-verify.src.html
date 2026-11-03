@@ -154,9 +154,9 @@
                         </div>
                     </div>
                     <table class="cert-info-table">
-                        <tr><th>자격증명</th><td>${cert.cert_name || '-'}</td></tr>
-                        <tr><th>자격증번호</th><td class="font-mono font-bold">${cert.cert_number}</td></tr>
-                        <tr><th>취득자명</th><td>${cert.holder_name || '-'}</td></tr>
+                        <tr><th>자격증명</th><td>${KC.esc(cert.cert_name || '-')}</td></tr>
+                        <tr><th>자격증번호</th><td class="font-mono font-bold">${KC.esc(cert.cert_number)}</td></tr>
+                        <tr><th>취득자명</th><td>${KC.esc(cert.holder_name || '-')}</td></tr>
                         <tr><th>발급일</th><td>${formatDate(cert.issued_at)}</td></tr>
                         <tr><th>상태</th><td><span class="bg-green-600 text-white px-3 py-1 rounded text-[12px] font-bold">유효</span></td></tr>
                     </table>
@@ -180,7 +180,7 @@
                         </div>
                         <div>
                             <div class="font-black text-lg text-yellow-700">해당 자격증은 취소되었습니다</div>
-                            <div class="text-[13px] text-yellow-600">자격증번호: ${cert.cert_number}</div>
+                            <div class="text-[13px] text-yellow-600">자격증번호: ${KC.esc(cert.cert_number)}</div>
                         </div>
                     </div>
                 </div>

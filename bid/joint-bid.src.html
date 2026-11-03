@@ -537,7 +537,7 @@
                 let dDayDisplay = 'D-7';
                 if (c.d_day || c.dday) {
                     const rawDday = String(c.d_day || c.dday).trim();
-                    dDayDisplay = rawDday.toUpperCase().startsWith('D') ? rawDday : `D-${rawDday}`;
+                    dDayDisplay = KC.esc(rawDday.toUpperCase().startsWith('D') ? rawDday : `D-${rawDday}`);
                 } else if (c.end_date || c.deadline) {
                     const today = new Date();
                     const endDate = new Date(c.end_date || c.deadline);

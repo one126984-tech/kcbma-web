@@ -178,7 +178,7 @@
             document.getElementById('info-service').innerText = data.service_summary || '-';
 
             let contentStr = data.description || '';
-            document.getElementById('company-content').innerHTML = contentStr.replace(/\n/g, '<br>');
+            document.getElementById('company-content').innerHTML = KC.esc(contentStr).replace(/\n/g, '<br>');
         }
 
         function renderMockData() {

@@ -110,12 +110,12 @@
                         <td class="py-4 px-4 text-gray-600">${date}</td>
                         <td class="py-4 px-4 text-gray-900 font-medium text-xs">${req.user_id.slice(0, 8)}...</td>
                         <td class="py-4 px-4">
-                            <span class="font-bold text-gray-800">${req.category || '기타'}</span><br>
-                            <span class="text-xs text-gray-500">${req.region || '-'}</span>
+                            <span class="font-bold text-gray-800">${KC.esc(req.category || '기타')}</span><br>
+                            <span class="text-xs text-gray-500">${KC.esc(req.region || '-')}</span>
                         </td>
                         <td class="py-4 px-4 text-right font-black text-red-600">${amount.toLocaleString()}원</td>
                         <td class="py-4 px-4 text-center">
-                            <button onclick="approveRefund('${req.id}', '${req.user_id}', ${amount})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow-sm">
+                            <button onclick="approveRefund('${KC.esc(req.id)}', '${KC.esc(req.user_id)}', ${amount})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow-sm">
                                 환불 승인
                             </button>
                         </td>
