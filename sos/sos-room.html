@@ -899,7 +899,7 @@
                         <!-- 지금 대기 중인 등록 전문가 (응답 전에도 바로 선택 가능) -->
                         <div id="registered-section" style="margin-top:22px;">
                             <h2 class="text-[17px] font-black text-gray-800 border-b-2 border-green-600 pb-1 inline-block mb-2">대기 중인 등록 전문가</h2>
-                            <p class="text-[12px] text-gray-500 mb-3 px-1 break-keep">내 조건(지역·분야·시간)에 맞는 전문가입니다. <b>🟢 지금 대기 확인</b>은 최근 7분 안에 대기를 확인한 전문가, <b>⚪ 대기 시간 등록</b>은 지금이 서비스 가능 시간인 전문가입니다. '전화번호 보기'를 누르면 상담료가 결제(또는 예치금 차감)되고 번호가 표시됩니다. 통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
+                            <p class="text-[12px] text-gray-500 mb-3 px-1 break-keep">내 조건(지역·분야·시간)에 맞는 전문가입니다. <b>🟢 지금 대기 확인</b>은 최근 15분 안에 대기를 확인한 전문가, <b>⚪ 대기 시간 등록</b>은 지금이 서비스 가능 시간인 전문가입니다. '전화번호 보기'를 누르면 상담료가 결제(또는 예치금 차감)되고 번호가 표시됩니다. 통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
                             <div id="registered-grid" class="grid grid-cols-2 gap-3 mb-2"></div>
                             <div id="invite-bar" style="display:none;">
                                 <p class="text-[13px] font-black text-amber-800 break-keep">📩 콜 문자로 먼저 물어보기</p>
@@ -1280,7 +1280,7 @@
     let presence = {};
     let inviteChecked = new Set();
     let inviting = false;
-    const LIVE_MS = 7 * 60 * 1000;   // 마지막 대기 확인이 7분 이내면 '지금 대기 확인'
+    const LIVE_MS = 15 * 60 * 1000;   // 마지막 대기 확인(순위 올리기)이 15분 이내면 '지금 대기 확인'
     const INVITE_ONCE = 3, INVITE_TOTAL = 6;
     function minsAgo(t) { const m = Math.floor((Date.now() - new Date(t).getTime()) / 60000); return m < 1 ? '방금' : m + '분 전'; }
     function isLive(id) { const p = presence[id]; return !!(p && p.last_checkin_at && (Date.now() - new Date(p.last_checkin_at).getTime()) < LIVE_MS); }
