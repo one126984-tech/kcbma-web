@@ -1,0 +1,10 @@
+# 대한집합건물관리협회 (www.kcbma.org) — 검색엔진 안내
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /mypage/
+Disallow: /callback.html
+Disallow: /_partials/
+Disallow: /supabase/
+
+Sitemap: https://www.kcbma.org/sitemap.xml

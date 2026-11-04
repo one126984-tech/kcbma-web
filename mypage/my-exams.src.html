@@ -1,124 +1,249 @@
+<!-- 파일명: my-exams.src.html
+     시험 결과: 로그인한 회원이 응시한 자격 시험(cert_exam_attempts) 기록을 보여주는 페이지.
+     ★ 2026-11: 예전엔 샘플 데이터만 보이는 독립 화면(헤더·로그인 없음, Tailwind CDN)이었음 →
+       다른 마이페이지와 같은 헤더/사이드바 구조로 바꾸고 실제 응시 기록을 불러오도록 변경. -->
+<!-- @var PAGE_CLASS: page-mypage -->
+<!-- @var BASE: ../../ -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지 - 시험 결과</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>시험 결과 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(시험 결과) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .tab-item { padding: 10px 22px; font-size: 14.5px; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-item:hover { color: #12387a; }
+        .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
+
+        .exam-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+        .exam-score { min-width: 92px; text-align: center; }
+        .exam-score .num { font-size: 26px; font-weight: 900; line-height: 1.1; }
+        .exam-score .sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+        .badge { padding: 5px 11px; border-radius: 4px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        .badge-pass { background: #dcfce7; color: #15803d; }
+        .badge-fail { background: #fee2e2; color: #dc2626; }
+        .badge-wait { background: #f3f4f6; color: #6b7280; }
+        .exam-btn { flex-shrink: 0; background: #12387a; color: #fff; font-weight: 700; font-size: 13px; padding: 10px 18px; border-radius: 6px; white-space: nowrap; border: 0; cursor: pointer; }
+        .exam-btn:hover { background: #0e2b61; }
+        .exam-btn.light { background: #fff; color: #12387a; border: 1px solid #12387a; }
+        .exam-btn.light:hover { background: #eff6ff; }
+        @media (max-width: 640px) {
+            .exam-card { flex-wrap: wrap; padding: 16px; gap: 12px; }
+            .exam-score { min-width: 70px; }
+            .exam-score .num { font-size: 22px; }
+            .exam-btn { width: 100%; text-align: center; }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
 
-  <!-- 상단 네비게이션 바 -->
-  <header class="bg-white shadow-sm border-b">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-      <div class="flex items-center gap-6">
-        <h1 class="text-xl font-black text-[#1e3a8a]">KCBMA 대한집합건물관리협회</h1>
-      </div>
-      <div class="flex items-center gap-4 text-sm">
-        <span class="font-bold">회원님, 안녕하세요!</span>
-        <button class="bg-gray-700 text-white px-3 py-1.5 rounded font-bold hover:bg-gray-800">로그아웃</button>
-      </div>
-    </div>
-  </header>
+<!-- @include header -->
 
-  <main class="max-w-7xl mx-auto mt-8 px-4 flex flex-col md:flex-row gap-8 pb-20">
-    
-    <!-- 좌측 사이드바 -->
-    <aside class="w-full md:w-64 flex-shrink-0">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <ul class="flex flex-col text-center font-bold text-gray-600">
-          <li><a href="dashboard.html" class="block py-4 hover:bg-gray-50 border-b">대시보드</a></li>
-          <li><a href="my-courses.html" class="block py-4 hover:bg-gray-50 border-b">내 수강 목록</a></li>
-          <li><a href="my-certs.html" class="block py-4 hover:bg-gray-50 border-b">내 자격증</a></li>
-          <!-- 현재 메뉴 활성화 -->
-          <li><a href="my-exams.html" class="block py-4 bg-[#2563eb] text-white border-b shadow-inner">시험 결과</a></li>
-          <li><a href="my-field-courses.html" class="block py-4 hover:bg-gray-50 border-b">내 현장교육 신청</a></li>
-          <li><a href="my-sos.html" class="block py-4 hover:bg-gray-50 border-b">내 SOS 내역</a></li>
-          <li><a href="#" class="block py-4 hover:bg-gray-50">내 정보</a></li>
-        </ul>
-      </div>
-    </aside>
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+<!-- @include header-close -->
 
-    <!-- 메인 콘텐츠 영역 -->
-    <section class="flex-1">
-      <h2 class="text-2xl font-bold text-[#1e3a8a] mb-4">시험 결과</h2>
+<div id="page-content" class="flex-1 flex flex-col">
 
-      <!-- 탭 메뉴 -->
-      <div class="bg-white rounded-t-lg shadow-sm border border-gray-200 flex px-6 pt-4 gap-8 text-gray-500 font-bold border-b">
-        <button class="pb-3 border-b-2 border-blue-600 text-blue-800">전체</button>
-        <button class="pb-3 border-b-2 border-transparent hover:text-blue-600">합격</button>
-        <button class="pb-3 border-b-2 border-transparent hover:text-blue-600">불합격</button>
-      </div>
-
-      <!-- 리스트 (예시 데이터) -->
-      <div class="bg-white border border-t-0 border-gray-200 rounded-b-lg p-6 space-y-4">
-        <div class="border border-gray-200 rounded-lg p-5 flex justify-between items-center hover:bg-gray-50 transition cursor-pointer" onclick="openExamModal()">
-          <div>
-            <div class="flex items-center gap-3 mb-2">
-              <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-black">합격</span>
-              <span class="text-sm text-gray-500 font-medium">2026. 08. 15</span>
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab-active">시험 결과</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-sos.html'">내 SOS 내역</div>
+                <div class="side-menu-tab">내 정보</div>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">제1회 건물관리사 자격시험</h3>
-            <p class="text-sm text-gray-500 mt-1">점수: 85점 / 100점</p>
-          </div>
-          <div class="text-gray-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+        </aside>
 
-  <!-- 💡 시험 결과 상세 모달 (X 버튼에 onclick 이벤트 추가) -->
-  <div id="examDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md relative">
-      
-      <!-- 닫기 버튼: onclick="closeExamModal()" 가 모달을 닫게 만듭니다 -->
-      <button onclick="closeExamModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition bg-gray-100 hover:bg-gray-200 rounded-full p-1">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-      
-      <h3 class="text-xl font-bold text-gray-900 mb-6">시험 결과 상세</h3>
-      
-      <div class="space-y-4 text-sm">
-        <div class="flex justify-between border-b pb-2">
-          <span class="text-gray-500">시험명</span>
-          <span class="font-bold text-gray-900">제1회 건물관리사 자격시험</span>
-        </div>
-        <div class="flex justify-between border-b pb-2">
-          <span class="text-gray-500">응시일자</span>
-          <span class="font-bold text-gray-900">2026. 08. 15</span>
-        </div>
-        <div class="flex justify-between border-b pb-2">
-          <span class="text-gray-500">총점</span>
-          <span class="font-bold text-blue-600 text-lg">85점</span>
-        </div>
-        <div class="flex justify-between pb-2">
-          <span class="text-gray-500">결과</span>
-          <span class="font-bold text-green-600 bg-green-100 px-2 py-1 rounded">최종 합격</span>
-        </div>
-      </div>
+        <section class="flex-1 min-w-0">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-6 flex items-center overflow-x-auto no-scrollbar">
+                <div class="tab-item active" data-tab="ALL" onclick="setTab('ALL')">전체</div>
+                <div class="tab-item" data-tab="PASS" onclick="setTab('PASS')">합격</div>
+                <div class="tab-item" data-tab="FAIL" onclick="setTab('FAIL')">불합격</div>
+                <div class="tab-item" data-tab="WAIT" onclick="setTab('WAIT')">미제출</div>
+            </div>
 
-      <div class="mt-8">
-        <button onclick="closeExamModal()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
-          확인
-        </button>
-      </div>
+            <div id="exam-list">
+                <div class="text-center py-20 text-gray-400 text-sm bg-white border border-gray-200 rounded">데이터를 불러오는 중입니다...</div>
+            </div>
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
     </div>
-  </div>
 
-  <script>
-    // 모달 열기
-    function openExamModal() {
-      document.getElementById('examDetailModal').classList.remove('hidden');
-    }
+    <script>
+        const supabaseClient = window.sb;
+        let currentUser = null;
+        let allAttempts = [];
+        let examMap = {};    // exam_id → 시험 정보
+        let courseMap = {};  // course_id → 과정 정보
+        let currentTab = 'ALL';
 
-    // 모달 닫기
-    function closeExamModal() {
-      document.getElementById('examDetailModal').classList.add('hidden');
-    }
-  </script>
+        async function fetchUser() {
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                currentUser = data ? data.user : null;
+            } catch (e) {
+                console.error('사용자 조회 실패:', e);
+                currentUser = null;
+            }
+        }
+
+        // 내 응시 기록 + 시험명/과정명 (조회 실패 시 빈 목록 — 가짜 데이터는 보여주지 않음)
+        async function fetchAttempts() {
+            const { data, error } = await supabaseClient
+                .from('cert_exam_attempts')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+            if (error) {
+                console.error('시험 결과 조회 오류:', error);
+                return null;
+            }
+            const rows = data || [];
+
+            const examIds = [...new Set(rows.map(r => r.exam_id).filter(v => v != null))];
+            if (examIds.length) {
+                const { data: exams, error: e1 } = await supabaseClient.from('cert_exams').select('*').in('id', examIds);
+                if (e1) console.error('시험 정보 조회 오류:', e1);
+                (exams || []).forEach(x => { examMap[x.id] = x; });
+
+                const courseIds = [...new Set((exams || []).map(x => x.course_id).filter(v => v != null))];
+                if (courseIds.length) {
+                    const { data: courses, error: e2 } = await supabaseClient.from('cert_courses').select('id, title').in('id', courseIds);
+                    if (e2) console.error('과정 정보 조회 오류:', e2);
+                    (courses || []).forEach(c => { courseMap[c.id] = c; });
+                }
+            }
+            return rows;
+        }
+
+        // 제출 안 한 응시(시험 도중 나감 등)는 '미제출'
+        function stateOf(a) {
+            if (!a.submitted_at) return 'WAIT';
+            return a.is_passed ? 'PASS' : 'FAIL';
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function scoreOf(a) {
+            const v = a.score != null ? a.score : (a.total_score != null ? a.total_score : null);
+            return v == null ? null : Number(v);
+        }
+
+        function renderList() {
+            const container = document.getElementById('exam-list');
+            if (allAttempts === null) {
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white border border-gray-200 rounded">
+                        <i class="fas fa-circle-exclamation text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 font-medium">시험 결과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+                    </div>`;
+                return;
+            }
+
+            const filtered = currentTab === 'ALL' ? allAttempts : allAttempts.filter(a => stateOf(a) === currentTab);
+
+            if (filtered.length === 0) {
+                const msg = allAttempts.length === 0
+                    ? '아직 응시한 시험이 없습니다.<br>수강을 마친 과정은 <b>내 수강 목록</b>에서 시험을 볼 수 있습니다.'
+                    : '해당 조건의 시험 기록이 없습니다.';
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white border border-gray-200 rounded">
+                        <i class="fas fa-file-pen text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 font-medium leading-relaxed">${msg}</p>
+                        ${allAttempts.length === 0 ? `<button onclick="location.href='my-courses.html'" class="exam-btn mt-5">내 수강 목록 가기</button>` : ''}
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const exam = examMap[a.exam_id] || {};
+                const course = courseMap[exam.course_id] || {};
+                const st = stateOf(a);
+                const score = scoreOf(a);
+                const passScore = exam.pass_score || 60;
+                const badge = st === 'PASS' ? '<span class="badge badge-pass">합격</span>'
+                            : st === 'FAIL' ? '<span class="badge badge-fail">불합격</span>'
+                            : '<span class="badge badge-wait">미제출</span>';
+                const color = st === 'PASS' ? '#15803d' : st === 'FAIL' ? '#dc2626' : '#9ca3af';
+                const scoreHtml = (st !== 'WAIT' && score != null)
+                    ? `<div class="num" style="color:${color}">${KC.esc(score)}<span style="font-size:14px">점</span></div><div class="sub">합격 ${KC.esc(passScore)}점</div>`
+                    : `<div class="num" style="color:${color}">-</div><div class="sub">점수 없음</div>`;
+
+                // 버튼: 합격 → 내 자격증 / 불합격·미제출 → 다시 응시(시험 화면에서 남은 횟수 확인)
+                let btn = '';
+                if (st === 'PASS') {
+                    btn = `<button class="exam-btn" onclick="location.href='my-certs.html'"><i class="fas fa-award mr-1"></i>내 자격증</button>`;
+                } else if (exam.id) {
+                    btn = `<button class="exam-btn light" onclick="location.href='../cert/cert-exam.html?exam_id=${encodeURIComponent(exam.id)}'"><i class="fas fa-rotate-right mr-1"></i>다시 응시</button>`;
+                }
+
+                return `
+                <div class="exam-card">
+                    <div class="exam-score">${scoreHtml}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            ${badge}
+                            <span class="text-[12px] text-gray-500 font-medium">${formatDateTime(a.submitted_at || a.created_at)}</span>
+                            ${a.attempt_no ? `<span class="text-[12px] text-gray-400">· ${KC.esc(a.attempt_no)}회차</span>` : ''}
+                        </div>
+                        <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${KC.esc(exam.title || '자격 평가')}</div>
+                        <div class="text-[13px] text-gray-500 truncate">${KC.esc(course.title || '')}</div>
+                    </div>
+                    ${btn}
+                </div>`;
+            }).join('');
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tab);
+            });
+            renderList();
+        }
+
+        async function init() {
+            await fetchUser();
+            if (!currentUser) {
+                window.location.href = '{{BASE}}login.html';
+                return;
+            }
+            allAttempts = await fetchAttempts();
+            renderList();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>

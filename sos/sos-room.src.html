@@ -16,7 +16,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -345,20 +345,21 @@
 </div>
 
 <script>
-    const KAKAO_JS_KEY = 'YOUR_KAKAO_JAVASCRIPT_KEY';
+    const KAKAO_JS_KEY = 'fcb496c3b510f60bd626b9e355ec1ef7';   // Kakao Developers JavaScript 키 (www.kcbma.org / kcbma.org 도메인 등록됨)
     let kakaoInited = false;
 
     document.getElementById('kakao-share-btn').addEventListener('click', function() {
         if (isPractice) { alert('[연습 모드] 실제에서는 내 상황이 카카오톡으로 전문가들에게 전달됩니다.\n연습에서는 발송되지 않습니다.'); return; }
-        if (KAKAO_JS_KEY === 'YOUR_KAKAO_JAVASCRIPT_KEY') {
-            alert('카카오톡 공유 기능은 아직 설정 중입니다. (관리자: Kakao Developers에서 발급받은 JavaScript 키를 등록해 주세요)');
+        if (typeof Kakao === 'undefined') {
+            alert('카카오톡을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
             return;
         }
         if (!kakaoInited) {
-            Kakao.init(KAKAO_JS_KEY);
+            if (!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
             kakaoInited = true;
         }
-        const requestUrl = new URL('sos-standby.html', window.location.href).href;
+        // 전문가가 링크를 열면 대기실에서 이 접수가 맨 위에 표시되도록 접수번호를 붙임
+        const requestUrl = new URL('sos-standby.html' + (requestId ? '?req=' + encodeURIComponent(requestId) : ''), window.location.href).href;
         const shareImageUrl = new URL('{{BASE}}assets/img/logo.png', window.location.href).href;
         Kakao.Share.sendDefault({
             objectType: 'feed',
