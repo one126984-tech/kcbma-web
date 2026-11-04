@@ -213,12 +213,11 @@
                     .maybeSingle();
 
                 if (error) throw error;
-                if (data) return data;
-
-                return dummyCertificates.find(c => c.cert_number === certNumber) || null;
+                // ★ 2026-11: 예전엔 DB에 없으면 샘플 번호와도 비교해서, 샘플 번호를 넣으면 '진짜'로 나왔음 → 실제 DB 결과만 사용
+                return data || null;
             } catch (error) {
                 console.error('자격증 조회 실패:', error);
-                return dummyCertificates.find(c => c.cert_number === certNumber) || null;
+                return 'ERROR';
             }
         }
 
@@ -235,6 +234,11 @@
             area.innerHTML = '<div class="text-center py-16 text-gray-500 bg-white border border-gray-200 rounded shadow-sm">조회 중입니다...</div>';
 
             const cert = await findCertificate(certNumber);
+
+            if (cert === 'ERROR') {
+                area.innerHTML = `<div class="result-card result-invalid shadow-sm"><div class="font-bold text-red-600">조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div></div>`;
+                return;
+            }
 
             if (!cert) {
                 renderInvalid();
