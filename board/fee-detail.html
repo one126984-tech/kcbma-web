@@ -1043,7 +1043,16 @@
                     <i class="fas fa-unlock"></i> ${fee.toLocaleString()}원 결제 후 열람하기
                 </button>
             `;
-            lockedSection.appendChild(overlay);
+            // 흐림 영역 '안'에 넣으면 안내·버튼까지 흐려지고 클릭도 막히므로, 흐림 영역을 감싸는 상자에 겹쳐 놓음
+            let lockWrap = lockedSection.parentElement;
+            if (!lockWrap || !lockWrap.classList.contains('lock-wrap')) {
+                lockWrap = document.createElement('div');
+                lockWrap.className = 'lock-wrap';
+                lockWrap.style.position = 'relative';
+                lockedSection.parentNode.insertBefore(lockWrap, lockedSection);
+                lockWrap.appendChild(lockedSection);
+            }
+            lockWrap.appendChild(overlay);
         }
 
         let currentFee = 0;
