@@ -284,7 +284,14 @@
                 location.href = info.detail + '?id=' + encodeURIComponent(postId);
             } catch (error) {
                 console.error('등록 오류:', error);
-                alert('처리 중 문제가 발생했습니다: ' + errMsg(error));
+                if (type === 'PAID' && /포인트/.test(errMsg(error)) && /부족/.test(errMsg(error))) {
+                    if (confirm(errMsg(error) + '\n\n포인트 충전 화면으로 이동할까요?\n(작성 중인 내용은 저장되지 않으니 필요하면 먼저 복사해 두세요)')) {
+                        location.href = '/mypage/my-points.html?return=' + encodeURIComponent(location.pathname);
+                        return;
+                    }
+                } else {
+                    alert('처리 중 문제가 발생했습니다: ' + errMsg(error));
+                }
                 busy = false;
                 if (els.submit) els.submit.textContent = originalText;
             }

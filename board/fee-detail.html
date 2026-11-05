@@ -941,11 +941,11 @@
             <h2 class="text-xl font-bold mb-4 text-gray-800">포인트 충전</h2>
             <div class="mb-6 text-gray-700 text-[15px]">
                 <p>포인트가 부족하여 열람할 수 없습니다.</p>
-                <p class="font-bold text-blue-600 mt-2">포인트 충전은 협회 사무국에 문의해 주세요.</p>
+                <p class="font-bold text-blue-600 mt-2">포인트 충전 화면에서 카드로 바로 충전할 수 있습니다.<br>충전 후 이 화면으로 돌아옵니다.</p>
             </div>
             <div class="flex justify-center gap-3">
                 <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300 transition">취소</button>
-                <button onclick="closeChargeModal()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">확인</button>
+                <button onclick="goPointCharge()" class="w-[120px] py-2.5 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition">충전하러 가기</button>
             </div>
         </div>
     </div>
@@ -1105,7 +1105,8 @@
             document.getElementById('charge-modal').classList.add('hidden');
         }
 
-        function processCharge() { closeChargeModal(); }
+        function goPointCharge() { location.href = '/mypage/my-points.html?return=' + encodeURIComponent(location.pathname + location.search); }
+        function processCharge() { goPointCharge(); }
 
         async function processPayment() {
             const confirmBtn = document.getElementById('payment-confirm-btn');
