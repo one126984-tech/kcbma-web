@@ -899,7 +899,9 @@
                         <div id="include-word-container" class="flex-[4] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-[#12387a]">
                             <input type="text" id="manual-word-input" placeholder="제목, 업체명, 지역 등 포함할 단어 입력 후 엔터 / 단어구분은 쉼표(,)로">
                         </div>
-                        <input type="text" id="exclude-word-input" class="flex-[1] min-w-[160px] border border-gray-300 rounded px-3 py-2 text-[13px] outline-none text-gray-700 placeholder-gray-400 focus:border-red-400 transition-colors" placeholder="제외할 단어 입력 후 엔터">
+                        <div id="exclude-word-container" class="flex-[1] min-w-[160px] border border-gray-300 rounded bg-white tag-input-container transition-colors focus-within:border-red-400">
+                            <input type="text" id="manual-exclude-input" class="bg-transparent border-none outline-none w-full text-[13px] placeholder-gray-400" placeholder="제외할 단어 입력 후 엔터">
+                        </div>
                     </div>
                     <button onclick="applyFilters()" class="bg-[#0B2A5B] hover:bg-[#1d3893] text-white px-8 py-2.5 font-bold text-[15px] transition-colors rounded shadow-sm shrink-0">검색</button>
                 </div>
@@ -1130,6 +1132,7 @@
         let itemsPerPage = 20;
         let currentSort = 'latest';
         let tags = [];
+        let excludeTags = [];
         const DB_TABLE_NAME = 'bids';
 
         function initApp() {
@@ -1191,19 +1194,17 @@
                 });
             }
 
-            const excludeInput = document.getElementById('exclude-word-input').value;
-            if (excludeInput.trim()) {
-                const excludeWords = excludeInput.split(',').map(w => w.trim().toLowerCase()).filter(w => w !== '');
+            if (excludeTags.length > 0) {
                 filteredBids = filteredBids.filter(b => {
                     const searchText = `${b.title || ''} ${b.location || ''} ${b.address || ''} ${b.category || ''} ${b.type || ''} ${b.company_name || ''}`.toLowerCase();
-                    return !excludeWords.some(ew => searchText.includes(ew));
+                    return !excludeTags.some(ew => searchText.includes(ew.toLowerCase()));
                 });
             }
 
             if (currentSort === 'latest') {
                 filteredBids.sort((a, b) => b.id - a.id); 
             } else if (currentSort === 'views') {
-                filteredBids.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+                filteredBids.sort((a, b) => (b.views || 0) - (a.views || 0));
             }
 
             currentPage = 1; 
@@ -1289,7 +1290,7 @@
                 };
                 
                 const tr = document.createElement('tr');
-                tr.onclick = () => incrementViewAndGo(bid.id, bid.view_count || 0);
+                tr.onclick = () => incrementViewAndGo(bid.id, bid.views || 0);
                 
                 tr.innerHTML = `
                     <td>${no}</td>
@@ -1299,7 +1300,7 @@
                     <td>${KC.esc(regionStr)}</td>
                     <td>${formatPeriod(bid.start_date, bid.end_date)}</td>
                     <td class="font-bold text-[#333]">${calcDday(bid.end_date)}</td>
-                    <td>${KC.esc(bid.view_count || 0)}</td>
+                    <td>${KC.esc(bid.views || 0)}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1328,7 +1329,7 @@
 
         function incrementViewAndGo(id, currentViews) {
             if(supabaseClient) {
-                supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).then();
+                supabaseClient.rpc('bid_increment_view', { p_id: String(id) }).then(() => {}, () => {});
             }
             window.location.href = `bid-detail.html?id=${id}`;
         }
@@ -1447,6 +1448,47 @@
                 removeTag(tags[tags.length - 1]);
             }
         });
+
+        // 제외 단어: 구인 목록과 같은 태그 방식 (엔터/쉼표로 추가, 빈 칸에서 Backspace로 마지막 태그 삭제)
+        const excludeContainer = document.getElementById('exclude-word-container');
+        const manualExcludeInput = document.getElementById('manual-exclude-input');
+
+        function renderExcludeTags() {
+            excludeContainer.querySelectorAll('.tag-chip').forEach(el => el.remove());
+            excludeTags.forEach(word => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip !bg-red-100 !text-red-700';
+                chip.innerHTML = `${KC.esc(word)} <span class="tag-remove hover:!text-red-900" data-word="${KC.esc(word)}">✕</span>`;
+                excludeContainer.insertBefore(chip, manualExcludeInput);
+            });
+            manualExcludeInput.placeholder = excludeTags.length > 0 ? "" : "제외할 단어 입력 후 엔터";
+        }
+
+        function addExcludeTag(word) {
+            const trimmed = word.trim();
+            if (trimmed && !excludeTags.includes(trimmed)) { excludeTags.push(trimmed); renderExcludeTags(); applyFilters(); }
+        }
+
+        function removeExcludeTag(word) {
+            excludeTags = excludeTags.filter(t => t !== word); renderExcludeTags(); applyFilters();
+        }
+
+        if (excludeContainer && manualExcludeInput) {
+            excludeContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.tag-remove')) { removeExcludeTag(e.target.closest('.tag-remove').dataset.word); }
+                else { manualExcludeInput.focus(); }
+            });
+
+            manualExcludeInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    manualExcludeInput.value.split(',').forEach(w => addExcludeTag(w));
+                    manualExcludeInput.value = '';
+                } else if (e.key === 'Backspace' && manualExcludeInput.value === '' && excludeTags.length > 0) {
+                    removeExcludeTag(excludeTags[excludeTags.length - 1]);
+                }
+            });
+        }
 
         document.addEventListener('change', (e) => {
             const target = e.target;
