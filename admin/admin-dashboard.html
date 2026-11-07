@@ -790,6 +790,7 @@
                 <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-points.html'">포인트 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
             </div>
         </aside>
@@ -883,7 +884,7 @@
 
         async function checkAdmin() {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user || user.user_metadata?.role !== 'admin') {
+            if (!user || user.app_metadata?.role !== 'admin') {
                 alert('관리자 권한이 필요합니다.');
                 location.href = '../../index.html';
                 return false;

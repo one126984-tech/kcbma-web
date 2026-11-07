@@ -1,0 +1,389 @@
+<!-- 파일명: admin-approvals.src.html (신규)
+     관리자 승인 관리 페이지.
+     ① 우수업체 공동선정(joint_bids): 승인대기 신청 → 승인(모집중) / 반려(삭제), 모집 중 공고 → 마감 처리
+     ② 업체광고(companies): 특별 뱃지 신청 → 적용 / 거절, 적용 중 업체 → 해제
+     모든 변경은 RLS 관리자 정책(is_admin(), app_metadata.role = 'admin')으로만 허용됨.
+     admin-points.src.html 과 같은 표준 구조(header 파샬, checkAdmin, .admin-table)를 따름. -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>승인 관리 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(승인 관리) 전용 CSS */
+        html, body { overflow-y: scroll; }
+
+        .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 26px; }
+        .section-title { font-size: 18px; font-weight: 900; color: #12387a; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #e0e7ff; display: flex; align-items: center; justify-content: space-between; }
+        .count-badge { display: inline-block; min-width: 24px; padding: 2px 8px; margin-left: 8px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 12px; font-weight: 800; text-align: center; vertical-align: middle; }
+        .count-badge.zero { background: #d1d5db; }
+
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .admin-table th { background: #f8fafc; color: #1e3a8a; font-weight: bold; padding: 12px 10px; border-bottom: 2px solid #e5e7eb; text-align: center; white-space: nowrap; }
+        .admin-table td { padding: 12px 10px; border-bottom: 1px dashed #e5e7eb; text-align: center; vertical-align: middle; }
+        .admin-table tr:last-child td { border-bottom: none; }
+        .admin-table td.left { text-align: left; }
+
+        .btn-act { font-weight: bold; padding: 6px 12px; border-radius: 4px; font-size: 12.5px; cursor: pointer; transition: background-color .15s; white-space: nowrap; color: #fff; }
+        .btn-act:disabled { background: #9ca3af !important; cursor: not-allowed; }
+        .btn-ok { background: #12387a; }
+        .btn-ok:hover { background: #0B2A5B; }
+        .btn-no { background: #fff; color: #dc2626; border: 1px solid #fca5a5; }
+        .btn-no:hover { background: #fef2f2; }
+        .btn-gray { background: #6b7280; }
+        .btn-gray:hover { background: #4b5563; }
+
+        .sub-title { font-size: 15px; font-weight: 800; color: #374151; margin: 26px 0 10px; }
+        .muted { color: #9ca3af; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+<!-- @include header-close -->
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='admin-dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-courses.html'">과정 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-field-courses.html'">현장 교육 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-points.html'">포인트 관리</div>
+                <div class="side-menu-tab-active">승인 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 flex flex-col gap-6">
+            <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">승인 관리</div>
+
+            <!-- ① 우수업체 공동선정 -->
+            <div class="section-card">
+                <div class="section-title">
+                    <span>우수업체 공동선정 신청 <span id="jb-count" class="count-badge zero">0</span></span>
+                    <button class="btn-act btn-gray" onclick="loadAll()"><i class="fas fa-rotate-right mr-1"></i>새로고침</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>신청일</th>
+                                <th>제목</th>
+                                <th>분류 / 지역</th>
+                                <th>목표 건물</th>
+                                <th>마감일</th>
+                                <th>첨부</th>
+                                <th>처리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jb-pending-body">
+                            <tr><td colspan="7" class="py-10 muted">불러오는 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="sub-title">모집 중인 공고</div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>등록일</th>
+                                <th>제목</th>
+                                <th>상태</th>
+                                <th>참여 건물</th>
+                                <th>마감일</th>
+                                <th>처리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jb-open-body">
+                            <tr><td colspan="6" class="py-8 muted">불러오는 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ② 업체광고 특별 뱃지 -->
+            <div class="section-card">
+                <div class="section-title">
+                    <span>업체광고 특별 뱃지 신청 <span id="cp-count" class="count-badge zero">0</span></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>등록일</th>
+                                <th>업체명</th>
+                                <th>분류 / 지역</th>
+                                <th>담당자 / 연락처</th>
+                                <th>처리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cp-pending-body">
+                            <tr><td colspan="5" class="py-10 muted">불러오는 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="sub-title">뱃지 적용 중인 업체</div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>등록일</th>
+                                <th>업체명</th>
+                                <th>분류 / 지역</th>
+                                <th>처리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cp-active-body">
+                            <tr><td colspan="4" class="py-8 muted">불러오는 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+
+    <script>
+        const supabaseClient = window.sb;
+        const esc = (v) => KC.esc(v == null ? '' : String(v));
+
+        async function checkAdmin() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user || user.app_metadata?.role !== 'admin') {
+                alert('관리자 권한이 필요합니다.');
+                location.href = '{{BASE}}index.html';
+                return false;
+            }
+            return true;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        function setCount(id, n) {
+            const el = document.getElementById(id);
+            el.innerText = n;
+            el.classList.toggle('zero', n === 0);
+        }
+
+        function emptyRow(cols, text) {
+            return `<tr><td colspan="${cols}" class="py-8 muted">${esc(text)}</td></tr>`;
+        }
+
+        function errorRow(cols, error) {
+            return `<tr><td colspan="${cols}" class="py-8 text-red-500">불러오기 오류: ${esc(error.message)}</td></tr>`;
+        }
+
+        // ---------- ① 공동선정 ----------
+        async function loadJointBids() {
+            const pendingBody = document.getElementById('jb-pending-body');
+            const openBody = document.getElementById('jb-open-body');
+
+            const { data, error } = await supabaseClient
+                .from('joint_bids')
+                .select('id, title, category, region, company_type, status, target_count, participants_count, deadline, end_date, attachment_url, created_at')
+                .order('created_at', { ascending: false })
+                .limit(300);
+
+            if (error) {
+                pendingBody.innerHTML = errorRow(7, error);
+                openBody.innerHTML = errorRow(6, error);
+                return;
+            }
+
+            const pending = data.filter(b => b.status === '승인대기');
+            const open = data.filter(b => b.status !== '승인대기' && b.status !== '마감' && b.status !== 'CLOSED');
+            setCount('jb-count', pending.length);
+
+            pendingBody.innerHTML = pending.length === 0 ? emptyRow(7, '승인을 기다리는 신청이 없습니다.') : pending.map(b => `
+                <tr id="jb-${esc(b.id)}">
+                    <td class="text-gray-500">${formatDate(b.created_at)}</td>
+                    <td class="left font-medium text-[#0B2A5B]">
+                        <a href="{{BASE}}bid/joint-bid-detail.html?id=${encodeURIComponent(b.id)}" target="_blank" class="hover:underline">${esc(b.title || '(제목 없음)')}</a>
+                        ${b.company_type ? `<div class="text-[12px] text-gray-500">${esc(b.company_type)}</div>` : ''}
+                    </td>
+                    <td>${esc(b.category || '-')} / ${esc(b.region || '전국')}</td>
+                    <td>${b.target_count ? esc(b.target_count) + '개' : '-'}</td>
+                    <td>${formatDate(b.deadline || b.end_date)}</td>
+                    <td>${safeUrl(b.attachment_url) ? `<a href="${esc(safeUrl(b.attachment_url))}" target="_blank" rel="noopener" class="text-blue-600 hover:underline"><i class="fas fa-paperclip"></i> 보기</a>` : '<span class="muted">-</span>'}</td>
+                    <td>
+                        <div class="flex gap-2 justify-center">
+                            <button class="btn-act btn-ok" onclick="approveJointBid('${esc(b.id)}', this)">승인</button>
+                            <button class="btn-act btn-no" onclick="rejectJointBid('${esc(b.id)}', this)">반려</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            openBody.innerHTML = open.length === 0 ? emptyRow(6, '모집 중인 공고가 없습니다.') : open.map(b => `
+                <tr>
+                    <td class="text-gray-500">${formatDate(b.created_at)}</td>
+                    <td class="left font-medium text-[#0B2A5B]">
+                        <a href="{{BASE}}bid/joint-bid-detail.html?id=${encodeURIComponent(b.id)}" target="_blank" class="hover:underline">${esc(b.title || '(제목 없음)')}</a>
+                    </td>
+                    <td>${esc(b.status || '-')}</td>
+                    <td>${esc(b.participants_count || 0)}${b.target_count ? ' / ' + esc(b.target_count) : ''}</td>
+                    <td>${formatDate(b.deadline || b.end_date)}</td>
+                    <td><button class="btn-act btn-gray" onclick="closeJointBid('${esc(b.id)}', this)">마감 처리</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // 첨부 링크는 http(s) 주소만 허용
+        function safeUrl(url) {
+            if (!url) return '';
+            try {
+                const u = new URL(url, location.href);
+                return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '';
+            } catch (e) { return ''; }
+        }
+
+        async function updateJointBidStatus(id, status, btn) {
+            btn.disabled = true;
+            const { data, error } = await supabaseClient
+                .from('joint_bids').update({ status }).eq('id', id).select('id');
+            if (error || !data || data.length === 0) {
+                btn.disabled = false;
+                alert('처리하지 못했습니다: ' + (error ? error.message : '권한이 없거나 이미 처리된 글입니다.'));
+                return false;
+            }
+            return true;
+        }
+
+        async function approveJointBid(id, btn) {
+            if (!confirm('이 공고를 승인할까요?\n승인하면 "모집중" 상태로 목록에 공개됩니다.')) return;
+            if (await updateJointBidStatus(id, '모집중', btn)) { alert('승인했습니다.'); loadJointBids(); }
+        }
+
+        async function closeJointBid(id, btn) {
+            if (!confirm('이 공고를 마감할까요?\n마감하면 더 이상 참여 신청을 받지 않습니다.')) return;
+            if (await updateJointBidStatus(id, '마감', btn)) { loadJointBids(); }
+        }
+
+        async function rejectJointBid(id, btn) {
+            if (!confirm('이 신청을 반려할까요?\n반려하면 신청 글이 삭제되며 되돌릴 수 없습니다.')) return;
+            btn.disabled = true;
+            const { data, error } = await supabaseClient
+                .from('joint_bids').delete().eq('id', id).eq('status', '승인대기').select('id');
+            if (error || !data || data.length === 0) {
+                btn.disabled = false;
+                alert('반려하지 못했습니다: ' + (error ? error.message : '권한이 없거나 이미 처리된 글입니다.'));
+                return;
+            }
+            alert('반려(삭제)했습니다.');
+            loadJointBids();
+        }
+
+        // ---------- ② 업체광고 특별 뱃지 ----------
+        async function loadCompanies() {
+            const pendingBody = document.getElementById('cp-pending-body');
+            const activeBody = document.getElementById('cp-active-body');
+
+            const { data, error } = await supabaseClient
+                .from('companies')
+                .select('id, company_name, category, region, manager_name, phone, is_premium, premium_requested, created_at')
+                .or('premium_requested.eq.true,is_premium.eq.true')
+                .order('created_at', { ascending: false })
+                .limit(300);
+
+            if (error) {
+                pendingBody.innerHTML = errorRow(5, error);
+                activeBody.innerHTML = errorRow(4, error);
+                return;
+            }
+
+            const pending = data.filter(c => c.premium_requested && !c.is_premium);
+            const active = data.filter(c => c.is_premium);
+            setCount('cp-count', pending.length);
+
+            pendingBody.innerHTML = pending.length === 0 ? emptyRow(5, '뱃지 신청이 없습니다.') : pending.map(c => `
+                <tr>
+                    <td class="text-gray-500">${formatDate(c.created_at)}</td>
+                    <td class="left font-medium text-[#0B2A5B]">
+                        <a href="{{BASE}}bid/company-detail.html?id=${encodeURIComponent(c.id)}" target="_blank" class="hover:underline">${esc(c.company_name || '(업체명 없음)')}</a>
+                    </td>
+                    <td>${esc(c.category || '-')} / ${esc(c.region || '-')}</td>
+                    <td>${esc(c.manager_name || '-')} / ${esc(c.phone || '-')}</td>
+                    <td>
+                        <div class="flex gap-2 justify-center">
+                            <button class="btn-act btn-ok" onclick="setPremium('${esc(c.id)}', true, this)">뱃지 적용</button>
+                            <button class="btn-act btn-no" onclick="setPremium('${esc(c.id)}', false, this)">거절</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            activeBody.innerHTML = active.length === 0 ? emptyRow(4, '뱃지가 적용된 업체가 없습니다.') : active.map(c => `
+                <tr>
+                    <td class="text-gray-500">${formatDate(c.created_at)}</td>
+                    <td class="left font-medium text-[#0B2A5B]">
+                        <a href="{{BASE}}bid/company-detail.html?id=${encodeURIComponent(c.id)}" target="_blank" class="hover:underline">${esc(c.company_name || '(업체명 없음)')}</a>
+                    </td>
+                    <td>${esc(c.category || '-')} / ${esc(c.region || '-')}</td>
+                    <td><button class="btn-act btn-gray" onclick="setPremium('${esc(c.id)}', false, this, true)">뱃지 해제</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function setPremium(id, on, btn, isRemove) {
+            const msg = on ? '이 업체에 특별 뱃지를 적용할까요?\n업체광고 목록 상단에 노출됩니다.'
+                     : (isRemove ? '이 업체의 특별 뱃지를 해제할까요?' : '이 업체의 뱃지 신청을 거절할까요?');
+            if (!confirm(msg)) return;
+            btn.disabled = true;
+            const { data, error } = await supabaseClient
+                .from('companies').update({ is_premium: on, premium_requested: false }).eq('id', id).select('id, is_premium');
+            if (error || !data || data.length === 0 || data[0].is_premium !== on) {
+                btn.disabled = false;
+                alert('처리하지 못했습니다: ' + (error ? error.message : '관리자 권한을 확인해 주세요.'));
+                return;
+            }
+            loadCompanies();
+        }
+
+        async function loadAll() {
+            await Promise.all([loadJointBids(), loadCompanies()]);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (await checkAdmin()) loadAll();
+        });
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

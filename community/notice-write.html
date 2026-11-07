@@ -910,7 +910,7 @@
 
         document.getElementById('submit-btn').addEventListener('click', async () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user || user.user_metadata?.role !== 'admin') {
+            if (!user || user.app_metadata?.role !== 'admin') {
                 alert('관리자만 공지사항을 등록할 수 있습니다.');
                 return;
             }
