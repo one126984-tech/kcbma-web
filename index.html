@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>대한집합건물관리협회</title>
     <!-- [SEO] build.js가 자동으로 넣음 — 고치려면 build.js의 PAGE_DESC 표를 고칠 것 -->
-    <meta name="description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 자격증 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
+    <meta name="description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 실무 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
     <link rel="canonical" href="https://www.kcbma.org/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="대한집합건물관리협회">
     <meta property="og:title" content="대한집합건물관리협회">
-    <meta property="og:description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 자격증 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
+    <meta property="og:description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 실무 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
     <meta property="og:url" content="https://www.kcbma.org/">
     <meta property="og:image" content="https://www.kcbma.org/assets/img/og-image.jpg">
     <meta property="og:image:width" content="1200">
@@ -612,7 +612,7 @@
     font-size: inherit !important;
   }
 
-  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  /* 3. 로그인 버튼 스타일 (수료증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
   #main-header .login-btn {
     background-color: #334155 !important;
     color: #ffffff !important;
@@ -729,7 +729,7 @@
             <div data-menu="about" onclick="location.href='about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
             <div data-menu="jobs" onclick="location.href='jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
             <div data-menu="bid" onclick="location.href='bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
-            <div data-menu="cert" onclick="location.href='cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="cert" onclick="location.href='cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">교육과정</div>
             <div data-menu="board" onclick="location.href='board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
             <div data-menu="consulting" onclick="location.href='consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
             <div data-menu="community" onclick="location.href='community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
@@ -793,7 +793,7 @@
             <div onclick="if(!location.pathname.endsWith('about.html')) location.href='about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
             <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
             <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
-            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">교육과정</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
             <div onclick="if(!location.pathname.endsWith('consulting-field.html')) location.href='consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
             <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
@@ -1101,10 +1101,10 @@
             </div>
         </div>
 
-        <!-- 04. 자격증 페이지 (밝음) -->
+        <!-- 04. 수료증 페이지 (밝음) -->
         <div onclick="location.href='cert/cert-list.html'" class="promo-band light block cursor-pointer hover:opacity-[0.97] transition-opacity">
             <div class="promo-inner reverse">
-                <div class="promo-visual"><img src="assets/img/degree.png" alt="자격증"></div>
+                <div class="promo-visual"><img src="assets/img/degree.png" alt="교육 수료증"></div>
                 <div class="promo-text">
                     <div class="promo-num">04</div>
                     <h2 class="promo-headline">이론이 아니라, 현장이 검증한 교육</h2>
@@ -1112,7 +1112,7 @@
                     <ul class="promo-checklist">
                         <li><i class="fa-solid fa-check"></i> 무경력자도 현장실무교육으로 채용 약점을 보완합니다</li>
                         <li><i class="fa-solid fa-check"></i> 이론교육과 현장실습을 함께 진행해 균형 있고 알찹니다</li>
-                        <li><i class="fa-solid fa-check"></i> 수료 후에는 자격증으로 실력을 증명할 수 있습니다</li>
+                        <li><i class="fa-solid fa-check"></i> 수료 후에는 교육 수료증으로 실력을 증명할 수 있습니다</li>
                     </ul>
                     <span class="promo-cta">교육과정 확인하기 <i class="fa-solid fa-arrow-right"></i></span>
                 </div>

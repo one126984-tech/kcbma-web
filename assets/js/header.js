@@ -51,7 +51,7 @@
       <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">협회소개</div>
       <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">구인구직</div>
       <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">입찰공고</div>
-      <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">자격증</div>
+      <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">교육과정</div>
       <div data-menu="board-corner" onclick="location.href='../../board/board-corner.html'" class="gnb-item cursor-pointer hover:text-[#0088cc] pb-1 transition-colors">관리단코너</div>
       
       <!-- ⭐ 신규: 지식컨설팅 (업무 Q&A로 연결) -->
@@ -102,7 +102,7 @@
       <div onclick="location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
       <div onclick="location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
       <div onclick="location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">입찰공고</div>
-      <div onclick="location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+      <div onclick="location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">교육과정</div>
       <div onclick="location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단코너</div>
       
       <!-- ⭐ 모바일 메뉴 신규 분리 -->
