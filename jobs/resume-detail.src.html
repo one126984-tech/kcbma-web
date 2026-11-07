@@ -138,10 +138,7 @@
 
         // ★ view_count로 명칭 통합
         function getDisplayViews(resume) {
-            if (resume.view_count && resume.view_count > 0) return resume.view_count;
-            const idStr = String(resume.id || Math.random()); let hash = 0;
-            for (let i = 0; i < idStr.length; i++) { hash = idStr.charCodeAt(i) + ((hash << 5) - hash); }
-            return (Math.abs(hash) % 95) + 5;
+            return Number(resume.view_count) || 0;   // 실제 조회수만 표시
         }
 
         function renderResumeDetail(data) {
@@ -190,17 +187,19 @@
             document.getElementById('resume-content').innerText = data.content || '작성된 내용이 없습니다.';
         }
 
+        // 이력서를 못 찾았을 때: 예전엔 가짜 이력서(홍 모씨 예시)를 보여줬음 → 안내 문구로 교체
         function renderMockData() {
-            const mockData = {
-                id: 9999, title: '10년 경력의 성실한 시설기사 구직합니다', status: 'OPEN', view_count: 42,
-                content: '■ 주요 경력 사항\n- OO오피스텔 시설관리 (2018.03 ~ 2023.10)\n- XX아파트 전기기사 (2015.01 ~ 2018.02)\n\n■ 주요 업무 내용\n- 공용부 시설물 유지보수 및 영선 업무\n- 전기/소방 설비 안전 점검\n- 세대 민원 처리\n\n■ 자기소개\n책임감이 강하고 성실하게 근무하는 편입니다. 입사하게 된다면 내 집처럼 생각하고 꼼꼼히 관리하겠습니다.',
-                custom_data: {
-                    name: '홍길동', phone: '010-0000-0000', phone_display: 'hidden', email: 'abc@email.com', address: '경기 고양시 덕양구',
-                    job_category: '시설기사', desired_location: '고양, 파주, 김포 전지역', desired_salary: '월 300만원 (협의)', employment_type: '정규직',
-                    immediate_start: '즉시가능', experience: '10년 이상', education: '고등학교 졸업', certification: '전기기사, 소방안전관리자 1급', skills: '1종 보통 운전면허 소지, 엑셀 활용 능숙'
-                }
-            };
-            renderResumeDetail(mockData);
+            const spinner = document.getElementById('loading-spinner');
+            if (spinner) spinner.style.display = 'none';
+            const box = document.getElementById('detail-container');
+            if (box) {
+                box.style.display = 'block';
+                box.innerHTML = `<div style="text-align:center;padding:70px 20px;color:#4b5563;">
+                    <div style="font-size:18px;font-weight:800;color:#0B2A5B;margin-bottom:8px;">이력서를 찾을 수 없습니다</div>
+                    <div style="font-size:14px;">삭제되었거나 주소가 잘못되었습니다.</div>
+                    <a href="resume-list.html" style="display:inline-block;margin-top:18px;background:#12387a;color:#fff;font-weight:700;padding:10px 22px;border-radius:8px;text-decoration:none;">이력서 목록으로</a>
+                </div>`;
+            }
         }
     </script>
     <script>window.BASE_PATH = '/';</script>

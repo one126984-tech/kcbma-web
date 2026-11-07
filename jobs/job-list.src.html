@@ -786,7 +786,13 @@
             tbody.innerHTML = '';
 
             if (jobs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-gray-500">조건에 맞는 공고가 없습니다.</td></tr>';
+                tbody.innerHTML = (allJobs.length === 0)
+                    ? `<tr><td colspan="9" class="text-center py-10 text-gray-500">
+                         <div style="font-size:16px;font-weight:800;color:#0B2A5B;margin-bottom:6px;">아직 등록된 구인 공고가 없습니다</div>
+                         <div style="font-size:13.5px;line-height:1.7;">관리업체·관리단이라면 첫 공고를 등록해 보세요. 협회 회원 관리인들에게 바로 노출됩니다.</div>
+                         <a href="job-write.html" style="display:inline-block;margin-top:14px;background:#ffc107;color:#111;font-weight:800;padding:10px 22px;border-radius:8px;text-decoration:none;">공고 등록하기</a>
+                       </td></tr>`
+                    : '<tr><td colspan="9" class="text-center py-10 text-gray-500">조건에 맞는 공고가 없습니다. 검색 조건을 바꿔 보세요.</td></tr>';
                 return;
             }
 
@@ -804,22 +810,8 @@
                 const category = job.category || job.job_category || '-';
                 const salary = job.salary || '-';
                 
-                // ★ 빈 데이터 채우기: 근무형태(work_type) 랜덤 폴백 추가
-                let workType = job.work_type || job.work_schedule || '';
-                if (!workType || workType === '-' || workType.trim() === '') {
-                    const idStr = String(job.id || Math.random());
-                    let hash = 0;
-                    for (let j = 0; j < idStr.length; j++) {
-                        hash = idStr.charCodeAt(j) + ((hash << 5) - hash);
-                    }
-                    const rv = Math.abs(hash) % 6;
-                    if (rv === 0) workType = '주 5일';
-                    else if (rv === 1) workType = '격일제 (당비비)';
-                    else if (rv === 2) workType = '주주야야비비';
-                    else if (rv === 3) workType = '3교대';
-                    else if (rv === 4) workType = '주간근무';
-                    else workType = '격일제';
-                }
+                // 근무형태: 등록된 값만 표시 (없으면 '-')
+                const workType = String(job.work_type || job.work_schedule || '').trim() || '-';
 
                 const period = formatPeriod(job.created_at, job.end_date);
                 const ddayInfo = calcDday(job.end_date);
