@@ -454,7 +454,7 @@
     font-size: inherit !important;
   }
 
-  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  /* 3. 로그인 버튼 스타일 (수료증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
   #main-header .login-btn {
     background-color: #334155 !important;
     color: #ffffff !important;
@@ -571,7 +571,7 @@
             <div data-menu="about" onclick="location.href='/about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
             <div data-menu="jobs" onclick="location.href='/jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
             <div data-menu="bid" onclick="location.href='/bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
-            <div data-menu="cert" onclick="location.href='/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="cert" onclick="location.href='/cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">교육과정</div>
             <div data-menu="board" onclick="location.href='/board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
             <div data-menu="consulting" onclick="location.href='/consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
             <div data-menu="community" onclick="location.href='/community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
@@ -635,7 +635,7 @@
             <div onclick="if(!location.pathname.endsWith('about.html')) location.href='/about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
             <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='/jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
             <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='/bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
-            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='/cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">교육과정</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='/board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
             <div onclick="if(!location.pathname.endsWith('consulting-field.html')) location.href='/consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
             <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='/community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
@@ -920,7 +920,7 @@
                     <h3 id="t1">제1장 총칙</h3>
 
                     <p><b>제1조 (목적)</b><br>
-                    이 약관은 대한집합건물관리협회(이하 "협회")가 제공하는 구인구직, 견적의뢰, 자격증·교육, 관리단 코너, 지식컨설팅, 커뮤니티, 긴급 SOS 등 온라인 서비스(이하 "서비스")의 이용과 관련하여 협회와 회원 간의 권리, 의무 및 책임 사항을 정하는 것을 목적으로 합니다.</p>
+                    이 약관은 대한집합건물관리협회(이하 "협회")가 제공하는 구인구직, 견적의뢰, 교육과정, 관리단 코너, 지식컨설팅, 커뮤니티, 긴급 SOS 등 온라인 서비스(이하 "서비스")의 이용과 관련하여 협회와 회원 간의 권리, 의무 및 책임 사항을 정하는 것을 목적으로 합니다.</p>
 
                     <p><b>제2조 (정의)</b></p>
                     <ol>
@@ -971,7 +971,7 @@
                     <ol>
                         <li>구인구직: 채용공고 및 이력서 등록·열람</li>
                         <li>견적의뢰: 공사·용역·관리 견적 의뢰 등록, 업체의 견적 제출, 공동선정, 협력업체 홍보</li>
-                        <li>자격증·교육: 온라인 강의, 현장 실습교육, 시험, 수료증·자격증 발급 및 진위 확인</li>
+                        <li>교육과정: 온라인 강의, 현장 실습교육, 수료 평가, 교육 수료증 발급 및 진위 확인</li>
                         <li>관리단 코너: 위탁관리사 선정, 관리비 적정성 평가, 관리단 집회·전자투표 관련 전문가 연결</li>
                         <li>지식컨설팅: 무료 질문, 포인트(내공) 질문, 현장경험 공유</li>
                         <li>커뮤니티: 공지사항, 자유게시판, 서식·자료실</li>
@@ -1026,11 +1026,11 @@
                         <li>이력서를 등록하는 회원은 공개 범위를 확인하고 등록해야 하며, 이력서 정보를 채용 목적 외로 이용해서는 안 됩니다.</li>
                     </ol>
 
-                    <p><b>제14조 (자격증·교육 특칙)</b></p>
+                    <p><b>제14조 (교육과정 특칙)</b></p>
                     <ol>
-                        <li>협회가 발급하는 자격은 「자격기본법」에 따른 민간자격이며, 국가자격 또는 국가공인 민간자격이 아닙니다. (민간자격 등록번호: <mark class="fill">등록 후 기재</mark>, 자격관리기관: 대한집합건물관리협회)</li>
+                        <li>협회가 발급하는 교육 수료증은 해당 교육과정을 이수하고 수료 평가를 통과했음을 확인하는 증명서이며, 「자격기본법」에 따른 국가자격이나 민간자격이 아닙니다.</li>
                         <li>교육 과정의 내용, 일정, 수강료, 수료·합격 기준은 각 과정 안내 화면에 따릅니다.</li>
-                        <li>시험에서 부정행위가 확인된 경우 협회는 해당 시험을 무효로 하고 발급된 자격을 취소할 수 있습니다.</li>
+                        <li>시험에서 부정행위가 확인된 경우 협회는 해당 시험을 무효로 하고 발급된 수료증을 취소할 수 있습니다.</li>
                     </ol>
 
                     <p><b>제15조 (지식컨설팅·관리단 코너 특칙)</b><br>
@@ -1056,7 +1056,7 @@
                         <li>회원은 유상으로 충전한 포인트·예치금 중 사용하지 않은 금액에 대해 충전일로부터 7일 이내에 청약을 철회할 수 있으며, 협회는 결제 수단으로 전액 환불합니다.</li>
                         <li>7일이 지난 뒤에도 사용하지 않은 유상 충전 잔액은 환불을 요청할 수 있으며, 이 경우 결제 수수료 등 <mark class="fill">환불 금액의 10%</mark>(최대 <mark class="fill">○○○원</mark>)를 공제하고 환불합니다. 다만 잔액이 1,000원 이하인 경우에는 공제하지 않습니다.</li>
                         <li>무상으로 받은 포인트는 환불되지 않습니다.</li>
-                        <li>교육 과정은 수강 시작 전에는 전액, 수강 시작 후에는 이용한 부분(진도율 또는 경과 기간 중 큰 비율)에 해당하는 금액을 공제하고 환불합니다. 자격증 발급비 등 이미 제공된 부분은 환불 대상에서 제외됩니다.</li>
+                        <li>교육 과정은 수강 시작 전에는 전액, 수강 시작 후에는 이용한 부분(진도율 또는 경과 기간 중 큰 비율)에 해당하는 금액을 공제하고 환불합니다. 수료증 발급비 등 이미 제공된 부분은 환불 대상에서 제외됩니다.</li>
                         <li>회원 탈퇴 시 남아 있는 유상 충전 잔액은 제2항에 따라 환불받을 수 있으며, 탈퇴 전에 환불을 요청해야 합니다.</li>
                         <li>환불은 요청일로부터 3영업일 이내에 처리하며, 문의는 협회 사무국(031-984-6199, idea8888@naver.com)으로 해 주시기 바랍니다.</li>
                     </ol>

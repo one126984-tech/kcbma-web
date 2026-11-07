@@ -60,7 +60,7 @@
                 <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
                 <div class="side-menu-tab-active">통계</div>
@@ -84,7 +84,7 @@
                 <div class="summary-card">
                     <div class="summary-icon bg-rose-100 text-rose-700"><i class="fas fa-certificate"></i></div>
                     <div class="summary-value" id="stat-certificates">0</div>
-                    <div class="summary-label">총 자격증 발급 수</div>
+                    <div class="summary-label">총 수료증 발급 수</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-icon bg-green-100 text-green-700"><i class="fas fa-percent"></i></div>
@@ -105,7 +105,7 @@
                                 <th>수강 신청</th>
                                 <th>수료 완료</th>
                                 <th>수료율</th>
-                                <th>자격증 발급</th>
+                                <th>수료증 발급</th>
                                 <th>시험 합격률</th>
                             </tr>
                         </thead>
@@ -151,10 +151,10 @@
         }
 
         const dummyCourses = [
-            { id: 1, title: '기전당직실무관리사 자격 취득 과정' },
-            { id: 2, title: '전기방재안전관리사 실시간 화상 강의 과정' },
+            { id: 1, title: '기전당직 실무 교육과정' },
+            { id: 2, title: '전기방재안전 실시간 화상 강의 과정' },
             { id: 3, title: '기계설비유지관리사 이론 및 실무 종합과정' },
-            { id: 4, title: '영선실무관리사 자격증 취득 과정' },
+            { id: 4, title: '영선 실무 교육과정' },
             { id: 5, title: '배관시설관리사 실무 심화과정' }
         ];
 

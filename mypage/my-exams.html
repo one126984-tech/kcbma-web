@@ -1,5 +1,5 @@
 <!-- 파일명: my-exams.src.html
-     시험 결과: 로그인한 회원이 응시한 자격 시험(cert_exam_attempts) 기록을 보여주는 페이지.
+     시험 결과: 로그인한 회원이 응시한 수료 평가(cert_exam_attempts) 기록을 보여주는 페이지.
      ★ 2026-11: 예전엔 샘플 데이터만 보이는 독립 화면(헤더·로그인 없음, Tailwind CDN)이었음 →
        다른 마이페이지와 같은 헤더/사이드바 구조로 바꾸고 실제 응시 기록을 불러오도록 변경. -->
 <!DOCTYPE html>
@@ -9,12 +9,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>시험 결과 | 대한집합건물관리협회</title>
     <!-- [SEO] build.js가 자동으로 넣음 — 고치려면 build.js의 PAGE_DESC 표를 고칠 것 -->
-    <meta name="description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 자격증 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
+    <meta name="description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 실무 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
     <meta name="robots" content="noindex, nofollow">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="대한집합건물관리협회">
     <meta property="og:title" content="시험 결과 | 대한집합건물관리협회">
-    <meta property="og:description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 자격증 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
+    <meta property="og:description" content="대한집합건물관리협회(KCBMA) — 집합건물 관리 전문가와 관리단을 잇는 협회입니다. 구인구직, 견적의뢰, 실무 교육, 관리단 코너, 지식컨설팅, 24시간 긴급 SOS 출동을 한곳에서 이용하세요.">
     <meta property="og:url" content="https://www.kcbma.org/mypage/my-exams.html">
     <meta property="og:image" content="https://www.kcbma.org/assets/img/og-image.jpg">
     <meta property="og:image:width" content="1200">
@@ -450,7 +450,7 @@
     font-size: inherit !important;
   }
 
-  /* 3. 로그인 버튼 스타일 (자격증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
+  /* 3. 로그인 버튼 스타일 (수료증 페이지 등에서 버튼 크기가 작아지는 현상 방지) */
   #main-header .login-btn {
     background-color: #334155 !important;
     color: #ffffff !important;
@@ -567,7 +567,7 @@
             <div data-menu="about" onclick="location.href='../../about/about.html'" class="gnb-item nav-about cursor-pointer hover:text-[#0088cc] transition-colors">협회소개</div>
             <div data-menu="jobs" onclick="location.href='../../jobs/job-list.html'" class="gnb-item nav-jobs cursor-pointer hover:text-[#0088cc] transition-colors">구인구직</div>
             <div data-menu="bid" onclick="location.href='../../bid/bid-list.html'" class="gnb-item nav-bid cursor-pointer hover:text-[#0088cc] transition-colors">견적의뢰</div>
-            <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">자격증</div>
+            <div data-menu="cert" onclick="location.href='../../cert/cert-list.html'" class="gnb-item nav-cert cursor-pointer hover:text-[#0088cc] transition-colors">교육과정</div>
             <div data-menu="board" onclick="location.href='../../board/board-corner.html'" class="gnb-item nav-board cursor-pointer hover:text-[#0088cc] transition-colors">관리단 코너</div>
             <div data-menu="consulting" onclick="location.href='../../consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
             <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
@@ -629,7 +629,7 @@
             <div onclick="if(!location.pathname.endsWith('about.html')) location.href='../../about/about.html'" class="cursor-pointer hover:text-[#0088cc]">협회소개</div>
             <div onclick="if(!location.pathname.endsWith('job-list.html') && !location.pathname.endsWith('resume-list.html')) location.href='../../jobs/job-list.html'" class="cursor-pointer hover:text-[#0088cc]">구인구직</div>
             <div onclick="if(!location.pathname.endsWith('bid-list.html')) location.href='../../bid/bid-list.html'" class="cursor-pointer hover:text-[#0088cc]">견적의뢰</div>
-            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">자격증</div>
+            <div onclick="if(!location.pathname.endsWith('cert-list.html')) location.href='../../cert/cert-list.html'" class="cursor-pointer hover:text-[#0088cc]">교육과정</div>
             <div onclick="if(!location.pathname.endsWith('board-corner.html')) location.href='../../board/board-corner.html'" class="cursor-pointer hover:text-[#0088cc]">관리단 코너</div>
             <div onclick="if(!location.pathname.endsWith('consulting-field.html')) location.href='../../consulting/consulting-field.html'" class="cursor-pointer hover:text-[#0088cc]">지식컨설팅</div>
             <div onclick="if(!location.pathname.endsWith('notice.html')) location.href='../../community/notice.html'" class="cursor-pointer hover:text-[#0088cc]">커뮤니티</div>
@@ -874,7 +874,7 @@
             <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
-                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 수료증</div>
                 <div class="side-menu-tab-active">시험 결과</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-sos.html'">내 SOS 내역</div>
@@ -1006,10 +1006,10 @@
                     ? `<div class="num" style="color:${color}">${KC.esc(score)}<span style="font-size:14px">점</span></div><div class="sub">합격 ${KC.esc(passScore)}점</div>`
                     : `<div class="num" style="color:${color}">-</div><div class="sub">점수 없음</div>`;
 
-                // 버튼: 합격 → 내 자격증 / 불합격·미제출 → 다시 응시(시험 화면에서 남은 횟수 확인)
+                // 버튼: 합격 → 내 수료증 / 불합격·미제출 → 다시 응시(시험 화면에서 남은 횟수 확인)
                 let btn = '';
                 if (st === 'PASS') {
-                    btn = `<button class="exam-btn" onclick="location.href='my-certs.html'"><i class="fas fa-award mr-1"></i>내 자격증</button>`;
+                    btn = `<button class="exam-btn" onclick="location.href='my-certs.html'"><i class="fas fa-award mr-1"></i>내 수료증</button>`;
                 } else if (exam.id) {
                     btn = `<button class="exam-btn light" onclick="location.href='../cert/cert-exam.html?exam_id=${encodeURIComponent(exam.id)}'"><i class="fas fa-rotate-right mr-1"></i>다시 응시</button>`;
                 }
@@ -1023,7 +1023,7 @@
                             <span class="text-[12px] text-gray-500 font-medium">${formatDateTime(a.submitted_at || a.created_at)}</span>
                             ${a.attempt_no ? `<span class="text-[12px] text-gray-400">· ${KC.esc(a.attempt_no)}회차</span>` : ''}
                         </div>
-                        <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${KC.esc(exam.title || '자격 평가')}</div>
+                        <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${KC.esc(exam.title || '수료 평가')}</div>
                         <div class="text-[13px] text-gray-500 truncate">${KC.esc(course.title || '')}</div>
                     </div>
                     ${btn}

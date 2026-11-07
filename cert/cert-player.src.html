@@ -1,4 +1,4 @@
-<!-- 파일명: cert-player.src.html — 자격증 과정 수강 화면 (2026-11 신규)
+<!-- 파일명: cert-player.src.html — 교육과정 수강 화면 (2026-11 신규)
      cert_enrollments(수강 신청) + cert_curriculum(강의 목록)을 읽어 강의를 보여 줌.
      수강 중(ACTIVE)·수료(COMPLETED) 회원만 볼 수 있음. -->
 <!-- @var PAGE_CLASS: page-cert -->
@@ -69,7 +69,7 @@
         <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
             <div class="left-scroll-content">
                 <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab-active" onclick="window.location.href='cert-list.html'">자격증 과정</div>
+                    <div class="side-menu-tab-active" onclick="window.location.href='cert-list.html'">교육과정</div>
                     <div class="side-menu-tab" onclick="window.location.href='edu-field-list.html'">현장 교육</div>
                     <div class="side-menu-tab" onclick="window.location.href='cert-verify.html'">진위 확인</div>
                 </div>
@@ -213,7 +213,7 @@
             else { showMessage('잘못된 접근입니다', '강의를 찾을 수 없습니다.'); return; }
             const { data: enrolls, error: eErr } = await q.limit(1);
             const enroll = enrolls && enrolls[0];
-            if (eErr || !enroll) { showMessage('수강 정보가 없습니다', '이 과정을 수강 신청한 기록을 찾을 수 없습니다.<br>자격증 과정에서 먼저 수강 신청해 주세요.', 'cert-list.html'); return; }
+            if (eErr || !enroll) { showMessage('수강 정보가 없습니다', '이 과정을 수강 신청한 기록을 찾을 수 없습니다.<br>교육과정에서 먼저 수강 신청해 주세요.', 'cert-list.html'); return; }
             if (enroll.status !== 'ACTIVE' && enroll.status !== 'COMPLETED') {
                 const why = enroll.status === 'PENDING_PAYMENT' ? '입금 확인 후 수강할 수 있습니다.' : '수강 기간이 끝났거나 취소된 과정입니다.';
                 showMessage('지금은 수강할 수 없습니다', KC.esc(why));
@@ -226,7 +226,7 @@
             ]);
             course = courseRow || {};
             chapters = (chs || []).slice().sort((a, b) => (a.chapter_no || 0) - (b.chapter_no || 0) || (a.sort_order || 0) - (b.sort_order || 0));
-            $('pl-course-title').textContent = course.title || '자격증 과정';
+            $('pl-course-title').textContent = course.title || '교육과정';
             $('pl-course-sub').textContent = `${enroll.status === 'COMPLETED' ? '수료 완료 · 다시보기' : '수강 중'} · 총 ${chapters.length}강`;
             document.title = (course.title || '강의 수강') + ' | 대한집합건물관리협회';
             if (cErr || chapters.length === 0) {

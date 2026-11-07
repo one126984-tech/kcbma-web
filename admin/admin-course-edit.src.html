@@ -63,7 +63,7 @@
                 <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
             </div>
@@ -80,14 +80,14 @@
                     <div class="section-title">기본 정보</div>
                     <table class="form-table">
                         <tr>
-                            <th>자격증명<span class="required">*</span></th>
-                            <td colspan="3"><input type="text" id="title" class="form-input" placeholder="예) 기전당직실무관리사 자격 취득 과정" required></td>
+                            <th>과정명<span class="required">*</span></th>
+                            <td colspan="3"><input type="text" id="title" class="form-input" placeholder="예) 기전당직 실무 교육과정" required></td>
                         </tr>
                         <tr>
                             <th>슬러그<span class="required">*</span></th>
                             <td>
                                 <input type="text" id="slug" class="form-input" placeholder="예) electrical-duty" required>
-                                <div class="form-hint">URL에 사용됩니다. 자격증명 입력 시 자동 제안됩니다.</div>
+                                <div class="form-hint">URL에 사용됩니다. 과정명 입력 시 자동 제안됩니다.</div>
                             </td>
                             <th>분야</th>
                             <td>
@@ -99,9 +99,9 @@
                                     <option value="배관">배관</option>
                                     <option value="행정">행정</option>
                                     <option value="환경위생">환경위생</option>
-                                    <!-- 💡 추가: 현장교육 분류와 이름을 맞춘 5종 자격증용 분류.
+                                    <!-- 💡 추가: 현장교육 분류와 이름을 맞춘 5종 수료증용 분류.
                                          현장교육 필수 이수 횟수 연동(위 필드)이 정상 동작하려면
-                                         관리소장/경리회계/환경미화/기전영선/전기 5종 실무관리사는
+                                         관리소장/경리회계/환경미화/기전영선/전기 5종 실무과정는
                                          반드시 이 중 하나로 분류를 지정해야 합니다. -->
                                     <option value="관리소장 실무">관리소장 실무</option>
                                     <option value="경리회계 실무">경리실무</option>
@@ -148,10 +148,10 @@
                             <td colspan="3"><label class="custom-checkbox"><input type="checkbox" id="is_free"> 무료 (100% 장학지원)</label></td>
                         </tr>
                         <tr>
-                            <th>자격증 발급비<span class="required">*</span></th>
+                            <th>수료증 발급비<span class="required">*</span></th>
                             <td colspan="3">
                                 <input type="number" id="cert_price" class="form-input" style="width:200px;" placeholder="250000" min="0" required>
-                                <div class="form-hint">수료 후 자격증 발급 신청 시 계좌이체로 결제하는 비용입니다. (원)</div>
+                                <div class="form-hint">수료 후 수료증 발급 신청 시 계좌이체로 결제하는 비용입니다. (원)</div>
                             </td>
                         </tr>
                         <tr>
@@ -178,7 +178,7 @@
                                     <input type="number" id="required_field_course_count" class="form-input" style="width:100px;" placeholder="0" min="0" value="0">
                                     <span class="text-sm text-gray-600">회</span>
                                 </div>
-                                <div class="form-hint">이 자격증의 분류(위 "분류" 값)와 동일한 현장교육에 참석 처리된 횟수가 이 숫자 이상이 되어야 시험 응시 버튼이 열립니다. 0이면 제한 없이 바로 시험 응시가 가능합니다.</div>
+                                <div class="form-hint">이 수료증의 분류(위 "분류" 값)와 동일한 현장교육에 참석 처리된 횟수가 이 숫자 이상이 되어야 시험 응시 버튼이 열립니다. 0이면 제한 없이 바로 시험 응시가 가능합니다.</div>
                             </td>
                         </tr>
                     </table>
@@ -355,7 +355,7 @@
 
             const title = document.getElementById('title').value.trim();
             const slug = document.getElementById('slug').value.trim();
-            if (!title) { alert('자격증명을 입력해주세요.'); return; }
+            if (!title) { alert('과정명을 입력해주세요.'); return; }
             if (!slug) { alert('슬러그를 입력해주세요.'); return; }
 
             const payload = buildPayload();

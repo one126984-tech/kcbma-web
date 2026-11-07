@@ -64,7 +64,7 @@
                 <div class="side-menu-tab-active">커리큘럼 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
@@ -204,7 +204,7 @@
             return url.length > 24 ? url.slice(0, 24) + '...' : url;
         }
 
-        const dummyCourse = { id: courseId || 'dummy', title: '기전당직실무관리사 자격 취득 과정' };
+        const dummyCourse = { id: courseId || 'dummy', title: '기전당직 실무 교육과정' };
 
         const dummyCurriculum = [
             { id: 'dc1', course_id: courseId, chapter_no: 1, title: '1강. 총론 및 개요', duration_min: 45, content_type: 'VOD', video_url: 'https://youtube.com/watch?v=abc123', zoom_link: null, zoom_datetime: null, is_preview: true, sort_order: 1 },

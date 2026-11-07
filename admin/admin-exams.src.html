@@ -66,7 +66,7 @@
                 <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
                 <div class="side-menu-tab-active">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
@@ -220,9 +220,9 @@
             return true;
         }
 
-        const dummyCourse = { id: courseId || 'dummy', title: '기전당직실무관리사 자격 취득 과정' };
+        const dummyCourse = { id: courseId || 'dummy', title: '기전당직 실무 교육과정' };
 
-        const dummyExam = { id: 'dexam1', course_id: courseId, title: '기전당직실무관리사 자격 평가', time_limit_min: 60, pass_score: 60, max_attempts: 3, is_active: true };
+        const dummyExam = { id: 'dexam1', course_id: courseId, title: '기전당직 실무과정 수료 평가', time_limit_min: 60, pass_score: 60, max_attempts: 3, is_active: true };
 
         const dummyQuestions = [
             { id: 'dq1', exam_id: 'dexam1', question_no: 1, question_text: '집합건물의 관리단 설립 근거 법률은?', option_1: '집합건물법', option_2: '주택법', option_3: '건축법', option_4: '민법', correct_option: 1, points: 5, explanation: '집합건물의 소유 및 관리에 관한 법률(집합건물법)이 근거 법률이다.' },
@@ -289,7 +289,7 @@
         async function createExam() {
             const payload = {
                 course_id: courseId,
-                title: '자격 평가',
+                title: '수료 평가',
                 time_limit_min: 60,
                 pass_score: 60,
                 max_attempts: 3,

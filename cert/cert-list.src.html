@@ -7,7 +7,7 @@
     <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>자격증 과정 | 대한집합건물관리협회</title>
+    <title>교육과정 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
@@ -33,7 +33,7 @@
         .side-menu-tab:hover { background-color: #f8fafc; }
         .side-menu-tab-active { display: flex; align-items: center; justify-content: center; padding: 12px 16px; border-radius: 4px; background-color: #274bce; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
 
-        /* 자격증 전용 CSS */
+        /* 수료증 전용 CSS */
         .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
         .notice-icon-wrapper { width: 45px; height: 45px; background-color: #e0e7ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
         .notice-content { flex: 1; }
@@ -118,7 +118,7 @@
             <aside class="w-full md:w-[220px] shrink-0 md:h-full overflow-visible md:overflow-hidden hide-scrollbar z-40 pb-8">
                 <div class="pr-1 pt-1">
                     <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                        <div class="side-menu-tab-active">자격증 과정</div>
+                        <div class="side-menu-tab-active">교육과정</div>
                         <div class="h-px bg-gray-100 mx-2 my-1"></div>
                         <div class="side-menu-tab" onclick="location.href='edu-field-list.html'">현장 교육</div>
                     </div>
@@ -132,11 +132,11 @@
                     <div class="notice-box mt-2">
                         <div class="notice-icon-wrapper"><i class="fas fa-certificate"></i></div>
                         <div class="notice-content">
-                            <div class="notice-title">대한집합건물관리협회 자격증 과정 안내</div>
+                            <div class="notice-title">대한집합건물관리협회 교육과정 안내</div>
                             <ul class="notice-list">
                                 <li><strong>수료 기준:</strong> 진도율 80% 이상 달성 및 온라인 평가 60점 이상</li>
                                 <li><strong>수강료:</strong> 전 과정 100% 장학지원으로 무료 수강</li>
-                                <li><strong>자격증 발급:</strong> 수료 및 시험 합격 후 발급비를 계좌이체 납부 시 발급</li>
+                                <li><strong>수료증 발급:</strong> 수료 및 시험 합격 후 발급비를 계좌이체 납부 시 발급</li>
                             </ul>
                         </div>
                     </div>
@@ -181,9 +181,9 @@
         let allCert = [], filteredCert = [], currentPage = 1, itemsPerPage = 10;
 
         const dummyCertCourses = [
-            { id: 'cert-1', title: '관리소장 실무관리사', short_desc: '집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다.', status: 'OPEN', enroll_count: 320, category: '관리소장 실무' },
-            { id: 'cert-2', title: '경리회계 실무관리사', short_desc: '관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양합니다.', status: 'OPEN', enroll_count: 215, category: '경리회계 실무' },
-            { id: 'cert-3', title: '환경미화 실무관리사', short_desc: '건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습합니다.', status: 'OPEN', enroll_count: 142, category: '환경미화 실무' }
+            { id: 'cert-1', title: '관리소장 실무과정', short_desc: '집합건물 관리소장 업무 전반, 행정 및 운영, 민원응대 실무를 마스터하는 과정입니다.', status: 'OPEN', enroll_count: 320, category: '관리소장 실무' },
+            { id: 'cert-2', title: '경리회계 실무과정', short_desc: '관리비 부과, 회계 처리, 결산 및 세무신고 등 실전 경리 실무 능력을 배양합니다.', status: 'OPEN', enroll_count: 215, category: '경리회계 실무' },
+            { id: 'cert-3', title: '환경미화 실무과정', short_desc: '건물 내외부 구역별 청소 방법, 환경미화 및 위생/소독 관리 실무를 체계적으로 학습합니다.', status: 'OPEN', enroll_count: 142, category: '환경미화 실무' }
         ];
 
         async function fetchCertData() {

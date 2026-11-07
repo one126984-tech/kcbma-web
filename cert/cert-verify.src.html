@@ -8,7 +8,7 @@
 <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>자격증 진위확인 | 대한집합건물관리협회</title>
+    <title>수료증 진위확인 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
@@ -28,7 +28,7 @@
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(자격증 진위확인) 전용 CSS */
+        /* 이 페이지(수료증 진위확인) 전용 CSS */
         html, body { overflow: hidden; height: 100%; }
 
         .notice-box { border: 1px solid #e5e7eb; border-left: 4px solid #12387a; background: #f8fafc; padding: 25px 30px; display: flex; gap: 15px; align-items: flex-start; margin-bottom: 30px; border-radius: 6px; }
@@ -67,7 +67,7 @@
         <aside class="w-full md:w-[232px] shrink-0 h-full left-scroll-area z-40">
             <div class="left-scroll-content">
                 <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
-                    <div class="side-menu-tab" onclick="window.location.href='cert-list.html'">자격증 과정</div>
+                    <div class="side-menu-tab" onclick="window.location.href='cert-list.html'">교육과정</div>
                     <div class="side-menu-tab" onclick="window.location.href='edu-field-list.html'">현장 교육</div>
                     <div class="side-menu-tab-active">진위 확인</div>
                 </div>
@@ -80,10 +80,10 @@
                 <div class="notice-box">
                     <div class="notice-icon-wrapper"><i class="fas fa-shield-halved"></i></div>
                     <div class="notice-content">
-                        <div class="notice-title">자격증 진위확인 서비스</div>
+                        <div class="notice-title">수료증 진위확인 서비스</div>
                         <ul class="notice-list">
-                            <li>대한집합건물관리협회에서 발급한 자격증의 진위 여부를 조회할 수 있는 서비스입니다.</li>
-                            <li>자격증 번호(예: KCBMA-2026-ELC-00001)를 정확히 입력해 주세요.</li>
+                            <li>대한집합건물관리협회에서 발급한 수료증의 진위 여부를 조회할 수 있는 서비스입니다.</li>
+                            <li>수료증 번호(예: KCBMA-2026-ELC-00001)를 정확히 입력해 주세요.</li>
                             <li>조회 결과는 협회 발급 기록을 기준으로 실시간으로 제공됩니다.</li>
                         </ul>
                     </div>
@@ -91,7 +91,7 @@
 
                 <div class="search-card shadow-sm">
                     <div class="flex flex-col md:flex-row gap-3">
-                        <input id="cert-number-input" type="text" placeholder="자격증 번호를 입력하세요 (예: KCBMA-2026-ELC-00001)"
+                        <input id="cert-number-input" type="text" placeholder="수료증 번호를 입력하세요 (예: KCBMA-2026-ELC-00001)"
                             class="flex-1 border border-gray-300 rounded px-4 py-3 text-[14.5px] focus:outline-none focus:ring-2 focus:ring-[#12387a] focus:border-transparent">
                         <button id="search-btn" onclick="handleSearch()" class="bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold px-8 py-3 rounded transition-colors whitespace-nowrap">
                             <i class="fas fa-search mr-1"></i> 조회하기
@@ -117,19 +117,19 @@
         const dummyCertificates = [
             {
                 cert_number: 'KCBMA-2026-ELC-00001',
-                cert_name: '기전당직실무관리사',
+                cert_name: '기전당직 실무과정',
                 holder_name: '홍*동',
                 status: 'ISSUED',
                 issued_at: '2026-07-01T00:00:00Z',
-                cert_courses: { title: '기전당직실무관리사', category: '기전' }
+                cert_courses: { title: '기전당직 실무과정', category: '기전' }
             },
             {
                 cert_number: 'KCBMA-2026-FPE-00003',
-                cert_name: '전기방재안전관리사',
+                cert_name: '전기방재안전 실무과정',
                 holder_name: '김*수',
                 status: 'REVOKED',
                 issued_at: '2026-06-15T00:00:00Z',
-                cert_courses: { title: '전기방재안전관리사', category: '전기방재' }
+                cert_courses: { title: '전기방재안전 실무과정', category: '전기방재' }
             }
         ];
 
@@ -149,14 +149,14 @@
                             <i class="fas fa-check"></i>
                         </div>
                         <div>
-                            <div class="font-black text-lg text-green-700">유효한 자격증입니다</div>
+                            <div class="font-black text-lg text-green-700">유효한 수료증입니다</div>
                             <div class="text-[13px] text-green-600">대한집합건물관리협회 공식 인증</div>
                         </div>
                     </div>
                     <table class="cert-info-table">
-                        <tr><th>자격증명</th><td>${KC.esc(cert.cert_name || '-')}</td></tr>
-                        <tr><th>자격증번호</th><td class="font-mono font-bold">${KC.esc(cert.cert_number)}</td></tr>
-                        <tr><th>취득자명</th><td>${KC.esc(cert.holder_name || '-')}</td></tr>
+                        <tr><th>과정명</th><td>${KC.esc(cert.cert_name || '-')}</td></tr>
+                        <tr><th>수료증 번호</th><td class="font-mono font-bold">${KC.esc(cert.cert_number)}</td></tr>
+                        <tr><th>수료자명</th><td>${KC.esc(cert.holder_name || '-')}</td></tr>
                         <tr><th>발급일</th><td>${formatDate(cert.issued_at)}</td></tr>
                         <tr><th>상태</th><td><span class="bg-green-600 text-white px-3 py-1 rounded text-[12px] font-bold">유효</span></td></tr>
                     </table>
@@ -164,7 +164,7 @@
                         <div class="w-10 h-10 rounded-full bg-[#12387a] text-white flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-award"></i>
                         </div>
-                        <div class="text-[13.5px] font-bold text-[#12387a]">대한집합건물관리협회 공식 인증 자격증입니다.</div>
+                        <div class="text-[13.5px] font-bold text-[#12387a]">대한집합건물관리협회가 발급한 교육 수료증입니다.</div>
                     </div>
                 </div>
             `;
@@ -179,8 +179,8 @@
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div>
-                            <div class="font-black text-lg text-yellow-700">해당 자격증은 취소되었습니다</div>
-                            <div class="text-[13px] text-yellow-600">자격증번호: ${KC.esc(cert.cert_number)}</div>
+                            <div class="font-black text-lg text-yellow-700">해당 수료증은 취소되었습니다</div>
+                            <div class="text-[13px] text-yellow-600">수료증 번호: ${KC.esc(cert.cert_number)}</div>
                         </div>
                     </div>
                 </div>
@@ -196,7 +196,7 @@
                             <i class="fas fa-times"></i>
                         </div>
                         <div>
-                            <div class="font-black text-lg text-red-700">해당 자격증 번호를 찾을 수 없습니다</div>
+                            <div class="font-black text-lg text-red-700">해당 수료증 번호를 찾을 수 없습니다</div>
                             <div class="text-[13px] text-red-600">번호를 다시 확인한 후 조회해 주세요.</div>
                         </div>
                     </div>
@@ -216,7 +216,7 @@
                 // ★ 2026-11: 예전엔 DB에 없으면 샘플 번호와도 비교해서, 샘플 번호를 넣으면 '진짜'로 나왔음 → 실제 DB 결과만 사용
                 return data || null;
             } catch (error) {
-                console.error('자격증 조회 실패:', error);
+                console.error('수료증 조회 실패:', error);
                 return 'ERROR';
             }
         }
@@ -227,7 +227,7 @@
             const area = document.getElementById('result-area');
 
             if (!certNumber) {
-                area.innerHTML = `<div class="result-card result-invalid shadow-sm"><div class="font-bold text-red-600">자격증 번호를 입력해 주세요.</div></div>`;
+                area.innerHTML = `<div class="result-card result-invalid shadow-sm"><div class="font-bold text-red-600">수료증 번호를 입력해 주세요.</div></div>`;
                 return;
             }
 

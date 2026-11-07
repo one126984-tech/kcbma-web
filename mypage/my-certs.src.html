@@ -10,7 +10,7 @@
 <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>내 자격증 | 대한집합건물관리협회</title>
+    <title>내 수료증 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
@@ -30,7 +30,7 @@
 <!-- @include common-css -->
 
     <style>
-        /* 이 페이지(내 자격증) 전용 CSS */
+        /* 이 페이지(내 수료증) 전용 CSS */
         html, body { overflow-y: scroll; }
 
         .cert-card {
@@ -118,7 +118,7 @@
             <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab" onclick="window.location.href='dashboard.html'">대시보드</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
-                <div class="side-menu-tab-active">내 자격증</div>
+                <div class="side-menu-tab-active">내 수료증</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-sos.html'">내 SOS 내역</div>
@@ -127,7 +127,7 @@
             </div>
         </aside>
         <section class="flex-1 min-w-0">
-            <div class="text-xl md:text-2xl font-black text-[#0B2A5B] mb-6">내 자격증</div>
+            <div class="text-xl md:text-2xl font-black text-[#0B2A5B] mb-6">내 수료증</div>
             <div id="cert-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="col-span-full cert-loading-box">
                     <div class="cert-spinner"></div>
@@ -150,7 +150,7 @@
             {
                 id: 'dummy-c1',
                 cert_number: 'KCBMA-2026-ELC-00001',
-                cert_name: '기전당직실무관리사',
+                cert_name: '기전당직 실무과정',
                 holder_name: '홍*동',
                 status: 'ISSUED',
                 issued_at: '2026-07-01T00:00:00Z',
@@ -158,12 +158,12 @@
                 payment_amount: 250000,
                 depositor_name: '홍길동',
                 pdf_url: null,
-                cert_courses: { id: 'dummy-1', title: '기전당직실무관리사 자격 취득 과정 (2026년 상반기)', category: '기전' }
+                cert_courses: { id: 'dummy-1', title: '기전당직 실무 교육과정 (2026년 상반기)', category: '기전' }
             },
             {
                 id: 'dummy-c2',
                 cert_number: 'KCBMA-2026-PLM-00007',
-                cert_name: '영선실무관리사',
+                cert_name: '영선 실무과정',
                 holder_name: '홍*동',
                 status: 'ISSUED',
                 issued_at: '2026-06-25T00:00:00Z',
@@ -171,7 +171,7 @@
                 payment_amount: 250000,
                 depositor_name: '홍길동',
                 pdf_url: null,
-                cert_courses: { id: 'dummy-4', title: '영선실무관리사 자격증 취득 과정', category: '영선' }
+                cert_courses: { id: 'dummy-4', title: '영선 실무 교육과정', category: '영선' }
             },
             {
                 id: 'dummy-c3',
@@ -212,10 +212,10 @@
                     .in('status', ['PENDING_PAYMENT', 'PAYMENT_CONFIRMED', 'ISSUED'])
                     .order('created_at', { ascending: false });
                 if (error) throw error;
-                // ★ 2026-11: 기록이 없거나 조회 실패 시 예전엔 샘플(가짜) 데이터를 보여줬음 → 실제 회원에게 가짜 자격증이 보이는 문제라 빈 목록으로 변경
+                // ★ 2026-11: 기록이 없거나 조회 실패 시 예전엔 샘플(가짜) 데이터를 보여줬음 → 실제 회원에게 가짜 수료증이 보이는 문제라 빈 목록으로 변경
                 return data || [];
             } catch (e) {
-                console.error('자격증 조회 실패:', e);
+                console.error('수료증 조회 실패:', e);
                 return [];
             }
         }
@@ -236,10 +236,10 @@
             return `
                 <div class="col-span-full empty-state">
                     <i class="fas fa-certificate text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 font-medium mb-1">아직 발급된 자격증이 없습니다.</p>
-                    <p class="text-[13px] text-gray-400 mb-5">과정 수료 후 시험에 합격하면 자격증을 신청할 수 있습니다.</p>
+                    <p class="text-gray-500 font-medium mb-1">아직 발급된 수료증이 없습니다.</p>
+                    <p class="text-[13px] text-gray-400 mb-5">과정 수료 후 시험에 합격하면 수료증을 신청할 수 있습니다.</p>
                     <a href="../cert/cert-list.html" class="inline-block bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[14px] py-3 px-7 rounded-lg transition-colors">
-                        <i class="fas fa-graduation-cap mr-1.5"></i>자격증 과정 바로가기
+                        <i class="fas fa-graduation-cap mr-1.5"></i>교육과정 바로가기
                     </a>
                 </div>
             `;
@@ -258,7 +258,7 @@
                     ? `<div class="cert-row"><span class="label">발급일</span><span class="value">${formatDate(cert.issued_at)}</span></div>`
                     : `<div class="cert-row"><span class="label">신청일</span><span class="value">${formatDate(cert.created_at)}</span></div>`;
                 const numberRow = cert.status === 'ISSUED'
-                    ? `<div class="cert-row"><span class="label">자격증번호</span><span class="value font-mono">${KC.esc(cert.cert_number || '-')}</span></div>`
+                    ? `<div class="cert-row"><span class="label">수료증 번호</span><span class="value font-mono">${KC.esc(cert.cert_number || '-')}</span></div>`
                     : `<div class="cert-row"><span class="label">발급비</span><span class="value">${(cert.payment_amount || 250000).toLocaleString()}원</span></div>`;
                 const footerHtml = cert.status === 'ISSUED' ? `
                     <a href="../cert/cert-verify.html" class="flex-1 text-center bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 rounded-lg transition-colors">
@@ -269,7 +269,7 @@
                     </button>
                 ` : `
                     <div class="flex-1 text-center text-gray-500 font-bold text-[13px] py-2.5">
-                        <i class="fas fa-info-circle mr-1"></i>${cert.status === 'PENDING_PAYMENT' ? '입금 확인 후 발급이 진행됩니다.' : '자격증 발급을 준비 중입니다.'}
+                        <i class="fas fa-info-circle mr-1"></i>${cert.status === 'PENDING_PAYMENT' ? '입금 확인 후 발급이 진행됩니다.' : '수료증 발급을 준비 중입니다.'}
                     </div>
                 `;
                 return `
@@ -284,7 +284,7 @@
                         </div>
                         <div class="cert-card-body">
                             ${numberRow}
-                            <div class="cert-row"><span class="label">취득자명</span><span class="value">${KC.esc(cert.holder_name || '-')}</span></div>
+                            <div class="cert-row"><span class="label">수료자명</span><span class="value">${KC.esc(cert.holder_name || '-')}</span></div>
                             ${dateRow}
                             <div class="cert-row"><span class="label">상태</span><span class="value">${statusBadge(cert.status)}</span></div>
                         </div>

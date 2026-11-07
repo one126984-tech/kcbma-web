@@ -71,7 +71,7 @@
             <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
                 <div class="side-menu-tab-active">대시보드</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-courses.html'">내 수강 목록</div>
-                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 자격증</div>
+                <div class="side-menu-tab" onclick="window.location.href='my-certs.html'">내 수료증</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-exams.html'">시험 결과</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-field-courses.html'">내 현장교육 신청</div>
                 <div class="side-menu-tab" onclick="window.location.href='my-sos.html'">내 SOS 내역</div>
@@ -119,7 +119,7 @@
                 <div class="summary-card">
                     <div class="summary-icon bg-indigo-100 text-indigo-700"><i class="fas fa-certificate"></i></div>
                     <div class="summary-value" id="stat-cert">0</div>
-                    <div class="summary-label">취득한 자격증</div>
+                    <div class="summary-label">받은 수료증</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-icon bg-amber-100 text-amber-700"><i class="fas fa-chart-line"></i></div>
@@ -215,7 +215,7 @@
                 if (error) throw error;
                 return count || 0;
             } catch (e) {
-                console.error('자격증 수 조회 실패:', e);
+                console.error('수료증 수 조회 실패:', e);
                 return 0;
             }
         }

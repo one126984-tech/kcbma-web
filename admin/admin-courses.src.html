@@ -68,7 +68,7 @@
                 <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
-                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">자격증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
@@ -110,7 +110,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>자격증명</th>
+                                <th>과정명</th>
                                 <th>분야</th>
                                 <th>방식</th>
                                 <th>상태</th>
@@ -167,10 +167,10 @@
         }
 
         const dummyCourses = [
-            { id: 'dummy-1', title: '기전당직실무관리사 자격 취득 과정 (2026년 상반기)', category: '기전', edu_method: 'VOD', status: 'OPEN', enroll_count: 42, view_count: 342, created_at: '2026-07-01T00:00:00Z' },
-            { id: 'dummy-2', title: '전기방재안전관리사 실시간 화상 강의 과정', category: '전기방재', edu_method: 'LIVE', status: 'OPEN', enroll_count: 28, view_count: 198, created_at: '2026-07-05T00:00:00Z' },
+            { id: 'dummy-1', title: '기전당직 실무 교육과정 (2026년 상반기)', category: '기전', edu_method: 'VOD', status: 'OPEN', enroll_count: 42, view_count: 342, created_at: '2026-07-01T00:00:00Z' },
+            { id: 'dummy-2', title: '전기방재안전 실시간 화상 강의 과정', category: '전기방재', edu_method: 'LIVE', status: 'OPEN', enroll_count: 28, view_count: 198, created_at: '2026-07-05T00:00:00Z' },
             { id: 'dummy-3', title: '기계설비유지관리사 이론 및 실무 종합과정', category: '기계', edu_method: 'MIX', status: 'OPEN', enroll_count: 35, view_count: 256, created_at: '2026-07-10T00:00:00Z' },
-            { id: 'dummy-4', title: '영선실무관리사 자격증 취득 과정', category: '영선', edu_method: 'VOD', status: 'CLOSED', enroll_count: 51, view_count: 174, created_at: '2026-06-01T00:00:00Z' },
+            { id: 'dummy-4', title: '영선 실무 교육과정', category: '영선', edu_method: 'VOD', status: 'CLOSED', enroll_count: 51, view_count: 174, created_at: '2026-06-01T00:00:00Z' },
             { id: 'dummy-5', title: '배관시설관리사 실무 심화과정 (Zoom 화상강의)', category: '배관', edu_method: 'LIVE', status: 'OPEN', enroll_count: 19, view_count: 91, created_at: '2026-07-20T00:00:00Z' },
             { id: 'dummy-6', title: '공동주택관리행정사 이론 및 사례 연구', category: '행정', edu_method: 'VOD', status: 'OPEN', enroll_count: 60, view_count: 312, created_at: '2026-06-15T00:00:00Z' },
             { id: 'dummy-7', title: '환경위생관리사 위생관리 실무 종합과정', category: '환경위생', edu_method: 'MIX', status: 'UPCOMING', enroll_count: 0, view_count: 143, created_at: '2026-08-01T00:00:00Z' }
