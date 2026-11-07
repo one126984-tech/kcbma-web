@@ -1,0 +1,314 @@
+<!-- 파일명: policy/terms.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 terms.html) -->
+<!-- ★ 노란 형광펜(<mark class="fill">) 표시된 부분은 실제 정보로 바꿔야 하는 칸입니다. 다 채운 뒤 <mark class="fill"> 태그만 지우면 됩니다. -->
+<!-- @var PAGE_CLASS: page-policy -->
+<!-- @var BASE: / -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>이용약관 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 약관/방침 페이지 전용 CSS (Tailwind 재컴파일이 필요 없도록 여기서 직접 정의) */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-button { display: none !important; }
+        .scroll-smooth { scroll-behavior: smooth; }
+
+        .policy { font-size: 15px; line-height: 1.85; color: #374151; word-break: keep-all; }
+        .policy .intro { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; padding: 18px 20px; margin-bottom: 28px; }
+        .policy h3 { font-size: 18px; font-weight: 700; color: #12387a; margin: 40px 0 12px; padding-top: 4px; scroll-margin-top: 16px; }
+        .policy h3:first-of-type { margin-top: 8px; }
+        .policy p { margin: 8px 0; }
+        .policy ol, .policy ul { margin: 8px 0 8px 22px; }
+        .policy ol { list-style: decimal; }
+        .policy ul { list-style: disc; }
+        .policy li { margin: 4px 0; }
+        .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+        .policy th, .policy td { border: 1px solid #d1d5db; padding: 9px 11px; text-align: left; vertical-align: top; }
+        .policy th { background: #f1f5f9; font-weight: 700; color: #1f2937; white-space: nowrap; }
+        .policy .table-wrap { overflow-x: auto; }
+        .policy .note { font-size: 13.5px; color: #6b7280; }
+        .policy .toc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; margin: 0 0 8px; padding: 18px 20px; border: 1px solid #e5e7eb; border-radius: 6px; list-style: none; }
+        .policy .toc a { color: #374151; text-decoration: none; }
+        .policy .toc a:hover { color: #12387a; text-decoration: underline; }
+        .policy mark.fill { background: #fef08a; color: #111827; padding: 0 3px; border-radius: 2px; }
+        .policy .box { border: 1px solid #d1d5db; border-radius: 6px; padding: 14px 18px; margin: 10px 0; }
+        /* 모바일에서 표·목차 때문에 본문이 화면 밖으로 밀리지 않도록 폭 고정 */
+        .page-policy #scroll-area { width: 100%; }
+        .page-policy #scroll-area > section { max-width: 100%; min-width: 0; }
+        @media (max-width: 640px) { .page-policy #scroll-area > section { padding: 22px 16px; } }
+        @media (max-width: 640px) { .policy .toc { grid-template-columns: 1fr; } .policy { font-size: 14.5px; } }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden relative items-start">
+
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 h-fit z-40">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <a href="/policy/terms.html" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all bg-[#274bce] text-white shadow-sm rounded">
+                        <span>이용약관</span>
+                    </a>
+                    <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                    <a href="/policy/privacy.html" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all text-[#4b5563] hover:bg-[#f8fafc] hover:text-[#12387a] rounded">
+                        <span>개인정보처리방침</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 콘텐츠 + 푸터 스크롤 영역 -->
+        <div id="scroll-area" class="flex-1 h-full overflow-y-auto custom-scrollbar scroll-smooth flex flex-col pr-2 pb-6 min-w-0">
+
+            <section class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm mb-8 shrink-0">
+                <div class="border-b-2 border-gray-800 pb-4 mb-10">
+                    <h2 class="text-2xl font-bold text-gray-900">이용약관</h2>
+                </div>
+
+                <div class="policy">
+                    <div class="intro">
+                        이 약관은 대한집합건물관리협회가 운영하는 웹사이트(www.kcbma.org)와 관련 서비스의 이용 조건 및 절차, 협회와 회원의 권리·의무를 정합니다.
+                        <br><span class="note">시행일: <mark class="fill">2026년 11월 ○○일</mark></span>
+                    </div>
+
+                    <ul class="toc">
+                        <li><a href="#t1">제1장 총칙 (제1조~제4조)</a></li>
+                        <li><a href="#t2">제2장 회원 (제5조~제7조)</a></li>
+                        <li><a href="#t3">제3장 서비스 이용 (제8조~제10조)</a></li>
+                        <li><a href="#t4">제4장 서비스별 특칙 (제11조~제15조)</a></li>
+                        <li><a href="#t5">제5장 유료 서비스·포인트 (제16조~제18조)</a></li>
+                        <li><a href="#t6">제6장 게시물 (제19조~제20조)</a></li>
+                        <li><a href="#t7">제7장 책임과 분쟁 (제21조~제23조)</a></li>
+                        <li><a href="#t8">부칙</a></li>
+                    </ul>
+
+                    <h3 id="t1">제1장 총칙</h3>
+
+                    <p><b>제1조 (목적)</b><br>
+                    이 약관은 대한집합건물관리협회(이하 "협회")가 제공하는 구인구직, 견적의뢰, 자격증·교육, 관리단 코너, 지식컨설팅, 커뮤니티, 긴급 SOS 등 온라인 서비스(이하 "서비스")의 이용과 관련하여 협회와 회원 간의 권리, 의무 및 책임 사항을 정하는 것을 목적으로 합니다.</p>
+
+                    <p><b>제2조 (정의)</b></p>
+                    <ol>
+                        <li>"회원"이란 이 약관에 동의하고 협회가 정한 방법으로 가입하여 서비스를 이용하는 자를 말합니다.</li>
+                        <li>"이용자"란 회원 및 회원 가입 없이 서비스를 이용하는 자를 말합니다.</li>
+                        <li>"전문가"란 협회의 심사를 거쳐 긴급 SOS, 지식컨설팅, 관리단 코너 등에서 상담·출동·자문을 제공하는 회원을 말합니다.</li>
+                        <li>"업체"란 채용공고, 견적 제출, 협력업체 홍보 등을 위해 서비스를 이용하는 사업자 회원을 말합니다.</li>
+                        <li>"게시물"이란 회원이 서비스에 올린 글, 사진, 파일, 링크, 이력서, 채용공고, 의뢰서 등 일체의 정보를 말합니다.</li>
+                        <li>"포인트(내공)"란 지식컨설팅 등 서비스 안에서 사용할 수 있도록 협회가 정한 디지털 이용권을 말합니다.</li>
+                        <li>"예치금"이란 긴급 SOS 상담료 결제를 위해 회원이 미리 충전해 둔 금액을 말합니다.</li>
+                    </ol>
+
+                    <p><b>제3조 (약관의 게시와 개정)</b></p>
+                    <ol>
+                        <li>협회는 이 약관을 서비스 화면 하단에 게시합니다.</li>
+                        <li>협회는 관련 법령을 위반하지 않는 범위에서 약관을 개정할 수 있으며, 개정 시 적용일자와 개정 사유를 적용일 7일 전부터(회원에게 불리한 변경은 30일 전부터) 공지합니다.</li>
+                        <li>회원이 개정 약관에 동의하지 않는 경우 이용 계약을 해지(탈퇴)할 수 있으며, 공지 기간 내에 거부 의사를 표시하지 않으면 개정 약관에 동의한 것으로 봅니다.</li>
+                    </ol>
+
+                    <p><b>제4조 (약관 외 준칙)</b><br>
+                    이 약관에서 정하지 않은 사항은 관계 법령과 협회가 서비스별로 정한 이용 안내에 따릅니다.</p>
+
+                    <h3 id="t2">제2장 회원</h3>
+
+                    <p><b>제5조 (회원 가입)</b></p>
+                    <ol>
+                        <li>회원 가입은 이용자가 이 약관과 개인정보처리방침에 동의하고, 네이버·카카오·구글 계정 또는 이메일 인증으로 가입 신청을 하여 협회가 승낙함으로써 성립합니다.</li>
+                        <li>만 14세 미만은 회원으로 가입할 수 없습니다.</li>
+                        <li>협회는 타인의 정보를 이용하거나 허위 정보를 기재한 경우, 이전에 이 약관 위반으로 자격을 잃은 경우 가입을 승낙하지 않거나 사후에 해지할 수 있습니다.</li>
+                    </ol>
+
+                    <p><b>제6조 (회원 탈퇴 및 자격 상실)</b></p>
+                    <ol>
+                        <li>회원은 언제든지 협회에 탈퇴를 요청할 수 있으며, 협회는 즉시 처리합니다.</li>
+                        <li>탈퇴 시 남아 있는 포인트·예치금의 처리는 제18조에 따릅니다.</li>
+                        <li>회원이 제10조의 금지 행위를 한 경우 협회는 경고, 게시물 삭제, 이용 제한, 자격 상실의 순서로 조치할 수 있습니다. 다만 위반 정도가 중대한 경우 즉시 자격을 상실시킬 수 있습니다.</li>
+                    </ol>
+
+                    <p><b>제7조 (회원 정보의 변경과 계정 관리)</b></p>
+                    <ol>
+                        <li>회원은 가입 정보가 변경된 경우 마이페이지에서 수정하거나 협회에 알려야 하며, 알리지 않아 생긴 불이익은 회원이 부담합니다.</li>
+                        <li>회원은 자신의 계정을 제3자에게 이용하게 해서는 안 되며, 도용 사실을 안 경우 즉시 협회에 알려야 합니다.</li>
+                    </ol>
+
+                    <h3 id="t3">제3장 서비스 이용</h3>
+
+                    <p><b>제8조 (서비스의 내용)</b></p>
+                    <ol>
+                        <li>구인구직: 채용공고 및 이력서 등록·열람</li>
+                        <li>견적의뢰: 공사·용역·관리 견적 의뢰 등록, 업체의 견적 제출, 공동선정, 협력업체 홍보</li>
+                        <li>자격증·교육: 온라인 강의, 현장 실습교육, 시험, 수료증·자격증 발급 및 진위 확인</li>
+                        <li>관리단 코너: 위탁관리사 선정, 관리비 적정성 평가, 관리단 집회·전자투표 관련 전문가 연결</li>
+                        <li>지식컨설팅: 무료 질문, 포인트(내공) 질문, 현장경험 공유</li>
+                        <li>커뮤니티: 공지사항, 자유게시판, 서식·자료실</li>
+                        <li>긴급 SOS: 건물 비상상황 발생 시 전화상담·전문가 조언·출동 전문가 연결</li>
+                        <li>그 밖에 협회가 추가로 정하는 서비스</li>
+                    </ol>
+
+                    <p><b>제9조 (서비스의 제공 및 중단)</b></p>
+                    <ol>
+                        <li>서비스는 연중무휴 24시간 제공을 원칙으로 합니다. 다만 긴급 SOS의 전문가 연결은 응답 가능한 전문가가 있는 경우에 한하여 이루어집니다.</li>
+                        <li>협회는 시스템 점검·교체, 통신 장애, 천재지변, 외부 서비스(호스팅·결제·로그인 제공사)의 장애 등 부득이한 사유가 있는 경우 서비스를 일시 중단할 수 있으며, 가능한 경우 사전에 공지합니다.</li>
+                    </ol>
+
+                    <p><b>제10조 (회원의 금지 행위)</b><br>회원은 다음 행위를 해서는 안 됩니다.</p>
+                    <ol>
+                        <li>허위 정보 등록, 타인의 정보 도용</li>
+                        <li>허위 구인광고 또는 실제와 다른 근로조건 게시</li>
+                        <li>허위 SOS 호출, 장난 호출 등 전문가의 업무를 방해하는 행위</li>
+                        <li>서비스에서 알게 된 다른 회원의 연락처 등 개인정보를 목적 외로 이용하거나 제3자에게 제공하는 행위</li>
+                        <li>협회를 거쳐 연결된 거래를 협회의 정당한 수수료를 피하기 위한 목적으로 우회하는 행위</li>
+                        <li>음란·폭력·차별적 내용, 타인의 명예훼손, 저작권 등 권리 침해 게시물 등록</li>
+                        <li>영리 목적의 무단 광고, 스팸 게시</li>
+                        <li>서비스의 정상 운영을 방해하거나 보안을 침해하는 행위</li>
+                    </ol>
+
+                    <h3 id="t4">제4장 서비스별 특칙</h3>
+
+                    <p><b>제11조 (협회의 지위)</b></p>
+                    <ol>
+                        <li>협회는 회원 간에 정보를 교류하고 서로 연결될 수 있도록 장소와 시스템을 제공하며, 회원 간 채용·견적·용역·공사·상담 계약의 당사자가 아닙니다.</li>
+                        <li>회원 간 계약의 체결, 이행, 품질, 대금 지급 등은 해당 회원이 직접 책임지며, 협회는 협회의 고의 또는 과실이 없는 한 이에 대해 책임을 지지 않습니다.</li>
+                        <li>협회는 분쟁이 발생한 경우 회원의 요청에 따라 원만한 해결을 위해 필요한 자료 확인 등 합리적인 범위에서 협조합니다.</li>
+                    </ol>
+
+                    <p><b>제12조 (긴급 SOS 특칙)</b></p>
+                    <div class="box">
+                        <b>⚠ 사람이 다치거나 위험한 상황, 화재·가스 누출·폭발 우려가 있는 경우에는 반드시 먼저 119(화재·구조) 또는 112(경찰)에 신고하십시오.</b>
+                        긴급 SOS는 공공 긴급구조 서비스를 대신하지 않습니다.
+                    </div>
+                    <ol>
+                        <li>긴급 SOS는 정전·누수·설비 고장 등 건물 비상상황에서 이용자와 전문가를 연결하는 서비스이며, 전문가의 배정이나 도착 시간을 보장하지 않습니다.</li>
+                        <li>상담료는 전문가 연락처 확인 시 결제되거나 예치금에서 차감되며, 금액은 접수 화면에 표시된 금액에 따릅니다. 현장 출동비와 공사·수리 비용은 이용자와 전문가가 현장에서 직접 정산합니다.</li>
+                        <li>연락처를 확인한 전문가와 통화가 되지 않는 경우 10분 안에 추가 비용 없이 다른 전문가를 선택할 수 있으며, 그 밖의 상담료 반환 기준은 긴급 SOS 화면의 안내에 따릅니다.</li>
+                        <li>전문가는 요청자의 정보를 해당 요청 처리 목적으로만 사용해야 하며, 처리 후 지체 없이 파기해야 합니다.</li>
+                        <li>허위·장난 호출로 전문가에게 손해가 발생한 경우 호출한 이용자가 책임을 집니다.</li>
+                    </ol>
+
+                    <p><b>제13조 (구인구직 특칙)</b></p>
+                    <ol>
+                        <li>채용공고를 등록하는 회원은 「직업안정법」에 따라 사업자등록 정보 등 구인자 확인을 위한 자료를 제출해야 하며, 협회는 자료를 제출하지 않은 공고를 게시하지 않을 수 있습니다.</li>
+                        <li>협회는 거짓 구인광고, 근로조건이 불명확한 공고, 법령에 위반되는 공고를 사전 통보 없이 삭제할 수 있습니다.</li>
+                        <li>이력서를 등록하는 회원은 공개 범위를 확인하고 등록해야 하며, 이력서 정보를 채용 목적 외로 이용해서는 안 됩니다.</li>
+                    </ol>
+
+                    <p><b>제14조 (자격증·교육 특칙)</b></p>
+                    <ol>
+                        <li>협회가 발급하는 자격은 「자격기본법」에 따른 민간자격이며, 국가자격 또는 국가공인 민간자격이 아닙니다. (민간자격 등록번호: <mark class="fill">등록 후 기재</mark>, 자격관리기관: 대한집합건물관리협회)</li>
+                        <li>교육 과정의 내용, 일정, 수강료, 수료·합격 기준은 각 과정 안내 화면에 따릅니다.</li>
+                        <li>시험에서 부정행위가 확인된 경우 협회는 해당 시험을 무효로 하고 발급된 자격을 취소할 수 있습니다.</li>
+                    </ol>
+
+                    <p><b>제15조 (지식컨설팅·관리단 코너 특칙)</b><br>
+                    지식컨설팅의 답변과 관리단 코너의 자문은 일반적인 정보 제공과 참고 의견이며, 법률·세무·회계 등 전문 자격자의 공식 자문을 대신하지 않습니다. 중요한 결정은 반드시 해당 분야 전문가의 확인을 받으시기 바랍니다.</p>
+
+                    <h3 id="t5">제5장 유료 서비스·포인트</h3>
+
+                    <p><b>제16조 (유료 서비스와 결제)</b></p>
+                    <ol>
+                        <li>유료 서비스의 종류와 가격은 각 서비스 화면에 표시합니다.</li>
+                        <li>결제는 신용카드, 간편결제 등 협회가 제공하는 방법으로 하며, 정기결제를 위해 등록한 카드는 마이페이지에서 언제든 삭제할 수 있습니다.</li>
+                    </ol>
+
+                    <p><b>제17조 (포인트·예치금)</b></p>
+                    <ol>
+                        <li>회원은 유료로 포인트·예치금을 충전하거나, 협회가 정한 활동(답변 채택 등)을 통해 포인트를 무상으로 받을 수 있습니다.</li>
+                        <li>포인트·예치금은 회원 본인만 사용할 수 있으며, 다른 회원에게 양도하거나 현금으로 거래할 수 없습니다.</li>
+                        <li>유상으로 충전한 포인트·예치금의 유효기간은 충전일로부터 <mark class="fill">5년</mark>이며, 무상으로 받은 포인트는 협회가 지급 시 정한 기간 동안 사용할 수 있습니다.</li>
+                    </ol>
+
+                    <p><b>제18조 (청약철회 및 환불)</b></p>
+                    <ol>
+                        <li>회원은 유상으로 충전한 포인트·예치금 중 사용하지 않은 금액에 대해 충전일로부터 7일 이내에 청약을 철회할 수 있으며, 협회는 결제 수단으로 전액 환불합니다.</li>
+                        <li>7일이 지난 뒤에도 사용하지 않은 유상 충전 잔액은 환불을 요청할 수 있으며, 이 경우 결제 수수료 등 <mark class="fill">환불 금액의 10%</mark>(최대 <mark class="fill">○○○원</mark>)를 공제하고 환불합니다. 다만 잔액이 1,000원 이하인 경우에는 공제하지 않습니다.</li>
+                        <li>무상으로 받은 포인트는 환불되지 않습니다.</li>
+                        <li>교육 과정은 수강 시작 전에는 전액, 수강 시작 후에는 이용한 부분(진도율 또는 경과 기간 중 큰 비율)에 해당하는 금액을 공제하고 환불합니다. 자격증 발급비 등 이미 제공된 부분은 환불 대상에서 제외됩니다.</li>
+                        <li>회원 탈퇴 시 남아 있는 유상 충전 잔액은 제2항에 따라 환불받을 수 있으며, 탈퇴 전에 환불을 요청해야 합니다.</li>
+                        <li>환불은 요청일로부터 3영업일 이내에 처리하며, 문의는 협회 사무국(031-984-6199, idea8888@naver.com)으로 해 주시기 바랍니다.</li>
+                    </ol>
+
+                    <h3 id="t6">제6장 게시물</h3>
+
+                    <p><b>제19조 (게시물의 권리와 책임)</b></p>
+                    <ol>
+                        <li>게시물의 저작권은 작성한 회원에게 있으며, 게시물로 인한 책임은 작성자에게 있습니다.</li>
+                        <li>회원은 협회가 서비스 안에서 게시물을 노출·검색·홍보하는 데 필요한 범위에서 게시물을 무상으로 이용하는 것을 허락합니다. 회원이 게시물을 삭제하거나 탈퇴하면 이 허락은 종료됩니다.</li>
+                        <li>서식·자료실 등에 올린 자료는 다른 회원이 업무 목적으로 내려받아 이용할 수 있습니다.</li>
+                    </ol>
+
+                    <p><b>제20조 (게시물의 관리)</b></p>
+                    <ol>
+                        <li>협회는 제10조를 위반하거나 관계 법령에 위반되는 게시물을 사전 통보 없이 삭제하거나 게시를 중단할 수 있습니다.</li>
+                        <li>자신의 권리를 침해당한 자는 협회에 게시 중단을 요청할 수 있으며, 협회는 관계 법령에 따라 조치합니다.</li>
+                    </ol>
+
+                    <h3 id="t7">제7장 책임과 분쟁</h3>
+
+                    <p><b>제21조 (손해배상)</b><br>
+                    협회 또는 회원이 이 약관을 위반하여 상대방에게 손해를 입힌 경우 그 손해를 배상해야 합니다. 다만 고의 또는 과실이 없는 경우에는 그러하지 않습니다.</p>
+
+                    <p><b>제22조 (면책)</b></p>
+                    <ol>
+                        <li>협회는 천재지변, 외부 서비스 장애 등 불가항력으로 서비스를 제공할 수 없는 경우 책임이 면제됩니다.</li>
+                        <li>협회는 회원의 귀책사유로 발생한 서비스 이용 장애에 대해 책임을 지지 않습니다.</li>
+                        <li>협회는 회원이 게시한 정보의 정확성과 신뢰성에 대해 협회의 고의 또는 과실이 없는 한 책임을 지지 않습니다.</li>
+                    </ol>
+
+                    <p><b>제23조 (분쟁 해결 및 관할)</b></p>
+                    <ol>
+                        <li>협회와 회원은 서비스와 관련한 분쟁을 원만하게 해결하기 위해 성실히 협의합니다.</li>
+                        <li>협의로 해결되지 않는 경우 회원은 한국소비자원 등 분쟁조정기관에 조정을 신청할 수 있습니다.</li>
+                        <li>소송이 제기되는 경우 「민사소송법」에 따른 관할 법원에 제기합니다.</li>
+                    </ol>
+
+                    <h3 id="t8">부칙</h3>
+                    <p>이 약관은 <mark class="fill">2026년 11월 ○○일</mark>부터 시행합니다.</p>
+
+                </div>
+            </section>
+
+            <div id="footer-container" class="w-full shrink-0 mt-auto rounded overflow-hidden"></div>
+
+        </div>
+    </main>
+
+    </div>
+
+    <script src="/assets/js/footer.js"></script>
+
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!-- 파일명: policy/privacy.src.html (빌드 전 소스. 실제 배포 파일은 build.js가 만드는 privacy.html) -->
+<!-- ★ 노란 형광펜(<mark class="fill">) 표시된 부분은 실제 정보로 바꿔야 하는 칸입니다. 다 채운 뒤 <mark class="fill"> 태그만 지우면 됩니다. -->
+<!-- @var PAGE_CLASS: page-policy -->
+<!-- @var BASE: / -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>개인정보처리방침 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+<!-- @include view-transition-css -->
+
+<!-- @include common-css -->
+
+    <style>
+        /* 약관/방침 페이지 전용 CSS (Tailwind 재컴파일이 필요 없도록 여기서 직접 정의) */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-button { display: none !important; }
+        .scroll-smooth { scroll-behavior: smooth; }
+
+        .policy { font-size: 15px; line-height: 1.85; color: #374151; word-break: keep-all; }
+        .policy .intro { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; padding: 18px 20px; margin-bottom: 28px; }
+        .policy h3 { font-size: 18px; font-weight: 700; color: #12387a; margin: 40px 0 12px; padding-top: 4px; scroll-margin-top: 16px; }
+        .policy h3:first-of-type { margin-top: 8px; }
+        .policy p { margin: 8px 0; }
+        .policy ol, .policy ul { margin: 8px 0 8px 22px; }
+        .policy ol { list-style: decimal; }
+        .policy ul { list-style: disc; }
+        .policy li { margin: 4px 0; }
+        .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+        .policy th, .policy td { border: 1px solid #d1d5db; padding: 9px 11px; text-align: left; vertical-align: top; }
+        .policy th { background: #f1f5f9; font-weight: 700; color: #1f2937; white-space: nowrap; }
+        .policy .table-wrap { overflow-x: auto; }
+        .policy .note { font-size: 13.5px; color: #6b7280; }
+        .policy .toc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; margin: 0 0 8px; padding: 18px 20px; border: 1px solid #e5e7eb; border-radius: 6px; list-style: none; }
+        .policy .toc a { color: #374151; text-decoration: none; }
+        .policy .toc a:hover { color: #12387a; text-decoration: underline; }
+        .policy mark.fill { background: #fef08a; color: #111827; padding: 0 3px; border-radius: 2px; }
+        .policy .box { border: 1px solid #d1d5db; border-radius: 6px; padding: 14px 18px; margin: 10px 0; }
+        /* 모바일에서 표·목차 때문에 본문이 화면 밖으로 밀리지 않도록 폭 고정 */
+        .page-policy #scroll-area { width: 100%; }
+        .page-policy #scroll-area > section { max-width: 100%; min-width: 0; }
+        @media (max-width: 640px) { .page-policy #scroll-area > section { padding: 22px 16px; } }
+        @media (max-width: 640px) { .policy .toc { grid-template-columns: 1fr; } .policy { font-size: 14.5px; } }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
+
+<!-- @include header -->
+
+    <div class="shrink-0 w-full flex flex-col bg-white shadow-md z-[900] relative">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0">
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-6 pb-0 flex flex-col md:flex-row gap-4 md:gap-8 overflow-hidden relative items-start">
+
+        <!-- 좌측 사이드바 -->
+        <aside class="w-full md:w-[220px] shrink-0 h-fit z-40">
+            <div class="pr-1 pt-1">
+                <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                    <a href="/policy/terms.html" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all text-[#4b5563] hover:bg-[#f8fafc] hover:text-[#12387a] rounded">
+                        <span>이용약관</span>
+                    </a>
+                    <div class="h-px bg-gray-100 mx-2 my-1"></div>
+                    <a href="/policy/privacy.html" class="cursor-pointer font-bold text-[16px] py-3 px-4 flex justify-center items-center gap-2 transition-all bg-[#274bce] text-white shadow-sm rounded">
+                        <span>개인정보처리방침</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 콘텐츠 + 푸터 스크롤 영역 -->
+        <div id="scroll-area" class="flex-1 h-full overflow-y-auto custom-scrollbar scroll-smooth flex flex-col pr-2 pb-6 min-w-0">
+
+            <section class="bg-white border border-gray-200 rounded p-8 sm:p-12 shadow-sm mb-8 shrink-0">
+                <div class="border-b-2 border-gray-800 pb-4 mb-10">
+                    <h2 class="text-2xl font-bold text-gray-900">개인정보처리방침</h2>
+                </div>
+
+                <div class="policy">
+
+                    <div class="intro">
+                        대한집합건물관리협회(이하 "협회")는 「개인정보 보호법」 제30조에 따라 정보주체의 개인정보를 보호하고
+                        이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보 처리방침을 수립·공개합니다.
+                        <br><span class="note">시행일: <mark class="fill">2026년 11월 ○○일</mark></span>
+                    </div>
+
+                    <ul class="toc">
+                        <li><a href="#p1">제1조 개인정보의 처리 목적</a></li>
+                        <li><a href="#p2">제2조 처리하는 개인정보 항목</a></li>
+                        <li><a href="#p3">제3조 처리 및 보유 기간</a></li>
+                        <li><a href="#p4">제4조 개인정보의 파기</a></li>
+                        <li><a href="#p5">제5조 개인정보의 제3자 제공</a></li>
+                        <li><a href="#p6">제6조 개인정보 처리의 위탁</a></li>
+                        <li><a href="#p7">제7조 개인정보의 국외 이전</a></li>
+                        <li><a href="#p8">제8조 정보주체의 권리·의무 및 행사방법</a></li>
+                        <li><a href="#p9">제9조 안전성 확보 조치</a></li>
+                        <li><a href="#p10">제10조 자동 수집 장치의 설치·운영 및 거부</a></li>
+                        <li><a href="#p11">제11조 위치정보의 처리</a></li>
+                        <li><a href="#p12">제12조 만 14세 미만 아동의 개인정보</a></li>
+                        <li><a href="#p13">제13조 개인정보 보호책임자</a></li>
+                        <li><a href="#p14">제14조 권익침해 구제방법</a></li>
+                        <li><a href="#p15">제15조 처리방침의 변경</a></li>
+                    </ul>
+
+                    <h3 id="p1">제1조 (개인정보의 처리 목적)</h3>
+                    <p>협회는 다음의 목적을 위하여 개인정보를 처리합니다. 처리한 개인정보는 다음 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 「개인정보 보호법」 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행합니다.</p>
+                    <ol>
+                        <li><b>회원 가입 및 관리</b>: 회원 식별, 가입 의사 확인, 본인 확인, 부정 이용 방지, 각종 고지·통지, 분쟁 조정을 위한 기록 보존</li>
+                        <li><b>구인구직</b>: 채용공고 및 이력서의 등록·게시·열람, 구인자 확인(「직업안정법」에 따른 구인자 정보 확인)</li>
+                        <li><b>견적의뢰·협력업체·관리단 코너</b>: 견적·위탁관리·전자투표·관리비 평가 의뢰의 등록과 업체·전문가 연결, 협력업체 정보 게시</li>
+                        <li><b>자격증·교육</b>: 수강 신청, 강의 제공, 시험 응시 및 채점, 수료증·자격증 발급과 진위 확인</li>
+                        <li><b>긴급 SOS</b>: 긴급 요청 접수, 전문가 매칭 및 연락 연결, 상담 내용 관리, 상담료·예치금 정산, SOS 전문가(파트너·상담사) 지원자 심사</li>
+                        <li><b>지식컨설팅·커뮤니티</b>: 게시글·답변·댓글 작성, 포인트(내공) 적립·사용</li>
+                        <li><b>유료 서비스 제공</b>: 포인트·예치금 충전, 결제, 정기결제 카드 등록, 환불 처리</li>
+                        <li><b>민원 처리</b>: 민원인 확인, 민원 사항 확인, 처리 결과 통보</li>
+                    </ol>
+
+                    <h3 id="p2">제2조 (처리하는 개인정보 항목)</h3>
+                    <p>협회는 서비스별로 다음의 개인정보를 처리합니다.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>구분</th><th>필수 항목</th><th>선택 항목</th></tr></thead>
+                        <tbody>
+                            <tr><td>회원 가입<br>(네이버·카카오·구글 로그인)</td><td>이메일, 이름 또는 닉네임, 각 서비스가 제공하는 이용자 식별값</td><td>프로필 사진</td></tr>
+                            <tr><td>회원 가입<br>(이메일 로그인)</td><td>이메일</td><td>-</td></tr>
+                            <tr><td>이력서 등록</td><td>이름, 연락처, 거주지(시·군·구), 희망 직종, 희망 근무지역, 경력</td><td>이메일, 희망 급여, 근무 형태, 학력, 보유 자격증, 특기·우대사항, 자기소개</td></tr>
+                            <tr><td>채용공고·견적의뢰·협력업체·관리단 의뢰 등록</td><td>담당자 이름, 연락처, 업체명 또는 건물명, 소재지</td><td>이메일, 첨부파일에 포함된 정보</td></tr>
+                            <tr><td>구인자 확인</td><td>사업자등록 정보(상호, 사업자등록번호, 대표자명)</td><td>-</td></tr>
+                            <tr><td>긴급 SOS 요청</td><td>연락처, 현장 위치(주소), 상황 분류, 상황 설명</td><td>현장 사진</td></tr>
+                            <tr><td>SOS 전문가 지원</td><td>이름 또는 상호, 연락처, 전문 분야, 출동 가능 지역, 자기소개·경력</td><td>증빙 서류(사업자등록증명원, 자격증 사본 등)</td></tr>
+                            <tr><td>자격증·교육</td><td>이름, 연락처, 수강·시험 기록, 수료·자격 발급 정보</td><td>-</td></tr>
+                            <tr><td>결제</td><td>결제 승인 번호, 결제 금액, 결제 수단 종류, 정기결제용 빌링키(암호화된 키)</td><td>-</td></tr>
+                            <tr><td>자동 수집</td><td colspan="2">접속 IP 주소, 접속 일시, 브라우저·기기 정보, 서비스 이용 기록, 로그인 상태 유지 정보</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="note">※ 카드번호 등 결제 카드 정보는 협회 서버에 저장하지 않으며, 결제대행사가 직접 처리합니다.</p>
+                    <p class="note">※ 이력서·게시글 등에 이용자가 스스로 공개한 정보는 게시 화면에 표시되므로, 주민등록번호·계좌번호 등 민감한 정보를 적지 않도록 주의해 주시기 바랍니다.</p>
+
+                    <h3 id="p3">제3조 (개인정보의 처리 및 보유 기간)</h3>
+                    <p>협회는 법령에 따른 보유기간 또는 정보주체로부터 동의받은 보유기간 내에서 개인정보를 처리·보유합니다.</p>
+                    <ol>
+                        <li>회원 정보: 회원 탈퇴 시까지 (단, 부정 이용 방지를 위해 탈퇴 후 <mark class="fill">30일</mark>간 보관 후 파기)</li>
+                        <li>이력서·채용공고·게시글: 작성자가 삭제하거나 회원 탈퇴할 때까지</li>
+                        <li>긴급 SOS 요청 및 상담 기록: 처리 완료 후 3년 (분쟁 처리 목적)</li>
+                        <li>SOS 전문가 지원서: 불합격 시 심사 종료 후 6개월, 합격 시 전문가 활동 종료 시까지</li>
+                        <li>자격증 발급 기록: 자격 진위 확인을 위해 발급 후 <mark class="fill">10년</mark></li>
+                    </ol>
+                    <p>다만, 다음의 경우에는 해당 기간 종료 시까지 보관합니다.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>보관 정보</th><th>근거 법령</th><th>기간</th></tr></thead>
+                        <tbody>
+                            <tr><td>계약 또는 청약철회 등에 관한 기록</td><td rowspan="4">전자상거래 등에서의 소비자보호에 관한 법률</td><td>5년</td></tr>
+                            <tr><td>대금결제 및 재화 등의 공급에 관한 기록</td><td>5년</td></tr>
+                            <tr><td>소비자의 불만 또는 분쟁처리에 관한 기록</td><td>3년</td></tr>
+                            <tr><td>표시·광고에 관한 기록</td><td>6개월</td></tr>
+                            <tr><td>서비스 접속 기록(로그인 기록, 접속 IP 등)</td><td>통신비밀보호법</td><td>3개월</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <h3 id="p4">제4조 (개인정보의 파기 절차 및 방법)</h3>
+                    <ol>
+                        <li>협회는 보유기간이 지나거나 처리 목적이 달성된 개인정보는 지체 없이 파기합니다.</li>
+                        <li>다른 법령에 따라 보존해야 하는 경우에는 해당 개인정보를 별도로 분리하여 보관합니다.</li>
+                        <li>전자적 파일은 복구할 수 없는 방법으로 삭제하며, 종이 문서는 분쇄하거나 소각합니다.</li>
+                    </ol>
+
+                    <h3 id="p5">제5조 (개인정보의 제3자 제공)</h3>
+                    <p>협회는 정보주체의 개인정보를 제1조의 목적 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 「개인정보 보호법」 제17조 및 제18조에 해당하는 경우에만 제3자에게 제공합니다.</p>
+                    <p>협회는 회원 간 연결을 돕는 서비스이므로, 정보주체가 직접 요청하거나 동의한 경우 다음과 같이 상대방에게 정보를 제공합니다.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>제공받는 자</th><th>제공 목적</th><th>제공 항목</th><th>보유 기간</th></tr></thead>
+                        <tbody>
+                            <tr><td>SOS 요청을 배정받은 전문가</td><td>긴급 상황 상담·출동</td><td>연락처, 현장 위치, 상황 설명, 현장 사진</td><td>해당 요청 처리 완료 시까지</td></tr>
+                            <tr><td>SOS 요청자</td><td>배정된 전문가와의 연락</td><td>전문가 이름(상호), 연락처, 전문 분야</td><td>해당 요청 처리 완료 시까지</td></tr>
+                            <tr><td>견적의뢰·관리단 의뢰에 응답한 업체·전문가</td><td>견적 제출, 업무 협의</td><td>의뢰자가 공개 또는 열람 허용한 연락처·건물 정보</td><td>업무 협의 종료 시까지</td></tr>
+                            <tr><td>이력서를 열람하는 구인자</td><td>채용 검토</td><td>이력서에 공개 설정된 항목</td><td>채용 목적 달성 시까지</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p class="note">※ 정보를 제공받은 회원은 그 정보를 위 목적 외로 이용하거나 다른 사람에게 제공해서는 안 되며, 목적을 달성하면 지체 없이 파기해야 합니다.</p>
+
+                    <h3 id="p6">제6조 (개인정보 처리의 위탁)</h3>
+                    <p>협회는 원활한 서비스 제공을 위하여 다음과 같이 개인정보 처리 업무를 위탁하고 있습니다.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>수탁자</th><th>위탁 업무</th></tr></thead>
+                        <tbody>
+                            <tr><td>Supabase Inc.</td><td>회원 인증, 데이터베이스 및 파일 저장</td></tr>
+                            <tr><td>Vercel Inc.</td><td>웹사이트 호스팅</td></tr>
+                            <tr><td>코리아포트원 주식회사(PortOne)</td><td>결제 연동 및 정기결제 빌링키 관리</td></tr>
+                            <tr><td>주식회사 케이지이니시스, 주식회사 카카오페이</td><td>카드 결제 및 간편결제 처리</td></tr>
+                            <tr><td>Google LLC</td><td>로그인 인증 메일 발송</td></tr>
+                            <tr><td>주식회사 카카오</td><td>SOS 접수 시 현재 위치 좌표의 주소 변환</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>협회는 위탁계약 체결 시 「개인정보 보호법」 제26조에 따라 위탁업무 수행 목적 외 처리 금지, 기술적·관리적 보호조치, 재위탁 제한, 수탁자 관리·감독 등을 계약서 등에 명시하고, 수탁자가 개인정보를 안전하게 처리하는지 감독합니다. 위탁 업무의 내용이나 수탁자가 변경될 경우에는 이 개인정보 처리방침을 통하여 공개합니다.</p>
+
+                    <h3 id="p7">제7조 (개인정보의 국외 이전)</h3>
+                    <p>협회는 서비스 제공을 위해 다음과 같이 개인정보를 국외로 이전하여 처리(보관)하고 있습니다.</p>
+                    <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>이전받는 자<br>(연락처)</th><th>이전 국가</th><th>이전 항목</th><th>이전 목적</th><th>이전 시기·방법</th><th>보유 기간</th></tr></thead>
+                        <tbody>
+                            <tr><td>Supabase Inc.<br>(<mark class="fill">privacy 연락처 확인</mark>)</td><td><mark class="fill">서버 지역 확인</mark></td><td>제2조의 수집 항목 전부</td><td>회원 인증, 데이터·파일 저장</td><td rowspan="3">서비스 이용 시점에 네트워크를 통해 전송</td><td rowspan="3">회원 탈퇴 또는 위탁계약 종료 시까지</td></tr>
+                            <tr><td>Vercel Inc.<br>(<mark class="fill">privacy 연락처 확인</mark>)</td><td>미국</td><td>접속 IP, 접속 기록</td><td>웹사이트 호스팅</td></tr>
+                            <tr><td>Google LLC<br>(<mark class="fill">privacy 연락처 확인</mark>)</td><td>미국</td><td>이메일 주소</td><td>로그인 인증 메일 발송</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <p>정보주체는 개인정보의 국외 이전을 거부할 수 있습니다. 다만 위 업체는 사이트 운영에 필수적인 시스템이므로, 이전을 거부하시는 경우 회원 가입 및 서비스 이용이 어렵습니다. 거부를 원하시면 회원 탈퇴 또는 제13조의 개인정보 보호책임자에게 요청하실 수 있습니다.</p>
+
+                    <h3 id="p8">제8조 (정보주체의 권리·의무 및 행사방법)</h3>
+                    <ol>
+                        <li>정보주체는 협회에 대해 언제든지 개인정보 열람, 정정, 삭제, 처리정지 요구 및 동의 철회 등의 권리를 행사할 수 있습니다.</li>
+                        <li>권리 행사는 마이페이지에서 직접 하거나, 서면·전화·이메일로 제13조의 개인정보 보호책임자에게 요청하실 수 있으며, 협회는 지체 없이(10일 이내) 조치합니다.</li>
+                        <li>권리 행사는 법정대리인이나 위임을 받은 자 등 대리인을 통하여도 할 수 있으며, 이 경우 위임장을 제출해야 합니다.</li>
+                        <li>다른 법령에서 그 개인정보가 수집 대상으로 명시되어 있는 경우에는 삭제를 요구할 수 없습니다.</li>
+                        <li>협회는 권리 행사를 요구한 자가 본인이거나 정당한 대리인인지를 확인합니다.</li>
+                    </ol>
+
+                    <h3 id="p9">제9조 (개인정보의 안전성 확보 조치)</h3>
+                    <ol>
+                        <li><b>관리적 조치</b>: 개인정보 취급자 최소화, 관리자 계정 분리 운영</li>
+                        <li><b>기술적 조치</b>: 데이터베이스 행 단위 접근 통제(본인 또는 권한자만 조회), 비밀번호의 일방향 암호화 저장, 전송 구간 암호화(HTTPS), 카드정보 미보관, 접속 기록 보관</li>
+                        <li><b>물리적 조치</b>: 보안 인증을 받은 클라우드 데이터센터 이용</li>
+                    </ol>
+
+                    <h3 id="p10">제10조 (개인정보 자동 수집 장치의 설치·운영 및 거부)</h3>
+                    <ol>
+                        <li>협회는 로그인 상태 유지, 직전 방문 페이지 기억 등 이용 편의를 위해 브라우저 저장소(쿠키 및 로컬 스토리지)를 사용합니다.</li>
+                        <li>협회는 현재 광고 목적의 행태정보 수집이나 외부 방문 분석 도구를 사용하지 않습니다.</li>
+                        <li>이용자는 브라우저 설정(예: 크롬 → 설정 → 개인정보 및 보안 → 인터넷 사용 기록 삭제)에서 저장된 정보를 삭제하거나 저장을 거부할 수 있습니다. 다만 저장을 거부하면 로그인이 유지되지 않는 등 일부 서비스 이용이 어려울 수 있습니다.</li>
+                    </ol>
+
+                    <h3 id="p11">제11조 (위치정보의 처리)</h3>
+                    <ol>
+                        <li>긴급 SOS 접수 화면에서 이용자가 "현재 위치" 기능을 직접 선택하고 브라우저의 위치 권한을 허용한 경우에만 기기의 위치 좌표를 받습니다.</li>
+                        <li>받은 좌표는 주소로 변환하는 데만 사용하고(제6조의 주식회사 카카오), 좌표 자체는 저장하지 않으며, 변환된 주소만 SOS 요청 내용으로 저장됩니다.</li>
+                        <li>위치 권한을 허용하지 않아도 주소를 직접 입력하여 SOS를 접수할 수 있습니다.</li>
+                    </ol>
+
+                    <h3 id="p12">제12조 (만 14세 미만 아동의 개인정보)</h3>
+                    <p>협회는 만 14세 미만 아동의 회원 가입을 받지 않으며, 만 14세 미만 아동의 개인정보를 수집하지 않습니다.</p>
+
+                    <h3 id="p13">제13조 (개인정보 보호책임자)</h3>
+                    <p>협회는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 관련 불만 처리 및 피해 구제를 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+                    <div class="box">
+                        <b>개인정보 보호책임자</b><br>
+                        성명: <mark class="fill">○○○</mark> &nbsp;/&nbsp; 직책: <mark class="fill">대표</mark><br>
+                        전화: 031-984-6199 &nbsp;/&nbsp; 이메일: idea8888@naver.com<br>
+                        주소: 경기도 김포시 김포대로 699
+                    </div>
+                    <p>개인정보 열람·정정·삭제·처리정지 요구 및 관련 문의도 위 담당자에게 하실 수 있습니다.</p>
+
+                    <h3 id="p14">제14조 (권익침해 구제방법)</h3>
+                    <p>정보주체는 개인정보 침해로 인한 구제를 받기 위하여 아래 기관에 분쟁 해결이나 상담 등을 신청할 수 있습니다.</p>
+                    <ul>
+                        <li>개인정보분쟁조정위원회: (국번없이) 1833-6972 (www.kopico.go.kr)</li>
+                        <li>개인정보침해신고센터: (국번없이) 118 (privacy.kisa.or.kr)</li>
+                        <li>대검찰청: (국번없이) 1301 (www.spo.go.kr)</li>
+                        <li>경찰청: (국번없이) 182 (ecrm.police.go.kr)</li>
+                    </ul>
+
+                    <h3 id="p15">제15조 (개인정보 처리방침의 변경)</h3>
+                    <p>이 개인정보 처리방침은 <mark class="fill">2026년 11월 ○○일</mark>부터 적용됩니다. 내용이 변경되는 경우 시행 7일 전부터 홈페이지 공지사항을 통하여 알려드립니다.</p>
+
+                </div>
+            </section>
+
+            <div id="footer-container" class="w-full shrink-0 mt-auto rounded overflow-hidden"></div>
+
+        </div>
+    </main>
+
+    </div>
+
+    <script src="/assets/js/footer.js"></script>
+
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

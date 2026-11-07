@@ -12,11 +12,36 @@
  * - 협회가 중개 역할만 하며 법적 책임을 지지 않는다는 면책 문구 추가
  */
 
+/**
+ * ★ 2026-11: 협회 기본정보를 이 한 곳에서 관리합니다.
+ *   - 값을 채우면 푸터에 자동으로 표시되고, 빈칸('')이면 그 항목은 화면에 안 나옵니다.
+ *   - 사업자등록증(또는 고유번호증)이 나오면 bizNo만 채우면 됩니다.
+ */
+const KCBMA_INFO = {
+  name: '대한집합건물관리협회',
+  ceo: '',            // 대표자 성명 (예: '홍길동')
+  bizNo: '',          // 사업자등록번호 또는 고유번호 (예: '123-45-67890')
+  mailOrderNo: '',    // 통신판매업 신고번호 (유료 결제 시작 전 신고 필요)
+  privacyOfficer: '', // 개인정보 보호책임자 (예: '홍길동') — 비우면 대표자 이름 사용
+  tel: '031-984-6199',
+  fax: '031-985-6199',
+  email: 'idea8888@naver.com',
+  address: '경기도 김포시 김포대로 699',
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const footerContainer = document.getElementById("footer-container");
   if (!footerContainer) return;
 
   const prefix = window.BASE_PATH || "../";
+  const I = KCBMA_INFO;
+  const sep = '<span class="mx-2 text-white/40">|</span>';
+  const bizLine = [
+    I.ceo ? `대표: ${I.ceo}` : '',
+    I.bizNo ? `사업자등록번호: ${I.bizNo}` : '',
+    I.mailOrderNo ? `통신판매업 신고: ${I.mailOrderNo}` : '',
+    (I.privacyOfficer || I.ceo) ? `개인정보 보호책임자: ${I.privacyOfficer || I.ceo}` : '',
+  ].filter(Boolean).join(sep);
 
   footerContainer.innerHTML = `
     <footer style="background-color:#061530;" class="text-slate-300 py-8 border-t border-slate-800/80 font-sans mt-16 text-[13px] leading-relaxed">
@@ -42,21 +67,22 @@ document.addEventListener("DOMContentLoaded", () => {
                      onerror="this.parentElement.style.display='none'; document.getElementById('footer-fallback-logo').classList.remove('hidden');">
               </div>
               <p class="text-white font-semibold">
-                전화: 031-984-6199
+                전화: ${I.tel}
                 <span class="mx-2 text-white/40 font-normal">|</span>
-                팩스: 031-985-6199
+                팩스: ${I.fax}
                 <span class="mx-2 text-white/40 font-normal">|</span>
-                이메일: <a href="mailto:idea8888@naver.com" class="hover:text-slate-200 transition-colors">idea8888@naver.com</a>
+                이메일: <a href="mailto:${I.email}" class="hover:text-slate-200 transition-colors">${I.email}</a>
               </p>
             </div>
 
             <p class="text-white font-semibold">
-              주소: 경기도 김포시 김포대로 699
+              주소: ${I.address}
               <span class="mx-2 text-white/40 font-normal">|</span>
               <a href="${prefix}bid/company-ads.html" class="hover:text-slate-200 transition-colors no-underline">우수 파트너사 목록</a>
               <span class="mx-2 text-white/40 font-normal">|</span>
               <a href="${prefix}bid/company-write.html" class="hover:text-slate-200 transition-colors no-underline">유지 보수사 협력 신청</a>
             </p>
+            ${bizLine ? `<p class="text-white/80 font-normal">${bizLine}</p>` : ''}
             <p class="text-white/80 text-[12px] font-normal">
               본 협회는 회원 간 정보 교류 및 중개 역할만 수행하며, 게시된 정보의 정확성이나 회원 간 거래·계약에 대해 어떠한 법적 책임도 지지 않습니다.
             </p>
@@ -69,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="${prefix}board/board-corner.html" class="hover:text-slate-200 transition-colors no-underline">관리단 코너</a>
             <a href="${prefix}jobs/job-list.html" class="hover:text-slate-200 transition-colors no-underline">구인구직</a>
             <a href="${prefix}community/notice.html" class="hover:text-slate-200 transition-colors no-underline">커뮤니티</a>
-            <a href="${prefix}bid/bid-list.html" class="hover:text-slate-200 transition-colors no-underline">입찰공고</a>
+            <a href="${prefix}bid/bid-list.html" class="hover:text-slate-200 transition-colors no-underline">견적의뢰</a>
             <a href="https://cafe.naver.com/kcbma114" target="_blank" class="text-lime-400 hover:text-lime-300 transition-colors no-underline">네이버 카페</a>
           </div>
         </div>
@@ -79,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <p class="text-white/80 font-normal">© 2026 대한집합건물관리협회(KCBMA) 네트워크. All rights reserved.</p>
           <div class="flex gap-5 font-semibold">
             <a href="${prefix}policy/terms.html" class="text-white/80 hover:text-white transition-colors no-underline">이용약관</a>
-            <a href="${prefix}policy/privacy.html" class="text-white/80 hover:text-white transition-colors no-underline">개인정보처리방침</a>
+            <a href="${prefix}policy/privacy.html" class="text-white font-extrabold hover:text-slate-200 transition-colors no-underline">개인정보처리방침</a>
           </div>
         </div>
 
