@@ -346,14 +346,14 @@
         }
 
         function renderBid(bid) {
-            document.getElementById('detail-dday').innerText = ddayText(bid.deadline);
+            document.getElementById('detail-dday').innerText = ddayText(bid.deadline || bid.end_date);
             document.getElementById('detail-title').innerText = bid.title;
             
             document.getElementById('detail-region').innerText = bid.region || '전국';
             document.getElementById('info-region').innerText = bid.region || '전국';
             document.getElementById('detail-category').innerText = bid.category || '-';
 
-            document.getElementById('info-period').innerText = `${formatDate(bid.created_at)} ~ ${formatDate(bid.deadline)} (${ddayText(bid.deadline)})`;
+            document.getElementById('info-period').innerText = `${formatDate(bid.created_at)} ~ ${formatDate(bid.deadline || bid.end_date)} (${ddayText(bid.deadline || bid.end_date)})`;
             document.getElementById('detail-task-description').innerText = bid.task_description || '등록된 과업 내용이 없습니다.';
 
             const attachmentContainer = document.getElementById('detail-attachment-container');
@@ -365,7 +365,7 @@
                 if (attachmentContainer) attachmentContainer.classList.add('hidden');
             }
 
-            const currentCount = bid.current_count || 0;
+            const currentCount = bid.participants_count || bid.current_count || 0;
             let maxTarget = bid.target_count || 1;
             let benefitHtml = '';
 
@@ -440,7 +440,7 @@
         async function fetchParticipants(bidId) {
             const { data, error } = await supabaseClient
                 .from('joint_bid_participants')
-                .select('*')
+                .select('id, bid_id, building_name, building_type, area_sqm, unit_count, basement_floors, ground_floors, created_at')
                 .eq('bid_id', bidId)
                 .order('created_at', { ascending: false });
 
@@ -505,7 +505,7 @@
             btn.innerText = '처리 중...';
 
             const { data, error } = await supabaseClient.rpc('join_bid_participation', {
-                p_bid_id: currentBidId,
+                p_bid_id: String(currentBidId),
                 p_building_name: buildingName,
                 p_building_type: buildingType,
                 p_area_sqm: areaSqm,
@@ -537,7 +537,7 @@
             document.getElementById('join-ground-floors').value = '';
             document.getElementById('join-notes').value = '';
 
-            currentBidData.current_count = data.new_count;
+            currentBidData.participants_count = data.new_count;
             renderBid(currentBidData);
             fetchParticipants(currentBidId);
         }

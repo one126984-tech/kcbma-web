@@ -1364,7 +1364,7 @@
                     <td class="font-bold text-red-600">${discountText}</td>
                     <td><span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 text-xs">${deficitCount}</span></td>
                     <td class="font-bold text-[#d97706]">${dDayDisplay}</td>
-                    <td>${c.views || c.view_count || 0}</td>
+                    <td>${KC.esc(c.views || c.view_count || 0)}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1394,7 +1394,7 @@
         function incrementViewAndGo(id, currentViews) {
             if(supabaseClient) {
                 // DB 스키마에 맞게 views 업데이트
-                supabaseClient.rpc('increment_joint_bid_view', { p_id: id }).then();
+                supabaseClient.rpc('increment_joint_bid_view', { p_id: String(id) }).then(() => {}, () => {});
             }
             window.location.href = `joint-bid-detail.html?id=${id}`;
         }

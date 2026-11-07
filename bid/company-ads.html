@@ -1198,7 +1198,7 @@
                 if (currentSort === 'latest') {
                     return b.id - a.id; 
                 } else if (currentSort === 'views') {
-                    return (b.view_count || 0) - (a.view_count || 0); // ★ 수정됨
+                    return (b.views || 0) - (a.views || 0); // ★ 수정됨
                 }
                 return 0;
             });
@@ -1268,7 +1268,7 @@
                 }
 
                 const tr = document.createElement('tr');
-                tr.onclick = () => window.incrementViewAndGo(c.id, c.view_count || 0); // ★ 수정됨
+                tr.onclick = () => window.incrementViewAndGo(c.id, c.views || 0); // ★ 수정됨
                 
                 tr.innerHTML = `
                     <td>${no}</td>
@@ -1278,7 +1278,7 @@
                     <td class="text-gray-600">${KC.esc(regionStr)}</td>
                     <td class="text-gray-600">${KC.esc(companyType)}</td>
                     <td>${badgeHtml}</td>
-                    <td>${KC.esc(c.view_count || 0)}</td> <!-- ★ 수정됨 -->
+                    <td>${KC.esc(c.views || 0)}</td> <!-- ★ 수정됨 -->
                 `;
                 tbody.appendChild(tr);
             });
@@ -1307,7 +1307,7 @@
 
         window.incrementViewAndGo = function(id, currentViews) {
             if(supabaseClient) {
-                supabaseClient.from(DB_TABLE_NAME).update({ view_count: parseInt(currentViews) + 1 }).eq('id', id).then(); // ★ 수정됨
+                supabaseClient.rpc('company_increment_view', { p_id: String(id) }).then(() => {}, () => {});
             }
             window.location.href = `company-detail.html?id=${id}`;
         }
