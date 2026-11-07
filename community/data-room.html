@@ -697,7 +697,8 @@
                     btn.textContent = '로그아웃';
                     btn.onclick = async (e) => {
                         e.stopPropagation();
-                        await window.sb.auth.signOut();
+                        const client = await ensureAuthClient();
+                        await client.auth.signOut();
                         window.location.reload();
                     };
                 } else {
@@ -706,11 +707,25 @@
                 }
             });
 
-            const isAdmin = !!(session && session.user && session.user.user_metadata && session.user.user_metadata.role === 'admin');
+            // 관리자 판별은 회원이 직접 고칠 수 없는 app_metadata 기준 (DB의 is_admin()과 같은 기준)
+            const isAdmin = !!(session && session.user && session.user.app_metadata && session.user.app_metadata.role === 'admin');
             document.querySelectorAll('[data-admin-only]').forEach(el => {
                 el.classList.toggle('hidden', !isAdmin);
             });
         }
+
+        // [번쩍임 방지] 화면을 그리기 전에, 브라우저에 저장된 로그인 정보로 버튼을 미리 맞춰 둠
+        // (예전엔 항상 '로그인'으로 그려졌다가 잠시 후 '로그아웃'으로 바뀌어 화면이 번쩍였음)
+        // 실제 로그인 여부는 아래 initAuthUI()가 서버 기준으로 다시 확인해서 고침
+        (function applyCachedAuthUI() {
+            try {
+                const raw = localStorage.getItem('sb-ehrahnnowwjkgycvlbzk-auth-token');
+                if (!raw) return;
+                const saved = JSON.parse(raw);
+                const sess = saved && (saved.currentSession || saved);
+                if (sess && sess.user && (sess.refresh_token || sess.access_token)) applyAuthUI(sess);
+            } catch (e) {}
+        })();
 
         async function initAuthUI() {
             const client = await ensureAuthClient();
