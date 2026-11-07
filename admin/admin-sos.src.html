@@ -791,7 +791,7 @@
             tbody.innerHTML = filtered.map(a => {
                 const sourceLabel = a.source === 'partner' ? 'SOS 파트너' : '카운셀러';
                 const fileLink = a.file_url
-                    ? `<a href="${escapeHtml(a.file_url)}" target="_blank" class="text-blue-600 underline">서류 보기</a>`
+                    ? `<a href="#" data-doc="${escapeHtml(a.file_url)}" onclick="openApplicationDoc(this.dataset.doc); return false;" class="text-blue-600 underline">서류 보기</a>`
                     : '<span class="text-gray-300">없음</span>';
                 const bioShort = (a.bio || '-').length > 24 ? escapeHtml(a.bio).slice(0, 24) + '…' : escapeHtml(a.bio || '-');
                 const actions = a.status === '대기중'
@@ -827,6 +827,20 @@
                         <td class="whitespace-nowrap">${actions}</td>
                     </tr>`;
             }).join('');
+        }
+
+        // 신청 서류는 비공개 보관함에 있어서, 관리자만 5분짜리 임시 주소를 받아 열람
+        async function openApplicationDoc(path) {
+            if (!path) return;
+            if (/^https?:\/\//i.test(path)) { window.open(path, '_blank', 'noopener'); return; }
+            const win = window.open('', '_blank');
+            const { data, error } = await supabaseClient.storage.from('sos-applications').createSignedUrl(path, 300);
+            if (error || !data || !data.signedUrl) {
+                if (win) win.close();
+                alert('서류를 열 수 없습니다: ' + (error ? error.message : '파일을 찾지 못했습니다.'));
+                return;
+            }
+            if (win) win.location.href = data.signedUrl; else window.open(data.signedUrl, '_blank', 'noopener');
         }
 
         async function approveApplication(appId) {

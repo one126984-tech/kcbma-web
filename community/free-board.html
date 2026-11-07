@@ -1148,14 +1148,7 @@
 <!-- 스크립트 영역 -->
 <script src="../assets/js/region-data.js"></script>
 <script>
-    const dummyFreePosts = [
-        { id: 105, category: '기타', region: '경기 성남시', title: '이번 추석 연휴 당직 근무 어떻게들 하시나요?', author: '김*수', created_at: '2026-09-12', views: 85, likes: 12 },
-        { id: 104, category: '일반', region: '부산 해운대구', title: '단지 내 주차 시비 문제 해결 팁 공유합니다', author: '박*영', created_at: '2026-09-11', views: 142, likes: 25 },
-        { id: 103, category: '정보', region: '서울 강남구', title: '재활용 분리수거장 악취 문제 해결하신 분 계신가요?', author: '이*진', created_at: '2026-09-10', views: 210, likes: 8 },
-        { id: 102, category: '일반', region: '대전 서구', title: '관리사무소 직원 휴게실 개선 공사 후기', author: '최*호', created_at: '2026-09-08', views: 320, likes: 45 },
-        { id: 101, category: '질문', region: '광주 남구', title: '입주민 갑질 대처법 조언 부탁드립니다', author: '정*아', created_at: '2026-09-05', views: 198, likes: 32 },
-        { id: 100, category: '일반', region: '충남 천안시', title: '오늘 단지 조경작업 끝내고 퇴근합니다~', author: '오*길', created_at: '2026-09-02', views: 55, likes: 3 }
-    ];
+
 
     let allPosts = [];
     let filteredPosts = [];
@@ -1171,9 +1164,44 @@
     document.addEventListener('DOMContentLoaded', () => {
         renderMegaMajor();
         setupTagInputs();
-        allPosts = dummyFreePosts;
-        applyFilters();
+        loadPosts();
     });
+
+    // 실제 게시글 불러오기 (비밀번호 칸은 서버에서 막혀 있어 요청하지 않음)
+    async function loadPosts() {
+        const tbody = document.getElementById('list-body');
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-gray-400">게시글을 불러오는 중...</td></tr>';
+        try {
+            const client = await ensureAuthClient();
+            const { data, error } = await client
+                .from('free_board')
+                .select('id, title, author, category, region, is_pinned, views, created_at')
+                .order('created_at', { ascending: false })
+                .limit(1000);
+            if (error) throw error;
+            allPosts = (data || []).map(p => ({
+                id: p.id,
+                title: p.title || '(제목 없음)',
+                author: p.author || '회원',
+                category: p.category || '일반',
+                region: p.region || '-',
+                is_pinned: !!p.is_pinned,
+                views: Number(p.views) || 0,
+                likes: 0,
+                created_at: p.created_at
+            }));
+        } catch (e) {
+            console.error('자유게시판 불러오기 오류:', e);
+            allPosts = [];
+        }
+        applyFilters();
+    }
+
+    function formatListDate(v) {
+        const d = new Date(v);
+        if (isNaN(d.getTime())) return '-';
+        return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    }
 
     const categoryAllChk = document.getElementById('category-all-chk');
     const categoryChks = document.querySelectorAll('.category-chk');
@@ -1412,8 +1440,10 @@
         if (currentSort === 'latest') { 
             filteredPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); 
         } else if (currentSort === 'likes') { 
-            filteredPosts.sort((a, b) => b.likes - a.likes); 
+            filteredPosts.sort((a, b) => (b.likes - a.likes) || (b.views - a.views)); 
         }
+        // 공지 고정 글은 항상 맨 위
+        filteredPosts.sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0));
 
         currentPage = 1;
         updateDisplay();
@@ -1426,13 +1456,15 @@
         
         const tbody = document.getElementById('list-body');
         if (!paginated || paginated.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-gray-500">조건에 맞는 게시글이 없습니다.</td></tr>';
+            tbody.innerHTML = allPosts.length === 0
+                ? '<tr><td colspan="7" class="text-center py-12"><div class="font-bold text-[#0B2A5B] mb-1">아직 등록된 게시글이 없습니다</div><div class="text-gray-500 text-sm mb-4">현장의 이야기, 궁금한 점을 가장 먼저 나눠 보세요.</div><a href="free-board-write.html" class="inline-block bg-[#ffc107] hover:bg-[#ffb300] text-gray-900 font-bold px-5 py-2 rounded text-[13px]">첫 글 쓰기</a></td></tr>'
+                : '<tr><td colspan="7" class="text-center py-10 text-gray-500">조건에 맞는 게시글이 없습니다. 검색 조건을 바꿔 보세요.</td></tr>';
             renderPagination(0);
             return;
         }
         
         tbody.innerHTML = paginated.map((item) => {
-            const dateStr = item.created_at ? item.created_at.replaceAll('-', '.') : '-';
+            const dateStr = item.created_at ? formatListDate(item.created_at) : '-';
             
             const isHot = item.views >= 100 || item.likes >= 10;
             const hotBadge = isHot 
@@ -1442,8 +1474,8 @@
             const trClass = isHot ? 'bg-[#fff5f5] hover:bg-[#ffebeb] transition' : 'hover:bg-gray-50 transition';
 
             return `
-                <tr class="${trClass}" onclick="location.href='free-board-detail.html'">
-                    <td>${KC.esc(item.id)}</td>
+                <tr class="${trClass} cursor-pointer" onclick="location.href='free-board-detail.html?id=${encodeURIComponent(item.id)}'">
+                    <td>${item.is_pinned ? '<span class="text-red-500 font-bold text-[12px]">공지</span>' : KC.esc(item.id)}</td>
                     <td class="text-left pl-4 font-bold text-gray-800" title="${KC.esc(item.title)}"><span class="hover:underline align-middle">${KC.esc(item.title)}</span>${hotBadge}</td>
                     <td class="text-gray-500">${KC.esc(item.region)}</td>
                     <td title="${KC.esc(item.author)}">${KC.esc(item.author)}</td>

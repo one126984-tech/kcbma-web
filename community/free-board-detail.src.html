@@ -122,7 +122,20 @@
         const supabaseClient = window.sb;
 
         let currentPostId = null;
-        let postPassword = '';
+        // 비밀번호 확인은 서버에서만 (true/false, 오류면 null)
+        async function checkPassword(pw) {
+            const { data, error } = await supabaseClient.rpc('free_board_verify_password', {
+                p_id: String(currentPostId), p_password: pw
+            });
+            if (error) { alert(passwordErrorMessage(error)); return null; }
+            return data === true;
+        }
+
+        function passwordErrorMessage(error) {
+            return String(error.message || '').includes('TOO_MANY_ATTEMPTS')
+                ? '비밀번호를 여러 번 틀려 잠시 잠겼습니다. 10분 뒤 다시 시도해 주세요.'
+                : '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+        }
 
         async function fetchPostDetail() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -135,17 +148,27 @@
             }
 
             try {
-                const { data: post, error } = await supabaseClient.from('free_board').select('*').eq('id', currentPostId).single();
+                const { data: post, error } = await supabaseClient
+                    .from('free_board')
+                    .select('id, title, content, author, category, region, is_pinned, views, created_at')
+                    .eq('id', currentPostId)
+                    .single();
                 if (error) throw error;
 
-                postPassword = post.password || '';
-
-                const newViews = (post.view_count || 0) + 1; // ★ 수정됨
-                await supabaseClient.from('free_board').update({ view_count: newViews }).eq('id', currentPostId); // ★ 수정됨
+                // 조회수는 서버 함수로 +1 (같은 창에서 새로고침할 때마다 오르지 않게 한 번만)
+                let shownViews = Number(post.views) || 0;
+                const viewKey = 'fb_viewed_' + currentPostId;
+                let viewedAlready = false;
+                try { viewedAlready = sessionStorage.getItem(viewKey) === '1'; } catch (e) {}
+                if (!viewedAlready) {
+                    supabaseClient.rpc('free_board_increment_view', { p_id: String(currentPostId) }).then(() => {}, () => {});
+                    try { sessionStorage.setItem(viewKey, '1'); } catch (e) {}
+                    shownViews += 1;
+                }
 
                 document.getElementById('post-title').innerText = post.title;
                 document.getElementById('post-author').innerText = post.author || '회원';
-                document.getElementById('post-views').innerText = newViews;
+                document.getElementById('post-views').innerText = shownViews;
                 document.getElementById('post-content').innerText = post.content;
 
                 const date = new Date(post.created_at);
@@ -153,11 +176,14 @@
 
                 const editBtn = document.getElementById('edit-btn');
                 editBtn.classList.remove('hidden');
-                editBtn.onclick = () => {
+                editBtn.onclick = async () => {
                     const inputPw = prompt("글 작성 시 입력한 비밀번호 4자리를 입력해 주세요.");
                     if (inputPw === null) return;
-                    if (inputPw === postPassword) {
-                        location.href = `free-board-edit.html?id=${currentPostId}`;
+                    const ok = await checkPassword(inputPw);
+                    if (ok === null) return;
+                    if (ok) {
+                        try { sessionStorage.setItem('fb_pw_' + currentPostId, inputPw); } catch (e) {}
+                        location.href = `free-board-edit.html?id=${encodeURIComponent(currentPostId)}`;
                     } else {
                         alert("비밀번호가 일치하지 않습니다.");
                     }
@@ -168,8 +194,11 @@
                 deleteBtn.onclick = async () => {
                     const inputPw = prompt("정말 삭제하시겠습니까? 글 작성 시 입력한 비밀번호 4자리를 입력해 주세요.");
                     if (inputPw === null) return;
-                    if (inputPw === postPassword) {
-                        await supabaseClient.from('free_board').delete().eq('id', currentPostId);
+                    const { data: deleted, error: delError } = await supabaseClient.rpc('free_board_delete_post', {
+                        p_id: String(currentPostId), p_password: inputPw
+                    });
+                    if (delError) { alert(passwordErrorMessage(delError)); return; }
+                    if (deleted) {
                         alert("삭제되었습니다.");
                         location.href = 'free-board.html';
                     } else {
@@ -190,7 +219,7 @@
             try {
                 const { data: comments, error } = await supabaseClient
                     .from('free_board_comments')
-                    .select('*')
+                    .select('id, post_id, author, content, created_at')
                     .eq('post_id', currentPostId)
                     .order('created_at', { ascending: true });
 

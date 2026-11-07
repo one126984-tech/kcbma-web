@@ -79,6 +79,40 @@
                         </div>
                     </div>
 
+                    <div class="mb-4 flex flex-col sm:flex-row gap-4 border-b border-gray-100 pb-4">
+                        <div class="flex items-center">
+                            <label for="category" class="w-24 shrink-0 font-bold text-gray-700">분류</label>
+                            <select id="category" class="w-full sm:w-48 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#12387a] bg-white">
+                                <option value="일반">일반/잡담</option>
+                                <option value="정보">정보공유</option>
+                                <option value="질문">질문/건의</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <label for="region" class="w-24 sm:w-24 shrink-0 font-bold text-gray-700 sm:text-center">지역</label>
+                            <select id="region" class="w-full sm:w-32 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#12387a] bg-white">
+                                <option value="전국">전국</option>
+                                <option value="서울">서울</option>
+                                <option value="부산">부산</option>
+                                <option value="대구">대구</option>
+                                <option value="인천">인천</option>
+                                <option value="광주">광주</option>
+                                <option value="대전">대전</option>
+                                <option value="울산">울산</option>
+                                <option value="세종">세종</option>
+                                <option value="경기">경기</option>
+                                <option value="강원">강원</option>
+                                <option value="충북">충북</option>
+                                <option value="충남">충남</option>
+                                <option value="전북">전북</option>
+                                <option value="전남">전남</option>
+                                <option value="경북">경북</option>
+                                <option value="경남">경남</option>
+                                <option value="제주">제주</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="mb-4 flex items-center border-b border-gray-100 pb-4">
                         <label for="title" class="w-24 shrink-0 font-bold text-gray-700">제목 <span class="text-red-500">*</span></label>
                         <input type="text" id="title" placeholder="제목을 입력해 주세요." class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#12387a]" />
@@ -116,6 +150,11 @@
             const titleValue = document.getElementById('title').value.trim();
             const contentValue = document.getElementById('content').value.trim();
 
+            if (!/^\d{4}$/.test(passwordValue)) {
+                alert("비밀번호는 숫자 4자리로 입력해 주세요.");
+                document.getElementById('password').focus();
+                return;
+            }
             if (!passwordValue) {
                 alert("게시글 수정/삭제 시 사용할 비밀번호를 입력해 주세요.");
                 document.getElementById('password').focus();
@@ -140,8 +179,8 @@
                         content: contentValue,
                         author: authorValue || '회원',
                         password: passwordValue,
-                        is_pinned: false,
-                        views: 0
+                        category: document.getElementById('category').value,
+                        region: document.getElementById('region').value
                     }]);
 
                 if (error) throw error;

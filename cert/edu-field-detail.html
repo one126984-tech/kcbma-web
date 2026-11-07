@@ -965,7 +965,7 @@
                 renderCourseDetail(data);
 
                 // 조회수 증가 (비동기, 실패해도 화면엔 영향 없음)
-                supabaseClient.from(DB_TABLE_NAME).update({ view_count: (data.view_count || 0) + 1 }).eq('id', courseId).then();
+                supabaseClient.rpc('field_course_increment_view', { p_id: String(courseId) }).then(() => {}, () => {});
 
             } catch (error) {
                 document.getElementById('loading-spinner').innerHTML = '<span class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</span>';

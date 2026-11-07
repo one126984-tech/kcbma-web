@@ -911,6 +911,18 @@
         const supabaseClient = window.sb;
 
         let currentPostId = null;
+        let editPassword = '';
+
+        // 상세 화면에서 확인한 비밀번호를 이어받고, 없으면 다시 묻기
+        function loadEditPassword() {
+            try { editPassword = sessionStorage.getItem('fb_pw_' + currentPostId) || ''; } catch (e) { editPassword = ''; }
+            if (!editPassword) {
+                const pw = prompt("글 작성 시 입력한 비밀번호 4자리를 입력해 주세요.");
+                if (pw === null) { history.back(); return false; }
+                editPassword = pw;
+            }
+            return true;
+        }
 
         async function fetchPostForEdit() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -921,11 +933,12 @@
                 location.href = 'free-board.html';
                 return;
             }
+            if (!loadEditPassword()) return;
 
             try {
                 const { data: post, error } = await supabaseClient
                     .from('free_board')
-                    .select('*')
+                    .select('id, title, content, author, category, region')
                     .eq('id', currentPostId)
                     .single();
 
@@ -959,18 +972,30 @@
             }
 
             try {
-                const { error } = await supabaseClient
-                    .from('free_board')
-                    .update({
-                        title: titleValue,
-                        content: contentValue,
-                        author: authorValue || '회원'
-                    })
-                    .eq('id', currentPostId);
+                const { data: updated, error } = await supabaseClient.rpc('free_board_update_post', {
+                    p_id: String(currentPostId),
+                    p_password: editPassword,
+                    p_title: titleValue,
+                    p_content: contentValue,
+                    p_author: authorValue || '회원'
+                });
 
-                if (error) throw error;
+                if (error) {
+                    if (String(error.message || '').includes('TOO_MANY_ATTEMPTS')) {
+                        alert('비밀번호를 여러 번 틀려 잠시 잠겼습니다. 10분 뒤 다시 시도해 주세요.');
+                        return;
+                    }
+                    throw error;
+                }
+                if (!updated) {
+                    try { sessionStorage.removeItem('fb_pw_' + currentPostId); } catch (e) {}
+                    alert('비밀번호가 일치하지 않습니다. 상세 화면에서 다시 시도해 주세요.');
+                    location.href = `free-board-detail.html?id=${encodeURIComponent(currentPostId)}`;
+                    return;
+                }
+                try { sessionStorage.removeItem('fb_pw_' + currentPostId); } catch (e) {}
                 alert("게시글이 성공적으로 수정되었습니다.");
-                location.href = `free-board-detail.html?id=${currentPostId}`;
+                location.href = `free-board-detail.html?id=${encodeURIComponent(currentPostId)}`;
 
             } catch (error) {
                 console.error("수정 중 오류 발생:", error.message);
