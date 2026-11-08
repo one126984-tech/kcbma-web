@@ -103,7 +103,7 @@
             <button type="button" id="apply-btn" class="menu-card menu-apply" style="margin-bottom:0;">
                 <div>
                     <h3 id="apply-title">SOS 전문가 신청하기</h3>
-                    <p id="apply-desc">새롭게 파트너 전문가로 활동하기 위해 신청합니다. (전화상담 · 출동 모두 이 신청 하나로)</p>
+                    <p id="apply-desc">새롭게 파트너 전문가로 활동하기 위해 신청합니다. (전화상담 전문가)</p>
                 </div>
                 <span class="menu-arrow">→</span>
             </button>
@@ -181,7 +181,7 @@
                 .eq('user_id', user.id).eq('is_active', true).maybeSingle();
             if (ex) {
                 setStatus('<span style="color:#15803d;">✔ 승인된 전문가</span>',
-                          (ex.can_dispatch ? '전화상담 + 출동 가능' : '전화상담 가능') + (ex.is_standby ? ' · 현재 대기중' : ''), true, 'st-ok');
+                          '전화상담 가능' + (ex.is_standby ? ' · 현재 대기중' : ''), true, 'st-ok');
                 document.getElementById('apply-title').textContent = '프로필·서비스 범위 수정하기';
                 document.getElementById('apply-desc').textContent = '전문 분야, 소개, 서비스 지역·시간, 연락 방식을 고칩니다.';
                 return;

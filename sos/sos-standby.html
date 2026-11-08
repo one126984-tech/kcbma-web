@@ -628,10 +628,10 @@
             <div data-menu="consulting" onclick="location.href='../../consulting/consulting-field.html'" class="gnb-item nav-consulting cursor-pointer hover:text-[#0088cc] transition-colors">지식컨설팅</div>
             <div data-menu="community" onclick="location.href='../../community/notice.html'" class="gnb-item nav-community cursor-pointer hover:text-[#0088cc] transition-colors">커뮤니티</div>
 
-            <!-- 긴급 SOS 호출 -->
+            <!-- 긴급 SOS 전화상담 -->
             <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn nav-sos cursor-pointer hover:text-[#b91c1c] transition-colors ml-1 xl:ml-2">
                 <i class="fa-solid fa-phone-volume"></i>
-                <span>긴급 SOS 호출</span>
+                <span>긴급 SOS 상담</span>
             </div>
         </nav>
 
@@ -694,7 +694,7 @@
             <!-- 모바일 긴급 SOS 호출 -->
             <div onclick="if(!location.pathname.endsWith('sos-request.html')) location.href='../../sos/sos-request.html'" class="sos-btn sos-btn-mobile">
                 <i class="fa-solid fa-phone-volume" style="font-size:13px;"></i>
-                <span>긴급 SOS 호출</span>
+                <span>긴급 SOS 상담</span>
             </div>
             </div>
 
@@ -994,7 +994,7 @@
 
                 <!-- ===================== (2) 요청 화면 ===================== -->
                 <div id="view-feed" class="hidden p-5 space-y-4 pb-6">
-                    <div class="practice-note">💡 <b>연습 안내</b><br>실제에서는 고객이 접수하면 내 조건에 맞는 요청이 이 화면에 나타납니다. 연습에서는 몇 초 뒤 가상 요청이 도착합니다. 가능한 방식('전화상담' 또는 '전화+출동')을 눌러 응답해 보세요. 응답하면 요청자 화면에 내 정보와 소개가 표시되고, 요청자가 나를 선택하면 아래 '내가 선택된 요청'에 요청자 번호가 나타납니다.</div>
+                    <div class="practice-note">💡 <b>연습 안내</b><br>실제에서는 고객이 접수하면 내 조건에 맞는 요청이 이 화면에 나타납니다. 연습에서는 몇 초 뒤 가상 요청이 도착합니다. '신청하기'를 눌러 응답해 보세요. 응답하면 요청자 화면에 내 정보와 소개가 표시되고, 요청자가 나를 선택하면 아래 '내가 선택된 요청'에 요청자 번호가 나타납니다.</div>
 
                     <!-- 상태 막대 -->
                     <div class="bg-white rounded-xl border border-green-200 shadow-sm p-3">
@@ -1046,8 +1046,8 @@
                         </div>
                         <div class="bd-note">
                             · <b>전화</b>는 순수하게 전화상담만 받는 요청이라 지역은 <b>전국</b>입니다.<br>
-                            · <b>전화+(출동)</b>은 전화상담을 하다가 필요하면 출동도 가능해야 하는 요청입니다. 출동 지역이 맞고 '출동 가능'으로 등록한 전문가만 신청할 수 있습니다.<br>
-                            · <b>출동</b> 요청은 출동 가능한 전문가 중 <b>거리가 가까운 순</b>으로 요청자에게 보입니다.
+                            · 현재 현장 출동 서비스는 운영하지 않습니다. 모든 요청은 <b>전화상담</b>입니다. 현장 작업이 필요하면 고객에게 견적의뢰 이용을 안내해 주세요.<br>
+                            · 생명·안전이 위험한 상황(화재·가스·인명 피해·승강기 갇힘)이면 먼저 119 신고를 안내해 주세요.
                         </div>
                         <p class="bd-hint">← 표가 화면보다 넓으면 좌우로 밀어서 보세요.</p>
                     </div>
@@ -1057,7 +1057,7 @@
                 <div id="assigned-section" class="hidden px-5 pb-10">
                     <div class="practice-note" style="margin-bottom:10px;">💡 <b>연습 안내</b><br>요청자가 나를 선택하면 이렇게 요청자 번호가 공개됩니다. 요청자에게 전화해 통화가 연결되면 '통화 연결됨'을 누르세요(누르면 요청자가 해지할 수 없습니다). 번호가 공개된 지 10분이 지나면 상담료가 자동으로 확정됩니다. 연습에서는 전화가 걸리지 않습니다.</div>
                     <h2 class="font-black text-gray-800 text-[15px] mb-2 border-b-2 border-blue-600 pb-1 inline-block">내가 선택된 요청</h2>
-                    <p class="text-[12px] text-gray-500 mb-2 break-keep">출동서비스 요청은 실제로 조치했는지 직접 눌러 주세요. 요청자가 입력한 내용과 다르면 운영진이 확인합니다.</p>
+                    <p class="text-[12px] text-gray-500 mb-2 break-keep">요청자 번호로 전화해 상황을 듣고 지금 해야 할 조치를 안내해 주세요. 이전에 출동으로 접수된 요청은 실제로 조치했는지 직접 눌러 주세요.</p>
                     <div id="assigned-list" class="space-y-3"></div>
                 </div>
 
@@ -1093,10 +1093,10 @@
     function practiceMe() {
         return { id: 'practice', name: '연습 전문가', category: '전기', categories: '전기', intro: '',
                  region_main: '서울', region_sub: '강남구', avail_from: null, avail_to: null,
-                 provides_photo: false, service_level: 'dispatch', can_dispatch: true, is_standby: false, is_active: true,
+                 provides_photo: false, service_level: 'phone', can_dispatch: false, is_standby: false, is_active: true,
                  contact_mode: 'call', last_checkin_at: null,
                  service_scope: { phone: { on: true, regions: ['전국 전체'], all_day: true, times: [] },
-                                  dispatch: { on: true, regions: ['서울 강남구', '서울 서초구'], all_day: false, times: [{ from: '09:00', to: '18:00' }] } } };
+                                  dispatch: { on: false } } };
     }
     function clearPracticeTimers() { practiceTimers.forEach(clearTimeout); practiceTimers = []; }
     function startPracticeFeed() {
@@ -1104,8 +1104,8 @@
         practiceOpen = []; practiceOffers = {}; practiceAssigned = [];
         loadOpenRequests(); loadAssigned();
         practiceTimers.push(setTimeout(() => {
-            practiceOpen.push({ id: 'p1', req_no: 126, offer_count: 1, category: '화재,전기', region_short: '서울 강남구 역삼동', service_type: 'dispatch', created_at: new Date(Date.now() - 85 * 60000).toISOString(), my_offer: null });
-            practiceOpen.push({ id: 'p0', req_no: 124, offer_count: 3, category: '누수', region_short: '서울 송파구 잠실동', service_type: 'dispatch', created_at: new Date(Date.now() - 60 * 60000).toISOString(), my_offer: null });
+            practiceOpen.push({ id: 'p1', req_no: 126, offer_count: 1, category: '누수,전기', region_short: '서울 강남구 역삼동', service_type: 'phone', created_at: new Date(Date.now() - 85 * 60000).toISOString(), my_offer: null });
+            practiceOpen.push({ id: 'p0', req_no: 124, offer_count: 3, category: '누수', region_short: '서울 송파구 잠실동', service_type: 'phone', created_at: new Date(Date.now() - 60 * 60000).toISOString(), my_offer: null });
             loadOpenRequests();
         }, 4000));
         practiceTimers.push(setTimeout(() => {
@@ -1141,6 +1141,8 @@
     }
     let me = null;              
     let isStandby = false;
+    // ★ 2026-11 리뉴얼: 출동 서비스 중단 (true 로 바꾸면 출동 응답이 다시 가능)
+    const SOS_DISPATCH_ENABLED = false;
     let selectedLevel = 'phone';
     let lastOpenCount = 0;
     let lastAssignedCount = 0;
@@ -1232,8 +1234,8 @@
             const t = v.all_day ? '24시간' : (v.times || []).map(x => `${x.from}~${x.to}`).join(', ');
             return `<p><b>${KC.esc(title)}</b> ${escapeHtml((v.regions || []).join(', '))} · ${escapeHtml(t)}</p>`;
         };
-        html += one('phone', '📞 전화상담') + one('dispatch', '🚚 출동서비스');
-        if (sc.dispatch && sc.dispatch.on && !me.can_dispatch) html += '<p style="color:#b45309;font-weight:800;margin-top:6px;">출동서비스는 운영진의 출동 자격 승인 후 적용됩니다. 지금은 전화상담으로 대기합니다.</p>';
+        html += one('phone', '📞 전화상담') + (SOS_DISPATCH_ENABLED ? one('dispatch', '🚚 출동서비스') : '');
+        if (SOS_DISPATCH_ENABLED && sc.dispatch && sc.dispatch.on && !me.can_dispatch) html += '<p style="color:#b45309;font-weight:800;margin-top:6px;">출동서비스는 운영진의 출동 자격 승인 후 적용됩니다. 지금은 전화상담으로 대기합니다.</p>';
         return html;
     }
 
@@ -1242,7 +1244,8 @@
         const catText = me.categories ? me.categories.split(',').map(x => x.trim()).filter(Boolean).join('·') : me.category;
         document.getElementById('me-meta').innerText = [catText, me.contact_mode === 'text' ? '문자 후 회신' : '바로 통화'].filter(Boolean).join(' · ') || '-';
         isStandby = !!me.is_standby;
-        selectedLevel = (me.service_level === 'dispatch' && me.can_dispatch) ? 'dispatch' : 'phone';
+        // ★ 2026-11 리뉴얼: 출동 서비스 중단 → 항상 전화상담으로 대기
+        selectedLevel = (SOS_DISPATCH_ENABLED && me.service_level === 'dispatch' && me.can_dispatch) ? 'dispatch' : 'phone';
         document.getElementById('scope-summary').innerHTML = scopeSummaryHtml();
         if (isPractice) document.getElementById('edit-scope-link').setAttribute('href', 'sos-expert-scope.html?practice=1');
         renderStandbyBadge();

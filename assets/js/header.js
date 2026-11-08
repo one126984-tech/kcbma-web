@@ -62,7 +62,7 @@
       
       <div onclick="location.href='../../sos/sos-request.html'" class="cursor-pointer font-bold hover:text-[#b91c1c] pb-1 transition-colors flex items-center gap-1.5 ml-2" style="color: #ef4444;">
         <i class="fa-solid fa-phone"></i>
-        <span>긴급 SOS 호출</span>
+        <span>긴급 SOS 상담</span>
       </div>
     </nav>
 
@@ -111,7 +111,7 @@
       
       <div onclick="location.href='../../sos/sos-request.html'" class="sos-btn-mobile cursor-pointer" style="background-color: #ef4444; color: white;">
         <i class="fa-solid fa-phone"></i>
-        <span>긴급 SOS 전문가 호출</span>
+        <span>긴급 SOS 전화상담</span>
       </div>
     </div>
     

@@ -146,12 +146,12 @@
 
                 <div class="xs-sec" id="sec-svc">
                     <span class="xs-label">4. 서비스 항목</span>
-                    <p class="xs-help">둘 다 선택할 수 있습니다. 체크하면 지역과 시간을 고르는 창이 열립니다.</p>
+                    <p class="xs-help">전화상담을 체크하면 지역과 시간을 고르는 창이 열립니다. (현장 출동 서비스는 현재 운영하지 않습니다)</p>
                     <div class="svc" id="svc-phone">
                         <label class="svc-head"><input type="checkbox" id="chk-phone"> 📞 전화상담</label>
                         <div id="sum-phone" class="svc-sum hidden"></div>
                     </div>
-                    <div class="svc" id="svc-dispatch">
+                    <div class="svc" id="svc-dispatch" data-dispatch-only style="display:none;">
                         <label class="svc-head"><input type="checkbox" id="chk-dispatch"> 🚚 출동서비스 (현장 방문)</label>
                         <div id="sum-dispatch" class="svc-sum hidden"></div>
                         <p id="dispatch-note" class="svc-note hidden">※ 출동서비스는 운영진의 출동 자격 승인 후 적용됩니다. 그 전에는 전화상담으로만 대기합니다.</p>
@@ -269,6 +269,8 @@
     document.querySelectorAll('input[name="cmode"]').forEach(r => r.addEventListener('change', function () { if (this.checked) { contactMode = this.value; renderMode(); saveDraft(); } }));
 
     // ---------- 4. 서비스 항목 ----------
+    // ★ 2026-11 리뉴얼: 출동 서비스 중단 → 전화상담 범위만 저장 (true 로 바꾸고 위 svc-dispatch 의 display:none 을 지우면 되살아남)
+    const SOS_DISPATCH_ENABLED = false;
     function timesText(s) { return s.all_day ? '24시간' : (s.times || []).map(t => `${t.from}~${t.to}`).join(', '); }
     function renderSvc() {
         ['phone', 'dispatch'].forEach(k => {
@@ -413,6 +415,7 @@
         if (!s || typeof s !== 'object') return base;
         ['phone', 'dispatch'].forEach(k => {
             const v = s[k];
+            if (k === 'dispatch' && !SOS_DISPATCH_ENABLED) return;
             if (v && v.on) base[k] = { on: true, regions: Array.isArray(v.regions) ? v.regions.slice(0, 60) : [], all_day: !!v.all_day, times: Array.isArray(v.times) ? v.times.slice(0, 10) : [] };
         });
         return base;
@@ -424,7 +427,7 @@
         const times = allDay ? [] : [{ from: String(ex.avail_from).slice(0, 5), to: String(ex.avail_to).slice(0, 5) }];
         const s = emptyScope();
         s.phone = { on: true, regions: ['전국 전체'], all_day: allDay, times };
-        if (ex.service_level === 'dispatch') s.dispatch = { on: true, regions: [region], all_day: allDay, times };
+        if (SOS_DISPATCH_ENABLED && ex.service_level === 'dispatch') s.dispatch = { on: true, regions: [region], all_day: allDay, times };
         return s;
     }
     document.getElementById('load-saved').addEventListener('click', () => {
@@ -440,7 +443,7 @@
     document.getElementById('load-new').addEventListener('click', () => {
         if ((scope.phone.on || scope.dispatch.on) && !confirm('입력한 서비스 범위(지역·시간)를 지우고 새로 입력할까요?')) return;
         scope = emptyScope(); contactMode = 'call';
-        setLoadButtons('new', '✏️ 새로 입력합니다. 3번에서 전화 대기 방식을 고르고, 4번에서 전화상담·출동서비스를 체크해 지역과 시간을 넣어 주세요.');
+        setLoadButtons('new', '✏️ 새로 입력합니다. 3번에서 전화 대기 방식을 고르고, 4번에서 전화상담을 체크해 지역과 시간을 넣어 주세요.');
         renderMode(); renderSvc(); saveDraft();
         guideTo('sec-svc');
     });
@@ -462,13 +465,14 @@
     function validateAll() {
         if (!draft || !draft.name || digits(draft.phone).length < 10) { alert('프로필(이름·연락처)이 비어 있습니다. 뒤로가기를 눌러 프로필부터 입력해 주세요.'); return false; }
         if (!draft.cats || !draft.cats.length) { alert('전문 분야를 1개 이상 선택해 주세요.'); return false; }
-        if (!scope.phone.on && !scope.dispatch.on) { alert('서비스 항목(전화상담 또는 출동서비스)을 1개 이상 선택해 주세요.'); return false; }
+        if (!scope.phone.on && !(SOS_DISPATCH_ENABLED && scope.dispatch.on)) { alert('서비스 항목(전화상담)을 선택하고 지역과 시간을 넣어 주세요.'); return false; }
         return true;
     }
     function scopeForSave() {
         const out = {};
         ['phone', 'dispatch'].forEach(k => {
             const s = scope[k];
+            if (k === 'dispatch' && !SOS_DISPATCH_ENABLED) { out[k] = { on: false }; return; }
             out[k] = s.on ? { on: true, regions: s.regions, all_day: !!s.all_day, times: s.all_day ? [] : s.times } : { on: false };
         });
         return out;
@@ -476,7 +480,7 @@
     function regionSummary() {
         const parts = [];
         if (scope.phone.on) parts.push('전화: ' + scope.phone.regions.join(', '));
-        if (scope.dispatch.on) parts.push('출동: ' + scope.dispatch.regions.join(', '));
+        if (SOS_DISPATCH_ENABLED && scope.dispatch.on) parts.push('출동: ' + scope.dispatch.regions.join(', '));
         return parts.join(' / ');
     }
 
@@ -525,10 +529,10 @@
             document.getElementById('step-tag').style.background = '#7c3aed';
             me = { id: 'practice', name: '한국전기 홍길동', can_dispatch: true, contact_mode: 'call' };
             draft = Object.assign(draft || {}, { name: (draft && draft.name) || '한국전기 홍길동', phone: '010-0000-1234', intro: (draft && draft.intro) || '연습용 소개', cats: (draft && draft.cats && draft.cats.length) ? draft.cats.slice(0, MAX_CATS) : ['전기', '화재'] });
-            scope = draft.scope ? normalizeScope(draft.scope) : { phone: { on: true, regions: ['전국 전체'], all_day: false, times: [{ from: '09:00', to: '18:00' }] }, dispatch: { on: true, regions: ['서울 강남구', '서울 서초구'], all_day: true, times: [] } };
+            scope = draft.scope ? normalizeScope(draft.scope) : { phone: { on: true, regions: ['전국 전체'], all_day: false, times: [{ from: '09:00', to: '18:00' }] }, dispatch: { on: false, regions: [], all_day: true, times: [] } };
             contactMode = draft.contactMode === 'text' ? 'text' : 'call';
             me.service_scope = JSON.parse(JSON.stringify(scope));   // '기존 정보입력' 연습용
-            document.getElementById('who').innerHTML = '🧪 <b>연습 모드</b> · 가상 조건이 채워져 있습니다. 전화상담·출동 체크, 지역·시간을 바꿔 보고 아래 <b>다음</b>을 누르면 연습용 요청현황으로 갑니다. 실제로 저장되지 않습니다.';
+            document.getElementById('who').innerHTML = '🧪 <b>연습 모드</b> · 가상 조건이 채워져 있습니다. 전화상담 지역·시간을 바꿔 보고 아래 <b>다음</b>을 누르면 연습용 요청현황으로 갑니다. 실제로 저장되지 않습니다.';
             document.getElementById('who').style.background = '#f3e8ff'; document.getElementById('who').style.color = '#6b21a8';
             document.getElementById('save-btn').textContent = '다음 (연습 콜대기) →';
             renderCats(); renderMode(); renderSvc(); saveDraft();

@@ -93,9 +93,9 @@
                             <p id="cat-limit-msg" class="text-[12px] text-red-600 font-bold mt-1.5 hidden">전문 분야는 최대 2개까지 선택할 수 있습니다.</p>
                         </div>
 
-                        <!-- 3. 주요 출동 가능 지역 (교체된 영역) -->
+                        <!-- 3. 주요 활동 지역 (교체된 영역) -->
                         <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 출동 가능 지역 <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">3. 주요 활동 지역 <span class="text-red-500">*</span></label>
                             <div class="relative w-full z-[50]">
                                 <!-- 드롭다운 토글 버튼 -->
                                 <button type="button" onclick="toggleDropdown('region-mega-dropdown')" class="w-full bg-white border-2 border-gray-300 rounded-xl p-3.5 flex items-center justify-between hover:bg-gray-50 focus:outline-none transition-colors">
@@ -392,7 +392,7 @@
         if (checkedCats.includes('기타') && !otherText) { alert('기타 분야를 적어 주세요.'); return; }
 
         if (!isValid || checkedCats.length === 0 || selectedRegions.length === 0) {
-            alert('필수 항목(*)을 모두 입력해 주세요. (전문 분야 및 출동 지역은 최소 1개 이상 선택)');
+            alert('필수 항목(*)을 모두 입력해 주세요. (전문 분야 및 활동 지역은 최소 1개 이상 선택)');
             return;
         }
 

@@ -112,7 +112,7 @@
                 <div class="xp-sec">
                     <label class="xp-label" for="pf-intro">4. 전문가 소개 <span class="req">*</span></label>
                     <p class="xp-help">요청자가 전문가를 고를 때 보는 소개입니다. 자격, 경력, 강점을 적어 주세요.</p>
-                    <textarea id="pf-intro" class="xp-textarea" maxlength="500" placeholder="예) 전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 서울 서부, 고양, 김포, 파주 출동 가능"></textarea>
+                    <textarea id="pf-intro" class="xp-textarea" maxlength="500" placeholder="예) 전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 정전·누전 상황 전화 대처 안내"></textarea>
                     <p class="xp-count"><span id="intro-count">0</span> / 500</p>
                 </div>
 
@@ -188,7 +188,7 @@
             const times = s.all_day ? '24시간' : (s.times || []).map(t => `${t.from}~${t.to}`).join(', ');
             return `<p class="vw-row"><b>${KC.esc(title)}</b><br>지역: ${esc(regions)}<br>시간: ${esc(times || '-')}</p>`;
         };
-        return one('phone', '📞 전화상담') + one('dispatch', '🚚 출동서비스');
+        return one('phone', '📞 전화상담');
     }
 
     // ===================== 상세 소개 보기 =====================
@@ -289,7 +289,7 @@
             document.getElementById('phone-help').textContent = '[연습] 실제에서는 1단계에서 입력한 연락처가 표시됩니다.';
             document.getElementById('pf-file').disabled = true;
             document.getElementById('file-state').textContent = '[연습] 연습에서는 파일을 올리지 않습니다.';
-            fill({ name: '한국전기 홍길동', cats: ['전기', '화재'], intro: '전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 서울 서부, 고양, 김포, 파주 출동 가능' });
+            fill({ name: '한국전기 홍길동', cats: ['전기', '화재'], intro: '전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 정전·누전 상황 전화 대처 안내' });
             return;
         }
         try {
@@ -330,7 +330,7 @@
             return;
         }
         else {
-            status.innerHTML = `<span style="color:#15803d;">✔ 승인된 전문가</span> · ${me.can_dispatch ? '전화상담 + 출동 가능' : '전화상담 가능'}${me.is_standby ? ' · 현재 대기중' : ''}<br><span style="font-weight:500;color:#6b7280;">신상자료를 확인·수정하고 '저장하고 다음'을 누르면 3단계(콜대기 조건)로 넘어갑니다.</span>`;
+            status.innerHTML = `<span style="color:#15803d;">✔ 승인된 전문가</span> · 전화상담 가능${me.is_standby ? ' · 현재 대기중' : ''}<br><span style="font-weight:500;color:#6b7280;">신상자료를 확인·수정하고 '저장하고 다음'을 누르면 3단계(콜대기 조건)로 넘어갑니다.</span>`;
             if (me.service_scope) document.getElementById('live-link').classList.remove('hidden');
             const ph = document.getElementById('pf-phone');
             ph.value = fmtPhone(me.phone || ''); ph.readOnly = true;

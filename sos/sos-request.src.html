@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>긴급 SOS 호출 | 대한집합건물관리협회</title>
+  <title>긴급 SOS 전화상담 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
@@ -107,6 +107,27 @@
   .place-chip { border:2px solid #d1d5db; background:#fff; color:#374151; font-weight:800; font-size:13px; padding:5px 14px; border-radius:999px; cursor:pointer; }
   .place-chip.on { border-color:#2563eb; background:#dbeafe; color:#1d4ed8; }
 </style>
+<!-- ★ 2026-11 리뉴얼: 출동 서비스 중단 → '전화상담' 중심. 출동 관련 화면은 지우지 않고 숨겨 둡니다 (SOS_DISPATCH_ENABLED 로 되살릴 수 있음) -->
+<style id="renew-css">
+  [data-dispatch-only] { display:none !important; }
+  .renew-119 { background:#fef2f2; border:2px solid #dc2626; border-radius:16px; padding:16px 18px; color:#991b1b; word-break:keep-all; }
+  .renew-119 h3 { margin:0 0 6px; font-size:16px; font-weight:900; color:#b91c1c; }
+  .renew-119 p { margin:0; font-size:13px; font-weight:700; line-height:1.65; }
+  .renew-119 a { display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:#dc2626; color:#fff !important; padding:9px 18px; border-radius:10px; font-weight:900; font-size:14px; text-decoration:none; }
+  .renew-info { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px 16px; font-size:13px; font-weight:700; color:#374151; line-height:1.7; word-break:keep-all; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .renew-info b { color:#111827; }
+  .renew-info .hours-now { display:inline-block; margin-left:4px; padding:1px 8px; border-radius:999px; font-size:12px; font-weight:900; }
+  .renew-info .hours-now.on { background:#dcfce7; color:#166534; }
+  .renew-info .hours-now.off { background:#fef3c7; color:#92400e; }
+  .renew-bid { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#f0fdf4; border:2px solid #bbf7d0; border-radius:16px; padding:14px 16px; text-decoration:none; color:#166534; word-break:keep-all; }
+  .renew-bid:hover { background:#dcfce7; }
+  .renew-bid strong { display:block; font-size:15px; font-weight:900; color:#14532d; margin-bottom:2px; }
+  .renew-bid span.desc { font-size:12.5px; font-weight:700; color:#166534; line-height:1.5; }
+  .renew-bid .arrow { flex-shrink:0; width:30px; height:30px; border-radius:999px; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; color:#16a34a; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .svc-phone-only { border:2px solid #3b82f6; background:#eff6ff; border-radius:12px; padding:14px 16px; word-break:keep-all; }
+  .svc-phone-only .t { font-weight:900; color:#111827; font-size:15px; }
+  .svc-phone-only .d { font-size:12.5px; font-weight:700; color:#1e40af; margin-top:4px; line-height:1.6; }
+</style>
 </head>
 
 <body class="flex flex-col min-h-screen {{PAGE_CLASS}} bg-gray-50">
@@ -124,14 +145,14 @@
         <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden mb-2">
             <div id="sos-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
                 <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
-                    <span class="bg-[#FFFF00] text-red-600 px-3.5 py-1 rounded-full text-[15px] font-black shadow-sm">24시간</span> 긴급 호출
+                    <span class="bg-[#FFFF00] text-red-600 px-3.5 py-1 rounded-full text-[15px] font-black shadow-sm">SOS</span> 긴급 전화상담
                 </h1>
             </div>
             <div class="p-5 bg-white space-y-3">
                 <button onclick="startActual()" class="w-full bg-red-50 border-2 border-red-300 rounded-xl p-5 shadow-sm hover:shadow-md hover:bg-red-100 transition flex items-center justify-between group">
                     <div class="text-left">
-                        <h3 class="text-red-700 font-bold text-[17px] mb-1 flex items-center gap-2"><span class="text-xl">🚨</span> 실제 긴급 호출하기</h3>
-                        <p class="text-[13px] text-gray-600 font-medium tracking-tight">상황 입력 후 접수하면 전문가가 응답합니다. (회원사는 후불 적용)</p>
+                        <h3 class="text-red-700 font-bold text-[17px] mb-1 flex items-center gap-2"><span class="text-xl">📞</span> 실제 전화상담 요청하기</h3>
+                        <p class="text-[13px] text-gray-600 font-medium tracking-tight">상황을 접수하면 분야별 전문가가 전화로 대처 방법을 안내합니다. (회원사는 후불 적용)</p>
                     </div>
                     <span class="text-red-600 font-bold text-xl group-hover:translate-x-1 transition">→</span>
                 </button>
@@ -145,6 +166,28 @@
                 </button>
             </div>
         </div>
+
+        <!-- ★ 생명·안전 위험은 119 먼저 -->
+        <div class="renew-119">
+            <h3>🚒 생명·안전이 위험하면 지금 바로 119</h3>
+            <p>화재 · 가스 냄새 · 사람이 다쳤을 때 · 승강기에 사람이 갇혔을 때는 전화상담을 기다리지 마시고 먼저 119에 신고하세요.</p>
+            <a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a>
+        </div>
+
+        <!-- ★ 서비스 안내 (운영 시간) -->
+        <div class="renew-info">
+            <p style="margin:0;">📞 <b>전화상담 서비스입니다.</b> 전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내해 드립니다. (현장 출동은 하지 않습니다)</p>
+            <p style="margin:6px 0 0;">🕘 <b>운영 시간</b> <span id="sos-hours-text">매일 09:00~21:00</span><span id="sos-hours-now" class="hours-now"></span><br><span style="font-weight:500;color:#6b7280;">운영 시간 외에도 접수는 됩니다. 다만 응답이 늦어질 수 있습니다.</span></p>
+        </div>
+
+        <!-- ★ 현장 작업이 필요하면 견적의뢰로 -->
+        <a href="{{BASE}}bid/bid-list.html" class="renew-bid">
+            <div>
+                <strong>🛠️ 현장 수리·공사가 필요하신가요?</strong>
+                <span class="desc">견적의뢰에 올리면 지역 업체들이 견적을 보내드립니다.</span>
+            </div>
+            <span class="arrow">→</span>
+        </a>
 
         <button type="button" onclick="openStepModal()" class="w-full bg-[#f0fdf4] border-2 border-green-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:bg-green-50 transition flex items-center justify-between group cursor-pointer">
             <div class="text-left">
@@ -162,7 +205,7 @@
     <!-- [STEP 1] 상황 입력 화면 (클래식 모드) -->
     <div id="step-1-situation" class="hidden flex-1 flex-col pt-4">
         <div class="practice-tip hidden bg-blue-50 border border-blue-200 text-blue-800 p-4 mb-6 rounded-xl text-[14px] font-bold flex items-start gap-2 shadow-sm">
-            <span class="text-lg leading-none">💡</span><span>[연습 안내] 현장 위치·상황·연락처·서비스 방식을 입력하고 '동의하고 접수하기'를 누르면 가상 접수가 되고 전문가 응답 화면(요청자 화면)으로 이동합니다. 연습에서는 입력한 내용이 저장되거나 전문가에게 전달되지 않습니다. 현장 상황은 최대 2개까지 누른 순서대로 1순위·2순위가 됩니다.</span>
+            <span class="text-lg leading-none">💡</span><span>[연습 안내] 현장 위치·상황·연락처를 입력하고 '동의하고 접수하기'를 누르면 가상 접수가 되고 전문가 응답 화면(요청자 화면)으로 이동합니다. 연습에서는 입력한 내용이 저장되거나 전문가에게 전달되지 않습니다. 현장 상황은 최대 2개까지 누른 순서대로 1순위·2순위가 됩니다.</span>
         </div>
 
         <!-- 1. 주소 입력부 -->
@@ -200,7 +243,7 @@
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타입력</span></button>
             </div>
             <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-            <div id="safety-classic" class="safety-119">🚨 화재·가스누출 등 인명 위험이 있으면 전문가 응답을 기다리지 말고 <u>먼저 119에 신고</u>하세요.<br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
+            <div id="safety-classic" class="safety-119">🚨 화재·가스누출·사람이 다친 경우·승강기 갇힘 등 생명이 위험하면 전화상담을 기다리지 말고 <u>먼저 119에 신고</u>하세요.<br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
         </div>
 
         <!-- 3. 연락처 -->
@@ -223,8 +266,12 @@
 
         <!-- 4. 서비스 방식 (동적 요금 적용) -->
         <div class="mb-4 mt-10">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">4. 희망하시는 서비스 방식</h2>
-            <div class="space-y-3">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">4. 서비스 방식</h2>
+            <div class="svc-phone-only">
+                <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원</p>
+                <p class="d" style="margin:4px 0 0;">전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내합니다. 현장 수리·공사가 필요하면 견적의뢰로 지역 업체를 찾으실 수 있습니다.</p>
+            </div>
+            <div class="space-y-3" data-dispatch-only>
                 <label class="flex items-center gap-3 p-4 border-2 border-blue-500 bg-blue-50 rounded-xl cursor-pointer svc-label selected">
                     <input type="radio" name="svc_type" value="phone" class="w-5 h-5" checked>
                     <span class="font-bold text-gray-800">전화상담만 진행 : <span class="dynamic-time-price text-blue-600">3</span>만원</span>
@@ -253,7 +300,7 @@
                 <i class="fa-solid fa-rotate-right text-sm"></i> 초기화
             </button>
             <button id="next-step-btn" class="flex-1 bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-lg shadow-sm hover:bg-blue-700 transition flex justify-center items-center">
-                🚨 동의하고 접수하기
+                📞 동의하고 접수하기
             </button>
         </div>
     </div>
@@ -262,7 +309,7 @@
     <div id="step-quick" class="hidden flex-1 flex-col pt-4">
         <div class="flex-1">
             <div class="practice-tip hidden bg-blue-50 border border-blue-200 text-blue-800 p-4 mb-6 rounded-xl text-[14px] font-bold flex items-start gap-2 shadow-sm">
-                <span class="text-lg leading-none">💡</span><span>[연습 안내] 저장해 둔 정보를 불러와 '현장 상황'과 '출동 여부'만 고르는 빠른 접수 화면입니다. 지금 보이는 주소·연락처는 가상 정보이며, 실제에서는 내 저장 정보가 나타납니다. '동의하고 접수하기'를 누르면 가상 접수가 되고 전문가 응답 화면(요청자 화면)으로 이동합니다. 현장 상황은 최대 2개까지 누른 순서대로 1순위·2순위가 됩니다.</span>
+                <span class="text-lg leading-none">💡</span><span>[연습 안내] 저장해 둔 정보를 불러와 '현장 상황'만 고르는 빠른 접수 화면입니다. 지금 보이는 주소·연락처는 가상 정보이며, 실제에서는 내 저장 정보가 나타납니다. '동의하고 접수하기'를 누르면 가상 접수가 되고 전문가 응답 화면(요청자 화면)으로 이동합니다. 현장 상황은 최대 2개까지 누른 순서대로 1순위·2순위가 됩니다.</span>
             </div>
             <h2 class="text-lg font-bold text-gray-800 mb-3">1. 기존 정보 불러오기</h2>
             <div class="flex gap-3 mb-6">
@@ -290,10 +337,17 @@
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타(입력)</span></button>
                 </div>
                 <input type="text" id="q-category-custom" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-                <div id="safety-quick" class="safety-119">🚨 화재·가스누출 등 인명 위험이 있으면 전문가 응답을 기다리지 말고 <u>먼저 119에 신고</u>하세요.<br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
+                <div id="safety-quick" class="safety-119">🚨 화재·가스누출·사람이 다친 경우·승강기 갇힘 등 생명이 위험하면 전화상담을 기다리지 말고 <u>먼저 119에 신고</u>하세요.<br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
             </div>
 
             <div class="mb-6">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">3. 서비스 방식</h2>
+                <div class="svc-phone-only">
+                    <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원</p>
+                    <p class="d" style="margin:4px 0 0;">전문가가 전화로 지금 해야 할 조치를 안내합니다. (현장 출동은 하지 않습니다)</p>
+                </div>
+            </div>
+            <div class="mb-6" data-dispatch-only>
                 <h2 class="text-lg font-bold text-gray-800 mb-4">3. 출동 여부</h2>
                 <div class="space-y-3">
                     <label class="qsvc-label flex items-center gap-3 p-4 border border-blue-500 bg-blue-50 rounded-xl cursor-pointer selected"><input type="radio" name="q_svc_type" value="phone" class="w-5 h-5 text-blue-600" checked><span class="font-bold">전화상담만</span></label>
@@ -310,7 +364,7 @@
             <button onclick="resetFormOnly()" class="shrink-0 font-bold py-3.5 px-5 rounded-lg flex items-center justify-center gap-1 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition">
                 <i class="fa-solid fa-rotate-right text-sm"></i> 초기화
             </button>
-            <button id="q-pay-btn" onclick="submitToExperts()" class="flex-1 bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-lg shadow-sm hover:bg-blue-700 transition flex items-center justify-center gap-2">🚨 동의하고 접수하기</button>
+            <button id="q-pay-btn" onclick="submitToExperts()" class="flex-1 bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-lg shadow-sm hover:bg-blue-700 transition flex items-center justify-center gap-2">📞 동의하고 접수하기</button>
         </div>
     </div>
 
@@ -325,6 +379,27 @@
     let selectedType = 'phone';
     let currentBasePrice = 3;
     let currentFlow = 'quick';
+
+    // ★ 2026-11 리뉴얼: 출동 서비스 중단 (true 로 바꾸면 출동 선택 화면이 다시 나타납니다. CSS의 [data-dispatch-only] 숨김도 함께 지워야 함)
+    const SOS_DISPATCH_ENABLED = false;
+    // ★ 전화상담 운영 시간 (한국 시간, 시 단위). 바꾸려면 숫자만 고치면 화면 안내가 함께 바뀝니다.
+    const SOS_HOURS = { from: 9, to: 21 };
+    function kstHour() {
+        try { return parseInt(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul', hour: 'numeric', hour12: false }), 10) % 24; }
+        catch (e) { return new Date().getHours(); }
+    }
+    function isOpenHours() { const h = kstHour(); return h >= SOS_HOURS.from && h < SOS_HOURS.to; }
+    function renderHoursNotice() {
+        const pad = n => String(n).padStart(2, '0');
+        const t = document.getElementById('sos-hours-text');
+        if (t) t.textContent = `매일 ${pad(SOS_HOURS.from)}:00~${pad(SOS_HOURS.to)}:00`;
+        const now = document.getElementById('sos-hours-now');
+        if (now) {
+            const open = isOpenHours();
+            now.textContent = open ? '지금 운영 중' : '지금은 운영 시간 외';
+            now.className = 'hours-now ' + (open ? 'on' : 'off');
+        }
+    }
 
     // ===== 서비스 금액 / 예치금 / 동의 =====
     const won = n => n.toLocaleString() + '원';
@@ -350,7 +425,7 @@
 
     function renderPayCards() {
         const base = currentBasePrice * 10000;
-        const dispatch = selectedType === 'dispatch';
+        const dispatch = SOS_DISPATCH_ENABLED && selectedType === 'dispatch';
         const total = base;
         const bal = currentBalance();
         const enough = isPostpaidMember || (bal !== null && bal >= total);
@@ -388,15 +463,15 @@
             <div class="consent-card">
                 <p style="font-size:14px; font-weight:700; color:#374151; line-height:1.7; margin:0 0 14px; word-break:keep-all;">
                     <i class="fa-solid fa-circle-info" style="color:#9ca3af; margin-right:4px;"></i><strong>이용 전 꼭 확인해 주세요</strong><br>
-                    대한집합건물관리협회는 신청자와 전문가를 연결하는 매칭 서비스만 제공하며, 매칭된 전문가의 상담·현장 조치 결과에 대한 민·형사상 책임은 협회에 있지 않습니다.
+                    대한집합건물관리협회는 신청자와 전문가를 전화로 연결하는 서비스만 제공합니다. 전문가의 안내는 참고용 조언이며, 현장 조치·수리·공사의 최종 판단과 책임은 이용자와 시공업체에 있습니다. 생명·안전이 위험한 상황은 반드시 119에 먼저 신고해 주세요.
                 </p>
                 <label class="consent-label">
                     <input type="checkbox" class="consent-chk" ${consentChecked ? 'checked' : ''} onchange="onConsentChange(this.checked)" style="margin-top:2px;">
-                    <span style="color:#111827; font-weight:700; font-size:14px;">[필수] 이용약관에 동의하며, 출동비는 현장 상황에 따라 사전 견적 합의 후 진행됨을 확인합니다.</span>
+                    <span style="color:#111827; font-weight:700; font-size:14px;">[필수] 이용약관에 동의하며, 전화상담은 참고용 조언이고 현장 조치의 책임은 이용자와 시공업체에 있음을 확인합니다.</span>
                 </label>
                 <p class="consent-warn">면책사항 및 지불금액에 동의해주셔야 접수가 가능합니다.</p>
             </div>
-            ${isPracticeMode ? `<div class="pay-practice">💡 <b>연습 안내</b><br>연습 예치금은 ${won(80000)}으로 시작합니다. 필요 예치금이 잔액보다 크면 '충전하기'가 나타나고, 충전하기 전에는 동의해도 접수가 되지 않습니다. 출동비는 예치금에서 차감되지 않으며 현장에서 결제합니다. 상담료는 전문가 번호를 확인한 뒤 10분이 지나거나 종료할 때 차감됩니다.</div>` : ''}
+            ${isPracticeMode ? `<div class="pay-practice">💡 <b>연습 안내</b><br>연습 예치금은 ${won(80000)}으로 시작합니다. 필요 예치금이 잔액보다 크면 '충전하기'가 나타나고, 충전하기 전에는 동의해도 접수가 되지 않습니다. 상담료는 전문가 번호를 확인한 뒤 10분이 지나거나 종료할 때 차감됩니다.</div>` : ''}
         `;
         document.querySelectorAll('.pay-slot').forEach(el => { el.innerHTML = html; });
         updateSubmitButtons();
@@ -494,7 +569,7 @@
 
             // 서비스 종류
             ['svc_type', 'q_svc_type'].forEach(name => {
-                const r = document.querySelector('input[name="' + name + '"][value="' + (d.svc === 'dispatch' ? 'dispatch' : 'phone') + '"]');
+                const r = document.querySelector('input[name="' + name + '"][value="' + (SOS_DISPATCH_ENABLED && d.svc === 'dispatch' ? 'dispatch' : 'phone') + '"]');
                 if (r) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
             });
 
@@ -571,9 +646,9 @@
     function updateModeUI() {
         const btnPrefix = isPracticeMode ? '[연습용]' : '[실제]';
         const nextStepBtn = document.getElementById('next-step-btn');
-        if(nextStepBtn) nextStepBtn.innerHTML = `🚨 <span class="mode-prefix">${btnPrefix}&nbsp;</span>동의하고 접수하기`;
+        if(nextStepBtn) nextStepBtn.innerHTML = `📞 <span class="mode-prefix">${btnPrefix}&nbsp;</span>동의하고 접수하기`;
         const qPayBtn = document.getElementById('q-pay-btn');
-        if(qPayBtn) qPayBtn.innerHTML = `🚨 <span class="mode-prefix">${btnPrefix}&nbsp;</span>동의하고 접수하기`;
+        if(qPayBtn) qPayBtn.innerHTML = `📞 <span class="mode-prefix">${btnPrefix}&nbsp;</span>동의하고 접수하기`;
         updateSubmitButtons();
         document.querySelectorAll('.practice-tip').forEach(tip => {
             if (isPracticeMode) tip.classList.remove('hidden');
@@ -589,6 +664,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const sp = document.getElementById('bottom-spacer'); if (sp) sp.style.height = '32px';
         updateTimePrice();
+        renderHoursNotice();
         restoreDraftIfAny();
     });
 
@@ -628,9 +704,9 @@
             summaryBox.classList.add('block');
             savedProfile = { phone: '010-1234-5678', places: [{ key: 'home', label: '집', addr: '서울 강남구 역삼동 123-45', detail: '가상건물 1층' }] };
             renderQuickPlace('home');
-            selectedCats['quick-category-grid'] = ['화재', '전기'];
+            selectedCats['quick-category-grid'] = ['누수', '전기'];
             renderCats('quick-category-grid');
-            document.querySelectorAll('input[name="q_svc_type"]').forEach(r => {
+            if (SOS_DISPATCH_ENABLED) document.querySelectorAll('input[name="q_svc_type"]').forEach(r => {
                 if (r.value === 'dispatch') { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
             });
             return;
@@ -861,6 +937,16 @@
             return t ? '기타(' + t + ')' : '기타';
         });
 
+        // ★ 생명·안전 위험 상황은 119 먼저 (확인 후에만 접수 진행)
+        if (selectedCats[gridId].some(c => c === '화재' || c === '가스')) {
+            if (!confirm('화재·가스누출은 생명과 직결됩니다.\n\n119에 먼저 신고하셨나요?\n(아직이라면 \'취소\'를 누르고 119에 먼저 전화해 주세요)\n\n[확인]을 누르면 전화상담 접수를 계속합니다.')) return;
+        }
+        // ★ 운영 시간 외 안내 (접수는 가능)
+        if (!isOpenHours()) {
+            const pad = n => String(n).padStart(2, '0');
+            if (!confirm(`지금은 전화상담 운영 시간(${pad(SOS_HOURS.from)}:00~${pad(SOS_HOURS.to)}:00) 외입니다.\n접수는 되지만 전문가 응답이 늦어질 수 있습니다.\n\n계속 접수할까요?`)) return;
+        }
+
         const total = getRequiredAmount();
         const bal = currentBalance();
         if (!isPostpaidMember && bal !== null && bal < total && (isPracticeMode || !FREE_REQUEST)) {
@@ -872,7 +958,7 @@
         if (isPracticeMode) {
             const addr = (quickPlace && quickPlace.addr) || document.getElementById('location-input')?.value.trim() || '서울 강남구 역삼동 123-45';
             const q = new URLSearchParams({
-                practice: '1', svc: selectedType, base: String(currentBasePrice * 10000),
+                practice: '1', svc: SOS_DISPATCH_ENABLED ? selectedType : 'phone', base: String(currentBasePrice * 10000),
                 cats: catLabels.join(','), addr: addr
             });
             window.location.href = 'sos-room.html?' + q.toString();
@@ -890,7 +976,7 @@
             if (!user) { alert('로그인이 필요합니다.'); window.location.href = '{{BASE}}login.html'; return; }
             await saveProfileToDb(user.id, form);
             const { data, error } = await supabaseClient.rpc('create_sos_request', {
-                p_service_type: selectedType,
+                p_service_type: SOS_DISPATCH_ENABLED ? selectedType : 'phone',
                 p_category: catLabels.join(','),
                 p_region: form.region,
                 p_contact_phone: form.phone

@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>긴급 SOS 매칭 현황 | 대한집합건물관리협회</title>
+  <title>긴급 SOS 전화상담 현황 | 대한집합건물관리협회</title>
 
 <!-- @include critical-css -->
 
@@ -74,6 +74,15 @@
     #room-content { padding-bottom: 240px !important; }
   }
 </style>
+<!-- ★ 2026-11 리뉴얼: 전화상담 중심 안내 -->
+<style id="renew-room-css">
+  .renew-bid { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; max-width:22rem; box-sizing:border-box; background:#f0fdf4; border:2px solid #bbf7d0; border-radius:14px; padding:12px 14px; text-decoration:none; color:#166534; text-align:left; word-break:keep-all; }
+  .renew-bid:hover { background:#dcfce7; }
+  .renew-bid strong { display:block; font-size:14px; font-weight:900; color:#14532d; margin-bottom:2px; }
+  .renew-bid span.desc { font-size:12px; font-weight:700; color:#166534; line-height:1.5; }
+  .renew-bid .arrow { flex-shrink:0; font-weight:900; color:#16a34a; }
+  .renew-advice { width:100%; box-sizing:border-box; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; font-size:12px; font-weight:700; color:#475569; line-height:1.65; word-break:keep-all; }
+</style>
 </head>
 
 <body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}}">
@@ -96,7 +105,7 @@
                     <i class="fa-solid fa-arrow-left text-lg"></i>
                 </button>
                 <h1 class="text-[22px] font-bold tracking-wider flex items-center gap-2">
-                    긴급 SOS 매칭 현황
+                    긴급 SOS 전화상담 현황
                 </h1>
             </div>
 
@@ -202,6 +211,13 @@
                                 비용 협의가 이루어지지 않은 경우 작업을 거부하실 수 있습니다.
                             </p>
                         </div>
+                        <div class="renew-advice">
+                            💡 전문가의 안내는 참고용 조언입니다. 현장 수리·공사가 필요하면 아래 견적의뢰로 지역 업체의 견적을 받아 보세요. 생명·안전이 위험하면 즉시 119에 신고하세요.
+                        </div>
+                        <a href="{{BASE}}bid/bid-list.html" class="renew-bid" style="max-width:none;">
+                            <div><strong>🛠️ 현장 수리·공사 견적 받기</strong><span class="desc">견적의뢰에 올리면 지역 업체들이 견적을 보내드립니다.</span></div>
+                            <span class="arrow">→</span>
+                        </a>
                     </div>
 
                     <!-- 스톱: 마음에 들지 않으면 해지 -->
@@ -312,6 +328,10 @@
                         <button type="button" id="rating-submit" disabled onclick="submitRating()" style="flex:1; background:#2563eb; color:#fff; font-weight:900; padding:13px 0; border-radius:12px; border:0; opacity:.45;">평가 제출</button>
                     </div>
                 </div>
+                <a href="{{BASE}}bid/bid-list.html" class="renew-bid">
+                    <div><strong>🛠️ 현장 수리·공사가 필요하신가요?</strong><span class="desc">견적의뢰에 올리면 지역 업체들이 견적을 보내드립니다.</span></div>
+                    <span class="arrow">→</span>
+                </a>
                 <div class="flex gap-2">
                     <button onclick="location.href='{{BASE}}mypage/my-sos.html'" class="bg-white border-2 border-gray-300 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-100 transition shadow-sm">내 SOS 내역</button>
                     <button onclick="location.href='sos-request.html?again=1'" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">새로 접수하기</button>
@@ -530,19 +550,21 @@
 
 
     // ================= 연습 모드 (?practice=1): 가상 자료로 체험 =================
-    const PR_SVC = params.get('svc') === 'phone' ? 'phone' : 'dispatch';
+    // ★ 2026-11 리뉴얼: 출동 서비스 중단 → 전화상담만 (true 로 바꾸면 출동 표시가 다시 나타남)
+    const SOS_DISPATCH_ENABLED = false;
+    const PR_SVC = (SOS_DISPATCH_ENABLED && params.get('svc') === 'dispatch') ? 'dispatch' : 'phone';
     const PR_BASE = parseInt(params.get('base')) || 30000;
-    const PR_CATS = params.get('cats') || '화재,전기';
+    const PR_CATS = params.get('cats') || '누수,전기';
     const PR_ADDR = params.get('addr') || '서울 강남구 역삼동 123-45';
     const PR_HOLD = 0; // 보관액 제거
     const PR_EXPERTS = [
         { id: 'pe1', name: '한국전기 홍길동', category: '전기', categories: '전기,화재',
-          intro: '전기기사 (무제한), 전기공사 기사, 한국 전기안전관리회사 대표\n전기안전관리 경력 15년, 상가나 빌딩 전문관리,\n서울 서부와 고양, 김포, 파주 지역 출동 가능합니다',
-          region: '서울 강남구', region_main: '서울', region_sub: '강남구', service_level: 'dispatch',
+          intro: '전기기사 (무제한), 전기공사 기사, 한국 전기안전관리회사 대표\n전기안전관리 경력 15년, 상가나 빌딩 전문관리,\n정전·누전 상황에서 지금 해야 할 조치를 전화로 안내해 드립니다',
+          region: '서울 강남구', region_main: '서울', region_sub: '강남구', service_level: 'phone',
           avg_rating: null, total_cases: 10, provides_photo: false, avail_from: null, avail_to: null, phone: '010-0000-1234' },
         { id: 'pe2', name: '대한전기 김안전', category: '전기', categories: '전기',
           intro: '전기기사 경력 5년, 전기공사 경력 3년, 대한전기 차장\n안전관리대행업체 경력 4년, 선호도 A등급',
-          region: '경기 고양시', region_main: '경기', region_sub: '고양시', service_level: 'dispatch',
+          region: '경기 고양시', region_main: '경기', region_sub: '고양시', service_level: 'phone',
           avg_rating: null, total_cases: 25, provides_photo: false, avail_from: null, avail_to: null, phone: '010-0000-5678' }
     ];
     let pr = { status: '대기중', matched_at: null, call_at: null, fee_at: null, release_count: 0, expert_dispatched: null,
@@ -689,6 +711,9 @@
         location.href = HOME_URL;
     }
 
+    // 출동 접수(이전 방식)일 때만 '출동비 현장 결제' 문구를 붙임
+    function dispatchFeeSuffix() { return (requestInfo && requestInfo.service_type === 'dispatch') ? ' / 출동비 현장 결제' : ''; }
+
     // ===== 요금 정보 (시간대별 동적 요금 반영) =====
     async function loadFeeInfo() {
         if (isPractice) { requestInfo = { service_type: PR_SVC, base_fee: PR_BASE, dispatch_fee: 40000, hold_amount: PR_HOLD, hold_status: pr.hold_status, review_needed: false }; return; }
@@ -709,15 +734,15 @@
             if (isPostpaidMember) {
                 bar.style.background = '#dcfce7'; bar.style.color = '#166534';
                 bar.innerHTML = `✅ <b>회원사 후불 패스 적용됨</b><br>상담료 ${baseFeeStr}은 월말 합산 청구됩니다.`;
-                document.getElementById('room-fee').innerText = `상담료 후불 청구 / 출동비 현장 결제`;
+                document.getElementById('room-fee').innerText = `상담료 후불 청구` + dispatchFeeSuffix();
             } else {
                 bar.style.background = '#f0f9ff'; bar.style.color = '#075985';
                 if (balance < requestInfo.base_fee) {
                     bar.innerHTML = `접수는 무료입니다.<br>전문가를 선택하면 상담료 <b>${baseFeeStr}</b>이 결제되고 연락처가 표시됩니다.`;
-                    document.getElementById('room-fee').innerText = `상담료 ${baseFeeStr} 선택 시 결제 / 출동비 현장 결제`;
+                    document.getElementById('room-fee').innerText = `상담료 ${baseFeeStr} 선택 시 결제` + dispatchFeeSuffix();
                 } else {
                     bar.innerHTML = `예치금 잔액 <b>${balance.toLocaleString()}원</b><br>종료 시 상담료 ${baseFeeStr} 차감 대기`;
-                    document.getElementById('room-fee').innerText = `상담료 예치금 차감 / 출동비 현장 결제`;
+                    document.getElementById('room-fee').innerText = `상담료 예치금 차감` + dispatchFeeSuffix();
                 }
             }
 
@@ -731,7 +756,7 @@
             const svcRow = document.getElementById('room-service-row');
             const feeRow = document.getElementById('room-fee-row');
             svcRow.classList.remove('hidden'); svcRow.classList.add('flex');
-            document.getElementById('room-service').innerText = requestInfo.service_type === 'dispatch' ? '전화상담 및 출동서비스 가능' : '전화상담만 가능';
+            document.getElementById('room-service').innerText = requestInfo.service_type === 'dispatch' ? '전화상담 및 출동서비스 (이전 접수)' : '전화상담';
             feeRow.classList.remove('hidden'); feeRow.classList.add('flex');
 
         } catch (e) { console.error('정보 로드 에러', e); requestInfo = null;}
@@ -796,7 +821,7 @@
 
         sortedExperts.forEach(expert => {
             const region = expert.region || '지역 미등록';
-            const canDispatch = expert.offer_type === 'dispatch';
+            const canDispatch = SOS_DISPATCH_ENABLED && expert.offer_type === 'dispatch';
             const rating = expert.avg_rating ? Number(expert.avg_rating).toFixed(1) : '신규';
             const cases = expert.total_cases || 0;
             const hours = (expert.avail_from && expert.avail_to) ? `${expert.avail_from}~${expert.avail_to}` : '24시간';
@@ -876,7 +901,7 @@
 
     function registeredCard(e) {
         const region = [e.region_main, e.region_sub].filter(Boolean).join(' ') || '지역 미등록';
-        const canDispatch = e.service_level === 'dispatch';
+        const canDispatch = SOS_DISPATCH_ENABLED && e.service_level === 'dispatch';
         const rating = e.avg_rating ? Number(e.avg_rating).toFixed(1) : '신규';
         const hours = (e.avail_from && e.avail_to) ? `${fmtHour(e.avail_from)}~${fmtHour(e.avail_to)}` : '24시간';
         const p = presence[e.id] || {};
@@ -1436,7 +1461,7 @@
       newCompleteBtn.addEventListener('click', function() {
         if(requestInfo && requestInfo.service_type === 'dispatch') openDispatchModal();
         else {
-            if (!confirm('상담이 끝났거나 현장 조치가 완료되었다면 종료해 주세요.\n(추가 작업이 있었다면 현장에서 직접 결제합니다)')) return;
+            if (!confirm('전화상담이 끝났다면 종료해 주세요.\n(현장 수리·공사가 필요하면 종료 후 \'견적의뢰\'에서 업체 견적을 받아 보세요)')) return;
             finishRequest(null);
         }
       });
