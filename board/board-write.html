@@ -404,7 +404,7 @@
     }
 </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
 
     <style>
         /* 이 페이지(공고 등록) 전용 CSS */
@@ -691,7 +691,7 @@
             if (!window.supabase) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js';
                     script.onload = resolve;
                     script.onerror = reject;
                     document.head.appendChild(script);

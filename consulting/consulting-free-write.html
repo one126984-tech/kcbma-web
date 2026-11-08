@@ -656,7 +656,7 @@
             if (!window.supabase) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js';
                     script.onload = resolve;
                     script.onerror = reject;
                     document.head.appendChild(script);
@@ -935,7 +935,7 @@
 </div>
 
 <script src="../../assets/js/footer.js?v=1.3"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
 <script src="../../assets/js/supabase-config.js"></script>
 <script src="../../assets/js/region-data.js"></script>
 <script src="../../assets/js/consulting-board.js?v=2"></script>

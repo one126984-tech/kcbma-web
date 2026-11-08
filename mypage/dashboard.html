@@ -147,7 +147,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="../../assets/css/tailwind.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
     <script src="../../assets/js/supabase-config.js"></script>
 
     <style>
@@ -676,7 +676,7 @@
             if (!window.supabase) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js';
                     script.onload = resolve;
                     script.onerror = reject;
                     document.head.appendChild(script);

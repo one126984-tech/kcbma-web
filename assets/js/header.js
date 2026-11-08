@@ -251,7 +251,7 @@
     } else {
         // supabase 스크립트가 늦게 로드될 경우를 대비
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js';
         script.onload = initAuth;
         document.head.appendChild(script);
     }
