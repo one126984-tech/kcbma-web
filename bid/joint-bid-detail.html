@@ -1227,7 +1227,7 @@
                 if (p.unit_count) specs.push(`<span class="p-spec">${Number(p.unit_count).toLocaleString()}세대(점포)</span>`);
                 return `
                     <li class="participant-item">
-                        <span class="p-name">${KC.esc(p.building_name)}${p.building_type ? ` (${KC.esc(p.building_type)})` : ''}</span>
+                        <span class="p-name">${KC.esc(p.building_name)}${p.building_type ? ` (${KC.esc(p.building_type)})` : ''}${p.is_mine ? ' <span class="p-spec">내 건물</span>' : ''}</span>
                         <div class="flex gap-2">${specs.join('')}</div>
                     </li>
                 `;
@@ -1241,10 +1241,8 @@
 
         async function fetchParticipants(bidId) {
             const { data, error } = await supabaseClient
-                .from('joint_bid_participants')
-                .select('id, bid_id, building_name, building_type, area_sqm, unit_count, basement_floors, ground_floors, created_at')
-                .eq('bid_id', bidId)
-                .order('created_at', { ascending: false });
+                // ★ 2026-11: 건물명은 서버에서 익명 처리해서 내려줌 (본인·관리자·마감 후 공고업체만 실제 이름)
+                .rpc('joint_bid_participants_list', { p_bid_id: String(bidId) });
 
             if (error) {
                 console.error('참여 건물 조회 오류:', error);
