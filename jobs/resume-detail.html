@@ -880,8 +880,9 @@
                 </div>
 
                 <div class="contact-box">
-                    <p class="text-gray-500 text-sm font-bold mb-4">채용 관련 문의는 아래 연락처로 직접 연락해 주세요. (채용 목적 외 사용 시 법적 제재 대상)</p>
+                    <p class="text-gray-500 text-sm font-bold mb-4">채용 관련 문의는 아래 버튼으로 연락처를 확인해 주세요. (로그인 회원 전용 · 채용 목적 외 사용 시 법적 제재 대상)</p>
                     <a id="btn-call" class="btn-call-large"><i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭</a>
+                    <p id="contact-note" style="font-size:13px;color:#6b7280;margin-top:12px;display:none;"></p>
                 </div>
 
                 <table class="info-table">
@@ -959,25 +960,73 @@
             document.getElementById('resume-region').innerText = cData.address_short || cData.address || '-';
             document.getElementById('resume-views').innerText = getDisplayViews(data);
 
+            // ★ 2026-11 개인정보 공개 범위 v2
+            //   전화·이메일은 목록/상세 자료에 아예 들어 있지 않고, '연락처 보기'를 눌렀을 때만
+            //   서버 함수(resume_contact)가 조건을 확인한 뒤 내려줍니다. (열람 기록 남음, 하루 30건)
             const btnCall = document.getElementById('btn-call');
+            const note = document.getElementById('contact-note');
+            const emailCell = document.getElementById('info-email');
+            const showNote = (t) => { note.textContent = t; note.style.display = t ? 'block' : 'none'; };
+            const setOff = (html) => {
+                btnCall.innerHTML = html; btnCall.removeAttribute('href'); btnCall.onclick = null;
+                btnCall.style.backgroundColor = '#9ca3af'; btnCall.style.cursor = 'not-allowed';
+            };
+            const showContact = (phone, email) => {
+                emailCell.innerText = email || '-';
+                if (phone) {
+                    btnCall.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${KC.esc(phone)}`;
+                    btnCall.href = `tel:${String(phone).replace(/[^0-9+]/g, '')}`; btnCall.onclick = null;
+                    btnCall.style.backgroundColor = '#12387a'; btnCall.style.cursor = 'pointer';
+                } else {
+                    setOff('<i class="fas fa-phone-slash mr-2"></i> 연락처 없음');
+                }
+            };
             const goLogin = () => { try { localStorage.setItem('returnUrl', location.pathname + location.search); } catch (e) {} location.href = '/login.html'; };
-            if (cData.contact_locked) {
-                // 비로그인: 연락처는 회원에게만 공개
+            const st = cData.contact_status || (cData.contact_locked ? 'login' : 'available');
+
+            if (st === 'admin') {
+                // 관리자: 전부 보임
+                showContact(cData.phone, cData.email);
+                showNote('관리자 화면: 연락처·상세주소가 모두 보입니다.');
+            } else if (st === 'login') {
                 btnCall.innerHTML = '<i class="fas fa-lock mr-2"></i> 로그인하면 연락처 보기';
                 btnCall.removeAttribute('href'); btnCall.style.backgroundColor = '#12387a'; btnCall.style.cursor = 'pointer';
                 btnCall.onclick = goLogin;
-            } else if (cData.phone) {
-                if (cData.phone_display === 'exposed') { btnCall.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${KC.esc(cData.phone)}`; } 
-                else { btnCall.innerHTML = '<i class="fas fa-phone-alt mr-2"></i> 연락하기 클릭'; }
-                btnCall.href = `tel:${cData.phone}`; btnCall.style.backgroundColor = '#12387a'; btnCall.style.cursor = 'pointer';
+                emailCell.innerText = '로그인 후 확인';
+            } else if (st === 'private') {
+                setOff('<i class="fas fa-user-lock mr-2"></i> 연락처 비공개');
+                emailCell.innerText = '비공개';
+                showNote('이 구직자는 연락처를 공개하지 않았습니다.');
+            } else if (st === 'closed') {
+                setOff('<i class="fas fa-user-check mr-2"></i> 취업완료 · 연락처 비공개');
+                emailCell.innerText = '비공개';
             } else {
-                btnCall.innerHTML = '<i class="fas fa-phone-slash mr-2"></i> 연락처 없음';
-                btnCall.style.backgroundColor = '#9ca3af'; btnCall.style.cursor = 'not-allowed'; btnCall.removeAttribute('href');
+                btnCall.innerHTML = '<i class="fas fa-address-card mr-2"></i> 연락처 보기';
+                btnCall.removeAttribute('href'); btnCall.style.backgroundColor = '#12387a'; btnCall.style.cursor = 'pointer';
+                emailCell.innerText = '연락처 보기를 누르면 표시';
+                showNote('연락처를 열어 보면 열람 기록이 남습니다. 채용 목적 외 사용은 금지됩니다.');
+                btnCall.onclick = async (e) => {
+                    e.preventDefault();
+                    btnCall.style.pointerEvents = 'none';
+                    try {
+                        const { data: r, error } = await supabaseClient.rpc('resume_contact', { p_id: String(data.id) });
+                        if (error) throw error;
+                        const res = r || {};
+                        if (res.status === 'ok') { showContact(res.phone, res.email); showNote('열람 기록이 남았습니다. 채용 목적 외 사용은 금지됩니다.'); }
+                        else if (res.status === 'login') goLogin();
+                        else if (res.status === 'private') { setOff('<i class="fas fa-user-lock mr-2"></i> 연락처 비공개'); showNote('이 구직자는 연락처를 공개하지 않았습니다.'); }
+                        else if (res.status === 'closed') setOff('<i class="fas fa-user-check mr-2"></i> 취업완료 · 연락처 비공개');
+                        else if (res.status === 'limit') showNote('하루에 열어 볼 수 있는 이력서 연락처(30건)를 넘었습니다. 내일 다시 이용해 주세요.');
+                        else showNote('이력서를 찾을 수 없습니다.');
+                    } catch (err) {
+                        console.error(err);
+                        showNote('연락처를 불러오지 못했습니다. 로그인 상태를 확인하고 다시 시도해 주세요.');
+                    } finally { btnCall.style.pointerEvents = ''; }
+                };
             }
 
             document.getElementById('info-name').innerText = cData.name || '-';
-            document.getElementById('info-email').innerText = cData.contact_locked ? '로그인 후 확인' : (cData.email || '-');
-            document.getElementById('info-address').innerText = cData.contact_locked ? (cData.address_short || '로그인 후 확인') : (cData.address || '-');
+            document.getElementById('info-address').innerText = st === 'admin' ? (cData.address || '-') : (cData.address_short || '-');
             document.getElementById('info-employment-type').innerText = cData.employment_type || '무관';
             document.getElementById('info-salary').innerText = cData.desired_salary || '-';
             document.getElementById('info-experience').innerText = cData.experience || '-';

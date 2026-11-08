@@ -894,6 +894,20 @@
                                 <div class="form-group"><label class="required"> 연락처</label><input type="text" id="custom_phone" class="form-control" required placeholder="예: 010-0000-0000"></div>
                                 <div class="form-group"><label> 이메일</label><input type="email" id="custom_email" class="form-control" placeholder="예: abc@email.com"></div>
                                 <div class="form-group"><label class="required"> 현재 거주지 (시/군/구)</label><input type="text" id="custom_address" class="form-control" required placeholder="예: 경기 고양시 덕양구"></div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label class="required"> 연락처 공개 범위</label>
+                                    <div style="display:flex;flex-direction:column;gap:10px;">
+                                        <label style="display:flex;align-items:flex-start;gap:10px;font-weight:500;margin:0;padding:14px 16px;border:1px solid var(--border-color);border-radius:6px;cursor:pointer;">
+                                            <input type="radio" name="contact_visibility" value="members" required style="margin-top:3px;width:16px;height:16px;">
+                                            <span><b>로그인한 회원에게 공개</b><br><span style="font-size:13px;color:var(--text-sub);">회원이 '연락처 보기'를 눌러야 전화·이메일이 보이고, 누가 봤는지 기록이 남습니다.</span></span>
+                                        </label>
+                                        <label style="display:flex;align-items:flex-start;gap:10px;font-weight:500;margin:0;padding:14px 16px;border:1px solid var(--border-color);border-radius:6px;cursor:pointer;">
+                                            <input type="radio" name="contact_visibility" value="private" style="margin-top:3px;width:16px;height:16px;">
+                                            <span><b>비공개</b><br><span style="font-size:13px;color:var(--text-sub);">이력서 내용만 보이고 연락처는 아무에게도 보이지 않습니다. (구인자가 연락할 수 없습니다)</span></span>
+                                        </label>
+                                    </div>
+                                    <p class="sub-label" style="margin-top:10px;margin-bottom:0;">어떤 경우에도 이름은 '홍*동'처럼 가려지고, 거주지는 시·구까지만 보입니다.</p>
+                                </div>
                             </div>
 
                             <div class="section-title"><i class="fas fa-hand-holding-heart"></i> 희망 근무 조건</div>
@@ -981,7 +995,7 @@ document.getElementById('resumePostForm').addEventListener('submit', async funct
     const customDataObj = {
         name: document.getElementById('custom_name').value,
         phone: document.getElementById('custom_phone').value,
-        phone_display: 'hidden',
+        contact_visibility: (document.querySelector('input[name="contact_visibility"]:checked') || {}).value || 'members',
         email: document.getElementById('custom_email').value,
         address: document.getElementById('custom_address').value,
         job_category: document.getElementById('custom_job_category').value,
