@@ -343,8 +343,8 @@
         .app-table th:nth-child(8), .app-table td:nth-child(8),
         .app-table th:nth-child(9), .app-table td:nth-child(9),
         .app-table th:nth-child(10), .app-table td:nth-child(10) { padding-left: 18px; padding-right: 18px; }
-        .req-table td:nth-child(1) { white-space: normal; line-height: 1.45; }
-        .req-table td:nth-child(5) { text-align: left; vertical-align: middle; }
+        .req-table td:nth-child(2) { white-space: normal; line-height: 1.45; }
+        .req-table td:nth-child(6) { text-align: left; vertical-align: middle; }
 
         .btn-manage { display: inline-flex; align-items: center; justify-content: center; padding: 5px 10px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
         .btn-assign { background: #dbeafe; color: #1d4ed8; }
@@ -882,9 +882,12 @@
             </table>
 
             <div class="section-card">
+                <!-- ★ 2026-11: 접수 건수 표시 -->
+                <div id="sos-count" style="font-size:13.5px;color:#374151;font-weight:700;margin:0 0 10px 2px;">&nbsp;</div>
                 <div class="overflow-x-auto">
                     <table class="admin-table req-table">
                         <colgroup>
+                            <col style="width:44px">
                             <col style="width:78px">
                             <col style="width:64px">
                             <col style="width:96px">
@@ -896,6 +899,7 @@
                         </colgroup>
                         <thead>
                             <tr>
+                                <th>NO</th>
                                 <th>접수일시</th>
                                 <th>상황</th>
                                 <th>위치</th>
@@ -907,7 +911,7 @@
                             </tr>
                         </thead>
                         <tbody id="sos-list-body">
-                            <tr><td colspan="8" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
+                            <tr><td colspan="9" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1164,7 +1168,7 @@
 
         async function fetchAll() {
             const tbody = document.getElementById('sos-list-body');
-            tbody.innerHTML = '<tr><td colspan="8" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-gray-400">데이터를 불러오는 중입니다...</td></tr>';
 
             const [{ data: requests, error: reqError }, { data: matches, error: matchError }] = await Promise.all([
                 supabaseClient.from('sos_requests').select('*').order('created_at', { ascending: false }),
@@ -1173,7 +1177,7 @@
 
             if (reqError) {
                 console.error('SOS 접수 목록 조회 오류:', reqError);
-                tbody.innerHTML = '<tr><td colspan="8" class="py-14 text-red-500">목록을 불러오지 못했습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-red-500">목록을 불러오지 못했습니다.</td></tr>';
                 return;
             }
 
@@ -1205,12 +1209,18 @@
 
         function renderList() {
             const tbody = document.getElementById('sos-list-body');
+            const countEl = document.getElementById('sos-count');
+            if (countEl) {
+                countEl.innerHTML = `전체 <span style="color:#1d4ed8;">${allRequests.length.toLocaleString()}</span>건`
+                    + (filteredRequests.length !== allRequests.length ? ` · 현재 조건 <span style="color:#1d4ed8;">${filteredRequests.length.toLocaleString()}</span>건` : '');
+            }
             if (filteredRequests.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="py-14 text-gray-400">조건에 맞는 접수 내역이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="py-14 text-gray-400">조건에 맞는 접수 내역이 없습니다.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = filteredRequests.map(r => {
+            const totalShown = filteredRequests.length;
+            tbody.innerHTML = filteredRequests.map((r, idx) => {
                 const match = findMatch(r.id);
                 const photoCount = (r.photo_urls || '').split(',').filter(Boolean).length;
                 const photoLinks = photoCount > 0
@@ -1249,6 +1259,7 @@
 
                 const rowHtml = `
                     <tr>
+                        <td style="color:#9ca3af;font-size:12px;">${totalShown - idx}</td>
                         <td>${dateTimeHtml}</td>
                         <td class="font-bold">${escapeHtml(r.category)}</td>
                         <td class="text-left max-w-[160px] truncate" title="${escapeHtml(r.region)}">${escapeHtml(r.region) || '-'}</td>
@@ -1267,7 +1278,7 @@
         function renderChatRow(r) {
             return `
                 <tr class="chat-row">
-                    <td colspan="8">
+                    <td colspan="9">
                         <div id="chat-box-${KC.esc(r.id)}" class="chat-box">
                             <p class="text-xs text-gray-400 text-center">불러오는 중...</p>
                         </div>
