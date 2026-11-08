@@ -309,9 +309,9 @@
                     <option value="화재">화재 / 소방</option>
                     <option value="누수">누수 / 배관</option>
                     <option value="전기">정전 / 전기</option>
-                    <option value="승강기">승강기 고장</option>
                     <option value="가스">가스 누출</option>
-                    <option value="기타">기타</option>
+                    <option value="화장실">화장실 막힘</option>
+                    <option value="기타">기타 (승강기 등)</option>
                 </select>
             </div>
             <div class="modal-field">
@@ -371,6 +371,17 @@
         const supabaseClient = window.sb;
         let allRequests = [], allMatches = [], filteredRequests = [];
         let allExperts = [];
+
+        // ★ 2026-11: SOS 분야 이름 통일 (화재/전기/누수/가스/화장실/기타). 예전 표기(화재/소방, 정전, 배관, 승강기 …)도 같은 분야로 읽음
+        function sosCats(t) {
+            const map = [['화재','화재'],['소방','화재'],['전기','전기'],['정전','전기'],['누수','누수'],['배관','누수'],['가스','가스'],['화장실','화장실'],['기타','기타'],['승강기','기타']];
+            const out = [];
+            String(t || '').split(',').forEach(part => {
+                const hit = map.find(([k]) => part.includes(k));
+                if (hit && !out.includes(hit[1])) out.push(hit[1]);
+            });
+            return out;
+        }
         let openChatRequestId = null;
         let selectedAssignExpertId = null;
 
@@ -653,7 +664,7 @@
                 if (!e) return;
                 document.getElementById('expert-form-name').value = e.name || '';
                 document.getElementById('expert-form-phone').value = e.phone || '';
-                document.getElementById('expert-form-category').value = e.category || '화재';
+                document.getElementById('expert-form-category').value = (sosCats(e.categories || e.category)[0]) || '기타';
                 document.getElementById('expert-form-region-main').value = e.region_main || '';
                 document.getElementById('expert-form-region-sub').value = e.region_sub || '';
                 document.getElementById('expert-form-available').checked = !!e.is_available;
@@ -917,8 +928,11 @@
             document.getElementById('assign-manual-phone').value = '';
             document.getElementById('assign-modal-category').innerText = req ? `상황: ${req.category} / 위치: ${req.region || '-'}` : '';
 
-            const candidates = allExperts.filter(e => e.is_active !== false && e.category === (req && req.category));
-            const others = allExperts.filter(e => e.is_active !== false && e.category !== (req && req.category));
+            // ★ 2026-11: 요청 분야가 2개(예: "화재,전기")이거나 전문가 분야가 여러 개여도, 하나라도 겹치면 '분야일치'
+            const reqCats = sosCats(req && req.category);
+            const catMatch = (e) => reqCats.length > 0 && sosCats(e.categories || e.category).some(c => reqCats.includes(c));
+            const candidates = allExperts.filter(e => e.is_active !== false && catMatch(e));
+            const others = allExperts.filter(e => e.is_active !== false && !catMatch(e));
             const list = [...candidates, ...others];
 
             const box = document.getElementById('assign-expert-candidates');
@@ -928,7 +942,7 @@
                 box.innerHTML = list.map(e => {
                     const region = [e.region_main, e.region_sub].filter(Boolean).join(' ') || '지역 미등록';
                     const rating = e.avg_rating ? `★${Number(e.avg_rating).toFixed(1)}` : '평점없음';
-                    const sameCat = req && e.category === req.category;
+                    const sameCat = catMatch(e);
                     return `
                         <div class="expert-pick-card" id="pick-${KC.esc(e.id)}" onclick="selectExpertCandidate('${KC.esc(e.id)}')">
                             <div class="flex-1 min-w-0">
