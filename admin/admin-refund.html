@@ -893,7 +893,7 @@
             const { data, error } = await supabaseClient
                 .from('sos_requests')
                 .select(`
-                    id, created_at, user_id, category, region, status,
+                    id, created_at, user_id, category, region, status, refund_reason, refund_requested_at,
                     sos_transactions ( amount )
                 `)
                 .eq('status', 'refund_requested')
@@ -917,11 +917,15 @@
                         <td class="py-4 px-4">
                             <span class="font-bold text-gray-800">${KC.esc(req.category || '기타')}</span><br>
                             <span class="text-xs text-gray-500">${KC.esc(req.region || '-')}</span>
+                            ${req.refund_reason ? `<div class="text-xs mt-1" style="color:#b45309;">요청 사유: ${KC.esc(req.refund_reason)}${req.refund_requested_at ? ` <span class="text-gray-400">(${new Date(req.refund_requested_at).toLocaleString('ko-KR')})</span>` : ''}</div>` : ''}
                         </td>
                         <td class="py-4 px-4 text-right font-black text-red-600">${amount.toLocaleString()}원</td>
                         <td class="py-4 px-4 text-center">
                             <button onclick="approveRefund('${KC.esc(req.id)}', '${KC.esc(req.user_id)}', ${amount})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition shadow-sm">
                                 환불 승인
+                            </button>
+                            <button onclick="rejectRefund('${KC.esc(req.id)}')" style="margin-top:6px;" class="bg-white hover:bg-gray-50 text-gray-600 border border-gray-300 px-4 py-2 rounded-lg font-bold text-xs transition">
+                                반려
                             </button>
                         </td>
                     </tr>
@@ -947,6 +951,10 @@
             if (error) {
                 if (error.message.includes('ALREADY_REFUNDED')) {
                     alert('이미 환불 처리가 완료된 건입니다.');
+                } else if (error.message.includes('NOTHING_TO_REFUND')) {
+                    alert('이 건은 환불할 차감 금액이 없습니다.');
+                } else if (error.message.includes('NOT_REFUND_REQUESTED')) {
+                    alert('환불 요청 상태가 아닌 건입니다. 목록을 새로 고칩니다.');
                 } else {
                     throw error;
                 }
@@ -957,6 +965,26 @@
         } catch (err) {
             console.error('환불 승인 오류:', err);
             alert('환불 처리 중 시스템 오류가 발생했습니다.');
+        }
+    }
+
+    // ★ 2026-11: 환불 반려 (접수 건은 요청 전 상태로 돌아가고, 반려 사유가 회원 '내 SOS 내역'에 보임)
+    async function rejectRefund(requestId) {
+        const reason = prompt('반려 사유를 적어 주세요. (회원 화면에 그대로 보입니다)', '협회 확인 결과 환불 대상이 아닙니다.');
+        if (reason === null) return;
+        try {
+            const { error } = await supabaseClient.rpc('admin_reject_sos_refund', { p_request_id: requestId, p_reason: reason });
+            if (error) {
+                if (error.message.includes('NOT_REFUND_REQUESTED')) alert('이미 처리된 건입니다.');
+                else if (error.message.includes('NOT_ADMIN')) alert('관리자만 처리할 수 있습니다.');
+                else throw error;
+            } else {
+                alert('반려했습니다.');
+            }
+            fetchRefundRequests();
+        } catch (err) {
+            console.error('환불 반려 오류:', err);
+            alert('반려 처리 중 오류가 발생했습니다.');
         }
     }
 

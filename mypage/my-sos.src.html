@@ -36,6 +36,18 @@
         .tab-item.active { color: #12387a; border-bottom-color: #12387a; }
 
         .sos-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+        .sos-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .btn-refund { background: #fff; color: #b45309; border: 1px solid #f59e0b; font-weight: 700; font-size: 13px; padding: 9px 18px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+        .btn-refund:hover { background: #fffbeb; }
+        .refund-note { font-size: 12.5px; margin-top: 6px; line-height: 1.5; word-break: keep-all; }
+        .rf-modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
+        .rf-modal.open { display: flex; }
+        .rf-box { background: #fff; border-radius: 10px; width: 100%; max-width: 440px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,.2); }
+        .rf-box h3 { font-size: 18px; font-weight: 900; color: #0B2A5B; margin: 0 0 6px; }
+        .rf-box textarea { width: 100%; min-height: 110px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; font-size: 14px; font-family: inherit; resize: vertical; }
+        .rf-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+        .rf-btns button { font-weight: 700; font-size: 14px; padding: 10px 18px; border-radius: 6px; cursor: pointer; }
+        @media (max-width: 640px) { .sos-card { flex-direction: column; align-items: stretch; } .sos-actions { flex-direction: row; } .sos-actions button { flex: 1; } }
     </style>
 </head>
 <body class="flex flex-col min-h-screen {{PAGE_CLASS}}">
@@ -68,6 +80,21 @@
                 <div class="tab-item" data-tab="매칭됨" onclick="setTab('매칭됨')">매칭됨</div>
                 <div class="tab-item" data-tab="완료" onclick="setTab('완료')">완료</div>
                 <div class="tab-item" data-tab="취소됨" onclick="setTab('취소됨')">취소됨</div>
+                <div class="tab-item" data-tab="환불" onclick="setTab('환불')">환불</div>
+            </div>
+
+            <!-- ★ 2026-11: 상담료 환불 요청 창 -->
+            <div id="rf-modal" class="rf-modal" onclick="if(event.target===this) closeRefund()">
+                <div class="rf-box">
+                    <h3>상담료 환불 요청</h3>
+                    <p id="rf-desc" style="font-size:13.5px;color:#4b5563;margin:0 0 12px;line-height:1.6;"></p>
+                    <textarea id="rf-reason" maxlength="500" placeholder="환불을 요청하는 이유를 적어 주세요. (예: 전문가와 통화 연결이 되지 않았습니다)"></textarea>
+                    <p style="font-size:12px;color:#9ca3af;margin:6px 0 0;">협회가 확인한 뒤 승인되면 차감된 포인트로 돌려드립니다. 한 접수 건에 한 번만 요청할 수 있습니다.</p>
+                    <div class="rf-btns">
+                        <button type="button" onclick="closeRefund()" style="background:#fff;border:1px solid #cbd5e1;color:#475569;">취소</button>
+                        <button type="button" id="rf-submit" onclick="submitRefund()" style="background:#b45309;border:1px solid #b45309;color:#fff;">환불 요청하기</button>
+                    </div>
+                </div>
             </div>
 
             <div id="sos-list">
@@ -85,6 +112,8 @@
         let currentUser = null;
         let allRequests = [];
         let currentTab = 'ALL';
+        let refundable = {};        // 접수번호 → 환불 가능 금액 (서버 계산)
+        let refundTarget = null;
 
         async function fetchUser() {
             try {
@@ -118,6 +147,20 @@
             return data || [];
         }
 
+        // ★ 2026-11: 접수 건별 환불 가능 금액 (상담료가 실제로 차감된 건만 0보다 큼)
+        async function fetchRefundInfo() {
+            try {
+                const { data, error } = await supabaseClient.rpc('my_sos_refund_info');
+                if (error) throw error;
+                const map = {};
+                (data || []).forEach(x => { map[x.request_id] = Number(x.refundable) || 0; });
+                return map;
+            } catch (e) {
+                console.error('환불 가능 금액 조회 오류:', e);
+                return {};
+            }
+        }
+
         function formatDateTime(dateStr) {
             if (!dateStr) return '-';
             const d = new Date(dateStr);
@@ -133,6 +176,9 @@
                 '완료': 'bg-green-100 text-green-700',
                 '취소됨': 'bg-gray-100 text-gray-500'
             };
+            // 환불 상태는 영문 코드로 저장됨 → 한글로 표시
+            if (s === 'refund_requested') return '<span class="px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap" style="background:#fef3c7;color:#b45309;">환불 요청됨</span>';
+            if (s === 'refund_completed') return '<span class="px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap" style="background:#ede9fe;color:#6d28d9;">환불 완료</span>';
             const cls = map[s] || 'bg-gray-100 text-gray-500';
             return `<span class="${cls} px-3 py-1.5 rounded text-[12px] font-bold whitespace-nowrap">${KC.esc(s)}</span>`;
         }
@@ -161,7 +207,8 @@
         function renderList() {
             const container = document.getElementById('sos-list');
             let filtered = allRequests;
-            if (currentTab !== 'ALL') filtered = allRequests.filter(r => (r.status || '대기중') === currentTab);
+            if (currentTab === '환불') filtered = allRequests.filter(r => String(r.status || '').startsWith('refund_') || r.refund_reject_reason);
+            else if (currentTab !== 'ALL') filtered = allRequests.filter(r => (r.status || '대기중') === currentTab);
 
             if (filtered.length === 0) {
                 container.innerHTML = `
@@ -183,11 +230,74 @@
                         <div class="font-bold text-[15.5px] text-[#0B2A5B] mb-1 truncate">${escapeHtml(r.category) || '-'}</div>
                         <div class="text-[13px] text-gray-500 truncate">${escapeHtml(r.region) || '-'} · ${escapeHtml(r.contact_phone) || '-'}</div>
                         ${feeLine(r)}
+                        ${refundNote(r)}
                     </div>
-                    <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${KC.esc(r.id)}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
+                    <div class="sos-actions">
+                        <button onclick="location.href='{{BASE}}sos/sos-room.html?request_id=${KC.esc(r.id)}'" class="shrink-0 bg-[#12387a] hover:bg-[#0e2b61] text-white font-bold text-[13px] py-2.5 px-5 rounded transition-colors whitespace-nowrap">자세히 보기</button>
+                        ${canRefund(r) ? `<button class="btn-refund" onclick="openRefund('${KC.esc(r.id)}')">환불 요청</button>` : ''}
+                    </div>
                 </div>
             `).join('');
         }
+
+        function canRefund(r) {
+            const st = String(r.status || '');
+            return (refundable[r.id] || 0) > 0 && !st.startsWith('refund_') && !r.refund_reject_reason;
+        }
+
+        function refundNote(r) {
+            const st = String(r.status || '');
+            if (st === 'refund_requested') {
+                return `<div class="refund-note" style="color:#b45309;">환불 요청 접수됨 (${formatDateTime(r.refund_requested_at)}) · 협회 확인 중입니다.<br><span style="color:#6b7280;">사유: ${escapeHtml(r.refund_reason)}</span></div>`;
+            }
+            if (st === 'refund_completed') {
+                return '<div class="refund-note" style="color:#6d28d9;">상담료가 포인트로 환불되었습니다.</div>';
+            }
+            if (r.refund_reject_reason) {
+                return `<div class="refund-note" style="color:#dc2626;">환불 반려: ${escapeHtml(r.refund_reject_reason)}<br><span style="color:#6b7280;">다시 요청하시려면 협회로 문의해 주세요.</span></div>`;
+            }
+            return '';
+        }
+
+        window.openRefund = function (id) {
+            refundTarget = allRequests.find(r => String(r.id) === String(id));
+            if (!refundTarget) return;
+            const amt = (refundable[refundTarget.id] || 0).toLocaleString();
+            document.getElementById('rf-desc').innerHTML =
+                `${escapeHtml(refundTarget.category) || 'SOS'} · ${formatDateTime(refundTarget.created_at)} 접수<br>환불 요청 금액: <b style="color:#b45309;">${amt}원</b> (포인트로 돌려드림)`;
+            document.getElementById('rf-reason').value = '';
+            document.getElementById('rf-modal').classList.add('open');
+            setTimeout(() => document.getElementById('rf-reason').focus(), 50);
+        };
+
+        window.closeRefund = function () {
+            document.getElementById('rf-modal').classList.remove('open');
+            refundTarget = null;
+        };
+
+        window.submitRefund = async function () {
+            if (!refundTarget) return;
+            const reason = document.getElementById('rf-reason').value.trim();
+            if (reason.length < 5) { alert('환불 사유를 5자 이상 적어 주세요.'); return; }
+            const btn = document.getElementById('rf-submit');
+            btn.disabled = true; btn.textContent = '요청 중...';
+            try {
+                const { data, error } = await supabaseClient.rpc('sos_request_refund', { p_request_id: refundTarget.id, p_reason: reason });
+                if (error) throw error;
+                alert((data && data.message) || '처리되었습니다.');
+                if (data && data.ok) {
+                    closeRefund();
+                    allRequests = await fetchRequests();
+                    refundable = await fetchRefundInfo();
+                    renderList();
+                }
+            } catch (e) {
+                console.error('환불 요청 오류:', e);
+                alert('환불 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            } finally {
+                btn.disabled = false; btn.textContent = '환불 요청하기';
+            }
+        };
 
         function setTab(tab) {
             currentTab = tab;
@@ -201,7 +311,7 @@
             await fetchUser();
             if (!requireLogin()) return;
 
-            allRequests = await fetchRequests();
+            [allRequests, refundable] = await Promise.all([fetchRequests(), fetchRefundInfo()]);
             renderList();
         }
 
