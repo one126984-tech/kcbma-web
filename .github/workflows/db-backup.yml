@@ -1,0 +1,109 @@
+# =====================================================================
+# Supabase DB 매일 자동 백업 (2026-11-08)
+#
+#  · 매일 새벽 3시 17분(한국 시간)에 자동 실행. Actions 탭에서 "Run workflow"로 바로 실행도 가능.
+#  · 회원·결제·SOS 기록 등 DB 전체(역할·구조·데이터)를 내려받아
+#    비밀번호로 암호화(.gpg)한 뒤 이 실행 기록의 첨부 파일(Artifacts)로 30일 보관.
+#  · 저장소가 공개(public)라 암호화하지 않은 파일은 절대 남기지 않음.
+#  · 사진 등 Storage 파일은 포함되지 않음 (DB만).
+#
+#  필요한 비밀값 (GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret)
+#    SUPABASE_DB_URL      : Supabase 대시보드 → Connect → "Session pooler" 연결 주소를 복사한 그대로
+#                           ([YOUR-PASSWORD] 부분은 고치지 않아도 됨 — 아래 비밀번호로 자동으로 채움)
+#    SUPABASE_DB_PASSWORD : Supabase DB 비밀번호 (특수문자가 있어도 자동 처리)
+#    BACKUP_PASSPHRASE    : 백업 파일을 열 때 쓸 긴 비밀번호 (잃어버리면 백업을 못 엽니다 — 따로 적어 두세요)
+#
+#  복원할 때 (참고):
+#    gpg -d kcbma-db-날짜.tar.gz.gpg > backup.tar.gz   (BACKUP_PASSPHRASE 입력)
+#    tar xzf backup.tar.gz   → roles.sql / schema.sql / data.sql
+# =====================================================================
+name: DB 백업 (매일)
+
+on:
+  schedule:
+    - cron: "17 18 * * *"   # UTC 18:17 = 한국 시간 03:17
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RAW_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: 비밀값 확인
+        run: |
+          if [ -z "$RAW_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::SUPABASE_DB_URL 과 BACKUP_PASSPHRASE 비밀값을 먼저 등록해 주세요 (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          if printf '%s' "$RAW_DB_URL" | grep -q 'YOUR-PASSWORD' && [ -z "$DB_PASSWORD" ]; then
+            echo "::error::주소에 [YOUR-PASSWORD] 가 그대로 있습니다. SUPABASE_DB_PASSWORD 비밀값(DB 비밀번호)도 등록해 주세요."
+            exit 1
+          fi
+          if [ ${#BACKUP_PASSPHRASE} -lt 16 ]; then
+            echo "::error::BACKUP_PASSPHRASE 는 16자 이상으로 정해 주세요."
+            exit 1
+          fi
+
+      - name: 연결 주소 만들기
+        run: |
+          # [YOUR-PASSWORD] (또는 [ ] 없이 YOUR-PASSWORD) 자리를 DB 비밀번호로 채움. 특수문자는 주소용으로 변환.
+          URL=$(python3 - <<'PY'
+          import os, urllib.parse
+          url = os.environ["RAW_DB_URL"].strip()
+          pw = os.environ.get("DB_PASSWORD", "")
+          if pw:
+              enc = urllib.parse.quote(pw, safe="")
+              url = url.replace("[YOUR-PASSWORD]", enc).replace("YOUR-PASSWORD", enc)
+          print(url)
+          PY
+          )
+          echo "::add-mask::$URL"
+          echo "SUPABASE_DB_URL=$URL" >> "$GITHUB_ENV"
+
+      - name: Supabase 도구 설치
+        uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+
+      - name: DB 내려받기
+        run: |
+          mkdir -p backup
+          supabase db dump --remote="$SUPABASE_DB_URL" -f backup/roles.sql --role-only
+          supabase db dump --remote="$SUPABASE_DB_URL" -f backup/schema.sql
+          supabase db dump --remote="$SUPABASE_DB_URL" -f backup/data.sql --data-only --use-copy
+          ls -la backup
+          # 내용이 비었으면 실패로 처리
+          test -s backup/schema.sql
+          test -s backup/data.sql
+
+      - name: 암호화
+        id: enc
+        run: |
+          STAMP=$(TZ=Asia/Seoul date +%Y%m%d-%H%M)
+          tar czf "kcbma-db-$STAMP.tar.gz" -C backup .
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+              --passphrase "$BACKUP_PASSPHRASE" -o "kcbma-db-$STAMP.tar.gz.gpg" "kcbma-db-$STAMP.tar.gz"
+          # 암호화 전 파일은 지움 (공개 저장소라 원본을 남기지 않음)
+          rm -rf backup "kcbma-db-$STAMP.tar.gz"
+          ls -la kcbma-db-*.gpg
+          echo "file=kcbma-db-$STAMP.tar.gz.gpg" >> "$GITHUB_OUTPUT"
+          echo "stamp=$STAMP" >> "$GITHUB_OUTPUT"
+
+      - name: 백업 파일 보관 (30일)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kcbma-db-${{ steps.enc.outputs.stamp }}
+          path: ${{ steps.enc.outputs.file }}
+          retention-days: 30
+          if-no-files-found: error
