@@ -1751,14 +1751,20 @@
         async function markComplete(requestId) {
             if (!confirm('이 SOS 건을 완료 처리하시겠습니까?')) return;
 
-            const { error } = await supabaseClient
+            const { data: done, error } = await supabaseClient
                 .from('sos_requests')
                 .update({ status: '완료' })
-                .eq('id', requestId);
+                .eq('id', requestId)
+                .select('id');
 
             if (error) {
                 console.error('완료 처리 오류:', error);
                 alert('완료 처리 중 오류가 발생했습니다.');
+                return;
+            }
+            // ★ 2026-11: 권한이 없으면 오류 없이 0건만 바뀌므로 따로 확인
+            if (!done || done.length === 0) {
+                alert('완료 처리가 반영되지 않았습니다. 관리자 권한(DB 정책)을 확인해 주세요.');
                 return;
             }
 
