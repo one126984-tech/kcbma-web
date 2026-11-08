@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>예치금 쾌속 충전 | 대한집합건물관리협회</title>
+  <title>포인트 충전 | 대한집합건물관리협회</title>
     <!-- [SEO] build.js가 자동으로 넣음 — 고치려면 build.js의 PAGE_DESC 표를 고칠 것 -->
     <meta name="description" content="24시간 건물 긴급 SOS 호출 — 대한집합건물관리협회.">
     <meta name="robots" content="noindex, nofollow">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="대한집합건물관리협회">
-    <meta property="og:title" content="예치금 쾌속 충전 | 대한집합건물관리협회">
+    <meta property="og:title" content="포인트 충전 | 대한집합건물관리협회">
     <meta property="og:description" content="24시간 건물 긴급 SOS 호출 — 대한집합건물관리협회.">
     <meta property="og:url" content="https://www.kcbma.org/sos/sos-recharge.html">
     <meta property="og:image" content="https://www.kcbma.org/assets/img/og-image.jpg">
@@ -862,7 +862,7 @@
                     <i class="fa-solid fa-arrow-left text-lg"></i>
                 </button>
                 <h1 class="text-[20px] font-black tracking-wider flex items-center gap-2">
-                    예치금 쾌속 충전
+                    포인트 충전
                 </h1>
             </div>
 
@@ -876,12 +876,12 @@
 
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 shadow-sm">
                     <p class="text-[13px] text-blue-900 font-bold leading-relaxed break-keep">
-                        예치금을 충전해 두시면 긴급 상황 발생 시 <strong class="text-blue-700">결제 과정 없이 1초 만에 전문가를 호출</strong>할 수 있습니다.
+                        포인트를 충전해 두시면 긴급 상황 발생 시 <strong class="text-blue-700">결제 과정 없이 1초 만에 전문가를 호출</strong>할 수 있습니다.
                     </p>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8 flex justify-between items-center">
-                    <span class="text-gray-500 font-bold text-[14px]">현재 내 예치금 잔액</span>
+                    <span class="text-gray-500 font-bold text-[14px]">현재 내 포인트 (1P = 1원)</span>
                     <span id="current-balance" class="text-[20px] font-black text-[#dc2626]">조회 중...</span>
                 </div>
                 <p class="text-[12px] text-gray-500 font-bold -mt-5 mb-8 px-1 break-keep">상담 1회 30,000원 · 전문가 번호 확인 후 10분이 지나거나 상담을 종료하면 차감됩니다.</p>
@@ -893,7 +893,7 @@
                     <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition" data-amount="100000">100,000원</button>
                 </div>
                 
-                <p class="text-[12px] text-gray-400 font-bold text-center mt-auto pb-4 pt-10 break-keep">미사용 예치금 환불은 협회 사무국으로 문의해 주세요.</p>
+                <p class="text-[12px] text-gray-400 font-bold text-center mt-auto pb-4 pt-10 break-keep">미사용 포인트 환불은 협회 사무국으로 문의해 주세요.</p>
             </div>
 
             <div id="pay-bar" class="fixed bottom-0 w-full max-w-md p-3 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
@@ -921,9 +921,9 @@
     function showBalance(b) { document.getElementById('current-balance').innerText = won(b); }
 
     async function fetchBalance() {
-        const { data, error } = await supabaseClient.from('user_profiles').select('prepaid_balance').eq('id', currentUser.id).single();
+        const { data, error } = await supabaseClient.from('user_profiles').select('points').eq('id', currentUser.id).single();
         if (error || !data) return null;
-        return data.prepaid_balance || 0;
+        return data.points || 0;
     }
 
     function cameFromRequest() { return !!new URLSearchParams(location.search).get('return'); }
@@ -976,7 +976,7 @@
                 });
                 if (!error && data && (data.credited || data.already)) {
                     showBalance(data.balance);
-                    alert("충전이 완료되었습니다.\n현재 예치금 잔액: " + won(data.balance) + doneNote());
+                    alert("충전이 완료되었습니다.\n현재 포인트 잔액: " + won(data.balance) + doneNote());
                     goBack();
                     return;
                 }
@@ -994,18 +994,18 @@
             if (attempt < 3) await sleep(2500);
         }
 
-        alert("결제는 완료되었습니다.\n예치금 반영을 확인하는 중입니다. 잠시만 기다려 주세요.");
+        alert("결제는 완료되었습니다.\n포인트 반영을 확인하는 중입니다. 잠시만 기다려 주세요.");
         for (let i = 0; i < 10; i++) {
             await sleep(3000);
             const b = await fetchBalance();
             if (b !== null && b > balanceBefore) {
                 showBalance(b);
-                alert("충전이 완료되었습니다.\n현재 예치금 잔액: " + won(b) + doneNote());
+                alert("충전이 완료되었습니다.\n현재 포인트 잔액: " + won(b) + doneNote());
                 goBack();
                 return;
             }
         }
-        alert("예치금 반영이 지연되고 있습니다.\n주문번호: " + merchantUid);
+        alert("포인트 반영이 지연되고 있습니다.\n주문번호: " + merchantUid);
     }
 
     document.getElementById('pay-btn').addEventListener('click', async function() {
@@ -1030,10 +1030,10 @@
             pg: "html5_inicis",
             pay_method: "card",
             merchant_uid: merchantUid,
-            name: "긴급 SOS 예치금 충전",
+            name: "포인트 충전",
             amount: amount,
             buyer_email: currentUser?.email || "user@example.com",
-            buyer_name: "예치금 회원",
+            buyer_name: "포인트 회원",
         }, async function (rsp) {
             if (rsp.success) {
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 결제 확인 중...';

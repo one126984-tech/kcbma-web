@@ -1212,7 +1212,7 @@
         }
     }
 
-    // ===== 서비스 금액 / 예치금 / 동의 =====
+    // ===== 서비스 금액 / 포인트 / 동의 =====
     const won = n => n.toLocaleString() + '원';
     // 접수 무료: true 이면 잔액 없이 접수하고, 전문가를 선택할 때 상담료를 결제합니다. (서버의 sos_require_balance_at_request() 와 함께 바꿔야 합니다)
     const FREE_REQUEST = true;
@@ -1251,11 +1251,11 @@
         } else if (freeMode) {
             balRowHtml = `<div class="bal-row p-3 rounded-lg bg-blue-50 border border-blue-200 mt-3" style="display:block;">
                             <span class="font-black text-blue-900 text-[14px]"><i class="fa-solid fa-circle-check"></i> 접수는 무료입니다</span>
-                            <p class="text-[12px] text-blue-800 font-bold mt-1" style="line-height:1.6;word-break:keep-all;margin:4px 0 0;">전문가가 응답하면 직접 선택하실 수 있고, 선택하면 상담료 ${won(base)}이 결제되며 연락처가 표시됩니다.${bal !== null && bal > 0 ? ` (예치금 잔액 ${won(bal)}이 있으면 잔액을 먼저 사용합니다)` : ''}<br>통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
+                            <p class="text-[12px] text-blue-800 font-bold mt-1" style="line-height:1.6;word-break:keep-all;margin:4px 0 0;">전문가가 응답하면 직접 선택하실 수 있고, 선택하면 상담료 ${won(base)}이 결제되며 연락처가 표시됩니다.${bal !== null && bal > 0 ? ` (포인트 잔액 ${won(bal)}이 있으면 잔액을 먼저 사용합니다)` : ''}<br>통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
                           </div>`;
         } else {
             balRowHtml = `<div class="bal-row">
-                            <div><span class="bal-tag">예치금 잔액</span><span class="bal-val">${bal === null ? '로그인 후 확인' : won(bal)}</span>${enough ? '<span class="bal-ok">결제가능</span>' : ''}</div>
+                            <div><span class="bal-tag">포인트 잔액</span><span class="bal-val">${bal === null ? '로그인 후 확인' : won(bal)}</span>${enough ? '<span class="bal-ok">결제가능</span>' : ''}</div>
                             ${bal !== null && !enough ? '<button type="button" class="bal-charge" onclick="onChargeClick()">충전하기</button>' : ''}
                           </div>`;
         }
@@ -1266,7 +1266,7 @@
                 <div class="pay-body">
                     <div class="pay-row"><span class="lab">기본 상담료 (플랫폼 이용료)<small>${freeMode ? '전문가를 선택할 때 결제되며, ' : ''}번호 확인 후 10분이 지나거나 종료 시 확정됩니다.</small></span><span class="val">${won(base)}</span></div>
                     ${dispatch ? `<div class="pay-row"><span class="lab">출동비 (현장결제)<small>전문가와 직접 협의 · 도착 후 견적 확인·동의 뒤 진행<br>플랫폼은 출동비에 관여하지 않습니다</small></span><span class="val" style="color:#dc2626;">현장 결제</span></div>` : ''}
-                    <div class="pay-row pay-total"><span class="lab">${freeMode ? '접수 시 결제' : '필요 ' + (isPostpaidMember ? '후불 청구금액' : '예치금 잔액')}</span><span class="val">${freeMode ? '0원 (무료)' : won(total)}</span></div>
+                    <div class="pay-row pay-total"><span class="lab">${freeMode ? '접수 시 결제' : '필요 ' + (isPostpaidMember ? '후불 청구금액' : '포인트')}</span><span class="val">${freeMode ? '0원 (무료)' : won(total)}</span></div>
                     ${balRowHtml}
                     <button type="button" class="fee-guide w-full text-right mt-3" onclick="typeof openFeeGuideModal==='function' && openFeeGuideModal()">요금부과방식 안내 ›</button>
                 </div>
@@ -1282,7 +1282,7 @@
                 </label>
                 <p class="consent-warn">면책사항 및 지불금액에 동의해주셔야 접수가 가능합니다.</p>
             </div>
-            ${isPracticeMode ? `<div class="pay-practice">💡 <b>연습 안내</b><br>연습 예치금은 ${won(80000)}으로 시작합니다. 필요 예치금이 잔액보다 크면 '충전하기'가 나타나고, 충전하기 전에는 동의해도 접수가 되지 않습니다. 상담료는 전문가 번호를 확인한 뒤 10분이 지나거나 종료할 때 차감됩니다.</div>` : ''}
+            ${isPracticeMode ? `<div class="pay-practice">💡 <b>연습 안내</b><br>연습 포인트는 ${won(80000)}으로 시작합니다. 필요 포인트가 잔액보다 크면 '충전하기'가 나타나고, 충전하기 전에는 동의해도 접수가 되지 않습니다. 상담료는 전문가 번호를 확인한 뒤 10분이 지나거나 종료할 때 차감됩니다.</div>` : ''}
         `;
         document.querySelectorAll('.pay-slot').forEach(el => { el.innerHTML = html; });
         updateSubmitButtons();
@@ -1301,9 +1301,9 @@
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { realBalance = null; renderPayCards(); return; }
-            const { data } = await supabaseClient.from('user_profiles').select('prepaid_balance, is_postpaid_member').eq('id', user.id).maybeSingle();
+            const { data } = await supabaseClient.from('user_profiles').select('points, is_postpaid_member').eq('id', user.id).maybeSingle();
             isPostpaidMember = data ? !!data.is_postpaid_member : false;
-            realBalance = data ? (data.prepaid_balance || 0) : 0;
+            realBalance = data ? (data.points || 0) : 0;
         } catch (e) { console.error('잔액 조회 오류:', e); }
         renderPayCards();
     }
@@ -1714,7 +1714,7 @@
         console.error('접수 오류:', error);
         if (msg.includes('LOGIN_REQUIRED')) { alert('로그인이 필요합니다.'); window.location.href = '../../login.html'; }
         else if (msg.includes('INSUFFICIENT_BALANCE')) {
-            if (confirm('예치금 잔액이 부족합니다.\n충전 화면으로 이동할까요?\n(입력하신 내용은 저장되어, 충전 후 이어서 접수할 수 있습니다)')) { saveDraft(); window.location.href = 'sos-recharge.html?return=sos-request.html'; }
+            if (confirm('포인트 잔액이 부족합니다.\n충전 화면으로 이동할까요?\n(입력하신 내용은 저장되어, 충전 후 이어서 접수할 수 있습니다)')) { saveDraft(); window.location.href = 'sos-recharge.html?return=sos-request.html'; }
         } else if (msg.includes('ACTIVE_REQUEST_EXISTS')) {
             const { data } = await supabaseClient.from('sos_requests').select('id')
                 .eq('user_id', userId).in('status', ['대기중', '매칭됨']).order('created_at', { ascending: false }).limit(1);
@@ -1761,7 +1761,7 @@
         const total = getRequiredAmount();
         const bal = currentBalance();
         if (!isPostpaidMember && bal !== null && bal < total && (isPracticeMode || !FREE_REQUEST)) {
-            alert(`예치금 잔액이 부족합니다.\n(잔액 ${won(bal)} / 필요 ${won(total)})\n\n동의하셔도 진행되지 않습니다. '충전하기'를 눌러 충전해 주세요.`);
+            alert(`포인트 잔액이 부족합니다.\n(잔액 ${won(bal)} / 필요 ${won(total)})\n\n동의하셔도 진행되지 않습니다. '충전하기'를 눌러 충전해 주세요.`);
             document.querySelector('.bal-row')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }

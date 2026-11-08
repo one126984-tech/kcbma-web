@@ -850,7 +850,7 @@
             
             <div id="admin-top-banner" class="text-white py-5 px-6 flex items-center justify-between">
                 <h1 class="text-xl font-black flex items-center gap-2">
-                    <i class="fa-solid fa-file-invoice-dollar text-yellow-400"></i> SOS 예치금 환불 관리
+                    <i class="fa-solid fa-file-invoice-dollar text-yellow-400"></i> 포인트 환불 관리
                 </h1>
                 <button onclick="fetchRefundRequests()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm font-bold transition">
                     <i class="fa-solid fa-rotate-right mr-1"></i> 새로고침
@@ -935,7 +935,7 @@
     }
 
     async function approveRefund(requestId, userId, amount) {
-        if (!confirm(`해당 접수건에 대해 ${amount.toLocaleString()}원 예치금 환불을 승인하시겠습니까?`)) return;
+        if (!confirm(`해당 접수건에 대해 ${amount.toLocaleString()}원 포인트 환불을 승인하시겠습니까?`)) return;
 
         try {
             const { error } = await supabaseClient.rpc('process_manual_refund', {
@@ -951,7 +951,7 @@
                     throw error;
                 }
             } else {
-                alert('환불 승인 및 예치금 복구가 완료되었습니다.');
+                alert('환불 승인 및 포인트 복구가 완료되었습니다.');
             }
             fetchRefundRequests(); 
         } catch (err) {

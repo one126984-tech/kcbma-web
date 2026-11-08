@@ -124,7 +124,7 @@
                     <!-- 연습 안내 (연습 모드에서만 표시) -->
                     <div id="practice-note" class="practice-note"></div>
 
-                    <!-- 예치금 잔액 / 과금 안내 -->
+                    <!-- 포인트 잔액 / 과금 안내 -->
                     <div id="balance-bar" style="display:none; border-radius:12px; padding:12px 14px; font-size:13px; font-weight:700; line-height:1.6; word-break:keep-all;"></div>
 
                     <!-- 상담 가능한 전문가 그리드 -->
@@ -146,7 +146,7 @@
                         <!-- 지금 대기 중인 등록 전문가 (응답 전에도 바로 선택 가능) -->
                         <div id="registered-section" style="margin-top:22px;">
                             <h2 class="text-[17px] font-black text-gray-800 border-b-2 border-green-600 pb-1 inline-block mb-2">대기 중인 등록 전문가</h2>
-                            <p class="text-[12px] text-gray-500 mb-3 px-1 break-keep">내 조건(지역·분야·시간)에 맞는 전문가입니다. <b>🟢 지금 대기 확인</b>은 최근 15분 안에 대기를 확인한 전문가, <b>⚪ 대기 시간 등록</b>은 지금이 서비스 가능 시간인 전문가입니다. '전화번호 보기'를 누르면 상담료가 결제(또는 예치금 차감)되고 번호가 표시됩니다. 통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
+                            <p class="text-[12px] text-gray-500 mb-3 px-1 break-keep">내 조건(지역·분야·시간)에 맞는 전문가입니다. <b>🟢 지금 대기 확인</b>은 최근 15분 안에 대기를 확인한 전문가, <b>⚪ 대기 시간 등록</b>은 지금이 서비스 가능 시간인 전문가입니다. '전화번호 보기'를 누르면 상담료가 결제(또는 포인트 차감)되고 번호가 표시됩니다. 통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
                             <div id="registered-grid" class="grid grid-cols-2 gap-3 mb-2"></div>
                             <div id="invite-bar" style="display:none;">
                                 <p class="text-[13px] font-black text-amber-800 break-keep">📩 콜 문자로 먼저 물어보기</p>
@@ -431,7 +431,7 @@
     }
     function hidePayBusy() { const el = document.getElementById('pay-busy'); if (el) el.style.display = 'none'; }
 
-    // 서버에서 결제를 확인하고 예치금에 반영 (결제 직후 조회가 늦을 수 있어 최대 4번 시도)
+    // 서버에서 결제를 확인하고 포인트에 반영 (결제 직후 조회가 늦을 수 있어 최대 4번 시도)
     async function confirmPayment(merchantUid, impUid) {
         for (let attempt = 0; attempt < 4; attempt++) {
             try {
@@ -610,7 +610,7 @@
         }, 4000);
     }
     async function practiceSelect(expert) {
-        if (getPracticeBalance() < PR_BASE) { alert('[연습 모드] 예치금 잔액이 부족합니다. 접수 화면에서 충전해 주세요.'); return; }
+        if (getPracticeBalance() < PR_BASE) { alert('[연습 모드] 포인트 잔액이 부족합니다. 접수 화면에서 충전해 주세요.'); return; }
         pr.match = expert; pr.status = '매칭됨'; pr.matched_at = Date.now(); pr.call_at = null; pr.fee_at = null;
         await loadRequest();
     }
@@ -720,9 +720,9 @@
         if (isPractice) { requestInfo = { service_type: PR_SVC, base_fee: PR_BASE, dispatch_fee: 40000, hold_amount: PR_HOLD, hold_status: pr.hold_status, review_needed: false }; return; }
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            const profile = await supabaseClient.from('user_profiles').select('prepaid_balance, is_postpaid_member').eq('id', user.id).single();
+            const profile = await supabaseClient.from('user_profiles').select('points, is_postpaid_member').eq('id', user.id).single();
             isPostpaidMember = profile.data ? !!profile.data.is_postpaid_member : false;
-            balance = profile.data ? profile.data.prepaid_balance : 0;
+            balance = profile.data ? profile.data.points : 0;
 
             const feeData = await supabaseClient.rpc('get_sos_request_fee', { p_request_id: requestId });
             requestInfo = Array.isArray(feeData.data) ? feeData.data[0] : feeData.data;
@@ -742,8 +742,8 @@
                     bar.innerHTML = `접수는 무료입니다.<br>전문가를 선택하면 상담료 <b>${baseFeeStr}</b>이 결제되고 연락처가 표시됩니다.`;
                     document.getElementById('room-fee').innerText = `상담료 ${baseFeeStr} 선택 시 결제` + dispatchFeeSuffix();
                 } else {
-                    bar.innerHTML = `예치금 잔액 <b>${balance.toLocaleString()}원</b><br>종료 시 상담료 ${baseFeeStr} 차감 대기`;
-                    document.getElementById('room-fee').innerText = `상담료 예치금 차감` + dispatchFeeSuffix();
+                    bar.innerHTML = `포인트 잔액 <b>${balance.toLocaleString()}원</b><br>종료 시 상담료 ${baseFeeStr} 차감 대기`;
+                    document.getElementById('room-fee').innerText = `상담료 포인트 차감` + dispatchFeeSuffix();
                 }
             }
 
@@ -863,7 +863,7 @@
         if (!expert) return;
 
         if (currentMatch) { alert('이미 배정된 전문가가 있습니다.'); return; }
-        if (!confirm(`${expert.name} 전문가의 전화번호를 확인하시겠습니까?\n상담료가 결제(또는 예치금 차감)되고 연락처가 표시됩니다.\n통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.`)) return;
+        if (!confirm(`${expert.name} 전문가의 전화번호를 확인하시겠습니까?\n상담료가 결제(또는 포인트 차감)되고 연락처가 표시됩니다.\n통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.`)) return;
         if (isPractice) { await practiceSelect(expert); return; }
 
         const res = await assignWithPayment('assign_expert', { p_request_id: requestId, p_expert_id: expert.id });
@@ -876,7 +876,7 @@
     function handleAssignError(error) {
         const msg = String(error.message || '');
         console.error('전문가 선택 오류:', error);
-        if (msg.includes('INSUFFICIENT_BALANCE')) { if (confirm('예치금 잔액이 부족합니다.\n충전 화면으로 이동할까요?\n(충전이 끝나면 이 화면으로 돌아옵니다)')) window.location.href = 'sos-recharge.html?return=' + encodeURIComponent('sos-room.html?request_id=' + requestId); }
+        if (msg.includes('INSUFFICIENT_BALANCE')) { if (confirm('포인트 잔액이 부족합니다.\n충전 화면으로 이동할까요?\n(충전이 끝나면 이 화면으로 돌아옵니다)')) window.location.href = 'sos-recharge.html?return=' + encodeURIComponent('sos-room.html?request_id=' + requestId); }
         else if (msg.includes('ALREADY_MATCHED')) alert('이미 전문가가 배정된 접수입니다.');
         else if (msg.includes('NO_OFFER') || msg.includes('NOT_STANDBY')) alert('이 전문가는 방금 응답을 취소했거나 대기를 종료했습니다. 다른 전문가를 선택해 주세요.');
         else if (msg.includes('OUT_OF_HOURS')) alert('이 전문가의 서비스 가능 시간이 아닙니다. 다른 전문가를 선택해 주세요.');
@@ -889,7 +889,7 @@
     async function requestRegisteredExpert(expertId) {
         const ex = registeredExperts.find(e => e.id === expertId);
         if (!ex || currentMatch) return;
-        if (!confirm(`${ex.name} 전문가의 전화번호를 확인하시겠습니까?\n상담료가 결제(또는 예치금 차감)되고 연락처가 표시됩니다.\n통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있고, 10분이 지나면 상담료가 확정됩니다.`)) return;
+        if (!confirm(`${ex.name} 전문가의 전화번호를 확인하시겠습니까?\n상담료가 결제(또는 포인트 차감)되고 연락처가 표시됩니다.\n통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있고, 10분이 지나면 상담료가 확정됩니다.`)) return;
         if (isPractice) { await practiceSelect(ex); return; }
         const res = await assignWithPayment('assign_expert_direct', { p_request_id: requestId, p_expert_id: expertId });
         if (res.cancelled) return;
