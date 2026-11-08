@@ -85,14 +85,8 @@
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>조회 중...</td></tr>';
 
         try {
-            const { data, error } = await supabaseClient
-                .from('sos_requests')
-                .select(`
-                    id, created_at, user_id, category, region, status, refund_reason, refund_requested_at,
-                    sos_transactions ( amount )
-                `)
-                .eq('status', 'refund_requested')
-                .eq('sos_transactions.transaction_type', 'deduct');
+            // ★ 2026-11: 환불 요청 건 + 서버가 계산한 환불 가능 금액 (상담료·출동비 차감 - 이미 환불된 금액)
+            const { data, error } = await supabaseClient.rpc('admin_refund_requests');
 
             if (error) throw error;
 
@@ -103,7 +97,7 @@
 
             tbody.innerHTML = data.map(req => {
                 const date = new Date(req.created_at).toLocaleString('ko-KR');
-                const amount = req.sos_transactions?.[0]?.amount || 0;
+                const amount = Number(req.refundable) || 0;
                 
                 return `
                     <tr class="hover:bg-gray-50 transition">
