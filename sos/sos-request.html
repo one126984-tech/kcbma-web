@@ -134,7 +134,13 @@
     </style>
 
   <style>
-      #sos-top-banner { background-color: #dc2626; }
+      #sos-top-banner { background-color: #1d4ed8; }
+      /* 실제 상담 요청 버튼: 진한 남색 (위 배너·아래 119 상자의 색과 구분) */
+      .real-req-btn { background:#12387a; border:2px solid #12387a; }
+      .real-req-btn:hover { background:#0f2d63; border-color:#0f2d63; }
+      .real-req-btn h3 { color:#ffffff; }
+      .real-req-btn p { color:#dbeafe; }
+      .real-req-btn .arrow { color:#fde047; }
       .cat-btn.selected, .qcat-btn.selected { border-color: #ef4444 !important; background-color: #fef2f2 !important; box-shadow: 0 0 0 2px #ef4444; }
       .svc-label.selected, .qsvc-label.selected { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
       .place-tab.selected { border-color: #2563eb !important; background-color: #eff6ff !important; color: #1d4ed8 !important; }
@@ -954,12 +960,12 @@
                 </h1>
             </div>
             <div class="p-5 bg-white space-y-3">
-                <button onclick="startActual()" class="w-full bg-red-50 border-2 border-red-300 rounded-xl p-5 shadow-sm hover:shadow-md hover:bg-red-100 transition flex items-center justify-between group">
+                <button onclick="startActual()" class="real-req-btn w-full rounded-xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between group">
                     <div class="text-left">
-                        <h3 class="text-red-700 font-bold text-[17px] mb-1 flex items-center gap-2"><span class="text-xl">📞</span> 실제 전화상담 요청하기</h3>
-                        <p class="text-[13px] text-gray-600 font-medium tracking-tight">상황을 접수하면 분야별 전문가가 전화로 대처 방법을 안내합니다. (회원사는 후불 적용)</p>
+                        <h3 class="font-bold text-[17px] mb-1 flex items-center gap-2"><span class="text-xl">📞</span> 실제 전화상담 요청하기</h3>
+                        <p class="text-[13px] font-medium tracking-tight">상황을 접수하면 분야별 전문가가 전화로 대처 방법을 안내합니다. (회원사는 후불 적용)</p>
                     </div>
-                    <span class="text-red-600 font-bold text-xl group-hover:translate-x-1 transition">→</span>
+                    <span class="arrow font-bold text-xl group-hover:translate-x-1 transition">→</span>
                 </button>
 
                 <button onclick="startPractice()" class="w-full bg-blue-50 border-2 border-blue-300 rounded-xl p-5 shadow-sm hover:shadow-md hover:bg-blue-100 transition flex items-center justify-between group">
