@@ -82,8 +82,14 @@
             }
 
             // 처리가 끝났으므로, 처음에 저장해둔 원래 페이지(예: 구인구직) 주소를 꺼내서 그곳으로 이동시킵니다.
-            const returnUrl = localStorage.getItem('returnUrl') || '/';
+            let returnUrl = localStorage.getItem('returnUrl') || '/';
             localStorage.removeItem('returnUrl'); // 쓴 주소는 청소
+            // 예전 로그인 처리용 값(?code= 등)이 붙어 있으면 걷어냄
+            try {
+              const u = new URL(returnUrl, window.location.origin);
+              ['code', 'state', 'error', 'error_code', 'error_description'].forEach(k => u.searchParams.delete(k));
+              returnUrl = (u.origin === window.location.origin) ? (u.pathname + u.search) : '/';
+            } catch (e) { returnUrl = '/'; }
             window.location.href = returnUrl; 
           } else {
              alert("네이버 로그인에 실패했습니다.");

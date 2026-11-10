@@ -949,11 +949,26 @@
         //   같은 원인이라 판단해 여기서도 header-close의 ensureAuthClient()로 만든
         //   window.sb 하나만 재사용하도록 통일함(별도 클라이언트 생성 제거).
 
+        // 돌아갈 주소에서 예전 로그인 처리용 값(?code= 등)을 걷어냄
+        // (이 값이 남아 있으면 카카오/구글 로그인 후 돌아올 때 새 코드와 섞여 로그인이 실패함)
+        function getReturnUrl() {
+            let u = localStorage.getItem('returnUrl') || '/index.html';
+            try {
+                const url = new URL(u, window.location.origin);
+                ['code', 'state', 'error', 'error_code', 'error_description'].forEach(k => url.searchParams.delete(k));
+                url.hash = '';
+                u = url.pathname + url.search;
+                if (url.origin !== window.location.origin || /login\.html$/.test(url.pathname)) u = '/index.html';
+            } catch (e) { u = '/index.html'; }
+            localStorage.setItem('returnUrl', u);
+            return u;
+        }
+
         // 구글, 카카오 로그인
         async function signInWithProvider(providerName) {
             const client = await ensureAuthClient();
             if (!client) return;
-            const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
+            const returnUrl = getReturnUrl();
             const { data, error } = await client.auth.signInWithOAuth({
                 provider: providerName,
                 options: { redirectTo: window.location.origin + returnUrl }
@@ -1008,7 +1023,7 @@
             sendBtn.classList.add('opacity-70');
 
             const client = await ensureAuthClient();
-            const returnUrl = localStorage.getItem('returnUrl') || '/index.html';
+            const returnUrl = getReturnUrl();
             const { error } = await client.auth.signInWithOtp({
                 email: email,
                 options: {

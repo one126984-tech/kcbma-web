@@ -12,6 +12,9 @@
    실제 로그인 여부는 아래 페이지 스크립트가 서버 기준으로 다시 확인함 */
 (function () {
     try {
+        // ★ 카카오/구글 로그인에서 막 돌아온 경우(주소에 ?code= 등)는 아직 로그인 정보가 저장되기 전이므로
+        //   절대 돌려보내지 않음 — 페이지 스크립트가 로그인 처리를 끝내도록 둠
+        if (/[?&](code|error|error_description)=/.test(location.search) || /access_token=|error=/.test(location.hash)) return;
         if (!localStorage.getItem('sb-ehrahnnowwjkgycvlbzk-auth-token')) {
             localStorage.setItem('returnUrl', location.pathname + location.search);
             location.replace('../../login.html');
