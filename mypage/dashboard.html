@@ -8,6 +8,19 @@
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
+<script>
+/* [번쩍임 방지] 로그인 정보가 없으면 화면을 그리기 전에 곧바로 로그인 화면으로 보냄
+   (예전엔 마이페이지가 잠깐 보였다가 로그인 화면으로 넘어가 화면이 번쩍였음)
+   실제 로그인 여부는 아래 페이지 스크립트가 서버 기준으로 다시 확인함 */
+(function () {
+    try {
+        if (!localStorage.getItem('sb-ehrahnnowwjkgycvlbzk-auth-token')) {
+            localStorage.setItem('returnUrl', location.pathname + location.search);
+            location.replace('../../login.html');
+        }
+    } catch (e) {}
+})();
+</script>
 <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -897,7 +910,6 @@
                 </div>
                 <a href="my-points.html" style="flex-shrink:0;background:#2563eb;color:#fff;font-weight:800;font-size:13.5px;padding:10px 16px;border-radius:8px;text-decoration:none;">충전하기</a>
             </div>
-            </div>
 
             <!-- 요약 카드 4개 -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -961,10 +973,18 @@
             return true;
         }
 
-        function renderWelcome() {
-            const name = (currentUser && (currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email)) || '회원';
+        function renderWelcome(user = currentUser) {
+            const name = (user && (user.user_metadata?.full_name || user.user_metadata?.name || user.email)) || '회원';
             document.getElementById('welcome-msg').textContent = `${name}님, 안녕하세요!`;
         }
+
+        // [번쩍임 방지] 서버 확인을 기다리지 않고, 브라우저에 저장된 로그인 정보로 이름을 먼저 표시
+        // (예전엔 "안녕하세요!"가 먼저 보였다가 잠시 후 "OOO님, 안녕하세요!"로 바뀌었음)
+        try {
+            const saved = JSON.parse(localStorage.getItem('sb-ehrahnnowwjkgycvlbzk-auth-token') || 'null');
+            const sess = saved && (saved.currentSession || saved);
+            if (sess && sess.user) renderWelcome(sess.user);
+        } catch (e) {}
 
         async function fetchEnrollments() {
             try {

@@ -6,6 +6,19 @@
 <!DOCTYPE html>
 <html lang="ko" translate="no">
 <head>
+<script>
+/* [번쩍임 방지] 로그인 정보가 없으면 화면을 그리기 전에 곧바로 로그인 화면으로 보냄
+   (예전엔 마이페이지가 잠깐 보였다가 로그인 화면으로 넘어가 화면이 번쩍였음)
+   실제 로그인 여부는 아래 페이지 스크립트가 서버 기준으로 다시 확인함 */
+(function () {
+    try {
+        if (!localStorage.getItem('sb-ehrahnnowwjkgycvlbzk-auth-token')) {
+            localStorage.setItem('returnUrl', location.pathname + location.search);
+            location.replace('{{BASE}}login.html');
+        }
+    } catch (e) {}
+})();
+</script>
 <meta name="google" content="notranslate" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
