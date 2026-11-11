@@ -791,7 +791,7 @@
             const input = document.getElementById('dispute-note-' + sessionId);
             const note = input ? input.value.trim() : '';
             if (!note) { alert('처리 내용을 적어 주세요. (예: 상담료 환불, 전문가 정산 제외)'); if (input) input.focus(); return; }
-            if (!confirm('환불 없이 이 신고를 처리 완료로 표시할까요?\n(환불이 필요하면 아래 [포인트 환불 + 처리 완료]를 눌러 주세요)')) return;
+            if (!confirm('환불 없이 이 신고를 처리 완료로 표시할까요?\n(환불이 필요하면 아래 [환불 + 처리 완료]를 눌러 주세요)')) return;
             const { error } = await supabaseClient.rpc('admin_resolve_sos_dispute', { p_session_id: sessionId, p_note: note });
             if (error) { console.error('신고 처리 오류:', error); alert('처리 중 오류가 발생했습니다.'); return; }
             fetchDisputes();
