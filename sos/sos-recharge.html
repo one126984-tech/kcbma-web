@@ -906,12 +906,12 @@
                     <span class="text-gray-500 font-bold text-[14px]">현재 내 포인트 (1P = 1원)</span>
                     <span id="current-balance" class="text-[20px] font-black text-[#dc2626]">조회 중...</span>
                 </div>
-                <p class="text-[12px] text-gray-500 font-bold -mt-5 mb-8 px-1 break-keep">상담 1회 30,000원 · 전문가 번호 확인 후 10분이 지나거나 상담을 종료하면 차감됩니다.</p>
+                <p class="text-[12px] text-gray-500 font-bold -mt-5 mb-8 px-1 break-keep">상담 1회(30분) 주간 40,000원 · 저녁·주말·공휴일 60,000원 · 심야(21~09시) 80,000원 · 30분 연장은 절반 · 전문가 번호 확인 후 10분이 지나거나 상담을 종료하면 차감됩니다.</p>
 
                 <h2 class="text-[16px] font-black text-gray-800 mb-3">충전하실 금액을 선택해 주세요</h2>
                 <div class="grid grid-cols-3 gap-2 mb-8">
-                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition selected" data-amount="30000">30,000원</button>
-                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition" data-amount="50000">50,000원</button>
+                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition selected" data-amount="40000">40,000원</button>
+                    <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition" data-amount="80000">80,000원</button>
                     <button type="button" class="charge-btn border-2 border-gray-200 bg-white rounded-xl py-4 font-black text-gray-700 text-[15px] transition" data-amount="100000">100,000원</button>
                 </div>
                 
@@ -920,7 +920,7 @@
 
             <div id="pay-bar" class="fixed bottom-0 w-full max-w-md p-3 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
                 <button id="pay-btn" class="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-black text-[17px] py-4 rounded-xl shadow-md flex justify-center items-center gap-2 transition">
-                    <span id="pay-amount-display">30,000</span>원 간편 결제하기
+                    <span id="pay-amount-display">40,000</span>원 간편 결제하기
                 </button>
             </div>
 
@@ -930,7 +930,7 @@
 
 <script>
     const supabaseClient = window.sb;
-    let selectedAmount = 30000;
+    let selectedAmount = 40000;
     let currentUser = null;
     let balanceBefore = 0;
 

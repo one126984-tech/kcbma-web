@@ -125,6 +125,7 @@
                 <div class="sos-tab" id="tab-btn-experts" onclick="switchTab('experts')">전문가 관리</div>
                 <div class="sos-tab" id="tab-btn-applications" onclick="switchTab('applications')">지원자 심사 <span id="app-pending-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
                 <div class="sos-tab" id="tab-btn-disputes" onclick="switchTab('disputes')">끊김·연결불가 신고 <span id="dispute-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
+                <div class="sos-tab" id="tab-btn-night" onclick="switchTab('night')">🌙 심야 당번·09시 예약 <span id="night-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
             </div>
 
             <!-- ================= 탭1: 접수 목록 ================= -->
@@ -307,6 +308,28 @@
             </div>
             <!-- ================= /탭4 ================= -->
 
+            <!-- ================= 탭5: 심야 당번 · 09시 연결 예약 (2026-11) ================= -->
+            <div id="tab-night" class="hidden flex-col gap-4">
+                <div style="background:#f5f3ff;border:1px solid #c4b5fd;color:#4c1d95;border-radius:10px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.7;word-break:keep-all;">
+                    당번 날짜는 <b>그날 21:00 ~ 다음 날 09:00</b>입니다. 당번 전문가는 요청자 목록 맨 위에 '🌙 오늘 심야 당번'으로 표시되고, 전문가 대기 화면에도 당번 안내가 나옵니다.<br>
+                    심야에 대기 중인 전문가가 1명도 없으면 접수가 막히고 고객은 <b>09시 연결 예약</b>을 남깁니다. 아침에 아래 목록을 보고 먼저 연락해 주세요.
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <h3 class="font-black text-gray-800 mb-3">📅 앞으로 14일 심야 당번</h3>
+                    <div id="duty-list" class="flex flex-col gap-2"><p class="text-sm text-gray-400">불러오는 중...</p></div>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-black text-gray-800">⏰ 09시 연결 예약</h3>
+                        <label style="font-size:13px;font-weight:700;color:#374151;display:flex;align-items:center;gap:6px;cursor:pointer;">
+                            <input type="checkbox" id="resv-show-done" onchange="fetchReservations()"> 처리한 예약도 보기
+                        </label>
+                    </div>
+                    <div id="resv-list" class="flex flex-col gap-2"><p class="text-sm text-gray-400">불러오는 중...</p></div>
+                </div>
+            </div>
+            <!-- ================= /탭5 ================= -->
+
         </section>
     </main>
 
@@ -410,6 +433,11 @@
             const isExp = tab === 'experts';
             const isApp = tab === 'applications';
             const isDis = tab === 'disputes';
+            const isNight = tab === 'night';
+            document.getElementById('tab-night').classList.toggle('hidden', !isNight);
+            document.getElementById('tab-night').classList.toggle('flex', isNight);
+            document.getElementById('tab-btn-night').classList.toggle('active', isNight);
+            if (isNight) { fetchDuty(); fetchReservations(); }
             document.getElementById('tab-disputes').classList.toggle('hidden', !isDis);
             document.getElementById('tab-disputes').classList.toggle('flex', isDis);
             document.getElementById('tab-btn-disputes').classList.toggle('active', isDis);
@@ -424,6 +452,89 @@
             if (isExp) fetchExperts();
             if (isApp) fetchApplications();
             if (isDis) fetchDisputes();
+        }
+
+        // ================= 🌙 심야 당번 · 09시 연결 예약 (2026-11) =================
+        // 당번 날짜 = 한국 시간에서 9시간을 뺀 날짜 (= UTC 날짜). 오늘 밤 당번부터 offsetDays 뒤
+        function kstDateStr(offsetDays) {
+            return new Date(Date.now() + offsetDays * 86400000).toISOString().slice(0, 10);
+        }
+        function dutyLabel(d) {
+            const dt = new Date(d + 'T12:00:00+09:00');
+            return `${dt.getMonth() + 1}/${dt.getDate()}(${'일월화수목금토'[dt.getDay()]})`;
+        }
+        let dutyRows = [];
+        async function fetchDuty() {
+            const box = document.getElementById('duty-list');
+            const from = kstDateStr(0), to = kstDateStr(13);
+            const [{ data, error }, ex] = await Promise.all([
+                supabaseClient.from('sos_night_duty').select('duty_date, sos_expert_id, memo').gte('duty_date', from).lte('duty_date', to),
+                allExperts.length ? Promise.resolve({ data: allExperts }) : supabaseClient.from('sos_experts').select('*').eq('is_active', true)
+            ]);
+            if (error) { box.innerHTML = `<p class="text-sm text-red-500">당번 표를 불러오지 못했습니다. (SQL을 먼저 실행했는지 확인해 주세요)</p>`; console.error(error); return; }
+            if (!allExperts.length && ex.data) allExperts = ex.data;
+            dutyRows = data || [];
+            const active = allExperts.filter(e => e.is_active !== false);
+            const nameOf = id => { const e = allExperts.find(x => x.id === id); return e ? e.name : '(삭제된 전문가)'; };
+            let html = '';
+            for (let i = 0; i < 14; i++) {
+                const d = kstDateStr(i);
+                const rows = dutyRows.filter(r => r.duty_date === d);
+                const chips = rows.map(r => `<span style="display:inline-flex;align-items:center;gap:4px;background:#ede9fe;color:#5b21b6;border-radius:999px;padding:2px 4px 2px 10px;font-size:12.5px;font-weight:800;">${escapeHtml(nameOf(r.sos_expert_id))}<button onclick="removeDuty('${d}','${r.sos_expert_id}')" style="border:0;background:#c4b5fd;color:#fff;border-radius:999px;width:18px;height:18px;line-height:18px;font-size:11px;cursor:pointer;">✕</button></span>`).join(' ');
+                const opts = active.filter(e => !rows.some(r => r.sos_expert_id === e.id)).map(e => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.name)} (${escapeHtml(e.category || '')})</option>`).join('');
+                html += `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                    <span style="width:86px;font-weight:900;color:${rows.length ? '#111827' : '#dc2626'};font-size:13.5px;">${dutyLabel(d)}${i === 0 ? '<br><span style="font-size:11px;color:#6b7280;">오늘 밤</span>' : ''}</span>
+                    <span style="flex:1;min-width:160px;">${chips || '<span style="font-size:12.5px;color:#dc2626;font-weight:700;">당번 없음</span>'}</span>
+                    <select id="duty-sel-${d}" style="border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;max-width:200px;"><option value="">전문가 선택</option>${opts}</select>
+                    <button onclick="addDuty('${d}')" style="background:#5b21b6;color:#fff;border:0;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:800;cursor:pointer;">추가</button>
+                </div>`;
+            }
+            box.innerHTML = html;
+        }
+        async function addDuty(d) {
+            const sel = document.getElementById('duty-sel-' + d);
+            const id = sel ? sel.value : '';
+            if (!id) { alert('전문가를 선택해 주세요.'); return; }
+            const { error } = await supabaseClient.from('sos_night_duty').insert({ duty_date: d, sos_expert_id: id });
+            if (error) { alert('추가하지 못했습니다: ' + error.message); return; }
+            fetchDuty();
+        }
+        async function removeDuty(d, id) {
+            if (!confirm(dutyLabel(d) + ' 당번에서 뺄까요?')) return;
+            const { error } = await supabaseClient.from('sos_night_duty').delete().eq('duty_date', d).eq('sos_expert_id', id);
+            if (error) { alert('빼지 못했습니다: ' + error.message); return; }
+            fetchDuty();
+        }
+        async function fetchReservations() {
+            const box = document.getElementById('resv-list');
+            const showDone = document.getElementById('resv-show-done').checked;
+            let q = supabaseClient.from('sos_morning_reservations').select('*').order('created_at', { ascending: true }).limit(100);
+            if (!showDone) q = q.eq('status', 'waiting');
+            const { data, error } = await q;
+            if (error) { box.innerHTML = `<p class="text-sm text-red-500">예약을 불러오지 못했습니다. (SQL을 먼저 실행했는지 확인해 주세요)</p>`; console.error(error); return; }
+            const waiting = (data || []).filter(r => r.status === 'waiting').length;
+            const badge = document.getElementById('night-badge');
+            if (badge) { badge.textContent = waiting; badge.classList.toggle('hidden', !waiting); }
+            if (!data || !data.length) { box.innerHTML = '<p class="text-sm text-gray-400">대기 중인 예약이 없습니다.</p>'; return; }
+            box.innerHTML = data.map(r => {
+                const t = new Date(r.created_at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const tel = String(r.phone || '').replace(/[^0-9]/g, '');
+                const st = r.status === 'waiting' ? '<span style="color:#dc2626;font-weight:900;">대기</span>' : (r.status === 'done' ? '<span style="color:#16a34a;font-weight:900;">처리 완료</span>' : '<span style="color:#6b7280;">취소</span>');
+                return `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.6;word-break:keep-all;">
+                    <div style="display:flex;justify-content:space-between;gap:8px;"><b>${escapeHtml(t)} 예약</b>${st}</div>
+                    <div>📞 <a href="tel:${escapeHtml(tel)}" style="color:#1d4ed8;font-weight:900;">${escapeHtml(r.phone)}</a> · ${escapeHtml(r.category || '상황 미선택')}</div>
+                    <div style="color:#4b5563;">${escapeHtml(r.region || '주소 없음')}</div>
+                    ${r.note ? `<div style="color:#111827;">📝 ${escapeHtml(r.note)}</div>` : ''}
+                    ${r.admin_note ? `<div style="color:#6b7280;">처리 메모: ${escapeHtml(r.admin_note)}</div>` : ''}
+                    ${r.status === 'waiting' ? `<div style="display:flex;gap:6px;margin-top:6px;"><input id="resv-note-${escapeHtml(r.id)}" placeholder="처리 메모 (예: 09:05 통화, 전문가 연결)" style="flex:1;border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;"><button onclick="doneReservation('${escapeHtml(r.id)}')" style="background:#16a34a;color:#fff;border:0;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:800;cursor:pointer;">처리 완료</button></div>` : ''}
+                </div>`;
+            }).join('');
+        }
+        async function doneReservation(id) {
+            const note = (document.getElementById('resv-note-' + id) || {}).value || null;
+            const { error } = await supabaseClient.from('sos_morning_reservations').update({ status: 'done', admin_note: note, handled_at: new Date().toISOString() }).eq('id', id);
+            if (error) { alert('처리하지 못했습니다: ' + error.message); return; }
+            fetchReservations();
         }
 
         // ================= 끊김·연결불가 신고 =================
@@ -468,7 +579,7 @@
                     </div>
                     ${isOpen
                         ? `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                               <input type="text" id="dispute-note-${KC.esc(d.session_id)}" placeholder="처리 내용 (예: 상담료 3만P 환불, 전문가 정산 제외)" style="flex:1;min-width:220px;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;">
+                               <input type="text" id="dispute-note-${KC.esc(d.session_id)}" placeholder="처리 내용 (예: 상담료 4만P 환불, 전문가 정산 제외)" style="flex:1;min-width:220px;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;">
                                <button onclick="resolveDispute('${KC.esc(d.session_id)}')" style="background:#1e3a8a;color:#fff;font-weight:900;font-size:13px;padding:8px 16px;border-radius:8px;border:0;cursor:pointer;">처리 완료</button>
                            </div>`
                         : `<p style="font-size:13px;color:#166534;font-weight:700;margin-top:8px;">처리 내용: ${KC.esc(d.dispute_note || '-')}</p>`}

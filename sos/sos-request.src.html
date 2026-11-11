@@ -92,6 +92,19 @@
   .pay-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.06); margin-top:8px; }
   .pay-head { background:#008000; color:#fff; text-align:center; font-weight:900; font-size:18px; padding:14px 0; }
   .pay-body { padding:16px 18px; }
+  .fee-period-label { font-size:12px; font-weight:700; color:#6b7280; }
+  .fee-period-label.night { color:#7c3aed; }
+  .fee-modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:100001; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .fee-modal { background:#fff; border-radius:16px; width:100%; max-width:380px; max-height:85vh; overflow:auto; padding:22px 20px 18px; box-shadow:0 20px 40px rgba(0,0,0,.25); }
+  .fee-modal h3 { font-size:17px; font-weight:900; color:#111827; margin:0 0 4px; }
+  .fee-modal .sub { font-size:12.5px; color:#6b7280; font-weight:700; margin:0 0 14px; word-break:keep-all; }
+  .fee-tbl { width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom:14px; }
+  .fee-tbl th, .fee-tbl td { border:1px solid #e5e7eb; padding:9px 8px; text-align:center; word-break:keep-all; }
+  .fee-tbl th { background:#f9fafb; font-weight:900; color:#374151; }
+  .fee-tbl td { font-weight:700; color:#111827; }
+  .fee-tbl td.now { background:#eff6ff; color:#1d4ed8; font-weight:900; }
+  .fee-modal ul { margin:0 0 16px; padding-left:18px; font-size:13px; color:#374151; font-weight:600; line-height:1.7; word-break:keep-all; }
+  .fee-modal .close { width:100%; background:#2563eb; color:#fff; font-weight:900; font-size:15px; padding:12px; border-radius:10px; border:0; cursor:pointer; }
   .pay-row { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; font-size:14px; margin-bottom:12px; }
   .pay-row .lab { color:#6b7280; font-weight:700; word-break:keep-all; }
   .pay-row .lab small { display:block; font-size:11px; font-weight:500; color:#9ca3af; margin-top:3px; line-height:1.5; }
@@ -138,6 +151,19 @@
   .renew-info .hours-now { display:inline-block; margin-left:4px; padding:1px 8px; border-radius:999px; font-size:12px; font-weight:900; }
   .renew-info .hours-now.on { background:#dcfce7; color:#166534; }
   .renew-info .hours-now.off { background:#fef3c7; color:#92400e; }
+  .renew-info .hours-now.late { background:#ede9fe; color:#5b21b6; }
+  .renew-info .hours-now.none { background:#fee2e2; color:#991b1b; }
+  .fee-period-label.late { color:#5b21b6; }
+  .nr-box { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:12px; padding:12px 14px; margin:0 0 14px; font-size:13px; font-weight:700; color:#4c1d95; line-height:1.65; word-break:keep-all; }
+  .nr-box b { color:#2e1065; }
+  .nr-num { display:flex; justify-content:space-between; gap:8px; padding:7px 0; border-bottom:1px dashed #ddd6fe; font-size:13.5px; }
+  .nr-num:last-child { border-bottom:0; }
+  .nr-num a { color:#dc2626; font-weight:900; text-decoration:none; white-space:nowrap; }
+  .nr-input { width:100%; box-sizing:border-box; border:1px solid #d1d5db; border-radius:10px; padding:10px 12px; font-size:14px; margin-top:6px; }
+  .nr-btns { display:flex; gap:8px; margin-top:14px; }
+  .nr-btns button { flex:1; border:0; border-radius:10px; font-weight:900; font-size:15px; padding:12px 0; cursor:pointer; }
+  .nr-go { background:#5b21b6; color:#fff; } .nr-go:hover { background:#4c1d95; }
+  .nr-cancel { background:#f3f4f6; color:#374151; }
   .renew-bid { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#f0fdf4; border:2px solid #bbf7d0; border-radius:16px; padding:14px 16px; text-decoration:none; color:#166534; word-break:keep-all; }
   .renew-bid:hover { background:#dcfce7; }
   .renew-bid strong { display:block; font-size:15px; font-weight:900; color:#14532d; margin-bottom:2px; }
@@ -204,7 +230,7 @@
         <!-- ★ 서비스 안내 (운영 시간) -->
         <div class="renew-info">
             <p style="margin:0;">📞 <b>전화상담 서비스입니다.</b> 전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내해 드립니다. (현장 출동은 하지 않습니다)</p>
-            <p style="margin:6px 0 0;">🕘 <b>운영 시간</b> <span id="sos-hours-text">매일 09:00~21:00</span><span id="sos-hours-now" class="hours-now"></span><br><span style="font-weight:500;color:#6b7280;">운영 시간 외에도 접수는 됩니다. 다만 응답이 늦어질 수 있습니다.</span></p>
+            <p style="margin:6px 0 0;">🕘 <b>운영 시간</b> <span id="sos-hours-text">24시간 (심야 21:00~09:00는 당번 전문가 연결)</span><span id="sos-hours-now" class="hours-now"></span><br><span id="sos-hours-sub" style="font-weight:500;color:#6b7280;">심야에는 대기 중인 전문가가 있을 때만 접수됩니다. 없으면 09시 연결 예약을 도와드립니다.</span></p>
         </div>
 
         <!-- ★ 현장 작업이 필요하면 견적의뢰로 -->
@@ -294,18 +320,18 @@
         <div class="mb-4 mt-10">
             <h2 class="text-lg font-bold text-gray-800 mb-4">4. 서비스 방식</h2>
             <div class="svc-phone-only">
-                <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원</p>
+                <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">4</span>만원 <span class="fee-period-label"></span></p>
                 <p class="d" style="margin:4px 0 0;">전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내합니다. 현장 수리·공사가 필요하면 견적의뢰로 지역 업체를 찾으실 수 있습니다.</p>
             </div>
             <div class="space-y-3" data-dispatch-only>
                 <label class="flex items-center gap-3 p-4 border-2 border-blue-500 bg-blue-50 rounded-xl cursor-pointer svc-label selected">
                     <input type="radio" name="svc_type" value="phone" class="w-5 h-5" checked>
-                    <span class="font-bold text-gray-800">전화상담만 진행 : <span class="dynamic-time-price text-blue-600">3</span>만원</span>
+                    <span class="font-bold text-gray-800">전화상담만 진행 : <span class="dynamic-time-price text-blue-600">4</span>만원 <span class="fee-period-label"></span></span>
                 </label>
                 <label class="flex items-start gap-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer svc-label">
                     <input type="radio" name="svc_type" value="dispatch" class="w-5 h-5 mt-0.5">
                     <div class="flex flex-col">
-                        <span class="font-bold text-gray-800">전화상담 + 현장 출동 : <span class="dynamic-time-price text-blue-600">3</span>만원 <span class="text-red-600">+ 출동비(현장결제)</span></span>
+                        <span class="font-bold text-gray-800">전화상담 + 현장 출동 : <span class="dynamic-time-price text-blue-600">4</span>만원 <span class="text-red-600">+ 출동비(현장결제)</span></span>
                         <span class="text-[13px] font-bold mt-1 text-purple-600">※ 출동비는 전문가와 직접 협의해 현장에서 결제하며, 도착 후 견적을 확인하고 동의한 뒤 진행됩니다. (플랫폼은 출동비에 관여하지 않습니다)</span>
                     </div>
                 </label>
@@ -368,7 +394,7 @@
             <div class="mb-6">
                 <h2 class="text-lg font-bold text-gray-800 mb-4">3. 서비스 방식</h2>
                 <div class="svc-phone-only">
-                    <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원</p>
+                    <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">4</span>만원 <span class="fee-period-label"></span></p>
                     <p class="d" style="margin:4px 0 0;">전문가가 전화로 지금 해야 할 조치를 안내합니다. (현장 출동은 하지 않습니다)</p>
                 </div>
             </div>
@@ -402,28 +428,42 @@
     const supabaseClient = window.sb;
     let isPracticeMode = false;
     let selectedType = 'phone';
-    let currentBasePrice = 3;
+    let currentBasePrice = 4;
     let currentFlow = 'quick';
 
     // ★ 2026-11 리뉴얼: 출동 서비스 중단 (true 로 바꾸면 출동 선택 화면이 다시 나타납니다. CSS의 [data-dispatch-only] 숨김도 함께 지워야 함)
     const SOS_DISPATCH_ENABLED = false;
-    // ★ 전화상담 운영 시간 (한국 시간, 시 단위). 바꾸려면 숫자만 고치면 화면 안내가 함께 바뀝니다.
+    // ★ 2026-11 심야 당번제: 24시간 접수. 심야(21~09시)에는 대기 중인 전문가가 있을 때만 접수되고, 없으면 09시 연결 예약.
+    //   (주간·저녁 운영 시간 표시용. 심야 시각은 서버 _sos_fee_cfg 의 late_from / late_to 와 같아야 합니다)
     const SOS_HOURS = { from: 9, to: 21 };
+    let nightStatus = null;      // 서버 sos_night_status 결과
+    let nightStatusAt = 0;
     function kstHour() {
         try { return parseInt(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul', hour: 'numeric', hour12: false }), 10) % 24; }
         catch (e) { return new Date().getHours(); }
     }
     function isOpenHours() { const h = kstHour(); return h >= SOS_HOURS.from && h < SOS_HOURS.to; }
+    function isLateNow() { return !isOpenHours(); }
+    async function loadNightStatus() {
+        try {
+            const { data, error } = await supabaseClient.rpc('sos_night_status');
+            if (!error && data) { nightStatus = data; nightStatusAt = Date.now(); }
+            else if (error) console.warn('심야 상태 조회 실패:', error.message);
+        } catch (e) { console.warn('심야 상태 조회 오류:', e); }
+        renderHoursNotice();
+        return nightStatus;
+    }
     function renderHoursNotice() {
         const pad = n => String(n).padStart(2, '0');
         const t = document.getElementById('sos-hours-text');
-        if (t) t.textContent = `매일 ${pad(SOS_HOURS.from)}:00~${pad(SOS_HOURS.to)}:00`;
+        if (t) t.textContent = `24시간 (심야 ${pad(SOS_HOURS.to)}:00~${pad(SOS_HOURS.from)}:00는 당번 전문가 연결)`;
         const now = document.getElementById('sos-hours-now');
-        if (now) {
-            const open = isOpenHours();
-            now.textContent = open ? '지금 운영 중' : '지금은 운영 시간 외';
-            now.className = 'hours-now ' + (open ? 'on' : 'off');
-        }
+        if (!now) return;
+        if (!isLateNow()) { now.textContent = '지금 운영 중'; now.className = 'hours-now on'; return; }
+        const fresh = nightStatus && Date.now() - nightStatusAt < 3 * 60 * 1000;
+        if (fresh && nightStatus.available > 0) { now.textContent = `🌙 심야 · 대기 전문가 ${nightStatus.available}명`; now.className = 'hours-now late'; }
+        else if (fresh) { now.textContent = '🌙 지금 대기 전문가 없음'; now.className = 'hours-now none'; }
+        else { now.textContent = '🌙 심야 운영 중'; now.className = 'hours-now late'; }
     }
 
     // ===== 서비스 금액 / 포인트 / 동의 =====
@@ -437,11 +477,93 @@
     let savedProfile = null;
     let quickPlace = null;
 
-    // ★ 요금: 상담료는 서버 기준 3만 원 고정(서버 sos_base_fee와 동일). 출동비는 전문가와 현장에서 직접 정산 (플랫폼 미관여)
+    // ★ 요금 A안 (2026-11): 주간(평일 09~18시, 공휴일 제외) 4만 원 / 야간·주말·공휴일 6만 원
+    //   기본 30분, 30분 연장은 기본 상담료의 절반(요청자가 상담 화면에서 직접 눌렀을 때만).
+    //   실제 금액은 서버(sos_fee_now / sos_base_fee)가 정하고, 서버에 연결이 안 될 때만 아래 기본값으로 화면에 표시합니다.
+    const FEE_DEFAULT = { day_fee: 40000, night_fee: 60000, late_fee: 80000, day_extend_fee: 20000, night_extend_fee: 30000, late_extend_fee: 40000,
+                          day_from: 9, day_to: 18, late_from: 21, late_to: 9, base_min: 30, extend_min: 30, extend_max: 2 };
+    let feeInfo = null;          // 서버 응답 (sos_fee_now)
+    let feeInfoAt = 0;           // 서버 응답을 받은 시각
+    function feeCfg() { return feeInfo || FEE_DEFAULT; }
+    function kstNowParts() {
+        try {
+            const p = {};
+            new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', weekday: 'short', hour: 'numeric', hour12: false }).formatToParts(new Date()).forEach(x => p[x.type] = x.value);
+            return { dow: p.weekday, hour: parseInt(p.hour, 10) % 24 };
+        } catch (e) { const d = new Date(); return { dow: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()], hour: d.getHours() }; }
+    }
+    // 요금 시간대: day(주간) / evening(저녁·주말·공휴일) / late(심야)
+    function feeTier() {
+        const c = feeCfg(), k = kstNowParts();
+        if (k.hour >= c.late_from || k.hour < c.late_to) return 'late';
+        // 서버 응답이 5분 이내면 서버 판단(공휴일 포함)을 따르고, 아니면 요일·시각으로 계산
+        if (feeInfo && feeInfo.tier && Date.now() - feeInfoAt < 5 * 60 * 1000) return feeInfo.tier;
+        return (!['Sat', 'Sun'].includes(k.dow) && k.hour >= c.day_from && k.hour < c.day_to) ? 'day' : 'evening';
+    }
+    function isDayRateNow() { return feeTier() === 'day'; }
+    function currentFee() { const c = feeCfg(), t = feeTier(); return t === 'late' ? c.late_fee : (t === 'day' ? c.day_fee : c.night_fee); }
+    function currentExtendFee() { const c = feeCfg(), t = feeTier(); return t === 'late' ? c.late_extend_fee : (t === 'day' ? c.day_extend_fee : c.night_extend_fee); }
+    function periodLabel() {
+        const t = feeTier();
+        if (t === 'late') return '심야 요금';
+        if (t === 'day') return '주간 요금';
+        if (feeInfo && feeInfo.holiday_name && Date.now() - feeInfoAt < 5 * 60 * 1000) return '공휴일 요금';
+        return '저녁·주말·공휴일 요금';
+    }
+    async function loadFeeInfo() {
+        try {
+            const { data, error } = await supabaseClient.rpc('sos_fee_now');
+            if (!error && data) { feeInfo = Object.assign({}, FEE_DEFAULT, data); feeInfoAt = Date.now(); }
+            else if (error) console.warn('요금 조회 실패(기본값 사용):', error.message);
+        } catch (e) { console.warn('요금 조회 오류(기본값 사용):', e); }
+        updateTimePrice();
+    }
+
     function updateTimePrice() {
-        currentBasePrice = 3;
+        currentBasePrice = currentFee() / 10000;
+        const day = isDayRateNow();
+        const c = feeCfg();
         document.querySelectorAll('.dynamic-time-price').forEach(el => el.innerText = currentBasePrice);
-        if(document.querySelector('.pay-slot').innerHTML !== '') renderPayCards();
+        const tier = feeTier();
+        document.querySelectorAll('.fee-period-label').forEach(el => {
+            el.innerText = `(${periodLabel()} · ${c.base_min}분)`;
+            el.classList.toggle('night', tier === 'evening');
+            el.classList.toggle('late', tier === 'late');
+        });
+        if (document.querySelector('.pay-slot').innerHTML !== '') renderPayCards();
+    }
+
+    // 요금부과방식 안내 창
+    function openFeeGuideModal() {
+        const c = feeCfg();
+        const tier = feeTier();
+        const pad = n => String(n).padStart(2, '0');
+        const now = t => tier === t ? 'now' : '';
+        const tierColor = tier === 'late' ? '#5b21b6' : (tier === 'day' ? '#1d4ed8' : '#7c3aed');
+        const bg = document.createElement('div');
+        bg.className = 'fee-modal-bg';
+        bg.innerHTML = `
+            <div class="fee-modal" role="dialog" aria-modal="true">
+                <h3>💳 요금부과방식 안내</h3>
+                <p class="sub">요금은 <b>접수한 시각</b>을 기준으로 정해집니다. 지금은 <b style="color:${tierColor};">${periodLabel()}</b>이 적용됩니다.</p>
+                <table class="fee-tbl">
+                    <tr><th>구분</th><th>기본 ${c.base_min}분</th><th>${c.extend_min}분 연장</th></tr>
+                    <tr><td class="${now('day')}">주간<br><span style="font-size:11.5px;color:#6b7280;">평일 ${pad(c.day_from)}:00~${pad(c.day_to)}:00</span></td><td class="${now('day')}">${won(c.day_fee)}</td><td class="${now('day')}">${won(c.day_extend_fee)}</td></tr>
+                    <tr><td class="${now('evening')}">저녁·주말·공휴일<br><span style="font-size:11.5px;color:#6b7280;">${pad(c.late_to)}:00~${pad(c.late_from)}:00 중 주간 외</span></td><td class="${now('evening')}">${won(c.night_fee)}</td><td class="${now('evening')}">${won(c.night_extend_fee)}</td></tr>
+                    <tr><td class="${now('late')}">🌙 심야<br><span style="font-size:11.5px;color:#6b7280;">매일 ${pad(c.late_from)}:00~다음 날 ${pad(c.late_to)}:00</span></td><td class="${now('late')}">${won(c.late_fee)}</td><td class="${now('late')}">${won(c.late_extend_fee)}</td></tr>
+                </table>
+                <ul>
+                    <li>접수는 무료이며, 전문가를 선택해 <b>전화번호를 확인할 때</b> 상담료가 결제(또는 포인트 차감)됩니다.</li>
+                    <li>번호 확인 후 <b>10분 안에 통화가 안 되면</b> 추가 비용 없이 다른 전문가를 선택할 수 있습니다.</li>
+                    <li>첫 통화부터 <b>${c.base_min}분 동안</b>은 통화가 끊겨 다시 연결해도 추가 요금이 없습니다.</li>
+                    <li>${c.base_min}분이 부족하면 상담 화면에서 <b>[${c.extend_min}분 연장]</b>을 직접 눌렀을 때만 연장 요금이 결제됩니다. (1건당 최대 ${c.extend_max}회)</li>
+                    <li>상담을 마친 뒤 24시간 안에 같은 전문가와 <b>후속 확인 통화 1회</b>는 무료입니다.</li>
+                    <li>🌙 <b>심야</b>에는 당번·대기 전문가가 있을 때만 접수됩니다. 연결 가능한 전문가가 없으면 접수되지 않으며(요금 없음), 09시 연결 예약을 도와드립니다.</li>
+                </ul>
+                <button type="button" class="close">확인</button>
+            </div>`;
+        bg.addEventListener('click', e => { if (e.target === bg || e.target.classList.contains('close')) bg.remove(); });
+        document.body.appendChild(bg);
     }
 
     function getPracticeBalance() { const v = parseInt(sessionStorage.getItem('sosPracticeBalance')); return isNaN(v) ? 80000 : v; }
@@ -478,7 +600,8 @@
             <div class="pay-card">
                 <div class="pay-head"><i class="fa-solid fa-file-invoice-dollar" style="margin-right:6px;"></i>서비스 금액 확인</div>
                 <div class="pay-body">
-                    <div class="pay-row"><span class="lab">기본 상담료 (플랫폼 이용료)<small>${freeMode ? '전문가를 선택할 때 결제되며, ' : ''}번호 확인 후 10분이 지나거나 종료 시 확정됩니다.</small></span><span class="val">${won(base)}</span></div>
+                    <div class="pay-row"><span class="lab">기본 상담료 · ${periodLabel()} (${feeCfg().base_min}분)<small>${freeMode ? '전문가를 선택할 때 결제되며, ' : ''}번호 확인 후 10분이 지나거나 종료 시 확정됩니다.</small></span><span class="val">${won(base)}</span></div>
+                    <div class="pay-row"><span class="lab">${feeCfg().extend_min}분 연장 (선택)<small>상담 화면에서 직접 [연장]을 눌렀을 때만 결제됩니다. 1건당 최대 ${feeCfg().extend_max}회</small></span><span class="val" style="color:#6b7280;">${won(currentExtendFee())}</span></div>
                     ${dispatch ? `<div class="pay-row"><span class="lab">출동비 (현장결제)<small>전문가와 직접 협의 · 도착 후 견적 확인·동의 뒤 진행<br>플랫폼은 출동비에 관여하지 않습니다</small></span><span class="val" style="color:#dc2626;">현장 결제</span></div>` : ''}
                     <div class="pay-row pay-total"><span class="lab">${freeMode ? '접수 시 결제' : '필요 ' + (isPostpaidMember ? '후불 청구금액' : '포인트')}</span><span class="val">${freeMode ? '0원 (무료)' : won(total)}</span></div>
                     ${balRowHtml}
@@ -689,7 +812,11 @@
     document.addEventListener('DOMContentLoaded', () => {
         const sp = document.getElementById('bottom-spacer'); if (sp) sp.style.height = '32px';
         updateTimePrice();
+        loadFeeInfo();
+        setInterval(() => { if (Date.now() - feeInfoAt >= 5 * 60 * 1000) loadFeeInfo(); else updateTimePrice(); }, 60 * 1000);
         renderHoursNotice();
+        if (isLateNow()) loadNightStatus();
+        setInterval(() => { if (isLateNow()) loadNightStatus(); else renderHoursNotice(); }, 2 * 60 * 1000);
         restoreDraftIfAny();
     });
 
@@ -923,6 +1050,64 @@
         if (error) console.error('기본 정보 저장 오류:', error);
     }
 
+    // ===== 심야: 연결 가능한 전문가가 없을 때 → 공공 긴급번호 안내 + 09시 연결 예약 =====
+    function openNightReserveModal(catLabels) {
+        const pad = n => String(n).padStart(2, '0');
+        // 입력된 내용을 조용히 모음 (빠진 칸이 있어도 경고 없이)
+        let form = null;
+        if (currentFlow === 'classic') {
+            const v = id => (document.getElementById(id) || {}).value || '';
+            const addr = v('location-input').trim(), detail = v('location-detail-input').trim();
+            form = { phone: v('contact-phone-input').trim(), region: [addr, detail].filter(Boolean).join(' ') || null };
+        } else if (quickPlace) {
+            form = { phone: quickPlace.phone || '', region: [quickPlace.addr, quickPlace.detail].filter(Boolean).join(' ') || null };
+        }
+        const phone = (form && form.phone) || '';
+        const bg = document.createElement('div');
+        bg.className = 'fee-modal-bg';
+        bg.innerHTML = `
+            <div class="fee-modal" role="dialog" aria-modal="true">
+                <h3>🌙 지금은 연결 가능한 전문가가 없습니다</h3>
+                <p class="sub">심야(${pad(SOS_HOURS.to)}:00~${pad(SOS_HOURS.from)}:00)에는 당번·대기 전문가가 있을 때만 접수됩니다. 접수되지 않았으며 <b>요금은 나가지 않았습니다.</b></p>
+                <div class="nr-box">
+                    <b>지금 위험하다면 바로 전화하세요</b>
+                    <div class="nr-num"><span>🔥 화재·가스 누출·인명 위험</span><a href="tel:119">119</a></div>
+                    <div class="nr-num"><span>⚡ 정전·전기 고장 (한전)</span><a href="tel:123">123</a></div>
+                    <div class="nr-num"><span>🧯 가스 냄새·누출 (지역 도시가스사)</span><span style="color:#6b7280;font-size:12px;">고지서의 고객센터</span></div>
+                </div>
+                <p style="font-size:14px;font-weight:900;color:#111827;margin:0 0 4px;">⏰ 09시 연결 예약</p>
+                <p style="font-size:12.5px;font-weight:700;color:#6b7280;margin:0 0 6px;word-break:keep-all;">아침 ${pad(SOS_HOURS.from)}:00가 되면 운영진이 가장 먼저 연락드려 전문가를 연결해 드립니다. (예약은 무료)</p>
+                <input type="tel" id="nr-phone" class="nr-input" placeholder="연락받을 번호" value="${KC.esc(phone)}">
+                <input type="text" id="nr-note" class="nr-input" maxlength="200" placeholder="상황을 짧게 적어 주세요 (선택)">
+                <div class="nr-btns">
+                    <button type="button" class="nr-cancel">닫기</button>
+                    <button type="button" class="nr-go">09시 연결 예약하기</button>
+                </div>
+            </div>`;
+        bg.addEventListener('click', e => { if (e.target === bg || e.target.classList.contains('nr-cancel')) bg.remove(); });
+        bg.querySelector('.nr-go').addEventListener('click', async function () {
+            const ph = bg.querySelector('#nr-phone').value.trim();
+            if (ph.replace(/[^0-9]/g, '').length < 9) { alert('연락받을 번호를 정확히 입력해 주세요.'); return; }
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { alert('로그인이 필요합니다.'); saveDraft(); window.location.href = '{{BASE}}login.html'; return; }
+            this.disabled = true; this.textContent = '예약 중...';
+            const { error } = await supabaseClient.from('sos_morning_reservations').insert({
+                user_id: user.id, phone: ph,
+                category: (catLabels || []).join(',') || null,
+                region: form ? form.region : null,
+                note: bg.querySelector('#nr-note').value.trim() || null
+            });
+            if (error) {
+                console.error('09시 예약 오류:', error);
+                alert('예약하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+                this.disabled = false; this.textContent = '09시 연결 예약하기'; return;
+            }
+            bg.remove();
+            alert(`09시 연결 예약이 접수되었습니다.\n아침 ${pad(SOS_HOURS.from)}:00 이후 ${ph}(으)로 운영진이 먼저 연락드리겠습니다.\n\n그 전에 대기 전문가가 생기면 이 화면에서 바로 접수하실 수도 있습니다.`);
+        });
+        document.body.appendChild(bg);
+    }
+
     async function handleCreateError(error, userId) {
         const msg = String(error.message || '');
         console.error('접수 오류:', error);
@@ -962,10 +1147,13 @@
             return t ? '기타(' + t + ')' : '기타';
         });
 
-        // ★ 운영 시간 외 안내 (접수는 가능)
-        if (!isOpenHours()) {
-            const pad = n => String(n).padStart(2, '0');
-            if (!confirm(`지금은 전화상담 운영 시간(${pad(SOS_HOURS.from)}:00~${pad(SOS_HOURS.to)}:00) 외입니다.\n접수는 되지만 전문가 응답이 늦어질 수 있습니다.\n\n계속 접수할까요?`)) return;
+        // ★ 심야(21~09시): 지금 받을 수 있는 전문가가 없으면 접수하지 않고 09시 연결 예약 안내
+        if (!isPracticeMode && isLateNow()) {
+            const ns = await loadNightStatus();
+            if (ns && ns.is_late && Number(ns.available) === 0) { openNightReserveModal(catLabels); return; }
+        }
+        if (isPracticeMode && isLateNow()) {
+            alert('[연습 안내] 지금은 심야 시간입니다.\n실제에서는 대기 중인 전문가가 있을 때만 접수되고, 없으면 접수 대신 09시 연결 예약 화면이 나옵니다.\n연습은 그대로 진행합니다.');
         }
 
         const total = getRequiredAmount();
@@ -979,7 +1167,7 @@
         if (isPracticeMode) {
             const addr = (quickPlace && quickPlace.addr) || document.getElementById('location-input')?.value.trim() || '서울 강남구 역삼동 123-45';
             const q = new URLSearchParams({
-                practice: '1', svc: SOS_DISPATCH_ENABLED ? selectedType : 'phone', base: String(currentBasePrice * 10000),
+                practice: '1', svc: SOS_DISPATCH_ENABLED ? selectedType : 'phone', base: String(currentBasePrice * 10000), ext: String(currentExtendFee()),
                 cats: catLabels.join(','), addr: addr
             });
             window.location.href = 'sos-room.html?' + q.toString();
@@ -1002,7 +1190,10 @@
                 p_region: form.region,
                 p_contact_phone: form.phone
             });
-            if (error) { await handleCreateError(error, user.id); return; }
+            if (error) {
+                if (String(error.message || '').includes('NIGHT_NO_EXPERT')) { await loadNightStatus(); openNightReserveModal(catLabels); return; }
+                await handleCreateError(error, user.id); return;
+            }
             saveDraft(LAST_KEY);   // '새로 접수하기'로 돌아왔을 때 다시 쓰도록 직전 입력을 보관
             clearDraft();
             window.location.href = `sos-room.html?request_id=${data}`;

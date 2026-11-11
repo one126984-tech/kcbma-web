@@ -198,12 +198,15 @@
 
                 <!-- ===================== ★ 진행 중인 상담 (상담 세션) ===================== -->
                 <div id="session-section" class="hidden px-5 pt-4 pb-1">
-                    <div class="practice-note" style="margin-bottom:10px;">💡 <b>연습 안내</b><br>고객에게 전화를 걸면 60분 상담 세션이 시작됩니다. 그 안에는 통화가 끊겨도 같은 고객과 다시 통화하며 추가 요금이 없습니다. 연습에서는 8초 뒤 고객이 "통화가 끊겼어요"를 누른 상황(소리·진동 알림)을 보여 드립니다.</div>
+                    <div class="practice-note" style="margin-bottom:10px;">💡 <b>연습 안내</b><br>고객에게 전화를 걸면 30분 상담이 시작됩니다(고객이 연장하면 30분씩 늘어납니다). 그 안에는 통화가 끊겨도 같은 고객과 다시 통화하며 추가 요금이 없습니다. 연습에서는 8초 뒤 고객이 "통화가 끊겼어요"를 누른 상황(소리·진동 알림)을 보여 드립니다.</div>
                     <h2 class="font-black text-gray-800 text-[15px] mb-2 border-b-2 pb-1 inline-block" style="border-color:#16a34a;">📞 진행 중인 상담</h2>
                     <p class="text-[12px] text-gray-500 mb-2 break-keep">통화가 끊기면 <b>전문가님이 1분 안에 고객에게 다시 걸어 주세요.</b> (고객은 기다리도록 안내받습니다) 상담 중에는 다른 요청에 배정되지 않으며, 상담을 마치면 '상담 완료'를 눌러 주세요.</p>
                     <div id="session-list" class="space-y-3"></div>
                 </div>
 
+
+                <!-- ===================== ★ 심야 당번 안내 (2026-11) ===================== -->
+                <div id="duty-box" style="display:none;" class="px-5 pt-4"></div>
 
                 <!-- ===================== (1) 설정 화면 ===================== -->
                 <div id="view-setup" class="p-5 space-y-5 pb-6">
@@ -439,7 +442,7 @@
     }
     function practiceAssignedDial(e, requestId) {
         e.preventDefault();
-        alert('[연습 모드] 실제에서는 이 번호로 전화가 연결되고 60분 상담 세션이 시작됩니다.\n위에 "진행 중인 상담"이 나타납니다.');
+        alert('[연습 모드] 실제에서는 이 번호로 전화가 연결되고 30분 상담이 시작됩니다.\n위에 "진행 중인 상담"이 나타납니다.');
         const r = practiceAssigned.find(x => x.id === requestId);
         if (r) { practiceStartSession(r); loadMySessions(); }
         return false;
@@ -571,6 +574,7 @@
     }
 
     function renderStandbyBadge() {
+        if (document.getElementById('duty-box') && document.getElementById('duty-box').style.display === 'block') renderDutyBox();
         const dot = document.getElementById('status-dot');
         const text = document.getElementById('status-text');
         const startText = document.getElementById('start-text');
@@ -1381,7 +1385,7 @@
 
     // =====================================================================
     // ★ 진행 중인 상담 (2026-11 상담 세션)
-    //   첫 통화부터 60분 동안 같은 고객과 끊겨도 다시 통화 (추가 요금 없음)
+    //   첫 통화부터 30분(고객이 연장하면 30분씩 추가) 동안 같은 고객과 끊겨도 다시 통화 (추가 요금 없음)
     //   고객이 [통화가 끊겼어요]를 누르면 여기에 알림(소리·진동) → 1분 안에 다시 걸기
     //   상담 중에는 다른 요청에 배정되지 않음 / [상담 완료]를 누르면 대기 목록으로 복귀
     // =====================================================================
@@ -1391,6 +1395,7 @@
     let mySessFast = null;
     const seenDrops = {};      // 요청별로 이미 알린 끊김 시각
     const seenFollowups = {};  // 이미 알린 후속 확인 통화
+    const seenExtends = {};    // 이미 알린 연장 횟수
     let practiceSess = [];
 
     function sessNow() { return Date.now() + mySessSkew; }
@@ -1411,7 +1416,7 @@
         if (practiceSess.some(s => s.request_id === r.id && s.kind === 'main')) return;
         const t = Date.now();
         practiceSess.push({ request_id: r.id, kind: 'main', category: r.category, region: r.region, contact_phone: r.contact_phone, phone_changed: false,
-                            started_at: new Date(t).toISOString(), expires_at: new Date(t + 60 * 60000).toISOString(),
+                            started_at: new Date(t).toISOString(), expires_at: new Date(t + 30 * 60000).toISOString(), extend_count: 0,
                             last_drop_at: null, last_reconnect_at: null, drop_count: 0, connected_at: null, closed_at: null });
         // 연습: 8초 뒤 고객이 '통화가 끊겼어요'를 누른 상황을 보여 줌
         practiceTimers.push(setTimeout(() => {
@@ -1434,6 +1439,12 @@
         mySessions.forEach(s => {
             if (sessDropActive(s) && seenDrops[s.request_id] !== s.last_drop_at) { seenDrops[s.request_id] = s.last_drop_at; sessAlarm(); }
             if (s.kind === 'followup' && seenFollowups[s.request_id] !== s.started_at) { seenFollowups[s.request_id] = s.started_at; sessAlarm(); }
+            // 고객이 30분 연장하면 한 번 알림 (처음 불러올 때는 알리지 않음)
+            const ec = Number(s.extend_count || 0);
+            if (s.kind === 'main') {
+                if (seenExtends[s.request_id] !== undefined && ec > seenExtends[s.request_id]) { beep(); try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {} }
+                seenExtends[s.request_id] = ec;
+            }
         });
         renderMySessions();
         // 상담 중에는 5초마다 확인 (고객의 '끊겼어요'를 빨리 받기 위해)
@@ -1457,10 +1468,10 @@
             const phoneBox = s.phone_changed ? `<div class="xs-phone">⚠ 고객이 받을 번호를 바꿨습니다. 아래 번호로 걸어 주세요.</div>` : '';
             const head = isFu
                 ? `<span>📞 후속 확인 통화 요청 <span style="font-size:12px;">(무료 1회)</span></span>`
-                : `<span><span class="xs-dot"></span>상담 진행 중</span>`;
+                : `<span><span class="xs-dot"></span>상담 진행 중${Number(s.extend_count || 0) ? ` <span style="font-size:12px;background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:1px 6px;margin-left:4px;">⏱ 고객 연장 ${Number(s.extend_count)}회 (+${Number(s.extend_count) * 30}분)</span>` : ''}</span>`;
             const desc = isFu
                 ? '상담을 마친 고객이 다시 확인할 것이 있어 연락합니다. 고객 전화를 받아 주시거나 직접 걸어 주세요.'
-                : '이 시간 동안은 통화가 끊겨도 같은 고객과 다시 통화합니다(추가 요금 없음). 끊기면 전문가님이 1분 안에 다시 걸어 주세요.';
+                : '기본 30분 상담입니다. 이 시간 동안은 통화가 끊겨도 같은 고객과 다시 통화합니다(추가 요금 없음). 끊기면 전문가님이 1분 안에 다시 걸어 주세요. 시간이 더 필요하면 고객이 화면에서 30분 연장을 누를 수 있습니다(연장분도 정산에 포함).';
             return `<div class="xs-card ${isFu ? 'fu' : ''} ${drop ? 'alert' : ''}">
                 <div class="xs-head">${head}<span class="xs-time">남은 <span data-sess-exp="${KC.esc(s.expires_at)}">${sessMMSS((sessT(s.expires_at) - sessNow()) / 1000)}</span></span></div>
                 <p class="xs-desc">${desc}</p>
@@ -1588,10 +1599,59 @@
         } finally { busy = false; this.disabled = false; }
     });
 
+    // ===== ★ 심야 당번 안내 (2026-11) =====
+    //   당번 날짜 = 그날 21:00 ~ 다음 날 09:00. 당번 시간에는 대기를 켜 두어야 요청자 목록 맨 위에 '오늘 심야 당번'으로 표시됩니다.
+    function kstNowSb() {
+        const p = {};
+        try { new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false }).formatToParts(new Date()).forEach(x => p[x.type] = x.value); }
+        catch (e) { const d = new Date(); return { date: d.toISOString().slice(0, 10), hour: d.getHours() }; }
+        return { date: `${p.year}-${p.month}-${p.day}`, hour: parseInt(p.hour, 10) % 24 };
+    }
+    function dutyDateLabel(d) {
+        const dt = new Date(d + 'T12:00:00+09:00');
+        return `${dt.getMonth() + 1}/${dt.getDate()}(${'일월화수목금토'[dt.getDay()]})`;
+    }
+    async function renderDutyBox() {
+        const box = document.getElementById('duty-box');
+        if (!box) return;
+        let info = null;
+        if (isPractice) {
+            const k = kstNowSb();
+            const today = k.hour < 9 ? new Date(Date.parse(k.date + 'T12:00:00+09:00') - 86400000).toISOString().slice(0, 10) : k.date;
+            info = { is_late: k.hour >= 21 || k.hour < 9, current_duty_date: today, dates: [today] };
+        } else {
+            try {
+                const { data, error } = await supabaseClient.rpc('sos_my_night_duty');
+                if (error) { box.style.display = 'none'; return; }
+                info = data;
+            } catch (e) { box.style.display = 'none'; return; }
+        }
+        const dates = (info && info.dates) || [];
+        if (!dates.length) { box.style.display = 'none'; return; }
+        const tonight = dates.includes(info.current_duty_date);
+        const others = dates.filter(d => d !== info.current_duty_date).map(dutyDateLabel);
+        let html = '';
+        if (tonight && info.is_late) {
+            html = isStandby
+                ? `<b>🌙 지금 심야 당번 근무 중입니다.</b><br>요청자 목록 맨 위에 '오늘 심야 당번'으로 표시됩니다. 자는 동안에는 <b>🔔 알림 오면 응답</b>으로 두고, 콜 알림이 오면 5분 안에 응답해 주세요.`
+                : `<b>⚠ 지금은 당번 시간인데 대기가 꺼져 있습니다.</b><br>대기를 켜야 고객 접수가 가능합니다. 아래에서 <b>🔔 알림 오면 응답</b>을 고르고 끝나는 시각을 <b>내일 09:00</b>로 정해 대기를 시작해 주세요.`;
+        } else if (tonight) {
+            html = `<b>🌙 오늘 밤 심야 당번입니다</b> (21:00 ~ 내일 09:00)<br>21시가 되기 전에 대기를 켜 두세요. 자는 동안에는 <b>🔔 알림 오면 응답</b>, 끝나는 시각은 <b>내일 09:00</b>를 권합니다.`;
+        } else {
+            html = `<b>🌙 다가오는 심야 당번</b>`;
+        }
+        if (others.length) html += `<br><span style="font-size:12.5px;">다음 당번: ${others.join(', ')}</span>`;
+        if (isPractice) html += `<br><span style="font-size:12px;color:#6d28d9;">(연습 화면 예시입니다. 실제 당번은 운영진이 날짜별로 지정합니다)</span>`;
+        const warn = tonight && info.is_late && !isStandby;
+        box.innerHTML = `<div style="background:${warn ? '#fef2f2' : '#f5f3ff'};border:2px solid ${warn ? '#fca5a5' : '#c4b5fd'};border-radius:14px;padding:12px 14px;font-size:13.5px;font-weight:700;color:${warn ? '#991b1b' : '#4c1d95'};line-height:1.65;word-break:keep-all;">${html}</div>`;
+        box.style.display = 'block';
+    }
+
     async function init() {
         const ok = await loadMe();
         if (!ok) { showState('state-noexpert'); return; }
         showState('state-ready'); renderMe(); renderEmergencySetting(); await loadMySessions(); await loadAssigned();
+        renderDutyBox(); setInterval(renderDutyBox, 5 * 60 * 1000);
         if (!isPractice) startPolling();
         sbFromRow(me);
         updateUntilNote();
