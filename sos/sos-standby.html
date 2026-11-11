@@ -1034,6 +1034,14 @@
 
                 <!-- ===================== (1) 설정 화면 ===================== -->
                 <div id="view-setup" class="p-5 space-y-5 pb-6">
+                    <!-- ★ 콜 문자로 들어왔는데 대기 중이 아닐 때: 바로 응답 -->
+                    <div id="invite-respond-box" style="display:none; background:#fef9c3; border:2px solid #f59e0b; border-radius:14px; padding:14px; word-break:keep-all;">
+                        <p style="font-weight:900; font-size:16px; color:#92400e; margin:0 0 4px;">📩 콜 요청이 왔습니다</p>
+                        <p style="font-size:13px; font-weight:700; color:#92400e; line-height:1.6; margin:0;">대기 중이 아니어도 바로 응답할 수 있습니다. 응답하면 <b>30분 동안 '🔔 알림 오면 응답' 대기</b>가 켜지고, 요청자 화면 '응답한 전문가'에 내 프로필이 올라갑니다.</p>
+                        <button type="button" id="invite-respond-btn" style="display:block; width:100%; margin-top:10px; background:#f59e0b; color:#fff; font-weight:900; font-size:16px; padding:13px 0; border-radius:12px; border:0; cursor:pointer;">이 요청에 응답하기</button>
+                        <p style="font-size:12px; font-weight:700; color:#a16207; margin:8px 0 0;">응답하지 않으려면 그냥 닫으셔도 됩니다.</p>
+                    </div>
+
                     <div class="practice-note">💡 <b>연습 안내</b><br>실제에서는 '프로필·서비스 범위'에서 분야·지역·시간·연락 방식을 저장해 두고, 여기서 '대기 시작'을 누르면 내 조건에 맞는 요청이 도착합니다. 연습에서는 아래 예시 범위로 대기를 시작하면 가상 요청이 몇 초 뒤에 도착합니다.</div>
 
                     <!-- 내 정보 + 대기 상태 -->
@@ -1076,6 +1084,20 @@
                     <button id="end-btn-setup" class="hidden w-full bg-white border-2 border-gray-400 text-gray-700 hover:bg-gray-100 font-black text-[16px] py-3.5 rounded-xl transition flex justify-center items-center gap-2">
                         <i class="fa-solid fa-right-from-bracket"></i> 지금 나가기 (대기 종료)
                     </button>
+
+                    <!-- ★ 비상 연락 허용 (대기하지 않을 때) -->
+                    <div id="emg-card" class="bg-white rounded-xl border border-gray-200 shadow-sm p-4" style="word-break:keep-all;">
+                        <h2 class="font-black text-gray-800 text-[15px]">📇 비상 연락 허용 <span style="font-size:12px;color:#6b7280;font-weight:700;">(대기하지 않을 때)</span></h2>
+                        <p style="font-size:12.5px; font-weight:700; color:#6b7280; line-height:1.6; margin:6px 0 0;">켜 두면 대기 중이 아닐 때도 요청자가 <b>콜 문자</b>로 물어볼 수 있습니다. 전화번호는 공개되지 않고, 응답할지는 그때 정하시면 됩니다.</p>
+                        <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-weight:900; font-size:14px; color:#111827; cursor:pointer;"><input type="checkbox" id="emg-on" style="width:18px;height:18px;accent-color:#7c3aed;"> 비상 연락 받기</label>
+                        <div id="emg-quiet" style="margin-top:8px; font-size:13px; font-weight:800; color:#374151;">
+                            연락받지 않을 시간
+                            <div class="until-row" style="margin-top:6px;"><input type="time" id="emg-from" value="22:00"> ~ <input type="time" id="emg-to" value="07:00"></div>
+                            <label style="display:flex; align-items:center; gap:6px; margin-top:6px; font-weight:700; font-size:12.5px; color:#6b7280; cursor:pointer;"><input type="checkbox" id="emg-anytime"> 시간 상관없이 받기</label>
+                        </div>
+                        <button type="button" id="emg-save" style="display:block; width:100%; margin-top:10px; background:#7c3aed; color:#fff; font-weight:900; font-size:14px; padding:11px 0; border-radius:10px; border:0; cursor:pointer;">비상 연락 설정 저장</button>
+                        <p id="emg-status" style="font-size:12.5px; font-weight:800; color:#6d28d9; margin:8px 2px 0;"></p>
+                    </div>
                 </div>
 
                 <!-- ===================== (2) 요청 화면 ===================== -->
@@ -2060,7 +2082,10 @@
     async function offerRequest(requestId, offerType) {
         if (inMainSession()) { alert('지금 다른 고객과 상담 중입니다.\n상담을 마치고 위 "상담 완료"를 누르면 새 요청에 신청할 수 있습니다.'); return; }
         if (isPractice) { practiceOffer(requestId, offerType); renderInviteBanner(); return; }
-        const { error } = await supabaseClient.rpc('offer_sos_request', { p_request_id: requestId, p_offer_type: offerType });
+        let { error } = await supabaseClient.rpc('offer_sos_request', { p_request_id: requestId, p_offer_type: offerType });
+        if (error && /OUT_OF_HOURS|NOT_STANDBY/.test(String(error.message || '')) && isInvited(requestId)) {
+            ({ error } = await supabaseClient.rpc('sos_invite_respond', { p_request_id: requestId }));   // 콜 문자를 받은 요청은 시간과 상관없이 응답
+        }
         if (error) {
             const msg = String(error.message || '');
             console.error('응답 오류:', error);
@@ -2072,6 +2097,7 @@
             else if (msg.includes('NOT_STANDBY')) alert('대기 상태가 아닙니다. 대기를 시작해 주세요.');
             else if (msg.includes('CATEGORY_MISMATCH')) alert('내가 선택한 분야와 맞지 않는 요청입니다. 설정에서 분야를 확인해 주세요.');
             else if (msg.includes('REGION_MISMATCH')) alert('내가 설정한 출동 지역과 맞지 않는 요청입니다. 설정에서 지역을 확인해 주세요.');
+            else if (msg.includes('EXPERT_BUSY')) alert('지금 다른 고객과 상담 중이라 응답할 수 없습니다.');
             else alert('응답 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
         } else {
             doCheckin(true);   // 응답했다면 지금 화면 앞에 있다는 뜻이므로 대기 확인도 함께 남김
@@ -2320,10 +2346,79 @@
         if (expired) loadMySessions();
     }, 1000);
 
+    // ★ 비상 연락 허용 설정
+    function renderEmergencySetting() {
+        const on = !!(me && me.emergency_contact);
+        document.getElementById('emg-on').checked = on;
+        const qf = me && me.emergency_quiet_from ? String(me.emergency_quiet_from).slice(0, 5) : '';
+        const qt = me && me.emergency_quiet_to ? String(me.emergency_quiet_to).slice(0, 5) : '';
+        const anytime = on && !qf && !qt;
+        document.getElementById('emg-anytime').checked = anytime;
+        if (qf) document.getElementById('emg-from').value = qf;
+        if (qt) document.getElementById('emg-to').value = qt;
+        syncEmergencyUi();
+        document.getElementById('emg-status').textContent = on
+            ? (anytime ? '✅ 비상 연락을 받고 있습니다 (시간 상관없이)' : `✅ 비상 연락을 받고 있습니다 (${qf || '22:00'}~${qt || '07:00'}에는 받지 않음)`)
+            : '비상 연락을 받지 않습니다.';
+    }
+    function syncEmergencyUi() {
+        const on = document.getElementById('emg-on').checked;
+        const anytime = document.getElementById('emg-anytime').checked;
+        document.getElementById('emg-quiet').style.opacity = on ? '1' : '.45';
+        ['emg-from', 'emg-to'].forEach(id => { document.getElementById(id).disabled = !on || anytime; });
+        document.getElementById('emg-anytime').disabled = !on;
+    }
+    ['emg-on', 'emg-anytime'].forEach(id => document.getElementById(id).addEventListener('change', syncEmergencyUi));
+    document.getElementById('emg-save').addEventListener('click', async function () {
+        const on = document.getElementById('emg-on').checked;
+        const anytime = document.getElementById('emg-anytime').checked;
+        const qf = on && !anytime ? document.getElementById('emg-from').value : null;
+        const qt = on && !anytime ? document.getElementById('emg-to').value : null;
+        if (on && !anytime && (!qf || !qt)) { alert('연락받지 않을 시간을 입력하거나 "시간 상관없이 받기"를 선택해 주세요.'); return; }
+        if (isPractice) {
+            me.emergency_contact = on; me.emergency_quiet_from = qf; me.emergency_quiet_to = qt;
+            renderEmergencySetting(); alert('[연습 모드] 저장한 것으로 처리했습니다.'); return;
+        }
+        this.disabled = true;
+        const { error } = await supabaseClient.rpc('sos_set_emergency_contact', { p_on: on, p_quiet_from: qf, p_quiet_to: qt });
+        this.disabled = false;
+        if (error) { console.error('비상 연락 설정 오류:', error); alert('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'); return; }
+        me.emergency_contact = on; me.emergency_quiet_from = qf; me.emergency_quiet_to = qt;
+        renderEmergencySetting();
+        alert(on ? '비상 연락을 받습니다. 대기 중이 아닐 때 콜 문자가 오면 문자 링크로 바로 응답할 수 있습니다.' : '비상 연락을 받지 않습니다.');
+    });
+
+    // ★ 콜 문자로 들어왔는데 대기 중이 아닐 때 바로 응답
+    document.getElementById('invite-respond-btn').addEventListener('click', async function () {
+        if (!invitedReqId || busy) return;
+        if (inMainSession()) { alert('지금 다른 고객과 상담 중이라 응답할 수 없습니다.'); return; }
+        busy = true; this.disabled = true;
+        try {
+            const { data, error } = await supabaseClient.rpc('sos_invite_respond', { p_request_id: invitedReqId });
+            if (error) {
+                const msg = String(error.message || '');
+                console.error('콜 요청 응답 오류:', error);
+                if (msg.includes('REQUEST_CLOSED')) alert('이미 다른 전문가가 선택되었거나 종료된 요청입니다. 감사합니다.');
+                else if (msg.includes('NOT_INVITED')) alert('콜 문자를 받은 지 30분이 지났거나 나에게 온 요청이 아닙니다.');
+                else if (msg.includes('BOARD_FULL')) alert('이미 신청 인원(3명)이 모두 찼습니다. 감사합니다.');
+                else if (msg.includes('CATEGORY_MISMATCH')) alert('내 분야와 맞지 않는 요청입니다.');
+                else if (msg.includes('EXPERT_RELEASED')) alert('요청자가 이미 다른 전문가로 바꾼 요청입니다.');
+                else if (msg.includes('EXPERT_BUSY')) alert('지금 다른 고객과 상담 중이라 응답할 수 없습니다.');
+                else alert('응답하지 못했습니다. 아래에서 대기를 시작한 뒤 요청현황에서 신청해 주세요.');
+                document.getElementById('invite-respond-box').style.display = 'none';
+                return;
+            }
+            document.getElementById('invite-respond-box').style.display = 'none';
+            me.is_standby = true; isStandby = true; sbFromRow(data); endingWarned = false;
+            renderStandbyBadge(); showView('feed'); startRealtime(); startCheckinLoop(); renderModeBar(); loadMyInvites();
+            alert('응답했습니다! 요청자 화면에 내 프로필이 올라갔습니다.\n요청자가 선택하면 "내가 선택된 요청"에 번호가 나옵니다. 그때 전화해 주세요.\n(30분 동안 "알림 오면 응답" 대기가 켜집니다)');
+        } finally { busy = false; this.disabled = false; }
+    });
+
     async function init() {
         const ok = await loadMe();
         if (!ok) { showState('state-noexpert'); return; }
-        showState('state-ready'); renderMe(); await loadMySessions(); await loadAssigned();
+        showState('state-ready'); renderMe(); renderEmergencySetting(); await loadMySessions(); await loadAssigned();
         if (!isPractice) startPolling();
         sbFromRow(me);
         updateUntilNote();
@@ -2348,7 +2443,7 @@
             if (mp) { mp.style.boxShadow = '0 0 0 3px #93c5fd'; setTimeout(() => mp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200); }
         } else {
             showView('setup');
-            if (invitedReqId) alert('콜 문자로 받은 요청에 응답하려면 먼저 아래 설정을 확인하고 "대기 시작하고 요청 보기"를 눌러 주세요.\n대기를 시작하면 해당 요청이 맨 위에 표시됩니다.');
+            if (invitedReqId && !isPractice) document.getElementById('invite-respond-box').style.display = 'block';
         }
     }
 
