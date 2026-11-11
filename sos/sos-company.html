@@ -1101,9 +1101,17 @@
         const v = id => document.getElementById(id).value.trim();
         if (!v('a-name') || !v('a-mname') || v('a-mphone').replace(/[^0-9]/g, '').length < 9) { alert('회사명, 담당자 이름, 연락처를 입력해 주세요.'); return; }
         if (!confirm(`'${v('a-name')}' 회원사 가입을 신청할까요?\n협회 승인 후 카드 등록과 건물 등록을 진행하게 됩니다.`)) return;
-        const d = await call('sos_company_apply', { p_name: v('a-name'), p_biz_no: v('a-biz'), p_manager_name: v('a-mname'), p_manager_phone: v('a-mphone'), p_tax_email: v('a-email') }, {
-            ALREADY_MEMBER: '이미 회원사에 연결된 계정입니다.', BAD_INPUT: '입력 내용을 다시 확인해 주세요.'
-        });
+        const { data: d, error } = await supabaseClient.rpc('sos_company_apply', { p_name: v('a-name'), p_biz_no: v('a-biz'), p_manager_name: v('a-mname'), p_manager_phone: v('a-mphone'), p_tax_email: v('a-email') });
+        if (error) {
+            const m = String(error.message || '');
+            if (m.includes('DUPLICATE_BIZ')) {
+                const parts = m.split('|');
+                alert(`이미 같은 사업자등록번호로 가입(신청)된 회원사가 있습니다.\n\n회원사: ${parts[1] || '-'}\n담당자: ${parts[2] || '-'}\n\n같은 회사라면 새로 가입하지 말고, 담당자에게 건물 코드를 받아 '직원으로 연결하기'를 이용해 주세요.\n담당자가 바뀌었다면 협회로 문의해 주세요.`);
+            } else if (m.includes('ALREADY_MEMBER')) alert('이 계정은 이미 회원사에 연결(또는 신청)되어 있습니다. 새로고침해서 확인해 주세요.');
+            else if (m.includes('BAD_INPUT')) alert('입력 내용을 다시 확인해 주세요.');
+            else { console.error(error); alert('처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); }
+            return;
+        }
         if (d) { history.replaceState(null, '', location.pathname + location.search); setData(d); alert('가입 신청이 접수되었습니다.\n협회 승인 후 이 화면에서 카드를 등록해 주세요.'); }
     }
 
@@ -1137,6 +1145,7 @@
         document.getElementById('co-root').innerHTML = `
             <div class="co-card">
                 <p class="co-h"><span>${esc(c.name)}</span>${companyStatusBadge(c)}</p>
+                ${c.member_code ? `<p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#065f46;">회원사 번호 <span class="co-code" style="font-size:13px;">${esc(c.member_code)}</span></p>` : ''}
                 <p class="co-sub" style="margin:0;">${esc(m.name || '')} · ${m.role === 'shared' ? '<b>공용 계정</b> (접수할 때 호출자 이름·연락처를 입력합니다)' : '직원'}</p>
             </div>
             <div class="co-card" style="${c.ready ? 'background:#ecfdf5;border-color:#a7f3d0;' : 'background:#fffbeb;border-color:#fde68a;'}">
@@ -1180,6 +1189,7 @@
         document.getElementById('co-root').innerHTML = `
             <div class="co-card">
                 <p class="co-h"><span>${esc(c.name)}</span>${companyStatusBadge(c)}</p>
+                <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#065f46;">${c.member_code ? `회원사 번호 <span class="co-code" style="font-size:13px;">${esc(c.member_code)}</span>` : '<span style="color:#92400e;">회원사 번호는 협회 승인 후 발급됩니다</span>'}</p>
                 <p class="co-sub" style="margin:0;">담당자 ${esc(c.manager_name || '')} · ${esc(phoneFmt(c.manager_phone))}</p>
                 ${next ? `<div style="margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;color:#92400e;line-height:1.6;word-break:keep-all;">👉 ${next}</div>` : ''}
             </div>

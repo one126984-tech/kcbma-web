@@ -1365,12 +1365,14 @@
                 const id = escapeHtml(c.id);
                 return `<div style="border:1px solid ${c.status === 'pending' ? '#fcd34d' : '#e5e7eb'};border-radius:12px;padding:14px;font-size:13px;line-height:1.65;word-break:keep-all;">
                     <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;">
-                        <p style="font-weight:900;font-size:15px;color:#111827;">${escapeHtml(c.name)}
+                        <p style="font-weight:900;font-size:15px;color:#111827;">${c.member_code ? `<span style="font-family:monospace;font-size:13px;font-weight:900;color:#065f46;background:#ecfdf5;border:1px dashed #6ee7b7;border-radius:6px;padding:1px 6px;margin-right:4px;">${escapeHtml(c.member_code)}</span>` : ''}${escapeHtml(c.name)}
                             <span style="font-size:12px;font-weight:900;padding:2px 8px;border-radius:999px;background:${st[2]};color:${st[1]};">${st[0]}</span>
                             <span style="font-size:12px;font-weight:900;padding:2px 8px;border-radius:999px;background:${c.card_registered ? '#dcfce7' : '#fee2e2'};color:${c.card_registered ? '#166534' : '#991b1b'};">${c.card_registered ? '💳 ' + escapeHtml(c.card_label || '카드 등록') : '카드 미등록'}</span>
                             ${c.ready ? '<span style="font-size:12px;font-weight:900;color:#059669;">● 후불 이용 중</span>' : ''}</p>
                         <span style="color:#6b7280;font-size:12px;">신청 ${escapeHtml(formatDateTime(c.created_at))}</span>
                     </div>
+                    ${c.duplicate_of ? `<div style="background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;border-radius:8px;padding:6px 10px;font-weight:800;margin:4px 0;">⚠ 중복 의심: 같은 사업자번호 또는 같은 담당자 계정으로 먼저 신청된 회원사가 있습니다 → ${escapeHtml(c.duplicate_of)}. 하나만 남기고 [삭제] 또는 [반려]해 주세요.</div>` : ''}
+                    <div style="color:#374151;">담당자 로그인 아이디 <b>${escapeHtml(c.manager_email || '-')}</b></div>
                     <div style="color:#374151;">사업자 ${escapeHtml(c.biz_no || '-')} · 담당 ${escapeHtml(c.manager_name || '-')} <a href="tel:${escapeHtml(String(c.manager_phone || '').replace(/[^0-9]/g, ''))}" style="color:#1d4ed8;font-weight:800;">${escapeHtml(c.manager_phone || '')}</a> · ${escapeHtml(c.tax_email || '이메일 없음')}</div>
                     <div style="color:#6b7280;">건물 ${c.building_count}곳 · 직원 ${c.member_count}명${c.pending_count ? ` · <b style="color:#b45309;">직원 승인 대기 ${c.pending_count}명</b>` : ''}${c.card_customer_uid ? ' · 빌링 고객번호 ' + escapeHtml(c.card_customer_uid) : ''}</div>
                     <div style="margin-top:6px;background:#f9fafb;border-radius:8px;padding:8px 10px;">
@@ -1388,6 +1390,7 @@
                         <input id="co-lim-${id}" type="number" step="10000" min="0" value="${escapeHtml(c.monthly_limit)}" style="width:110px;border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
                         <input id="co-note-${id}" value="${escapeHtml(c.admin_note || '')}" placeholder="관리 메모" style="flex:1;min-width:150px;border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
                         <button onclick="saveCompanyAdmin('${id}')" style="background:#1e3a8a;color:#fff;border:0;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer;">저장</button>
+                        ${Number(c.request_count || 0) === 0 ? `<button onclick="deleteCompanyAdmin('${id}')" style="background:#fff;color:#b91c1c;border:1px solid #fca5a5;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:800;cursor:pointer;">삭제</button>` : ''}
                     </div>
                 </div>`;
             }).join('');
@@ -1402,6 +1405,17 @@
                 p_note: document.getElementById('co-note-' + id).value.trim() || null
             });
             if (error) { alert('저장하지 못했습니다: ' + error.message); return; }
+            fetchCompanies();
+        }
+        async function deleteCompanyAdmin(id) {
+            const c = companyRows.find(x => x.id === id); if (!c) return;
+            if (!confirm(`'${c.name}'${c.member_code ? ' (' + c.member_code + ')' : ''} 회원사를 삭제할까요?\n건물·직원 연결도 함께 지워지고 되돌릴 수 없습니다.\n(접수 기록이 없는 회원사만 삭제할 수 있습니다)`)) return;
+            const { error } = await supabaseClient.rpc('admin_sos_company_delete', { p_company_id: id });
+            if (error) {
+                const m = String(error.message || '');
+                alert(m.includes('HAS_REQUESTS') ? '이 회원사로 접수된 기록이 있어 삭제할 수 없습니다. 상태를 [반려] 또는 [이용 정지]로 바꿔 주세요.' : '삭제하지 못했습니다: ' + m);
+                return;
+            }
             fetchCompanies();
         }
         async function companyInvoice(id, status) {
