@@ -82,6 +82,31 @@
         .help-mo { display:inline; }
         .bd-note { border:1px solid #cbd5e1; border-radius:12px; margin-top:10px; }
       }
+      /* ===== 대기 상태 선택 ===== */
+      .mode-opt { display:flex; gap:10px; align-items:flex-start; border:2px solid #e5e7eb; border-radius:12px; padding:11px 12px; margin-top:8px; cursor:pointer; word-break:keep-all; }
+      .mode-opt input { width:18px; height:18px; margin-top:2px; flex-shrink:0; accent-color:#1d4ed8; cursor:pointer; }
+      .mode-opt b { display:block; font-size:15px; color:#111827; }
+      .mode-opt small { display:block; font-size:12.5px; font-weight:700; color:#6b7280; line-height:1.55; margin-top:2px; }
+      .mode-opt:has(input:checked) { border-color:#2563eb; background:#eff6ff; }
+      .mode-hint { font-size:12px; font-weight:700; color:#6b7280; margin:8px 2px 0; word-break:keep-all; }
+      .until-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+      .until-row select, .until-row input { border:2px solid #d1d5db; border-radius:10px; padding:9px 10px; font-size:14px; font-weight:800; color:#111827; background:#fff; }
+      .until-row button { border:0; border-radius:10px; padding:10px 12px; font-size:13px; font-weight:900; background:#e0e7ff; color:#1e3a8a; cursor:pointer; }
+      .until-note { font-size:12.5px; font-weight:700; color:#374151; margin:8px 2px 0; line-height:1.6; word-break:keep-all; }
+      #mode-bar { margin-top:10px; padding-top:10px; border-top:1px solid #e5e7eb; }
+      #mode-bar .seg { display:flex; gap:6px; }
+      #mode-bar .seg button { flex:1; border:2px solid #d1d5db; background:#fff; color:#374151; border-radius:10px; padding:9px 2px; font-size:13px; font-weight:900; cursor:pointer; white-space:nowrap; }
+      #mode-bar .seg button.on { border-color:#1d4ed8; background:#1d4ed8; color:#fff; }
+      .mode-live-hint { font-size:12px; font-weight:700; color:#4b5563; margin:8px 2px 0; line-height:1.55; word-break:keep-all; }
+      .away-pick { gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px; font-size:13px; font-weight:800; color:#374151; }
+      .away-pick button { border:1px solid #d1d5db; background:#fff; border-radius:8px; padding:7px 12px; font-weight:900; cursor:pointer; }
+      .away-pick button.cancel { color:#6b7280; }
+      .sb-banner { border-radius:10px; padding:10px 12px; font-size:13.5px; font-weight:800; line-height:1.6; margin-top:8px; word-break:keep-all; }
+      .sb-banner button { margin-left:8px; border:0; border-radius:8px; padding:5px 10px; font-weight:900; font-size:12.5px; cursor:pointer; }
+      .sb-banner.away { background:#f1f5f9; border:2px solid #94a3b8; color:#334155; } .sb-banner.away button { background:#1e3a8a; color:#fff; }
+      .sb-banner.ending { background:#fff7ed; border:2px solid #fb923c; color:#9a3412; } .sb-banner.ending button { background:#ea580c; color:#fff; }
+      .sb-banner.invite { background:#fef9c3; border:2px solid #f59e0b; color:#92400e; font-size:14.5px; animation: xsAlert 1.2s ease-in-out infinite; }
+      .until-line { font-size:13px; font-weight:800; color:#1f2937; margin:10px 2px 6px; }
       /* ===== 진행 중인 상담 (상담 세션) ===== */
       .xs-card { background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:14px; word-break:keep-all; }
       .xs-card.fu { background:#eff6ff; border-color:#93c5fd; }
@@ -206,12 +231,23 @@
                         <a href="sos-expert-scope.html" id="edit-scope-link" style="display:block;margin-top:12px;text-align:center;text-decoration:none;font-weight:900;font-size:14px;padding:11px 0;border-radius:10px;border:2px solid #93c5fd;background:#eff6ff;color:#1d4ed8;">✏️ 3단계 콜대기 조건 수정하기</a>
                     </div>
 
+                    <!-- ★ 지금 내 상태 + 대기 끝나는 시각 -->
+                    <div id="mode-picker" class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h2 class="font-black text-gray-800 text-[15px]">지금 내 상태 <span style="font-size:12px;color:#6b7280;font-weight:700;">(하나만 선택)</span></h2>
+                        <label class="mode-opt"><input type="radio" name="sb-mode" value="live" checked><span><b>🟢 바로 받기</b><small>화면 앞에 있어요. 전화가 오면 바로 받습니다. 요청자 화면 맨 위에 보입니다.</small></span></label>
+                        <label class="mode-opt"><input type="radio" name="sb-mode" value="notify"><span><b>🔔 알림 오면 응답</b><small>다른 일을 하고 있어요. 콜 문자·알림이 오면 3분 안에 [신청하기]를 누릅니다.</small></span></label>
+                        <p class="mode-hint">☕ 잠깐 자리를 비울 때는 대기를 시작한 뒤 [자리 비움]을 누르세요. 그동안은 요청자 화면에 보이지 않습니다.</p>
+                        <h2 class="font-black text-gray-800 text-[15px]" style="margin-top:16px;margin-bottom:8px;">대기 끝나는 시각</h2>
+                        <div class="until-row"><select id="sb-until"></select><input type="time" id="sb-until-custom" style="display:none;"></div>
+                        <p id="sb-until-note" class="until-note"></p>
+                    </div>
+
                     <!-- 대기 시작 → (2) 화면으로 이동 -->
                     <button id="start-btn" class="w-full bg-[#1e3a8a] hover:bg-blue-900 text-white font-black text-[17px] py-4 rounded-xl shadow-lg transition flex justify-center items-center gap-2">
                         <i class="fa-solid fa-tower-broadcast"></i> <span id="start-text">대기 시작하고 요청현황 보기</span>
                     </button>
                     <button id="end-btn-setup" class="hidden w-full bg-white border-2 border-gray-400 text-gray-700 hover:bg-gray-100 font-black text-[16px] py-3.5 rounded-xl transition flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-right-from-bracket"></i> 대기 종료하고 나가기
+                        <i class="fa-solid fa-right-from-bracket"></i> 지금 나가기 (대기 종료)
                     </button>
                 </div>
 
@@ -219,18 +255,40 @@
                 <div id="view-feed" class="hidden p-5 space-y-4 pb-6">
                     <div class="practice-note">💡 <b>연습 안내</b><br>실제에서는 고객이 접수하면 내 조건에 맞는 요청이 이 화면에 나타납니다. 연습에서는 몇 초 뒤 가상 요청이 도착합니다. '신청하기'를 눌러 응답해 보세요. 응답하면 요청자 화면에 내 정보와 소개가 표시되고, 요청자가 나를 선택하면 아래 '내가 선택된 요청'에 요청자 번호가 나타납니다.</div>
 
+                    <div id="invite-banner" class="sb-banner invite" style="display:none;"></div>
+
                     <!-- 상태 막대 -->
                     <div class="bg-white rounded-xl border border-green-200 shadow-sm p-3">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-green-500 standby-dot-on shrink-0"></span>
                             <p id="feed-status" class="flex-1 text-[13px] font-bold text-green-700 break-keep">대기중</p>
                         </div>
+                        <div id="mode-bar" style="display:none;">
+                            <div class="seg">
+                                <button type="button" data-mode="live">🟢 바로 받기</button>
+                                <button type="button" data-mode="notify">🔔 알림 응답</button>
+                                <button type="button" data-mode="away">☕ 자리 비움</button>
+                            </div>
+                            <div id="away-pick" class="away-pick" style="display:none;">자리 비움 시간:
+                                <button type="button" data-min="15">15분</button><button type="button" data-min="30">30분</button><button type="button" data-min="60">1시간</button><button type="button" data-min="0" class="cancel">취소</button>
+                            </div>
+                            <p id="mode-hint-live" class="mode-live-hint"></p>
+                            <div id="away-banner" class="sb-banner away" style="display:none;"></div>
+                            <div id="ending-banner" class="sb-banner ending" style="display:none;"></div>
+                            <p id="until-line" class="until-line"></p>
+                            <div class="until-row"><select id="sb-extend"></select><button type="button" id="sb-extend-btn">끝나는 시각 바꾸기</button></div>
+                            <div id="mode-practice-btns" style="display:none;">
+                                <button class="practice-btn" type="button" onclick="practiceSkip('ending')" style="display:block;width:100%;margin-top:8px;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;font-weight:800;font-size:12px;padding:9px 10px;border-radius:8px;">[연습] 끝나기 10분 전 상황 보기</button>
+                                <button class="practice-btn" type="button" onclick="practiceSkip('away')" style="display:block;width:100%;margin-top:6px;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;font-weight:800;font-size:12px;padding:9px 10px;border-radius:8px;">[연습] 자리 비움이 끝나 자동 복귀하는 상황 보기</button>
+                                <button class="practice-btn" type="button" onclick="practiceSkip('end')" style="display:block;width:100%;margin-top:6px;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;font-weight:800;font-size:12px;padding:9px 10px;border-radius:8px;">[연습] 대기 시간이 끝나 자동 종료되는 상황 보기</button>
+                            </div>
+                        </div>
                         <p id="checkin-status" class="text-[12px] font-bold text-gray-500 mt-2 break-keep"></p>
                         <button id="bump-btn" type="button">⬆ 순위 올리기 (요청자 화면 맨 위로)</button>
                         <label id="bump-alert-wrap"><input type="checkbox" id="bump-alert"> <span>🔔 10분 되면 소리·진동으로 알려주기<br><span style="font-weight:400;color:#6b7280;font-size:11.5px;">이 화면이 켜져 있을 때만 울립니다</span></span></label>
                         <div class="flex gap-2 mt-3">
                             <button id="to-setup-btn" class="flex-1 bg-gray-100 text-gray-700 font-bold text-[13px] py-2.5 rounded-lg hover:bg-gray-200 transition"><i class="fa-solid fa-sliders mr-1"></i> 내 조건 보기</button>
-                            <button id="end-btn-feed" class="flex-1 bg-white border border-gray-300 text-gray-700 font-bold text-[13px] py-2.5 rounded-lg hover:bg-gray-100 transition"><i class="fa-solid fa-right-from-bracket mr-1"></i> 대기 종료</button>
+                            <button id="end-btn-feed" class="flex-1 bg-white border border-gray-300 text-gray-700 font-bold text-[13px] py-2.5 rounded-lg hover:bg-gray-100 transition"><i class="fa-solid fa-right-from-bracket mr-1"></i> 지금 나가기</button>
                         </div>
                     </div>
 
@@ -453,8 +511,7 @@
     function scopeSummaryHtml() {
         const sc = me.service_scope;
         const catText = String(me.categories || me.category || '').split(',').map(x => x.trim()).filter(Boolean).map((c, i) => `${i + 1}순위 ${escapeHtml(c)}`).join(' · ') || '-';
-        const mode = me.contact_mode === 'text' ? '💬 문자 주시면 10분 안에 제가 전화드립니다' : '📞 전화 주시면 바로 받습니다';
-        let html = `<p><b>분야</b> ${catText}</p><p><b>연락 방식</b> ${mode}</p>`;
+        let html = `<p><b>분야</b> ${catText}</p>`;   // 연락 방식은 대기 시작할 때 '지금 내 상태'로 고름
         if (!sc) {
             const region = [me.region_main, me.region_sub].filter(Boolean).join(' ') || '-';
             return html + `<p><b>지역·시간</b> ${escapeHtml(region)} · ${hoursLabel()}</p><p style="color:#b45309;font-weight:800;margin-top:6px;">예전 방식으로 저장된 범위입니다. '수정하기'에서 지역(여러 곳)과 시간(여러 시간대)을 다시 저장해 주세요.</p>`;
@@ -543,7 +600,7 @@
         if (pollTimer) clearInterval(pollTimer);
         pollTimer = setInterval(() => {
             if (document.hidden || !me) return;
-            if (isStandby) loadOpenRequests();
+            if (isStandby) { loadOpenRequests(); loadMyInvites(); }
             loadAssigned();
             if (!mySessFast) loadMySessions();
         }, 10000);
@@ -579,7 +636,7 @@
         const el = document.getElementById('checkin-status');
         const btn = document.getElementById('bump-btn');
         if (!el || !btn) return;
-        if (!isStandby) { el.textContent = ''; return; }
+        if (!isStandby || sbMode() !== 'live') { el.textContent = ''; return; }
         const elapsed = lastCheckinAt ? Date.now() - lastCheckinAt : Infinity;
         const min = Math.floor(elapsed / 60000);
         if (elapsed < LIVE_MS) {
@@ -654,27 +711,323 @@
     const invitedReqId = (() => { const v = new URLSearchParams(location.search).get('req'); return v && /^[0-9a-f-]{36}$/i.test(v) ? v : null; })();
     let invitedNoticeShown = false;
 
+    // =====================================================================
+    // ★ 대기 상태 선택 (2026-11): 🟢 바로 받기 / 🔔 알림 오면 응답(3분) / ☕ 자리 비움
+    //   대기 끝나는 시각은 필수, 지나면 자동으로 대기 종료
+    // =====================================================================
+    const MODE_LABEL = { live: '🟢 바로 받기', notify: '🔔 알림 오면 응답', away: '☕ 자리 비움' };
+    const INVITE_REPLY_SEC = 180;            // 알림 오면 3분 안에 응답
+    const ENDING_WARN_MS = 10 * 60 * 1000;   // 끝나기 10분 전 알림
+    let sbState = null;                      // { raw_mode, standby_until(ms), away_until(ms), away_prev_mode }
+    let sbModesReady = true;                 // 대기 상태 SQL 적용 여부 (없으면 예전 방식으로 동작)
+    let endingWarned = false, awayWarned = false, sbAutoBusy = false;
+    let myInvites = new Map();               // 요청 id → 콜 문자 받은 시각(ms)
+    const invitesSeen = new Set();
+    let practiceInviteTimer = null;
+
+    function sbFromRow(row) {
+        sbState = {
+            raw_mode: row && row.standby_mode || (row && row.raw_mode) || null,
+            standby_until: row && row.standby_until ? Date.parse(row.standby_until) : null,
+            away_until: row && row.away_until ? Date.parse(row.away_until) : null,
+            away_prev_mode: row && row.away_prev_mode || null
+        };
+    }
+    // 화면용 상태: live / notify / away / null(대기 안 함·시간 끝남)
+    function sbMode() {
+        if (!isStandby) return null;
+        if (!sbState) return 'live';
+        if (sbState.standby_until && sbState.standby_until <= Date.now()) return null;
+        if (sbState.raw_mode === 'away') return (sbState.away_until && sbState.away_until > Date.now()) ? 'away' : (sbState.away_prev_mode || 'live');
+        return sbState.raw_mode === 'notify' ? 'notify' : 'live';
+    }
+    function fmtClock(ms) { return new Date(ms).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' }); }
+    function fmtLeft(ms) {
+        const t = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+        return (h ? h + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(s).padStart(2, '0');
+    }
+
+    // ---- 끝나는 시각 고르기 ----
+    function buildUntilOptions(sel, withCustom) {
+        const now = new Date();
+        const opts = [['60', '지금부터 1시간'], ['120', '지금부터 2시간'], ['240', '지금부터 4시간']];
+        [[18, '오늘 오후 6시까지'], [22, '오늘 오후 10시까지']].forEach(([h, label]) => {
+            const t = new Date(now); t.setHours(h, 0, 0, 0);
+            if (t.getTime() - now.getTime() > 15 * 60 * 1000) opts.push(['t' + h, label]);
+        });
+        if (withCustom) opts.push(['custom', '직접 입력']);
+        const keep = sel.value;
+        sel.innerHTML = opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+        sel.value = opts.some(o => o[0] === keep) ? keep : '120';
+    }
+    function untilFromValue(v, customEl) {
+        const now = Date.now();
+        if (/^\d+$/.test(v)) return now + parseInt(v) * 60000;
+        if (/^t\d+$/.test(v)) { const t = new Date(); t.setHours(parseInt(v.slice(1)), 0, 0, 0); return t.getTime(); }
+        if (v === 'custom' && customEl && customEl.value) {
+            const [h, m] = customEl.value.split(':').map(Number);
+            const t = new Date(); t.setHours(h, m, 0, 0);
+            if (t.getTime() <= now) t.setDate(t.getDate() + 1);   // 지난 시각이면 내일
+            return t.getTime();
+        }
+        return null;
+    }
+    function updateUntilNote() {
+        const sel = document.getElementById('sb-until');
+        const custom = document.getElementById('sb-until-custom');
+        custom.style.display = sel.value === 'custom' ? 'inline-block' : 'none';
+        const until = untilFromValue(sel.value, custom);
+        const note = document.getElementById('sb-until-note');
+        let html = until ? `→ <b>${fmtClock(until)}</b>까지 대기합니다. 이 시각이 지나면 자동으로 대기가 끝납니다.` : '→ 시각을 입력해 주세요.';
+        if (until && until - Date.now() > 24 * 3600 * 1000) html = '→ 24시간 안의 시각으로 골라 주세요.';
+        if (hoursLabel() !== '24시간') html += `<br><span style="color:#b45309;">※ 3단계에서 등록한 서비스 시간(${KC.esc(hoursLabel())}) 밖에는 요청이 오지 않습니다.</span>`;
+        note.innerHTML = html;
+    }
+
+    // ---- 서버에 상태 저장 ----
+    async function setMode(mode, untilMs, awayMin) {
+        if (isPractice) {
+            const cur = sbMode();
+            if (!sbState) sbState = { raw_mode: null, standby_until: null, away_until: null, away_prev_mode: null };
+            if (mode === 'live' || mode === 'notify') {
+                sbState.raw_mode = mode; sbState.away_until = null; sbState.away_prev_mode = null;
+                if (untilMs) sbState.standby_until = untilMs;
+                if (mode === 'live') lastCheckinAt = Date.now();
+            } else if (mode === 'away') {
+                sbState.away_prev_mode = cur === 'away' ? sbState.away_prev_mode : (cur || 'live');
+                sbState.raw_mode = 'away';
+                sbState.away_until = Math.min(Date.now() + awayMin * 60000, sbState.standby_until || Infinity);
+            } else if (mode === 'back') {
+                if (sbState.raw_mode === 'away') { sbState.raw_mode = sbState.away_prev_mode || 'live'; sbState.away_until = null; sbState.away_prev_mode = null; if (sbState.raw_mode === 'live') lastCheckinAt = Date.now(); }
+            } else if (mode === 'extend') sbState.standby_until = untilMs;
+            return true;
+        }
+        if (!sbModesReady) return 'legacy';
+        const { data, error } = await supabaseClient.rpc('sos_set_standby_mode', {
+            p_mode: mode, p_until: untilMs ? new Date(untilMs).toISOString() : null, p_away_minutes: awayMin || null
+        });
+        if (error) {
+            const msg = String(error.message || '') + ' ' + String(error.code || '');
+            console.error('대기 상태 저장 오류:', error);
+            if (/sos_set_standby_mode|PGRST202|42883/.test(msg)) { sbModesReady = false; return 'legacy'; }
+            if (msg.includes('BAD_UNTIL')) alert('끝나는 시각은 5분 뒤부터 24시간 안으로 골라 주세요.');
+            else if (msg.includes('NOT_STANDBY')) alert('대기 중이 아닙니다. 대기를 다시 시작해 주세요.');
+            else alert('대기 상태를 바꾸지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            return false;
+        }
+        sbFromRow(data);
+        if (data && data.last_checkin_at) lastCheckinAt = Date.parse(data.last_checkin_at);
+        return true;
+    }
+
+    // ---- 요청현황 화면의 상태 막대 ----
+    function renderModeBar() {
+        const bar = document.getElementById('mode-bar');
+        if (!bar) return;
+        const mode = sbMode();
+        if (!isStandby || !mode || (!sbModesReady && !isPractice)) {
+            bar.style.display = 'none';
+            ['bump-btn', 'bump-alert-wrap', 'checkin-status'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = ''; });
+            return;
+        }
+        bar.style.display = 'block';
+        bar.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+        const live = mode === 'live';
+        document.getElementById('bump-btn').style.display = live ? '' : 'none';
+        document.getElementById('bump-alert-wrap').style.display = live ? '' : 'none';
+        document.getElementById('checkin-status').style.display = live ? '' : 'none';
+        document.getElementById('feed-status').innerText = `대기중 · ${MODE_LABEL[mode]} · 전화상담`;
+        const hint = document.getElementById('mode-hint-live');
+        hint.innerHTML = mode === 'live' ? '요청자 화면 맨 위 <b>🟢 지금 대기 확인</b>에 보입니다. 10분마다 [순위 올리기]를 누르면 계속 위에 있습니다.'
+            : mode === 'notify' ? '요청자 화면에 <b>🔔 알림 오면 응답</b>으로 보입니다. 콜 문자·알림이 오면 <b>3분 안에</b> 아래 요청현황에서 [신청하기]를 눌러 주세요.'
+            : '자리 비움 중에는 요청자 화면에 보이지 않습니다. 시간이 되면 이전 상태로 자동 복귀합니다.';
+        const away = document.getElementById('away-banner');
+        if (mode === 'away') {
+            away.style.display = 'block';
+            away.innerHTML = `☕ 자리 비움 중 · <b>${fmtClock(sbState.away_until)}</b>에 자동 복귀 (남은 <span data-away-left>${fmtLeft(sbState.away_until - Date.now())}</span>)<button type="button" onclick="sbChange('back')">지금 복귀</button>`;
+        } else away.style.display = 'none';
+        document.getElementById('away-pick').style.display = 'none';
+        const line = document.getElementById('until-line');
+        line.innerHTML = sbState && sbState.standby_until
+            ? `⏱ <b>${fmtClock(sbState.standby_until)}</b>까지 대기 · 남은 <span data-until-left>${fmtLeft(sbState.standby_until - Date.now())}</span>`
+            : '⏱ 끝나는 시각이 정해지지 않았습니다. 아래에서 정해 주세요.';
+        buildUntilOptions(document.getElementById('sb-extend'), false);
+        renderEndingBanner();
+        const pb = document.getElementById('mode-practice-btns');
+        if (pb) pb.style.display = isPractice ? 'block' : 'none';
+    }
+    function renderEndingBanner() {
+        const el = document.getElementById('ending-banner');
+        const u = sbState && sbState.standby_until;
+        if (u && u - Date.now() <= ENDING_WARN_MS && u > Date.now()) {
+            el.style.display = 'block';
+            el.innerHTML = `⏰ <b>${fmtClock(u)}</b>에 대기가 끝납니다 (남은 <span data-until-left>${fmtLeft(u - Date.now())}</span>)<button type="button" onclick="sbExtendHour()">1시간 연장</button>`;
+        } else el.style.display = 'none';
+    }
+
+    async function sbChange(mode, awayMin) {
+        if (busy) return;
+        busy = true;
+        try {
+            let ok;
+            if ((mode === 'live' || mode === 'notify') && !(sbState && sbState.standby_until)) {
+                ok = await setMode(mode, untilFromValue(document.getElementById('sb-extend').value));
+            } else ok = await setMode(mode, null, awayMin);
+            if (ok === 'legacy') { alert('대기 상태 기능이 아직 준비되지 않았습니다. (운영진 확인 필요)'); return; }
+            if (!ok) return;
+            if (mode === 'away') awayWarned = false;
+            if (sbMode() === 'live') { await doCheckin(true); startCheckinLoop(); }
+            renderModeBar(); renderCheckinStatus();
+        } finally { busy = false; }
+    }
+    async function sbExtendHour() {
+        const base = Math.max(sbState && sbState.standby_until || 0, Date.now());
+        const until = Math.min(base + 60 * 60000, Date.now() + 24 * 3600 * 1000 - 60000);
+        const ok = await setMode('extend', until);
+        if (ok === true) { endingWarned = false; renderModeBar(); }
+    }
+    async function sbApplyExtend() {
+        const until = untilFromValue(document.getElementById('sb-extend').value);
+        if (!until) return;
+        if (!confirm(`대기 끝나는 시각을 ${fmtClock(until)}(으)로 바꿀까요?`)) return;
+        const ok = await setMode('extend', until);
+        if (ok === true) { endingWarned = false; renderModeBar(); }
+    }
+    // 연습: 시간 앞당겨 보기
+    function practiceSkip(kind) {
+        if (!sbState) return;
+        if (kind === 'ending') { sbState.standby_until = Date.now() + 9 * 60000 + 50000; endingWarned = false; }
+        if (kind === 'away' && sbMode() === 'away') { sbState.away_until = Date.now() + 3000; awayWarned = false; }
+        if (kind === 'end') { sbState.standby_until = Date.now() + 2000; }
+        renderModeBar();
+    }
+
+    // 대기 시간이 끝나면 자동 종료
+    async function sbAutoEnd() {
+        sbAutoBusy = true;
+        try {
+            if (!isPractice) await supabaseClient.rpc('set_my_standby', { p_on: false, p_level: selectedLevel });
+            else me.is_standby = false;
+            isStandby = false; sbState = null; stopRealtime(); stopCheckinLoop();
+            document.getElementById('open-list').innerHTML = '';
+            renderStandbyBadge(); renderModeBar(); showView('setup');
+            beep();
+            alert('정한 대기 시간이 끝나 자동으로 대기를 마쳤습니다.\n다시 받으려면 상태와 끝나는 시각을 골라 대기를 시작해 주세요.');
+        } finally { sbAutoBusy = false; }
+    }
+
+    // ---- 나에게 온 콜 문자 ----
+    function isInvited(id) { return id === invitedReqId || myInvites.has(id); }
+    async function loadMyInvites() {
+        if (!isStandby) { myInvites = new Map(); renderInviteBanner(); return; }
+        if (!isPractice && sbModesReady) {
+            try {
+                const { data, error } = await supabaseClient.rpc('sos_my_invites');
+                if (error) { if (/sos_my_invites|PGRST202|42883/.test(String(error.message) + error.code)) sbModesReady = false; return; }
+                myInvites = new Map((data || []).map(x => [x.request_id, Date.parse(x.invited_at)]));
+            } catch (e) { return; }
+        }
+        let fresh = false;
+        myInvites.forEach((t, id) => { if (!invitesSeen.has(id)) { invitesSeen.add(id); if (Date.now() - t < INVITE_REPLY_SEC * 1000) fresh = true; } });
+        if (fresh) {
+            try { if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 400]); } catch (e) {}
+            beep(); setTimeout(beep, 500); setTimeout(beep, 1000);
+            loadOpenRequests();
+        }
+        renderInviteBanner();
+    }
+    function pendingInvites() {
+        return [...myInvites.entries()].filter(([id, t]) => {
+            const row = boardRows.find(r => r.id === id);
+            return Date.now() - t < INVITE_REPLY_SEC * 1000 && !(row && row.my_offer);
+        });
+    }
+    function renderInviteBanner() {
+        const el = document.getElementById('invite-banner');
+        if (!el) return;
+        const list = pendingInvites();
+        if (!list.length) { el.style.display = 'none'; return; }
+        const t = Math.min(...list.map(x => x[1]));
+        el.style.display = 'block';
+        el.innerHTML = `📩 <b>콜 요청 ${list.length}건이 왔습니다!</b> 아래 노란 줄의 [신청하기]를 눌러 주세요 · 남은 <span data-invite-left="${t}">${fmtLeft(t + INVITE_REPLY_SEC * 1000 - Date.now())}</span>`;
+    }
+
+    // 1초마다: 남은 시간 표시, 끝나기 10분 전 알림, 자리 비움 복귀, 대기 자동 종료
+    setInterval(async () => {
+        if (!isStandby || sbAutoBusy) return;
+        document.querySelectorAll('[data-until-left]').forEach(el => { if (sbState && sbState.standby_until) el.textContent = fmtLeft(sbState.standby_until - Date.now()); });
+        document.querySelectorAll('[data-away-left]').forEach(el => { if (sbState && sbState.away_until) el.textContent = fmtLeft(sbState.away_until - Date.now()); });
+        document.querySelectorAll('[data-invite-left]').forEach(el => { el.textContent = fmtLeft(Number(el.dataset.inviteLeft) + INVITE_REPLY_SEC * 1000 - Date.now()); });
+        if (document.getElementById('invite-banner').style.display === 'block' && !pendingInvites().length) renderInviteBanner();
+        if (!sbState || (!sbModesReady && !isPractice)) return;
+        const now = Date.now();
+        if (sbState.standby_until && now >= sbState.standby_until) { await sbAutoEnd(); return; }
+        if (sbState.standby_until && sbState.standby_until - now <= ENDING_WARN_MS && !endingWarned) {
+            endingWarned = true; renderEndingBanner(); beep();
+            try { if (navigator.vibrate) navigator.vibrate([300, 150, 300]); } catch (e) {}
+        }
+        if (sbState.raw_mode === 'away' && sbState.away_until) {
+            if (sbState.away_until - now <= 60000 && !awayWarned) { awayWarned = true; beep(); }
+            if (now >= sbState.away_until && !busy) {
+                sbAutoBusy = true;
+                try { await setMode('back'); if (sbMode() === 'live') { await doCheckin(true); startCheckinLoop(); } renderModeBar(); renderCheckinStatus(); }
+                finally { sbAutoBusy = false; }
+            }
+        }
+    }, 1000);
+
+    // ---- 화면 버튼 연결 ----
+    (function bindModeUi() {
+        const sel = document.getElementById('sb-until');
+        buildUntilOptions(sel, true);
+        sel.addEventListener('change', updateUntilNote);
+        document.getElementById('sb-until-custom').addEventListener('input', updateUntilNote);
+        document.querySelectorAll('#mode-bar .seg button').forEach(b => b.addEventListener('click', () => {
+            const m = b.dataset.mode;
+            if (m === sbMode()) return;
+            if (m === 'away') { document.getElementById('away-pick').style.display = 'flex'; return; }
+            sbChange(m);
+        }));
+        document.querySelectorAll('#away-pick button').forEach(b => b.addEventListener('click', () => {
+            const min = parseInt(b.dataset.min);
+            document.getElementById('away-pick').style.display = 'none';
+            if (min) sbChange('away', min);
+        }));
+        document.getElementById('sb-extend-btn').addEventListener('click', sbApplyExtend);
+        setInterval(() => { if (!isStandby) { buildUntilOptions(sel, true); updateUntilNote(); } }, 60000);
+    })();
+
     document.getElementById('start-btn').addEventListener('click', async function() {
         if (busy) return;
         busy = true; this.disabled = true;
         try {
             if (!(await saveProfile())) return;
+            const mode = (document.querySelector('input[name="sb-mode"]:checked') || {}).value || 'live';
+            const until = untilFromValue(document.getElementById('sb-until').value, document.getElementById('sb-until-custom'));
+            if (!until || until - Date.now() < 5 * 60000 || until - Date.now() > 24 * 3600 * 1000) { alert('대기 끝나는 시각을 다시 골라 주세요. (5분 뒤부터 24시간 안)'); return; }
             if (!(await saveStandby(true, selectedLevel))) return;
-            isStandby = true; renderStandbyBadge(); showView('feed'); startRealtime();
-            await doCheckin(true); startCheckinLoop();
+            const r = await setMode(mode, until);
+            if (r === false) { await saveStandby(false, selectedLevel); return; }
+            isStandby = true; endingWarned = false; renderStandbyBadge(); showView('feed'); startRealtime();
+            if (sbMode() === 'live') await doCheckin(true);
+            startCheckinLoop(); renderModeBar(); loadMyInvites();
+            if (isPractice && mode === 'notify') {
+                clearTimeout(practiceInviteTimer);
+                practiceInviteTimer = setTimeout(() => { if (isStandby && practiceOpen.length) { myInvites.set(practiceOpen[0].id, Date.now()); loadMyInvites(); renderBoard(); } }, 7000);
+            }
         } finally { busy = false; this.disabled = false; }
     });
 
     async function endStandby() {
         if (busy) return;
-        if (!confirm('대기를 종료하고 나가시겠습니까?\n이미 신청한 요청은 요청자가 선택할 수 없게 됩니다.')) return;
+        if (!confirm('지금 나가시겠습니까? (대기 종료)\n이미 신청한 요청은 요청자가 선택할 수 없게 됩니다.')) return;
         busy = true;
         const ok = await saveStandby(false, selectedLevel);
         busy = false;
         if (!ok) return;
-        isStandby = false; stopRealtime(); stopCheckinLoop();
+        isStandby = false; sbState = null; myInvites = new Map(); stopRealtime(); stopCheckinLoop();
         document.getElementById('open-list').innerHTML = '';
-        renderStandbyBadge(); showView('setup');
+        renderStandbyBadge(); renderModeBar(); renderInviteBanner(); showView('setup');
     }
     
     document.getElementById('end-btn-setup').addEventListener('click', endStandby);
@@ -765,7 +1118,7 @@
             const m = elapsedMin(r.created_at);
             let dots = '';
             for (let i = 0; i < BOARD_MAX; i++) dots += `<span class="mb-dot${i < r.offer_count ? ' f' : ''}"></span>`;
-            const cls = r.id === invitedReqId && !r.my_offer ? 'inv' : (r.my_offer ? 'mine' : (state === '마감' ? 'closed' : ''));
+            const cls = isInvited(r.id) && !r.my_offer ? 'inv' : (r.my_offer ? 'mine' : (state === '마감' ? 'closed' : ''));
             const seat = state === '신청완료' ? '<span style="color:#16a34a">내가 신청함 · 요청자 선택 대기 중</span>'
                        : remain ? `남은 자리 ${remain}명` : '<span style="color:#dc2626">마감 (3명 신청 완료)</span>';
             return `<div class="mb-card ${cls}">
@@ -773,7 +1126,7 @@
                     <div class="mb-tags"><span class="mb-tag k">${escapeHtml(r.cat_label)}</span><span class="mb-tag">${escapeHtml(r.type_label)}</span></div>
                     <span class="mb-ago${m < 30 ? ' new' : ''}">${agoText(m)}</span>
                 </div>
-                <p class="mb-rg"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${r.id === invitedReqId ? '📩 ' : ''}${escapeHtml(r.region_short) || '-'}</p>
+                <p class="mb-rg"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${isInvited(r.id) ? '📩 ' : ''}${escapeHtml(r.region_short) || '-'}</p>
                 <div class="mb-seat">${dots}<span>${seat}</span></div>
                 ${btnOf(r)}
             </div>`;
@@ -784,7 +1137,7 @@
         let rows = boardRows.filter(r => Object.keys(boardFilter).every(col => boardFilter[col].has(String(cellValue(r, col)))));
         const { col, dir } = boardSort;
         rows.sort((a, b) => {
-            if (invitedReqId) { const d = (b.id === invitedReqId) - (a.id === invitedReqId); if (d) return d; }   // 콜 문자로 받은 요청은 맨 위
+            { const d = isInvited(b.id) - isInvited(a.id); if (d) return d; }   // 콜 문자로 받은 요청은 맨 위
             const x = cellValue(a, col), y = cellValue(b, col);
             const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'ko');
             return dir === 'asc' ? c : -c;
@@ -825,14 +1178,14 @@
             else if (offerType === 'dispatch' && !canDispatchNow) btn = '<button type="button" class="bd-btn bd-closed" disabled title="출동 가능 전문가만 신청할 수 있습니다">출동불가</button>';
             else btn = `<button type="button" class="bd-btn bd-apply" onclick="offerRequest('${KC.esc(r.id)}', '${offerType}')">신청하기</button>`;
             const remain = Math.max(0, BOARD_MAX - r.offer_count);
-            const cls = r.id === invitedReqId && !r.my_offer ? 'inv' : (r.my_offer ? 'mine' : '');
+            const cls = isInvited(r.id) && !r.my_offer ? 'inv' : (r.my_offer ? 'mine' : '');
             return `<tr class="${cls}">
                 <td class="num">${KC.esc(r.req_no || '-')}</td>
                 <td>${escapeHtml(r.cat_label)}</td>
                 <td>${escapeHtml(r.type_label)}</td>
                 <td class="tm">${hhmm(r.created_at)}</td>
                 <td class="tm">${elapsedText(elapsedMin(r.created_at))}</td>
-                <td class="rg" title="${escapeHtml(r.region_short || '')}">${r.id === invitedReqId ? '📩 ' : ''}${escapeHtml(r.region_short) || '-'}</td>
+                <td class="rg" title="${escapeHtml(r.region_short || '')}">${isInvited(r.id) ? '📩 ' : ''}${escapeHtml(r.region_short) || '-'}</td>
                 <td class="num">${KC.esc(r.offer_count)}</td>
                 <td class="num" style="color:${remain ? '#111827' : '#dc2626'}">${remain}</td>
                 <td>${btn}</td>
@@ -879,7 +1232,7 @@
 
     async function offerRequest(requestId, offerType) {
         if (inMainSession()) { alert('지금 다른 고객과 상담 중입니다.\n상담을 마치고 위 "상담 완료"를 누르면 새 요청에 신청할 수 있습니다.'); return; }
-        if (isPractice) { practiceOffer(requestId, offerType); return; }
+        if (isPractice) { practiceOffer(requestId, offerType); renderInviteBanner(); return; }
         const { error } = await supabaseClient.rpc('offer_sos_request', { p_request_id: requestId, p_offer_type: offerType });
         if (error) {
             const msg = String(error.message || '');
@@ -896,7 +1249,8 @@
         } else {
             doCheckin(true);   // 응답했다면 지금 화면 앞에 있다는 뜻이므로 대기 확인도 함께 남김
         }
-        loadOpenRequests();
+        await loadOpenRequests();
+        renderInviteBanner();
     }
 
     async function withdrawOffer(requestId) {
@@ -1144,6 +1498,14 @@
         if (!ok) { showState('state-noexpert'); return; }
         showState('state-ready'); renderMe(); await loadMySessions(); await loadAssigned();
         if (!isPractice) startPolling();
+        sbFromRow(me);
+        updateUntilNote();
+        // 정한 대기 시간이 이미 지났으면 정리하고 설정 화면으로
+        if (isStandby && sbState.standby_until && sbState.standby_until <= Date.now()) {
+            await saveStandby(false, selectedLevel);
+            isStandby = false; sbState = null; renderStandbyBadge();
+            alert('정한 대기 시간이 끝나 대기가 종료되어 있습니다.\n다시 받으려면 상태와 끝나는 시각을 골라 대기를 시작해 주세요.');
+        }
         if (isStandby) {
             showView('feed'); startRealtime();
             if (invitedReqId) { await doCheckin(true); }   // 콜 문자 링크로 들어왔으면 화면 앞에 있는 것이므로 바로 대기 확인
@@ -1151,11 +1513,12 @@
                 lastCheckinAt = me.last_checkin_at ? new Date(me.last_checkin_at).getTime() : null;
                 renderCheckinStatus();
             }
-            startCheckinLoop();
+            startCheckinLoop(); renderModeBar(); loadMyInvites();
         } else if (new URLSearchParams(location.search).get('start') === '1' || isPractice) {
-            // 3단계 저장 직후(또는 연습)에는 바로 대기를 시작하고 요청현황을 보여 줌
+            // 3단계 저장 직후(또는 연습)에는 상태·끝나는 시각을 고르고 대기를 시작하도록 안내
             showView('setup');
-            document.getElementById('start-btn').click();
+            const mp = document.getElementById('mode-picker');
+            if (mp) { mp.style.boxShadow = '0 0 0 3px #93c5fd'; setTimeout(() => mp.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200); }
         } else {
             showView('setup');
             if (invitedReqId) alert('콜 문자로 받은 요청에 응답하려면 먼저 아래 설정을 확인하고 "대기 시작하고 요청 보기"를 눌러 주세요.\n대기를 시작하면 해당 요청이 맨 위에 표시됩니다.');
