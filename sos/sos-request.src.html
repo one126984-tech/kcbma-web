@@ -168,6 +168,12 @@
   .renew-bid:hover { background:#dcfce7; }
   .renew-bid strong { display:block; font-size:15px; font-weight:900; color:#14532d; margin-bottom:2px; }
   .renew-bid span.desc { font-size:12.5px; font-weight:700; color:#166534; line-height:1.5; }
+  /* ★ 회원사 카드: 견적의뢰·전문가 코너(초록)와 구분되게 남색 계열 */
+  .renew-bid.co { background:#eef2ff; border-color:#c7d2fe; color:#3730a3; }
+  .renew-bid.co:hover { background:#e0e7ff; }
+  .renew-bid.co strong { color:#312e81; }
+  .renew-bid.co span.desc { color:#4338ca; }
+  .renew-bid.co .arrow { color:#4f46e5; }
   .renew-bid .arrow { flex-shrink:0; width:30px; height:30px; border-radius:999px; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; color:#16a34a; box-shadow:0 1px 2px rgba(0,0,0,.08); }
   .svc-phone-only { border:2px solid #3b82f6; background:#eff6ff; border-radius:12px; padding:14px 16px; word-break:keep-all; }
   .svc-phone-only .t { font-weight:900; color:#111827; font-size:15px; }
@@ -243,7 +249,7 @@
         </a>
 
         <!-- ★ 회원사(관리회사·건물) 후불 이용 -->
-        <a href="sos-company.html" class="renew-bid" style="background:#ecfdf5;border-color:#a7f3d0;margin-top:10px;">
+        <a href="sos-company.html" class="renew-bid co" style="margin-top:10px;">
             <div>
                 <strong>🏢 관리회사·건물 회원사 (후불)</strong>
                 <span class="desc">직원은 결제 없이 바로 접수, 이용료는 매월 회사 카드로 한 번에. 건물 코드로 직원 연결.</span>
