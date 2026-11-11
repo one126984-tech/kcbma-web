@@ -1097,7 +1097,6 @@
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타입력</span></button>
             </div>
             <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-            <div id="safety-classic" class="safety-119">🚒 <b>불길·연기가 보이거나, 가스 냄새가 진하거나, 다친 사람이 있으면</b> 먼저 119에 신고하세요.<br>그 정도가 아니라면(경보기가 울리는데 불은 안 보임, 냄새가 약간 남, 조치 방법이 궁금함 등) 그대로 전화상담을 접수하시면 됩니다.<br><span style="font-weight:700;">가스 냄새가 나면 밸브를 잠그고 창문을 열어 주세요. 전기 스위치·불꽃은 건드리지 마세요.</span><br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
         </div>
 
         <!-- 3. 연락처 -->
@@ -1191,7 +1190,6 @@
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타(입력)</span></button>
                 </div>
                 <input type="text" id="q-category-custom" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-                <div id="safety-quick" class="safety-119">🚒 <b>불길·연기가 보이거나, 가스 냄새가 진하거나, 다친 사람이 있으면</b> 먼저 119에 신고하세요.<br>그 정도가 아니라면(경보기가 울리는데 불은 안 보임, 냄새가 약간 남, 조치 방법이 궁금함 등) 그대로 전화상담을 접수하시면 됩니다.<br><span style="font-weight:700;">가스 냄새가 나면 밸브를 잠그고 창문을 열어 주세요. 전기 스위치·불꽃은 건드리지 마세요.</span><br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
             </div>
 
             <div class="mb-6">
@@ -1317,7 +1315,7 @@
             <div class="consent-card">
                 <p style="font-size:14px; font-weight:700; color:#374151; line-height:1.7; margin:0 0 14px; word-break:keep-all;">
                     <i class="fa-solid fa-circle-info" style="color:#9ca3af; margin-right:4px;"></i><strong>이용 전 꼭 확인해 주세요</strong><br>
-                    대한집합건물관리협회는 신청자와 전문가를 전화로 연결하는 서비스만 제공합니다. 전문가의 안내는 참고용 조언이며, 현장 조치·수리·공사의 최종 판단과 책임은 이용자와 시공업체에 있습니다. 불길·연기, 진한 가스 냄새, 다친 사람이 있는 등 생명·안전이 위험한 상황은 119에 먼저 신고해 주세요.
+                    대한집합건물관리협회는 신청자와 전문가를 전화로 연결하는 서비스만 제공합니다. 전문가의 안내는 참고용 조언이며, 현장 조치·수리·공사의 최종 판단과 책임은 이용자와 시공업체에 있습니다.
                 </p>
                 <label class="consent-label">
                     <input type="checkbox" class="consent-chk" ${consentChecked ? 'checked' : ''} onchange="onConsentChange(this.checked)" style="margin-top:2px;">
@@ -1791,10 +1789,6 @@
             return t ? '기타(' + t + ')' : '기타';
         });
 
-        // ★ 생명·안전 위험 상황은 119 먼저 (확인 후에만 접수 진행)
-        if (selectedCats[gridId].some(c => c === '화재' || c === '가스')) {
-            if (!confirm('🚒 불길·연기가 보이거나, 가스 냄새가 진하거나, 다친 사람이 있나요?\n그렇다면 [취소]를 누르고 먼저 119에 신고해 주세요.\n\n그 정도가 아니라면 [확인]을 눌러 전화상담 접수를 계속하세요.\n(가스 냄새가 나면 밸브를 잠그고 창문을 열어 주세요. 전기 스위치·불꽃은 금지)')) return;
-        }
         // ★ 운영 시간 외 안내 (접수는 가능)
         if (!isOpenHours()) {
             const pad = n => String(n).padStart(2, '0');
