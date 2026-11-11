@@ -102,7 +102,7 @@ function isNoIndex(rel) {
     if (/-(write|edit)\.html$/.test(rel)) return true;
     return [
         'login.html', 'callback.html',
-        'sos/sos-room.html', 'sos/sos-standby.html', 'sos/sos-recharge.html',
+        'sos/sos-room.html', 'sos/sos-standby.html', 'sos/sos-recharge.html', 'sos/sos-company.html',
         'sos/sos-expert-menu.html', 'sos/sos-expert-profile.html', 'sos/sos-expert-scope.html',
         'cert/cert-player.html', 'cert/cert-exam.html', 'cert/cert-enroll.html',
     ].includes(rel);

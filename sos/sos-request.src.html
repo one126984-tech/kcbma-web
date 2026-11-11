@@ -242,6 +242,15 @@
             <span class="arrow">→</span>
         </a>
 
+        <!-- ★ 회원사(관리회사·건물) 후불 이용 -->
+        <a href="sos-company.html" class="renew-bid" style="background:#ecfdf5;border-color:#a7f3d0;margin-top:10px;">
+            <div>
+                <strong>🏢 관리회사·건물 회원사 (후불)</strong>
+                <span class="desc">직원은 결제 없이 바로 접수, 이용료는 매월 회사 카드로 한 번에. 건물 코드로 직원 연결.</span>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+
         <button type="button" onclick="openStepModal()" class="w-full bg-[#f0fdf4] border-2 border-green-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:bg-green-50 transition flex items-center justify-between group cursor-pointer">
             <div class="text-left">
                 <h3 class="text-green-800 font-bold text-[17px] mb-2 flex items-center gap-2">
@@ -475,6 +484,15 @@
     let consentChecked = false;
     let submitting = false;
     let savedProfile = null;
+    let companyMe = null;        // ★ 회원사: sos_company_me 결과 (승인된 직원이면 관리 건물 목록 포함)
+    function companyReady() { return !!(companyMe && companyMe.member && companyMe.member.status === 'active' && companyMe.company && companyMe.company.ready); }
+    async function loadCompanyMe() {
+        if (isPracticeMode) { companyMe = null; return; }
+        try {
+            const { data, error } = await supabaseClient.rpc('sos_company_me');
+            companyMe = (!error && data && data.member) ? data : null;
+        } catch (e) { companyMe = null; }
+    }
     let quickPlace = null;
 
     // ★ 요금 A안 (2026-11): 주간(평일 09~18시, 공휴일 제외) 4만 원 / 야간·주말·공휴일 6만 원
@@ -581,8 +599,8 @@
         let balRowHtml = '';
         if (isPostpaidMember) {
             balRowHtml = `<div class="bal-row p-3 rounded-lg bg-green-50 border border-green-200 mt-3">
-                            <span class="font-bold text-green-800 text-[14px]"><i class="fa-solid fa-building-circle-check"></i> 협회 정회원사 (후불 패스)</span>
-                            <span class="font-black text-green-700 text-[14px]">충전 불필요 (월말 정산)</span>
+                            <span class="font-bold text-green-800 text-[14px]"><i class="fa-solid fa-building-circle-check"></i> ${companyReady() ? '회원사 후불 · ' + KC.esc(companyMe.company.name) : '협회 정회원사 (후불 패스)'}</span>
+                            <span class="font-black text-green-700 text-[14px]">결제 없음 (${companyReady() ? '매월 회사 카드로 청구' : '월말 정산'})</span>
                           </div>`;
         } else if (freeMode) {
             balRowHtml = `<div class="bal-row p-3 rounded-lg bg-blue-50 border border-blue-200 mt-3" style="display:block;">
@@ -804,7 +822,7 @@
         });
     }
 
-    function startActual() { isPracticeMode = false; updateModeUI(); showQuick(); loadRealBalance(); }
+    function startActual() { isPracticeMode = false; updateModeUI(); showQuick(); loadRealBalance(); loadCompanyMe().then(() => renderPayCards()); }
     function startPractice() { isPracticeMode = true; updateModeUI(); showQuick(); renderPayCards(); }
     function showQuick() { currentFlow = 'quick'; showStep('step-quick'); }
     function startClassic() { currentFlow = 'classic'; updateModeUI(); showStep('step-1-situation'); }
@@ -837,7 +855,7 @@
     function renderQuickPlace(key) {
         if (!savedProfile) return;
         const pl = savedProfile.places.find(p => p.key === key) || savedProfile.places[0];
-        quickPlace = { addr: pl.addr, detail: pl.detail || '', phone: savedProfile.phone || '' };
+        quickPlace = { addr: pl.addr, detail: pl.detail || '', phone: savedProfile.phone || '', buildingId: pl.buildingId || null, label: pl.label };
         document.getElementById('q-sum-addr').innerText = pl.addr;
         document.getElementById('q-sum-detail').innerText = pl.detail || '';
         document.getElementById('q-sum-phone').innerText = savedProfile.phone || '';
@@ -869,15 +887,19 @@
             if (!user) { alert('로그인이 필요합니다.'); window.location.href = '{{BASE}}login.html'; return; }
             const { data, error } = await supabaseClient.from('member_sos_profile').select('*').eq('user_id', user.id).maybeSingle();
             if (error) throw error;
+            if (!companyMe) await loadCompanyMe();
             const places = [];
+            // ★ 회원사 직원: 관리 건물을 맨 앞에 (고르면 그 건물로 접수되어 회사로 청구)
+            if (companyReady()) (companyMe.buildings || []).filter(b => b.active !== false).forEach(b =>
+                places.push({ key: 'b_' + b.id, label: '🏢 ' + b.name, addr: b.address, detail: b.address_detail, buildingId: b.id }));
             if (data && data.home_address)  places.push({ key: 'home',  label: '집',   addr: data.home_address,  detail: data.home_detail });
             if (data && data.work_address)  places.push({ key: 'work',  label: '회사', addr: data.work_address,  detail: data.work_detail });
             if (data && data.other_address) places.push({ key: 'other', label: data.other_label || '기타', addr: data.other_address, detail: data.other_detail });
             if (!places.length) {
-                alert('저장된 정보가 없습니다.\n"새로 직접 입력하기"에서 입력하고 "이 정보를 기본 정보로 저장"을 체크해 주세요.');
+                alert((companyMe && !companyReady() ? '회원사 이용 준비가 아직 끝나지 않아 관리 건물을 불러올 수 없습니다.\n' : '') + '저장된 정보가 없습니다.\n"새로 직접 입력하기"에서 입력하고 "이 정보를 기본 정보로 저장"을 체크해 주세요.');
                 return;
             }
-            savedProfile = { phone: data.phone || '', places };
+            savedProfile = { phone: (data && data.phone) || (companyMe && companyMe.member && companyMe.member.phone) || '', places };
             summaryBox.classList.remove('hidden');
             summaryBox.classList.add('block');
             renderQuickPlace(places[0].key);
@@ -1184,6 +1206,21 @@
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { alert('로그인이 필요합니다.'); window.location.href = '{{BASE}}login.html'; return; }
             await saveProfileToDb(user.id, form);
+            // ★ 회원사: 이번 접수의 건물·호출자를 서버에 알려 둠 (접수 건에 회사·건물이 자동으로 붙음)
+            if (!companyMe) await loadCompanyMe();
+            if (companyReady()) {
+                let callerName = null, callerPhone = null;
+                if (companyMe.member.role === 'shared') {
+                    callerName = (prompt('공용 계정입니다. 지금 호출하시는 분의 이름을 입력해 주세요.', '') || '').trim();
+                    if (!callerName) { alert('호출자 이름을 입력해야 접수됩니다.'); return; }
+                    callerPhone = (prompt('호출하시는 분의 연락처를 입력해 주세요. (전문가가 이 번호로 연락합니다)', form.phone || '') || '').trim();
+                    if (callerPhone.replace(/[^0-9]/g, '').length < 9) { alert('연락처를 정확히 입력해 주세요.'); return; }
+                    form.phone = callerPhone;
+                }
+                const bId = (currentFlow === 'quick' && quickPlace && quickPlace.buildingId) ? quickPlace.buildingId : null;
+                const prep = await supabaseClient.rpc('sos_company_prepare', { p_building_id: bId, p_caller_name: callerName, p_caller_phone: callerPhone });
+                if (prep.error) { console.error('회원사 접수 준비 오류:', prep.error); if (String(prep.error.message || '').includes('CALLER_REQUIRED')) { alert('호출자 이름과 연락처를 입력해 주세요.'); return; } }
+            }
             const { data, error } = await supabaseClient.rpc('create_sos_request', {
                 p_service_type: SOS_DISPATCH_ENABLED ? selectedType : 'phone',
                 p_category: catLabels.join(','),

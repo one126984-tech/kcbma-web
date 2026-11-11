@@ -876,6 +876,7 @@
                 <div class="sos-tab" id="tab-btn-applications" onclick="switchTab('applications')">지원자 심사 <span id="app-pending-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
                 <div class="sos-tab" id="tab-btn-disputes" onclick="switchTab('disputes')">끊김·연결불가 신고 <span id="dispute-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
                 <div class="sos-tab" id="tab-btn-settle" onclick="switchTab('settle')">💰 월 정산</div>
+                <div class="sos-tab" id="tab-btn-company" onclick="switchTab('company')">🏢 회원사 <span id="company-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
                 <div class="sos-tab" id="tab-btn-night" onclick="switchTab('night')">🌙 심야 당번·09시 예약 <span id="night-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
             </div>
 
@@ -1103,6 +1104,24 @@
             </div>
             <!-- ================= /탭6 ================= -->
 
+            <!-- ================= 탭7: 회원사 (2026-11) ================= -->
+            <div id="tab-company" class="hidden flex-col gap-4">
+                <div style="background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;border-radius:10px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.7;word-break:keep-all;">
+                    회원사 담당자가 <b>회원사 센터</b>에서 가입 신청 → 여기서 <b>승인</b> → 담당자가 <b>카드 등록(필수)</b> → 건물 등록·직원 승인 순서로 진행됩니다. 카드 등록 전에는 승인해도 후불 이용이 시작되지 않습니다.<br>
+                    매월 초 전월 이용 금액을 확인하고 <b>등록 카드로 청구</b>한 뒤 [결제 완료]를 눌러 주세요. 월 회비는 없습니다. 월 한도는 알림용이라 넘어도 접수를 막지 않습니다.
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <h3 class="font-black text-gray-800 mr-auto">회원사 목록</h3>
+                        <span style="font-size:13px;font-weight:700;color:#374151;">이용 월</span>
+                        <input type="month" id="company-month" style="border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
+                        <button onclick="fetchCompanies()" style="background:#059669;color:#fff;border:0;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer;">조회</button>
+                    </div>
+                    <div id="company-list" class="flex flex-col gap-3"><p class="text-sm text-gray-400">불러오는 중...</p></div>
+                </div>
+            </div>
+            <!-- ================= /탭7 ================= -->
+
         </section>
     </main>
 
@@ -1208,6 +1227,11 @@
             const isDis = tab === 'disputes';
             const isNight = tab === 'night';
             const isSettle = tab === 'settle';
+            const isCompany = tab === 'company';
+            document.getElementById('tab-company').classList.toggle('hidden', !isCompany);
+            document.getElementById('tab-company').classList.toggle('flex', isCompany);
+            document.getElementById('tab-btn-company').classList.toggle('active', isCompany);
+            if (isCompany) { initCompanyMonth(); fetchCompanies(); }
             document.getElementById('tab-settle').classList.toggle('hidden', !isSettle);
             document.getElementById('tab-settle').classList.toggle('flex', isSettle);
             document.getElementById('tab-btn-settle').classList.toggle('active', isSettle);
@@ -1313,6 +1337,85 @@
             const { error } = await supabaseClient.from('sos_morning_reservations').update({ status: 'done', admin_note: note, handled_at: new Date().toISOString() }).eq('id', id);
             if (error) { alert('처리하지 못했습니다: ' + error.message); return; }
             fetchReservations();
+        }
+
+        // ================= 🏢 회원사 (2026-11) =================
+        let companyRows = [];
+        const CO_STATUS = { pending: ['협회 승인 대기', '#92400e', '#fef3c7'], active: ['승인', '#166534', '#dcfce7'], suspended: ['이용 정지', '#991b1b', '#fee2e2'], rejected: ['반려', '#4b5563', '#f3f4f6'] };
+        function initCompanyMonth() {
+            const el = document.getElementById('company-month');
+            if (!el.value) el.value = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7);
+        }
+        async function fetchCompanies() {
+            const box = document.getElementById('company-list');
+            const m = document.getElementById('company-month').value || new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7);
+            const { data, error } = await supabaseClient.rpc('admin_sos_companies', { p_month: m + '-01' });
+            if (error) { box.innerHTML = '<p class="text-sm text-red-500">회원사 목록을 불러오지 못했습니다. (sos_company_2026-11.sql 을 실행했는지 확인해 주세요)</p>'; console.error(error); return; }
+            companyRows = data || [];
+            const pend = companyRows.filter(c => c.status === 'pending').length;
+            const badge = document.getElementById('company-badge');
+            if (badge) { badge.textContent = pend; badge.classList.toggle('hidden', !pend); }
+            if (!companyRows.length) { box.innerHTML = '<p class="text-sm text-gray-400">가입한 회원사가 없습니다.</p>'; return; }
+            const w = n => Number(n || 0).toLocaleString() + '원';
+            box.innerHTML = companyRows.map(c => {
+                const st = CO_STATUS[c.status] || CO_STATUS.pending;
+                const u = c.usage || {};
+                const over = c.monthly_limit && Number(u.total || 0) >= Number(c.monthly_limit);
+                const inv = c.invoice;
+                const id = escapeHtml(c.id);
+                return `<div style="border:1px solid ${c.status === 'pending' ? '#fcd34d' : '#e5e7eb'};border-radius:12px;padding:14px;font-size:13px;line-height:1.65;word-break:keep-all;">
+                    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <p style="font-weight:900;font-size:15px;color:#111827;">${escapeHtml(c.name)}
+                            <span style="font-size:12px;font-weight:900;padding:2px 8px;border-radius:999px;background:${st[2]};color:${st[1]};">${st[0]}</span>
+                            <span style="font-size:12px;font-weight:900;padding:2px 8px;border-radius:999px;background:${c.card_registered ? '#dcfce7' : '#fee2e2'};color:${c.card_registered ? '#166534' : '#991b1b'};">${c.card_registered ? '💳 ' + escapeHtml(c.card_label || '카드 등록') : '카드 미등록'}</span>
+                            ${c.ready ? '<span style="font-size:12px;font-weight:900;color:#059669;">● 후불 이용 중</span>' : ''}</p>
+                        <span style="color:#6b7280;font-size:12px;">신청 ${escapeHtml(formatDateTime(c.created_at))}</span>
+                    </div>
+                    <div style="color:#374151;">사업자 ${escapeHtml(c.biz_no || '-')} · 담당 ${escapeHtml(c.manager_name || '-')} <a href="tel:${escapeHtml(String(c.manager_phone || '').replace(/[^0-9]/g, ''))}" style="color:#1d4ed8;font-weight:800;">${escapeHtml(c.manager_phone || '')}</a> · ${escapeHtml(c.tax_email || '이메일 없음')}</div>
+                    <div style="color:#6b7280;">건물 ${c.building_count}곳 · 직원 ${c.member_count}명${c.pending_count ? ` · <b style="color:#b45309;">직원 승인 대기 ${c.pending_count}명</b>` : ''}${c.card_customer_uid ? ' · 빌링 고객번호 ' + escapeHtml(c.card_customer_uid) : ''}</div>
+                    <div style="margin-top:6px;background:#f9fafb;border-radius:8px;padding:8px 10px;">
+                        <b>${escapeHtml(String(u.month || '').slice(0, 7))} 이용</b> 상담 ${u.consult_count || 0}건 ${w(u.consult_amount)} + 연장 ${u.extend_count || 0}건 ${w(u.extend_amount)}${u.refund_amount ? ' − 환불 ' + w(u.refund_amount) : ''}
+                        = <b style="font-size:15px;color:${over ? '#dc2626' : '#111827'};">${w(u.total)}</b> <span style="color:#6b7280;">(한도 ${w(c.monthly_limit)}${over ? ' · 초과' : ''})</span>
+                        <div style="margin-top:4px;">청구: ${inv ? `<b style="color:${inv.status === 'paid' ? '#166534' : '#b45309'};">${inv.status === 'paid' ? '결제 완료' : (inv.status === 'void' ? '취소' : '청구 확정·결제 대기')}</b> ${w(inv.amount)}${inv.memo ? ' · ' + escapeHtml(inv.memo) : ''}` : '<span style="color:#6b7280;">아직 없음</span>'}
+                            <button onclick="companyInvoice('${id}','unpaid')" style="margin-left:6px;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:800;cursor:pointer;">청구 확정</button>
+                            <button onclick="companyInvoice('${id}','paid')" style="background:#059669;color:#fff;border:0;border-radius:6px;padding:4px 9px;font-size:12px;font-weight:800;cursor:pointer;">결제 완료</button></div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;">
+                        <select id="co-st-${id}" style="border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
+                            ${['pending', 'active', 'suspended', 'rejected'].map(k => `<option value="${k}" ${c.status === k ? 'selected' : ''}>${CO_STATUS[k][0]}</option>`).join('')}
+                        </select>
+                        <span style="font-size:12.5px;font-weight:700;">월 한도</span>
+                        <input id="co-lim-${id}" type="number" step="10000" min="0" value="${escapeHtml(c.monthly_limit)}" style="width:110px;border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
+                        <input id="co-note-${id}" value="${escapeHtml(c.admin_note || '')}" placeholder="관리 메모" style="flex:1;min-width:150px;border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
+                        <button onclick="saveCompanyAdmin('${id}')" style="background:#1e3a8a;color:#fff;border:0;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer;">저장</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        async function saveCompanyAdmin(id) {
+            const st = document.getElementById('co-st-' + id).value;
+            const c = companyRows.find(x => x.id === id);
+            if (c && c.status !== st && !confirm(`'${c.name}' 상태를 '${CO_STATUS[st][0]}'(으)로 바꿀까요?${st === 'active' && !c.card_registered ? '\n(카드를 등록해야 후불 이용이 시작됩니다)' : ''}${st === 'suspended' ? '\n(정지하면 직원들은 개인 결제로 바뀝니다)' : ''}`)) return;
+            const { error } = await supabaseClient.rpc('admin_sos_company_update', {
+                p_company_id: id, p_status: st,
+                p_monthly_limit: parseInt(document.getElementById('co-lim-' + id).value, 10) || 0,
+                p_note: document.getElementById('co-note-' + id).value.trim() || null
+            });
+            if (error) { alert('저장하지 못했습니다: ' + error.message); return; }
+            fetchCompanies();
+        }
+        async function companyInvoice(id, status) {
+            const c = companyRows.find(x => x.id === id); if (!c) return;
+            const m = document.getElementById('company-month').value;
+            const total = Number((c.usage || {}).total || 0);
+            let memo = null;
+            if (status === 'paid') {
+                memo = prompt(`'${c.name}' ${m} 이용료 ${total.toLocaleString()}원을 등록 카드로 결제 완료했나요?\n메모(승인번호 등)를 적어 주세요.`, '');
+                if (memo === null) return;
+            } else if (!confirm(`'${c.name}' ${m} 청구 금액을 ${total.toLocaleString()}원으로 확정할까요?`)) return;
+            const { error } = await supabaseClient.rpc('admin_sos_company_invoice', { p_company_id: id, p_month: m + '-01', p_status: status, p_method: 'card', p_memo: memo || null });
+            if (error) { alert('처리하지 못했습니다: ' + error.message); return; }
+            fetchCompanies();
         }
 
         // ================= 💰 월 정산 (정률 수수료 20%) =================

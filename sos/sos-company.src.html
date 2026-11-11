@@ -1,0 +1,481 @@
+<!-- 파일명: sos-company.src.html -->
+<!-- @var PAGE_CLASS: page-sos-company -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원사 센터 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+  <style>
+      #co-top-banner { background-color: #065f46; }
+      .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+      .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden !important; }
+      .break-keep { word-break: keep-all; }
+      .co-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+      .co-h { font-size:15px; font-weight:900; color:#111827; margin:0 0 10px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      .co-sub { font-size:12.5px; font-weight:600; color:#6b7280; line-height:1.6; word-break:keep-all; margin:0 0 10px; }
+      .co-label { display:block; font-size:13px; font-weight:800; color:#374151; margin:10px 0 4px; }
+      .co-input { width:100%; box-sizing:border-box; border:1px solid #d1d5db; border-radius:10px; padding:10px 12px; font-size:14px; }
+      .co-input:focus { outline:none; border-color:#059669; box-shadow:0 0 0 2px #a7f3d0; }
+      .co-btn { display:block; width:100%; border:0; border-radius:10px; font-weight:900; font-size:15px; padding:13px 0; cursor:pointer; margin-top:12px; }
+      .co-btn.green { background:#059669; color:#fff; } .co-btn.green:hover { background:#047857; }
+      .co-btn.white { background:#fff; color:#374151; border:1px solid #d1d5db; } .co-btn.white:hover { background:#f9fafb; }
+      .co-btn.blue { background:#2563eb; color:#fff; } .co-btn.blue:hover { background:#1d4ed8; }
+      .co-mini { border:0; border-radius:8px; font-weight:800; font-size:12.5px; padding:6px 10px; cursor:pointer; white-space:nowrap; }
+      .co-mini.green { background:#059669; color:#fff; } .co-mini.gray { background:#f3f4f6; color:#374151; } .co-mini.red { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; }
+      .co-mini.blue { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+      .co-badge { display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:900; white-space:nowrap; }
+      .b-ok { background:#dcfce7; color:#166534; } .b-wait { background:#fef3c7; color:#92400e; } .b-no { background:#fee2e2; color:#991b1b; } .b-gray { background:#f3f4f6; color:#4b5563; }
+      .co-row { display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid #f3f4f6; }
+      .co-row:last-child { border-bottom:0; }
+      .co-code { font-family:ui-monospace,Menlo,monospace; font-size:16px; font-weight:900; letter-spacing:2px; color:#065f46; background:#ecfdf5; border:1px dashed #6ee7b7; border-radius:8px; padding:3px 8px; }
+      .co-steps { list-style:disc; margin:0; padding-left:18px; font-size:13px; font-weight:600; color:#374151; line-height:1.8; word-break:keep-all; }
+      .co-bar { height:8px; background:#f3f4f6; border-radius:999px; overflow:hidden; margin-top:6px; }
+      .co-bar > div { height:100%; background:#059669; }
+      .co-bar.over > div { background:#dc2626; }
+      .co-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+      .co-tbl th, .co-tbl td { padding:7px 4px; border-bottom:1px solid #f3f4f6; text-align:left; word-break:keep-all; }
+      .co-tbl th { color:#6b7280; font-weight:800; }
+      .co-tbl td.r, .co-tbl th.r { text-align:right; white-space:nowrap; }
+      .hidden { display:none !important; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
+  <script src="{{BASE}}assets/js/supabase-config.js"></script>
+  <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+
+<!-- @include view-transition-css -->
+<!-- @include common-css -->
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden {{PAGE_CLASS}} bg-gray-100">
+
+<!-- @include header -->
+    <div id="sticky-top-bar" class="w-full flex flex-col shrink-0 bg-transparent z-[900]">
+        <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md"></div>
+    </div>
+<!-- @include header-close -->
+
+<div id="page-content" class="flex-1 flex flex-col overflow-hidden min-h-0 relative">
+    <div class="w-full bg-gray-100 shrink-0" style="height:14px;"></div>
+
+    <main id="main-content" class="flex-1 w-full overflow-y-auto custom-scroll bg-gray-100 pb-24">
+        <div class="w-full max-w-md mx-auto min-h-full bg-gray-50 shadow-lg flex flex-col relative">
+
+            <div id="co-top-banner" class="text-white py-5 shadow-sm shrink-0 flex items-center justify-center relative z-20">
+                <button onclick="history.length > 1 ? history.back() : (location.href='sos-request.html')" class="absolute left-4 top-1/2 -translate-y-1/2 hover:bg-emerald-800 p-2 rounded-full transition">
+                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                </button>
+                <h1 class="text-[19px] font-black tracking-tight">🏢 SOS 회원사 센터</h1>
+            </div>
+
+            <div id="co-root" class="p-4 space-y-4 pb-10">
+                <p class="text-sm text-gray-400 text-center py-10">불러오는 중...</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const supabaseClient = window.sb;
+    const esc = v => KC.esc(v);
+    const won = n => Number(n || 0).toLocaleString() + '원';
+
+    // ★ 카드 등록(포트원 정기결제 빌링키). 정기결제 채널을 만든 뒤 아래 값을 채워야 카드 등록 버튼이 동작합니다.
+    //   (일반 결제 채널과 다른 '정기결제(빌링)' 채널 키. 비어 있으면 '준비 중' 안내만 나옵니다)
+    const PAY_STORE_ID = 'imp38872420';
+    const BILLING_CHANNEL_KEY = '';
+
+    let me = null;              // sos_company_me 결과
+    let currentUser = null;
+    let usageMonth = null;      // 'YYYY-MM'
+
+    function phoneFmt(v) {
+        const d = String(v || '').replace(/[^0-9]/g, '');
+        if (d.length === 11) return d.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        if (d.length === 10) return d.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        return v || '';
+    }
+    function dt(v) { return v ? new Date(v).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'; }
+    function errMsg(error, map) {
+        const m = String((error && error.message) || '');
+        for (const k in map) if (m.includes(k)) return map[k];
+        console.error(error);
+        return '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    }
+    async function call(fn, args, map) {
+        const { data, error } = await supabaseClient.rpc(fn, args || {});
+        if (error) { alert(errMsg(error, map || {})); return null; }
+        return data;
+    }
+
+    async function load() {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        currentUser = user;
+        if (!user) { renderLogin(); return; }
+        const { data, error } = await supabaseClient.rpc('sos_company_me');
+        if (error) {
+            document.getElementById('co-root').innerHTML = '<div class="co-card"><p class="co-sub" style="color:#b91c1c;margin:0;">회원사 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p></div>';
+            console.error(error); return;
+        }
+        me = data || { member: null };
+        render();
+    }
+    function setData(d) { if (d) { me = d; render(); } }
+
+    function render() {
+        const m = me && me.member;
+        if (!m) return renderNone();
+        if (m.status === 'pending') return renderPending();
+        if (m.role === 'manager') return renderManager();
+        return renderStaff();
+    }
+
+    // ---------- 로그인 전 ----------
+    function renderLogin() {
+        document.getElementById('co-root').innerHTML = `
+            <div class="co-card text-center">
+                <p class="co-h" style="justify-content:center;">로그인이 필요합니다</p>
+                <p class="co-sub">회원사 가입 신청과 직원 연결은 로그인한 개인 계정으로 합니다.</p>
+                <button class="co-btn green" onclick="location.href='{{BASE}}login.html'">로그인하기</button>
+            </div>`;
+    }
+
+    // ---------- 아직 회원사와 연결되지 않음 ----------
+    function renderNone() {
+        document.getElementById('co-root').innerHTML = `
+            <div class="co-card" style="background:#ecfdf5;border-color:#a7f3d0;">
+                <p class="co-h">🏢 회원사가 되면</p>
+                <ul class="co-steps">
+                    <li>직원은 SOS 접수 때 <b>결제 없이</b> 바로 전문가와 연결됩니다.</li>
+                    <li>관리 건물 주소가 <b>자동으로</b> 채워집니다.</li>
+                    <li>이용한 만큼만 매월 초 <b>등록 카드로 한 번에</b> 청구됩니다. (월 회비 없음)</li>
+                    <li>담당자는 건물별·직원별 이용 내역을 언제든 확인할 수 있습니다.</li>
+                </ul>
+            </div>
+
+            <div class="co-card">
+                <p class="co-h">👷 직원이신가요? 건물 코드로 연결</p>
+                <p class="co-sub">회사 담당자에게 받은 <b>6자리 건물 코드</b>를 입력하세요. 담당자가 승인하면 바로 이용할 수 있습니다.</p>
+                <label class="co-label">건물 코드</label>
+                <input id="j-code" class="co-input" maxlength="6" placeholder="예: K7PX3M" style="text-transform:uppercase;letter-spacing:2px;font-weight:900;">
+                <label class="co-label">이름</label>
+                <input id="j-name" class="co-input" maxlength="30" placeholder="홍길동">
+                <label class="co-label">연락처</label>
+                <input id="j-phone" class="co-input" type="tel" maxlength="13" placeholder="010-0000-0000">
+                <button class="co-btn green" onclick="doJoin()">연결 신청하기</button>
+            </div>
+
+            <div class="co-card">
+                <p class="co-h">🧑‍💼 회사 담당자이신가요? 회원사 가입 신청</p>
+                <p class="co-sub">신청 → 협회 승인 → <b>카드 등록(필수)</b> → 건물 등록 → 직원에게 건물 코드 전달 순서로 진행됩니다.</p>
+                <label class="co-label">회사명 *</label>
+                <input id="a-name" class="co-input" maxlength="60" placeholder="○○관리(주)">
+                <label class="co-label">사업자등록번호</label>
+                <input id="a-biz" class="co-input" maxlength="12" placeholder="000-00-00000">
+                <label class="co-label">담당자 이름 *</label>
+                <input id="a-mname" class="co-input" maxlength="30">
+                <label class="co-label">담당자 연락처 *</label>
+                <input id="a-mphone" class="co-input" type="tel" maxlength="13" placeholder="010-0000-0000">
+                <label class="co-label">이용 내역서 받을 이메일</label>
+                <input id="a-email" class="co-input" type="email" maxlength="100" placeholder="account@company.com">
+                <p class="co-sub" style="margin-top:10px;">💳 이용료는 매월 초 전월 이용분을 <b>등록한 카드로 청구</b>합니다. 카드 등록은 협회 승인 후 이 화면에서 합니다. 월 회비는 없습니다.</p>
+                <button class="co-btn blue" onclick="doApply()">회원사 가입 신청하기</button>
+            </div>`;
+        bindPhone('j-phone'); bindPhone('a-mphone');
+    }
+    function bindPhone(id) {
+        const el = document.getElementById(id); if (!el) return;
+        el.addEventListener('input', e => {
+            let v = e.target.value.replace(/[^0-9]/g, '');
+            if (v.length > 3 && v.length <= 7) v = v.replace(/(\d{3})(\d+)/, '$1-$2');
+            else if (v.length > 7) v = v.replace(/(\d{3})(\d{3,4})(\d+)/, '$1-$2-$3');
+            e.target.value = v.substring(0, 13);
+        });
+    }
+    async function doJoin() {
+        const code = document.getElementById('j-code').value.trim().toUpperCase();
+        const name = document.getElementById('j-name').value.trim();
+        const phone = document.getElementById('j-phone').value.trim();
+        if (code.length !== 6) { alert('건물 코드 6자리를 입력해 주세요.'); return; }
+        if (!name || phone.replace(/[^0-9]/g, '').length < 9) { alert('이름과 연락처를 정확히 입력해 주세요.'); return; }
+        const d = await call('sos_company_join', { p_code: code, p_name: name, p_phone: phone }, {
+            BAD_CODE: '건물 코드를 찾을 수 없습니다. 담당자에게 코드를 다시 확인해 주세요.',
+            OTHER_COMPANY: '이미 다른 회원사에 연결되어 있습니다. 먼저 연결을 끊어 주세요.',
+            BAD_INPUT: '이름과 연락처를 정확히 입력해 주세요.'
+        });
+        if (d) { setData(d); alert('연결 신청이 접수되었습니다.\n회사 담당자가 승인하면 회원사로 이용할 수 있습니다.'); }
+    }
+    async function doApply() {
+        const v = id => document.getElementById(id).value.trim();
+        if (!v('a-name') || !v('a-mname') || v('a-mphone').replace(/[^0-9]/g, '').length < 9) { alert('회사명, 담당자 이름, 연락처를 입력해 주세요.'); return; }
+        if (!confirm(`'${v('a-name')}' 회원사 가입을 신청할까요?\n협회 승인 후 카드 등록과 건물 등록을 진행하게 됩니다.`)) return;
+        const d = await call('sos_company_apply', { p_name: v('a-name'), p_biz_no: v('a-biz'), p_manager_name: v('a-mname'), p_manager_phone: v('a-mphone'), p_tax_email: v('a-email') }, {
+            ALREADY_MEMBER: '이미 회원사에 연결된 계정입니다.', BAD_INPUT: '입력 내용을 다시 확인해 주세요.'
+        });
+        if (d) { setData(d); alert('가입 신청이 접수되었습니다.\n협회 승인 후 이 화면에서 카드를 등록해 주세요.'); }
+    }
+
+    // ---------- 직원: 승인 대기 ----------
+    function renderPending() {
+        document.getElementById('co-root').innerHTML = `
+            <div class="co-card text-center">
+                <p class="co-h" style="justify-content:center;">⏳ 승인 대기 중</p>
+                <p class="co-sub"><b>${esc(me.company.name)}</b>에 연결을 신청했습니다.<br>회사 담당자(${esc(me.company.manager_name || '-')})가 승인하면 회원사로 이용할 수 있습니다.</p>
+                <button class="co-btn white" onclick="doLeave(true)">신청 취소</button>
+            </div>`;
+    }
+    async function doLeave(isCancel) {
+        if (!confirm(isCancel ? '연결 신청을 취소할까요?' : '회원사 연결을 끊을까요?\n끊으면 SOS 이용 시 개인 결제로 바뀝니다.')) return;
+        const d = await call('sos_company_leave', {}, { MANAGER_CANNOT_LEAVE: '담당자는 연결을 끊을 수 없습니다. 협회로 문의해 주세요.' });
+        if (d) setData(d);
+    }
+
+    function companyStatusBadge(c) {
+        if (c.status === 'pending') return '<span class="co-badge b-wait">협회 승인 대기</span>';
+        if (c.status === 'suspended') return '<span class="co-badge b-no">이용 정지</span>';
+        if (c.status === 'rejected') return '<span class="co-badge b-no">반려</span>';
+        if (!c.card_registered) return '<span class="co-badge b-wait">카드 등록 필요</span>';
+        return '<span class="co-badge b-ok">이용 중</span>';
+    }
+
+    // ---------- 직원(일반·공용) ----------
+    function renderStaff() {
+        const c = me.company, m = me.member;
+        const bl = (me.buildings || []).filter(b => b.active);
+        document.getElementById('co-root').innerHTML = `
+            <div class="co-card">
+                <p class="co-h"><span>${esc(c.name)}</span>${companyStatusBadge(c)}</p>
+                <p class="co-sub" style="margin:0;">${esc(m.name || '')} · ${m.role === 'shared' ? '<b>공용 계정</b> (접수할 때 호출자 이름·연락처를 입력합니다)' : '직원'}</p>
+            </div>
+            <div class="co-card" style="${c.ready ? 'background:#ecfdf5;border-color:#a7f3d0;' : 'background:#fffbeb;border-color:#fde68a;'}">
+                ${c.ready
+                    ? `<p class="co-h">✅ 회원사 후불로 이용할 수 있습니다</p>
+                       <ul class="co-steps">
+                         <li>SOS 접수 화면에서 <b>[기존 정보입력]</b>을 누르면 관리 건물이 나옵니다.</li>
+                         <li>건물을 고르고 현장 상황만 선택하면 <b>결제 없이</b> 접수됩니다.</li>
+                         <li>이용 내역은 회사 담당자에게 자동으로 정리됩니다.</li>
+                       </ul>
+                       <button class="co-btn green" onclick="location.href='sos-request.html'">🚨 SOS 접수 화면으로</button>`
+                    : `<p class="co-h">⚠ 아직 후불로 이용할 수 없습니다</p>
+                       <p class="co-sub" style="margin:0;">회원사의 ${c.status !== 'active' ? '협회 승인' : '카드 등록'}이 끝나야 이용할 수 있습니다. 그 전에는 개인 결제로 접수됩니다. 회사 담당자(${esc(c.manager_name || '-')} ${esc(phoneFmt(c.manager_phone))})에게 문의해 주세요.</p>`}
+            </div>
+            <div class="co-card">
+                <p class="co-h">🏢 관리 건물</p>
+                ${bl.length ? bl.map(b => `<div class="co-row"><div style="flex:1;"><b style="font-size:14px;">${esc(b.name)}</b><br><span style="font-size:12.5px;color:#6b7280;">${esc(b.address)} ${esc(b.address_detail || '')}</span></div></div>`).join('') : '<p class="co-sub" style="margin:0;">등록된 건물이 없습니다.</p>'}
+            </div>
+            <button class="co-btn white" onclick="doLeave(false)">회원사 연결 끊기</button>`;
+    }
+
+    // ---------- 회사 담당자 ----------
+    function renderManager() {
+        const c = me.company;
+        const u = me.usage || {};
+        const limit = Number(u.monthly_limit || c.monthly_limit || 0);
+        const pct = limit ? Math.min(100, Math.round(Number(u.total || 0) / limit * 100)) : 0;
+        const over = limit && Number(u.total || 0) >= limit;
+        const members = me.members || [];
+        const pending = members.filter(x => x.status === 'pending');
+        const active = members.filter(x => x.status === 'active');
+        const bl = me.buildings || [];
+
+        let next = '';
+        if (c.status === 'pending') next = '협회에서 가입 신청을 확인하고 있습니다. 승인되면 아래에서 <b>카드를 등록</b>해 주세요. (건물 등록은 지금 해 두셔도 됩니다)';
+        else if (c.status === 'suspended') next = '이용이 정지된 상태입니다. 협회로 문의해 주세요.';
+        else if (c.status === 'rejected') next = '가입 신청이 반려되었습니다. 협회로 문의해 주세요.';
+        else if (!c.card_registered) next = '협회 승인이 끝났습니다. 아래에서 <b>카드를 등록</b>하면 직원들이 바로 후불로 이용할 수 있습니다.';
+        else if (!bl.length) next = '<b>관리 건물</b>을 등록하고 건물 코드를 직원들에게 알려 주세요.';
+
+        document.getElementById('co-root').innerHTML = `
+            <div class="co-card">
+                <p class="co-h"><span>${esc(c.name)}</span>${companyStatusBadge(c)}</p>
+                <p class="co-sub" style="margin:0;">담당자 ${esc(c.manager_name || '')} · ${esc(phoneFmt(c.manager_phone))}</p>
+                ${next ? `<div style="margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;color:#92400e;line-height:1.6;word-break:keep-all;">👉 ${next}</div>` : ''}
+            </div>
+
+            <div class="co-card">
+                <p class="co-h">💳 결제 카드 <span class="co-badge ${c.card_registered ? 'b-ok' : 'b-wait'}">${c.card_registered ? '등록됨' : '필수'}</span></p>
+                <p class="co-sub">매월 초 전월 이용분을 이 카드로 한 번에 청구합니다. 카드번호는 협회에 저장되지 않고 결제대행사(포트원)에만 보관됩니다. 월 회비는 없습니다.</p>
+                ${c.card_registered ? `<p style="font-size:14px;font-weight:900;color:#111827;margin:0;">${esc(c.card_label || '등록된 카드')}</p>` : ''}
+                <button class="co-btn ${c.card_registered ? 'white' : 'blue'}" onclick="registerCard()" ${c.status === 'pending' || c.status === 'rejected' ? 'disabled style="opacity:.5;cursor:not-allowed;"' : ''}>${c.card_registered ? '카드 바꾸기' : '카드 등록하기'}</button>
+                ${c.status === 'pending' ? '<p class="co-sub" style="margin:8px 0 0;text-align:center;">협회 승인 후 등록할 수 있습니다.</p>' : ''}
+            </div>
+
+            <div class="co-card">
+                <p class="co-h">📊 이번 달 이용 <span style="font-size:12px;color:#6b7280;font-weight:700;">${esc(String(u.month || '').slice(0, 7))}</span></p>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <span style="font-size:13px;font-weight:700;color:#6b7280;">상담 ${u.consult_count || 0}건 · 연장 ${u.extend_count || 0}건${u.refund_count ? ' · 환불 ' + u.refund_count + '건' : ''}</span>
+                    <span style="font-size:20px;font-weight:900;color:${over ? '#dc2626' : '#111827'};">${won(u.total)}</span>
+                </div>
+                <div class="co-bar ${over ? 'over' : ''}"><div style="width:${pct}%;"></div></div>
+                <p class="co-sub" style="margin:6px 0 0;">월 이용 한도(알림용) ${won(limit)} ${over ? '<b style="color:#dc2626;">· 한도를 넘었습니다 (긴급 접수는 막지 않습니다)</b>' : ''}</p>
+                <button class="co-btn white" onclick="openUsage()">월별 이용 내역 보기</button>
+                <div id="usage-box" class="hidden" style="margin-top:12px;"></div>
+            </div>
+
+            <div class="co-card">
+                <p class="co-h">🏢 관리 건물과 건물 코드</p>
+                <p class="co-sub">직원에게 <b>건물 코드</b>를 알려 주세요. 직원이 회원사 센터에서 코드를 입력하면 아래 '직원'에 승인 요청이 옵니다. 코드가 밖으로 새면 [코드 새로 발급]을 누르세요.</p>
+                ${bl.length ? bl.map(b => `
+                    <div class="co-row" style="flex-wrap:wrap;${b.active ? '' : 'opacity:.5;'}">
+                        <div style="flex:1;min-width:180px;"><b style="font-size:14px;">${esc(b.name)}</b> ${b.active ? '' : '<span class="co-badge b-gray">사용 중지</span>'}<br>
+                            <span style="font-size:12.5px;color:#6b7280;">${esc(b.address)} ${esc(b.address_detail || '')}</span></div>
+                        <span class="co-code">${esc(b.code || '')}</span>
+                        <div style="display:flex;gap:4px;width:100%;justify-content:flex-end;margin-top:4px;">
+                            <button class="co-mini blue" onclick="copyCode('${esc(b.id)}')">코드 복사</button>
+                            <button class="co-mini gray" onclick="buildingAction('${esc(b.id)}', 'newcode')">코드 새로 발급</button>
+                            <button class="co-mini ${b.active ? 'red' : 'green'}" onclick="buildingAction('${esc(b.id)}', '${b.active ? 'off' : 'on'}')">${b.active ? '사용 중지' : '다시 사용'}</button>
+                        </div>
+                    </div>`).join('') : '<p class="co-sub" style="margin:0;">아직 등록한 건물이 없습니다.</p>'}
+                <details style="margin-top:10px;">
+                    <summary style="cursor:pointer;font-size:14px;font-weight:900;color:#059669;">＋ 건물 추가</summary>
+                    <label class="co-label">건물 이름 *</label>
+                    <input id="b-name" class="co-input" maxlength="60" placeholder="예: 김포 ○○오피스텔">
+                    <label class="co-label">주소 *</label>
+                    <div style="display:flex;gap:6px;"><input id="b-addr" class="co-input" maxlength="120" placeholder="도로명 주소"><button type="button" class="co-mini gray" onclick="findAddr()">주소 찾기</button></div>
+                    <label class="co-label">상세 주소</label>
+                    <input id="b-detail" class="co-input" maxlength="60" placeholder="예: 관리사무소 B1층">
+                    <button class="co-btn green" onclick="addBuilding()">건물 추가하고 코드 받기</button>
+                </details>
+            </div>
+
+            <div class="co-card">
+                <p class="co-h">👷 직원 <span style="font-size:12px;color:#6b7280;font-weight:700;">${active.length}명${pending.length ? ` · <span style="color:#dc2626;">승인 대기 ${pending.length}명</span>` : ''}</span></p>
+                ${pending.length ? `<p class="co-sub" style="color:#b45309;">방재실처럼 여러 사람이 같이 쓰는 휴대폰이면 <b>[공용 계정으로 승인]</b>을 누르세요. 접수할 때마다 호출자 이름·연락처를 입력하게 됩니다.</p>` : ''}
+                ${pending.map(x => `
+                    <div class="co-row" style="flex-wrap:wrap;background:#fffbeb;border-radius:10px;padding:10px;margin-bottom:6px;">
+                        <div style="flex:1;min-width:150px;"><b>${esc(x.name || '-')}</b> <span class="co-badge b-wait">승인 대기</span><br>
+                            <span style="font-size:12.5px;color:#6b7280;">${esc(phoneFmt(x.phone))} · ${esc(x.building || '-')} · ${dt(x.created_at)}</span></div>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            <button class="co-mini green" onclick="memberAction('${esc(x.id)}', 'approve')">승인</button>
+                            <button class="co-mini blue" onclick="memberAction('${esc(x.id)}', 'approve_shared')">공용 계정으로 승인</button>
+                            <button class="co-mini red" onclick="memberAction('${esc(x.id)}', 'remove')">거절</button>
+                        </div>
+                    </div>`).join('')}
+                ${active.map(x => `
+                    <div class="co-row">
+                        <div style="flex:1;"><b>${esc(x.name || '-')}</b> ${x.role === 'manager' ? '<span class="co-badge b-ok">담당자</span>' : (x.role === 'shared' ? '<span class="co-badge b-gray">공용</span>' : '')}<br>
+                            <span style="font-size:12.5px;color:#6b7280;">${esc(phoneFmt(x.phone))}${x.building ? ' · ' + esc(x.building) : ''}</span></div>
+                        ${x.role === 'manager' ? '' : `<button class="co-mini red" onclick="memberAction('${esc(x.id)}', 'remove')">연결 해제</button>`}
+                    </div>`).join('') || '<p class="co-sub" style="margin:0;">아직 연결된 직원이 없습니다.</p>'}
+            </div>
+
+            <div class="co-card">
+                <details>
+                    <summary style="cursor:pointer;font-size:15px;font-weight:900;color:#111827;">⚙ 회사 정보 수정</summary>
+                    <label class="co-label">회사명</label><input id="e-name" class="co-input" value="${esc(c.name)}">
+                    <label class="co-label">사업자등록번호</label><input id="e-biz" class="co-input" value="${esc(c.biz_no || '')}">
+                    <label class="co-label">담당자 이름</label><input id="e-mname" class="co-input" value="${esc(c.manager_name || '')}">
+                    <label class="co-label">담당자 연락처</label><input id="e-mphone" class="co-input" value="${esc(c.manager_phone || '')}">
+                    <label class="co-label">이용 내역서 받을 이메일</label><input id="e-email" class="co-input" value="${esc(c.tax_email || '')}">
+                    <label class="co-label">월 이용 한도 (알림용, 원)</label><input id="e-limit" class="co-input" type="number" step="10000" min="0" value="${esc(c.monthly_limit)}">
+                    <button class="co-btn green" onclick="saveCompany()">저장</button>
+                </details>
+            </div>`;
+        bindPhone('e-mphone');
+    }
+
+    // 카드 등록 (포트원 빌링키 발급: 결제 없이 카드만 등록)
+    async function registerCard() {
+        const c = me.company;
+        if (!BILLING_CHANNEL_KEY) {
+            alert('카드 등록(정기결제) 설정을 협회에서 준비 중입니다.\n준비가 끝나면 이 화면에서 바로 등록할 수 있도록 안내드리겠습니다.');
+            return;
+        }
+        if (typeof IMP === 'undefined') { alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.'); return; }
+        IMP.init(PAY_STORE_ID);
+        const customerUid = 'kcbma_co_' + String(c.id).replace(/-/g, '');
+        IMP.request_pay({
+            channelKey: BILLING_CHANNEL_KEY,
+            pay_method: 'card',
+            merchant_uid: 'cardreg_' + Date.now(),
+            name: 'SOS 회원사 결제 카드 등록',
+            amount: 0,
+            customer_uid: customerUid,
+            buyer_email: (currentUser && currentUser.email) || '',
+            buyer_name: c.manager_name || c.name,
+            buyer_tel: c.manager_phone || ''
+        }, async function (rsp) {
+            if (!rsp.success) { alert('카드 등록을 취소하셨거나 실패했습니다. (' + (rsp.error_msg || '') + ')'); return; }
+            const label = [rsp.card_name, rsp.card_number ? '****' + String(rsp.card_number).replace(/[^0-9*]/g, '').slice(-4) : ''].filter(Boolean).join(' ') || '등록된 카드';
+            const d = await call('sos_company_set_card', { p_customer_uid: customerUid, p_card_label: label }, { NOT_MANAGER: '담당자만 카드를 등록할 수 있습니다.' });
+            if (d) { setData(d); alert('카드가 등록되었습니다.' + (d.company && d.company.ready ? '\n이제 승인된 직원들이 후불로 SOS를 이용할 수 있습니다.' : '')); }
+        });
+    }
+
+    async function addBuilding() {
+        const v = id => document.getElementById(id).value.trim();
+        if (!v('b-name') || !v('b-addr')) { alert('건물 이름과 주소를 입력해 주세요.'); return; }
+        const d = await call('sos_company_add_building', { p_name: v('b-name'), p_address: v('b-addr'), p_detail: v('b-detail') }, { NOT_MANAGER: '담당자만 건물을 등록할 수 있습니다.' });
+        if (d) { setData(d); const nb = (d.buildings || []).slice(-1)[0]; if (nb) alert(`'${nb.name}' 건물이 등록되었습니다.\n건물 코드: ${nb.code}\n\n이 코드를 직원들에게 알려 주세요.`); }
+    }
+    async function buildingAction(id, act) {
+        const b = (me.buildings || []).find(x => x.id === id); if (!b) return;
+        if (act === 'newcode' && !confirm(`'${b.name}'의 건물 코드를 새로 발급할까요?\n이전 코드는 더 이상 쓸 수 없습니다. (이미 연결된 직원은 그대로 유지)`)) return;
+        if (act === 'off' && !confirm(`'${b.name}'을 사용 중지할까요?\n직원 접수 화면의 건물 목록에서 빠지고, 이 코드로 새로 연결할 수 없습니다.`)) return;
+        const d = await call('sos_company_update_building', { p_building_id: id, p_name: b.name, p_address: b.address, p_detail: b.address_detail || '',
+            p_active: act === 'off' ? false : (act === 'on' ? true : b.active), p_new_code: act === 'newcode' });
+        if (d) { setData(d); if (act === 'newcode') { const nb = (d.buildings || []).find(x => x.id === id); if (nb) alert('새 건물 코드: ' + nb.code); } }
+    }
+    function copyCode(id) {
+        const b = (me.buildings || []).find(x => x.id === id); if (!b) return;
+        const code = b.code, name = b.name;
+        const text = `[대한집합건물관리협회 SOS] ${name} 건물 코드: ${code}\n회원사 센터에서 코드를 입력해 연결해 주세요.\n${location.origin}${location.pathname}`;
+        (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => alert('안내 문구와 함께 복사했습니다. 카톡·문자에 붙여 넣으세요.')).catch(() => prompt('아래 내용을 복사해 주세요.', text));
+    }
+    async function memberAction(id, act) {
+        const x = (me.members || []).find(y => y.id === id); if (!x) return;
+        const msg = { approve: `${x.name}님을 직원으로 승인할까요?`, approve_shared: `${x.name} 계정을 공용 계정으로 승인할까요?\n접수할 때마다 호출자 이름·연락처를 입력하게 됩니다.`,
+                      remove: x.status === 'pending' ? `${x.name}님의 연결 신청을 거절할까요?` : `${x.name}님의 연결을 해제할까요?\n해제하면 이 직원은 더 이상 회원사 후불로 이용할 수 없습니다.` }[act];
+        if (!confirm(msg)) return;
+        const d = await call('sos_company_member_action', { p_member_id: id, p_action: act });
+        if (d) setData(d);
+    }
+    async function saveCompany() {
+        const v = id => document.getElementById(id).value.trim();
+        const d = await call('sos_company_update', { p_name: v('e-name'), p_biz_no: v('e-biz'), p_manager_name: v('e-mname'), p_manager_phone: v('e-mphone'),
+            p_tax_email: v('e-email'), p_monthly_limit: parseInt(v('e-limit'), 10) || 0 });
+        if (d) { setData(d); alert('저장했습니다.'); }
+    }
+    function findAddr() {
+        const run = () => new daum.Postcode({ oncomplete: d => { document.getElementById('b-addr').value = d.roadAddress || d.jibunAddress; if (!document.getElementById('b-name').value && d.buildingName) document.getElementById('b-name').value = d.buildingName; } }).open();
+        if (window.daum && daum.Postcode) return run();
+        const s = document.createElement('script'); s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'; s.onload = run; document.head.appendChild(s);
+    }
+
+    // 월별 이용 내역
+    function monthStr(d) { return d.toISOString().slice(0, 7); }
+    async function openUsage() {
+        const box = document.getElementById('usage-box');
+        box.classList.remove('hidden');
+        if (!usageMonth) usageMonth = monthStr(new Date(Date.now() + 9 * 3600 * 1000));
+        box.innerHTML = `<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;"><input type="month" id="u-month" class="co-input" style="padding:6px 10px;" value="${usageMonth}"><button class="co-mini green" onclick="usageMonth=document.getElementById('u-month').value;openUsage()">조회</button></div><p class="co-sub">불러오는 중...</p>`;
+        const d = await call('sos_company_usage', { p_month: usageMonth + '-01' });
+        if (!d) return;
+        const s = d.summary || {}, inv = d.invoice;
+        const items = d.items || [];
+        box.innerHTML = `<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;"><input type="month" id="u-month" class="co-input" style="padding:6px 10px;" value="${usageMonth}"><button class="co-mini green" onclick="usageMonth=document.getElementById('u-month').value;openUsage()">조회</button></div>
+            <p style="font-size:13px;font-weight:800;color:#374151;margin:0 0 6px;">합계 ${won(s.total)} <span style="color:#6b7280;font-weight:600;">(상담 ${won(s.consult_amount)} + 연장 ${won(s.extend_amount)}${s.refund_amount ? ' − 환불 ' + won(s.refund_amount) : ''})</span>
+              ${inv ? ` · <span class="co-badge ${inv.status === 'paid' ? 'b-ok' : 'b-wait'}">${inv.status === 'paid' ? '결제 완료' : '청구 예정'}</span>` : ''}</p>
+            ${items.length ? `<div style="overflow-x:auto;"><table class="co-tbl">
+                <tr><th>일시</th><th>건물 · 호출자</th><th>상황</th><th class="r">금액</th></tr>
+                ${items.map(r => `<tr><td style="white-space:nowrap;">${dt(r.at)}</td><td>${esc(r.building || '-')}<br><span style="color:#6b7280;">${esc(r.caller || '-')} ${esc(phoneFmt(r.caller_phone))}</span></td><td>${esc(r.category || '-')}</td>
+                    <td class="r">${won(r.fee)}${r.extend ? '<br><span style="color:#6b7280;">+연장 ' + won(r.extend) + '</span>' : ''}${r.refunded ? '<br><span style="color:#b45309;">−환불 ' + won(r.refunded) + '</span>' : ''}</td></tr>`).join('')}
+            </table></div>` : '<p class="co-sub" style="margin:0;">이 달의 이용 내역이 없습니다.</p>'}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', load);
+</script>
+</body>
+</html>
