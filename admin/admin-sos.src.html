@@ -299,7 +299,7 @@
             <div id="tab-disputes" class="hidden flex-col gap-4">
                 <div style="background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:10px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.7;word-break:keep-all;">
                     통화가 끊긴 뒤 10분이 넘도록 전문가와 다시 연결되지 않아 요청자가 운영진 확인을 요청한 상담입니다.<br>
-                    아래 통화 기록(누가 언제 무엇을 눌렀는지)을 보고 판단하세요. 요청자 잘못이 아니면 <b>[포인트 환불 + 처리 완료]</b>를 누르세요.
+                    아래 통화 기록(누가 언제 무엇을 눌렀는지)을 보고 판단하세요. 요청자 잘못이 아니면 <b>[환불 + 처리 완료]</b>를 누르세요. 선불 접수는 포인트로, 회원사·후불 접수는 청구에서 빼는 방식으로 자동 처리됩니다.
                     포인트 환불, 환불 장부 기록, 접수 '환불 완료' 표시가 한 번에 되고, 전문가 몫은 월 정산에서 자동으로 차감됩니다. 환불이 필요 없으면 <b>[환불 없이 처리 완료]</b>를 누르세요.
                 </div>
                 <label style="font-size:13px;font-weight:700;color:#374151;display:flex;align-items:center;gap:6px;cursor:pointer;">
@@ -780,7 +780,7 @@
                            </div>
                            <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center;">
                                <input type="number" id="dispute-amt-${KC.esc(d.session_id)}" min="0" step="1000" placeholder="환불 금액 (비우면 상담료 전액)" style="width:220px;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;">
-                               <button onclick="refundDispute('${KC.esc(d.session_id)}')" style="background:#b45309;color:#fff;font-weight:900;font-size:13px;padding:8px 16px;border-radius:8px;border:0;cursor:pointer;">포인트 환불 + 처리 완료</button>
+                               <button onclick="refundDispute('${KC.esc(d.session_id)}')" style="background:#b45309;color:#fff;font-weight:900;font-size:13px;padding:8px 16px;border-radius:8px;border:0;cursor:pointer;">환불 + 처리 완료</button>
                                <span style="font-size:12px;color:#6b7280;">환불 장부에 기록되고, 이번 달 정산에서 전문가 몫이 자동 차감됩니다.</span>
                            </div>`
                         : `<p style="font-size:13px;color:#166534;font-weight:700;margin-top:8px;">처리 내용: ${KC.esc(d.dispute_note || '-')}</p>`}
@@ -804,7 +804,7 @@
             const amt = amtEl && amtEl.value ? parseInt(amtEl.value, 10) : null;
             if (amt !== null && (isNaN(amt) || amt <= 0)) { alert('환불 금액을 다시 확인해 주세요.'); return; }
             const note = noteEl ? noteEl.value.trim() : '';
-            if (!confirm(`요청자에게 ${amt ? amt.toLocaleString() + '원' : '상담료 전액'}을 포인트로 환불하고 신고를 처리 완료할까요?\n(환불 장부에 기록되고 접수는 '환불 완료'로 바뀝니다)`)) return;
+            if (!confirm(`${amt ? amt.toLocaleString() + '원' : '상담료 전액'}을 환불하고 신고를 처리 완료할까요?\n선불 접수는 요청자 포인트로 돌려주고, 회원사·후불 접수는 청구 금액에서 뺍니다.\n(환불 장부에 기록되고 접수는 '환불 완료'로 바뀝니다)`)) return;
             const { data, error } = await supabaseClient.rpc('admin_sos_dispute_refund', { p_session_id: sessionId, p_amount: amt, p_note: note || null });
             if (error) {
                 const m = String(error.message || '');
@@ -814,7 +814,9 @@
                 else { console.error('신고 환불 오류:', error); alert('처리 중 오류가 발생했습니다. (sos_refunds_2026-11.sql 을 실행했는지 확인해 주세요)'); }
                 return;
             }
-            alert(`${Number(data && data.refunded || 0).toLocaleString()}P 환불하고 처리 완료했습니다.`);
+            alert(data && data.to_points === false
+                ? `후불 접수라 포인트 대신 ${Number(data.refunded || 0).toLocaleString()}원을 청구에서 빼도록 기록하고 처리 완료했습니다.`
+                : `${Number(data && data.refunded || 0).toLocaleString()}P 환불하고 처리 완료했습니다.`);
             fetchDisputes();
         }
 
