@@ -691,7 +691,29 @@
             </svg>
         </button>
     </header>
-</div>
+</div><!-- ★ 진행 중인 SOS 전화상담이 있으면 화면 아래에 '돌아가기' 띠 표시 (상담 세션 60분 동안, 이 기기에서만) -->
+<script>
+(function () {
+    try {
+        var KEY = 'kcbma_sos_active';
+        var v = JSON.parse(localStorage.getItem(KEY) || 'null');
+        if (!v || !v.id) return;
+        if (!(v.until > Date.now())) { localStorage.removeItem(KEY); return; }
+        if (/sos-room(\.html)?$/.test(location.pathname) && new URLSearchParams(location.search).get('request_id') === v.id) return;
+        var a = document.createElement('a');
+        a.id = 'sos-active-bar';
+        a.href = '../../sos/sos-room.html?request_id=' + encodeURIComponent(v.id);
+        a.textContent = '🟢 진행 중인 SOS 상담으로 돌아가기';
+        a.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:99990;' +
+            'background:#16a34a;color:#fff;font-weight:900;font-size:15px;padding:12px 20px;border-radius:999px;' +
+            'box-shadow:0 6px 18px rgba(0,0,0,.25);text-decoration:none;white-space:nowrap;';
+        var add = function () { document.body.appendChild(a); };
+        if (document.body) add(); else document.addEventListener('DOMContentLoaded', add);
+        setTimeout(function () { var el = document.getElementById('sos-active-bar'); if (el) el.remove(); }, Math.max(0, v.until - Date.now()));
+    } catch (e) {}
+})();
+</script>
+
     <div id="sticky-top-bar" class="fixed top-0 left-0 right-0 mx-auto w-full max-w-md flex flex-col shrink-0 bg-transparent z-[900]">
         <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center shadow-md p-4 h-[60px]"></div>
     </div>

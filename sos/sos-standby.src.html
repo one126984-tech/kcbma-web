@@ -82,6 +82,25 @@
         .help-mo { display:inline; }
         .bd-note { border:1px solid #cbd5e1; border-radius:12px; margin-top:10px; }
       }
+      /* ===== 진행 중인 상담 (상담 세션) ===== */
+      .xs-card { background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:14px; word-break:keep-all; }
+      .xs-card.fu { background:#eff6ff; border-color:#93c5fd; }
+      .xs-card.alert { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.25); animation: xsAlert 1.2s ease-in-out infinite; }
+      @keyframes xsAlert { 0%,100% { box-shadow:0 0 0 0 rgba(220,38,38,.45); } 50% { box-shadow:0 0 0 9px rgba(220,38,38,0); } }
+      .xs-head { display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:900; font-size:16px; color:#14532d; }
+      .xs-card.fu .xs-head { color:#1e3a8a; }
+      .xs-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:#22c55e; margin-right:6px; }
+      .xs-time { font-variant-numeric:tabular-nums; background:#fff; border:1px solid #bbf7d0; border-radius:8px; padding:2px 8px; font-size:14px; white-space:nowrap; }
+      .xs-desc { font-size:12px; font-weight:700; color:#166534; margin:4px 0 0; line-height:1.6; }
+      .xs-card.fu .xs-desc { color:#1e40af; }
+      .xs-drop { background:#fef2f2; border:2px solid #fca5a5; color:#991b1b; border-radius:10px; padding:10px 12px; font-size:14px; font-weight:800; line-height:1.65; margin:6px 0 8px; }
+      .xs-phone { background:#fffbeb; border:1px solid #fcd34d; color:#92400e; border-radius:10px; padding:8px 12px; font-size:13px; font-weight:800; margin:6px 0 8px; }
+      .xs-call { display:block; text-align:center; background:#dc2626; color:#fff; font-weight:900; font-size:17px; padding:13px 0; border-radius:10px; text-decoration:none; }
+      .xs-call:hover { background:#b91c1c; }
+      .xs-btn { flex:1; display:block; width:100%; border:0; border-radius:10px; font-weight:800; font-size:13.5px; padding:10px 0; cursor:pointer; }
+      .xs-ok { background:#16a34a; color:#fff; } .xs-ok:hover { background:#15803d; }
+      .xs-gray { background:#fff; color:#374151; border:1px solid #d1d5db; } .xs-gray:hover { background:#f3f4f6; }
+      .xs-end { margin-top:8px; background:#1e3a8a; color:#fff; font-size:14px; padding:11px 0; } .xs-end:hover { background:#1e40af; }
       #bd-pop { position:fixed; z-index:99999; background:#fff; border:1px solid #94a3b8; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,.2); width:220px; padding:10px; display:none; font-size:13px; }
       #bd-pop.open { display:block; }
       #bd-pop .pt { font-weight:900; margin:0 0 6px; color:#12387a; }
@@ -151,6 +170,15 @@
 
             <!-- 승인된 전문가 화면 -->
             <div id="state-ready" class="hidden flex-1 flex-col bg-gray-50">
+
+                <!-- ===================== ★ 진행 중인 상담 (상담 세션) ===================== -->
+                <div id="session-section" class="hidden px-5 pt-4 pb-1">
+                    <div class="practice-note" style="margin-bottom:10px;">💡 <b>연습 안내</b><br>고객에게 전화를 걸면 60분 상담 세션이 시작됩니다. 그 안에는 통화가 끊겨도 같은 고객과 다시 통화하며 추가 요금이 없습니다. 연습에서는 8초 뒤 고객이 "통화가 끊겼어요"를 누른 상황(소리·진동 알림)을 보여 드립니다.</div>
+                    <h2 class="font-black text-gray-800 text-[15px] mb-2 border-b-2 pb-1 inline-block" style="border-color:#16a34a;">📞 진행 중인 상담</h2>
+                    <p class="text-[12px] text-gray-500 mb-2 break-keep">통화가 끊기면 <b>전문가님이 1분 안에 고객에게 다시 걸어 주세요.</b> (고객은 기다리도록 안내받습니다) 상담 중에는 다른 요청에 배정되지 않으며, 상담을 마치면 '상담 완료'를 눌러 주세요.</p>
+                    <div id="session-list" class="space-y-3"></div>
+                </div>
+
 
                 <!-- ===================== (1) 설정 화면 ===================== -->
                 <div id="view-setup" class="p-5 space-y-5 pb-6">
@@ -328,6 +356,13 @@
         alert('🎉 [연습 모드] 요청자가 나를 선택했습니다!\n아래 "내가 선택된 요청"에서 요청자 번호를 확인하세요.');
         const sec = document.getElementById('assigned-section');
         if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+    }
+    function practiceAssignedDial(e, requestId) {
+        e.preventDefault();
+        alert('[연습 모드] 실제에서는 이 번호로 전화가 연결되고 60분 상담 세션이 시작됩니다.\n위에 "진행 중인 상담"이 나타납니다.');
+        const r = practiceAssigned.find(x => x.id === requestId);
+        if (r) { practiceStartSession(r); loadMySessions(); }
+        return false;
     }
     function practiceDial(e) {
         e.preventDefault();
@@ -510,6 +545,7 @@
             if (document.hidden || !me) return;
             if (isStandby) loadOpenRequests();
             loadAssigned();
+            if (!mySessFast) loadMySessions();
         }, 10000);
     }
 
@@ -842,6 +878,7 @@
     setInterval(() => { if (isStandby && boardRows.length) renderBoard(); }, 30000);   // 경과시간 갱신
 
     async function offerRequest(requestId, offerType) {
+        if (inMainSession()) { alert('지금 다른 고객과 상담 중입니다.\n상담을 마치고 위 "상담 완료"를 누르면 새 요청에 신청할 수 있습니다.'); return; }
         if (isPractice) { practiceOffer(requestId, offerType); return; }
         const { error } = await supabaseClient.rpc('offer_sos_request', { p_request_id: requestId, p_offer_type: offerType });
         if (error) {
@@ -891,7 +928,10 @@
         document.getElementById('assigned-list').innerHTML = list.map(r => {
             const dispatch = r.service_type === 'dispatch';
             const phone = r.contact_phone || '';
-            const dialAttrs = isPractice ? 'href="#" onclick="return practiceDial(event)"' : `href="tel:${escapeHtml(phone)}"`;
+            const dialAttrs = isPractice
+                ? `href="#" onclick="practiceAssignedDial(event, '${KC.esc(r.id)}'); return false;"`
+                : `href="tel:${escapeHtml(phone)}" onclick="sessExpertEvent('${KC.esc(r.id)}', 'call_click', true)"`;
+            const inSess = mySessions.some(s => s.request_id === r.id);
             const callDone = !!r.expert_call_confirmed_at;
             const dispatchWarning = dispatch ? `
                 <div class="bg-red-50 border border-red-200 p-3 rounded-lg mt-3 mb-2">
@@ -924,6 +964,7 @@
                     </div>
                     <p class="font-black text-gray-900 text-[15px] mb-1 break-keep">${formatCats(r.category)}</p>
                     <p class="text-[13px] text-gray-600 mb-3 break-keep"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${escapeHtml(r.region) || '-'}</p>
+                    ${inSess ? `<p class="text-[12.5px] font-bold text-green-700 mb-2 break-keep">🟢 상담 세션 진행 중 · 위 '진행 중인 상담'에서 다시 걸 수 있습니다.</p>` : ''}
                     ${phone ? `<a ${dialAttrs} class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg mb-1"><i class="fa-solid fa-phone mr-1"></i> ${escapeHtml(phone)} 전화하기</a>` : ''}
                     ${dispatchWarning}
                     ${callBox}
@@ -941,6 +982,7 @@
         if (!confirm(connected ? '요청자와 통화가 연결되었다고 표시하시겠습니까?' : '통화 연결됨 표시를 취소하시겠습니까?')) return;
         const { error } = await supabaseClient.rpc('mark_call_connected', { p_request_id: requestId, p_connected: connected });
         if (error) { console.error('통화 연결 표시 오류:', error); alert('표시 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); }
+        else if (connected) await sessExpertEvent(requestId, 'connected', true);
         loadAssigned();
     }
 
@@ -956,10 +998,151 @@
         loadAssigned();
     }
 
+
+    // =====================================================================
+    // ★ 진행 중인 상담 (2026-11 상담 세션)
+    //   첫 통화부터 60분 동안 같은 고객과 끊겨도 다시 통화 (추가 요금 없음)
+    //   고객이 [통화가 끊겼어요]를 누르면 여기에 알림(소리·진동) → 1분 안에 다시 걸기
+    //   상담 중에는 다른 요청에 배정되지 않음 / [상담 완료]를 누르면 대기 목록으로 복귀
+    // =====================================================================
+    const SESS_CALLBACK_SEC = 60;
+    let mySessions = [];
+    let mySessSkew = 0;
+    let mySessFast = null;
+    const seenDrops = {};      // 요청별로 이미 알린 끊김 시각
+    const seenFollowups = {};  // 이미 알린 후속 확인 통화
+    let practiceSess = [];
+
+    function sessNow() { return Date.now() + mySessSkew; }
+    function sessT(t) { return t ? new Date(t).getTime() : 0; }
+    function sessMMSS(sec) { sec = Math.max(0, Math.floor(sec)); return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); }
+    function sessDropActive(s) { return !!(s.last_drop_at && (!s.last_reconnect_at || sessT(s.last_reconnect_at) < sessT(s.last_drop_at))); }
+    function inMainSession() { return mySessions.some(s => s.kind === 'main' && sessT(s.expires_at) > sessNow()); }
+    function sessAlarm() {
+        try { if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 400]); } catch (e) {}
+        beep(); setTimeout(beep, 500); setTimeout(beep, 1000);
+        setTimeout(() => { const el = document.getElementById('session-section'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+    }
+
+    function practiceSessRows() {
+        return practiceSess.filter(s => !s.closed_at && sessT(s.expires_at) > Date.now()).map(s => ({ ...s, server_now: new Date().toISOString() }));
+    }
+    function practiceStartSession(r) {
+        if (practiceSess.some(s => s.request_id === r.id && s.kind === 'main')) return;
+        const t = Date.now();
+        practiceSess.push({ request_id: r.id, kind: 'main', category: r.category, region: r.region, contact_phone: r.contact_phone, phone_changed: false,
+                            started_at: new Date(t).toISOString(), expires_at: new Date(t + 60 * 60000).toISOString(),
+                            last_drop_at: null, last_reconnect_at: null, drop_count: 0, connected_at: null, closed_at: null });
+        // 연습: 8초 뒤 고객이 '통화가 끊겼어요'를 누른 상황을 보여 줌
+        practiceTimers.push(setTimeout(() => {
+            const s = practiceSess.find(x => x.request_id === r.id && !x.closed_at);
+            if (s) { s.last_drop_at = new Date().toISOString(); s.drop_count++; loadMySessions(); }
+        }, 8000));
+    }
+
+    async function loadMySessions() {
+        if (isPractice) mySessions = practiceSessRows();
+        else {
+            try {
+                const { data, error } = await supabaseClient.rpc('sos_my_sessions');
+                if (error) { console.error('진행 중 상담 조회 오류:', error); mySessions = []; }
+                else mySessions = Array.isArray(data) ? data : [];
+            } catch (e) { mySessions = []; }
+        }
+        if (mySessions.length && mySessions[0].server_now) mySessSkew = new Date(mySessions[0].server_now).getTime() - Date.now();
+        // 새 끊김 / 새 후속 통화 알림
+        mySessions.forEach(s => {
+            if (sessDropActive(s) && seenDrops[s.request_id] !== s.last_drop_at) { seenDrops[s.request_id] = s.last_drop_at; sessAlarm(); }
+            if (s.kind === 'followup' && seenFollowups[s.request_id] !== s.started_at) { seenFollowups[s.request_id] = s.started_at; sessAlarm(); }
+        });
+        renderMySessions();
+        // 상담 중에는 5초마다 확인 (고객의 '끊겼어요'를 빨리 받기 위해)
+        if (mySessions.length && !mySessFast) mySessFast = setInterval(() => { if (!document.hidden) loadMySessions(); }, 5000);
+        if (!mySessions.length && mySessFast) { clearInterval(mySessFast); mySessFast = null; }
+    }
+
+    function renderMySessions() {
+        const sec = document.getElementById('session-section');
+        const list = document.getElementById('session-list');
+        if (!sec || !list) return;
+        if (!mySessions.length) { sec.classList.add('hidden'); list.innerHTML = ''; return; }
+        sec.classList.remove('hidden');
+        list.innerHTML = mySessions.map(s => {
+            const rid = KC.esc(s.request_id);
+            const isFu = s.kind === 'followup';
+            const tel = String(s.contact_phone || '').replace(/[^0-9]/g, '');
+            const dialAttrs = isPractice ? 'href="#" onclick="return practiceDial(event)"' : `href="tel:${KC.esc(tel)}" onclick="sessExpertEvent('${rid}', 'call_click', true)"`;
+            const drop = sessDropActive(s);
+            const dropBox = drop ? `<div class="xs-drop">🔴 고객이 <b>"통화가 끊겼어요"</b>를 눌렀습니다 · <span data-drop-ago="${KC.esc(s.last_drop_at)}">${sessMMSS((sessNow() - sessT(s.last_drop_at)) / 1000)}</span> 전<br>지금 바로 아래 번호로 다시 걸어 주세요. (1분 안)</div>` : '';
+            const phoneBox = s.phone_changed ? `<div class="xs-phone">⚠ 고객이 받을 번호를 바꿨습니다. 아래 번호로 걸어 주세요.</div>` : '';
+            const head = isFu
+                ? `<span>📞 후속 확인 통화 요청 <span style="font-size:12px;">(무료 1회)</span></span>`
+                : `<span><span class="xs-dot"></span>상담 진행 중</span>`;
+            const desc = isFu
+                ? '상담을 마친 고객이 다시 확인할 것이 있어 연락합니다. 고객 전화를 받아 주시거나 직접 걸어 주세요.'
+                : '이 시간 동안은 통화가 끊겨도 같은 고객과 다시 통화합니다(추가 요금 없음). 끊기면 전문가님이 1분 안에 다시 걸어 주세요.';
+            return `<div class="xs-card ${isFu ? 'fu' : ''} ${drop ? 'alert' : ''}">
+                <div class="xs-head">${head}<span class="xs-time">남은 <span data-sess-exp="${KC.esc(s.expires_at)}">${sessMMSS((sessT(s.expires_at) - sessNow()) / 1000)}</span></span></div>
+                <p class="xs-desc">${desc}</p>
+                <p class="font-black text-gray-900 text-[15px] mt-2 break-keep">${formatCats(s.category)}</p>
+                <p class="text-[13px] text-gray-600 mb-2 break-keep"><i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>${escapeHtml(s.region) || '-'}</p>
+                ${dropBox}${phoneBox}
+                ${tel ? `<a ${dialAttrs} class="xs-call"><i class="fa-solid fa-phone mr-1"></i> ${escapeHtml(s.contact_phone)} 고객에게 ${drop ? '다시 ' : ''}걸기</a>` : ''}
+                <div class="flex gap-2 mt-2">
+                    <button type="button" onclick="sessExpertEvent('${rid}', '${isFu ? 'connected' : 'reconnected'}')" class="xs-btn xs-ok">✅ ${isFu ? '통화 연결됨' : '다시 연결됨'}</button>
+                    <button type="button" onclick="sessExpertEvent('${rid}', 'no_answer')" class="xs-btn xs-gray">고객이 안 받음</button>
+                </div>
+                <button type="button" onclick="sessExpertClose('${rid}')" class="xs-btn xs-end">${isFu ? '후속 통화 마침' : '상담 완료 (대기 목록으로 복귀)'}</button>
+            </div>`;
+        }).join('');
+    }
+
+    async function sessExpertEvent(requestId, ev, silent) {
+        if (isPractice) {
+            const s = practiceSess.find(x => x.request_id === requestId && !x.closed_at);
+            if (ev === 'call_click') { const r = practiceAssigned.find(x => x.id === requestId); if (r) practiceStartSession(r); }
+            else if (s && (ev === 'reconnected' || ev === 'connected')) { s.last_reconnect_at = new Date().toISOString(); s.connected_at = s.connected_at || s.last_reconnect_at; }
+            if (!silent) alert(ev === 'no_answer' ? '[연습 모드] "고객이 안 받음"을 기록했습니다. 분쟁이 생기면 운영진이 이 기록을 봅니다.' : ev === 'call_click' ? '' : '[연습 모드] 다시 연결됨으로 표시했습니다.');
+            loadMySessions(); return;
+        }
+        if (ev === 'no_answer' && !confirm('고객이 전화를 받지 않았다고 기록할까요?\n(통화 기록은 분쟁이 생겼을 때 운영진이 확인합니다)')) return;
+        try {
+            const { error } = await supabaseClient.rpc('sos_expert_session_event', { p_request_id: requestId, p_event: ev });
+            if (error) { console.error('상담 기록 오류:', error); if (!silent) alert('기록하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
+        } catch (e) { console.error(e); }
+        loadMySessions();
+    }
+
+    async function sessExpertClose(requestId) {
+        const s = mySessions.find(x => x.request_id === requestId);
+        const isFu = s && s.kind === 'followup';
+        if (!confirm(isFu ? '후속 확인 통화를 마칠까요?' : '상담을 완료할까요?\n완료하면 이 고객과의 상담 세션이 끝나고, 다시 대기 목록에 올라 새 요청을 받을 수 있습니다.')) return;
+        if (isPractice) {
+            if (s) { const p = practiceSess.find(x => x.request_id === requestId && !x.closed_at); if (p) p.closed_at = new Date().toISOString(); }
+            loadMySessions(); return;
+        }
+        const { error } = await supabaseClient.rpc('sos_expert_session_close', { p_request_id: requestId });
+        if (error) { console.error('상담 완료 오류:', error); alert('처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
+        loadMySessions();
+    }
+
+    // 1초마다 남은 시간·끊긴 뒤 시간 갱신
+    setInterval(() => {
+        if (!mySessions.length) return;
+        let expired = false;
+        document.querySelectorAll('#session-list [data-sess-exp]').forEach(el => {
+            const left = (sessT(el.dataset.sessExp) - sessNow()) / 1000;
+            el.textContent = sessMMSS(left);
+            if (left <= 0) expired = true;
+        });
+        document.querySelectorAll('#session-list [data-drop-ago]').forEach(el => { el.textContent = sessMMSS((sessNow() - sessT(el.dataset.dropAgo)) / 1000); });
+        if (expired) loadMySessions();
+    }, 1000);
+
     async function init() {
         const ok = await loadMe();
         if (!ok) { showState('state-noexpert'); return; }
-        showState('state-ready'); renderMe(); await loadAssigned();
+        showState('state-ready'); renderMe(); await loadMySessions(); await loadAssigned();
         if (!isPractice) startPolling();
         if (isStandby) {
             showView('feed'); startRealtime();
@@ -980,6 +1163,7 @@
     }
 
     document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && me) loadMySessions();
         if (!document.hidden && me && isStandby) {
             loadOpenRequests(); loadAssigned();
             renderCheckinStatus();   // 화면을 다시 켰을 때 남은 시간·상태 갱신
