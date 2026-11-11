@@ -119,6 +119,19 @@
   .renew-119 { background:#fff7ed; border:2px solid #fb923c; border-radius:16px; padding:16px 18px; color:#9a3412; word-break:keep-all; }
   .renew-119 h3 { margin:0 0 6px; font-size:16px; font-weight:900; color:#c2410c; }
   .renew-119 p { margin:0; font-size:13px; font-weight:700; line-height:1.65; }
+  .renew-119 .r119-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:nowrap; }
+  .renew-119 .r119-list { list-style:none; margin:4px 0 8px; padding:0; }
+  .renew-119 .r119-list li { font-size:17px; font-weight:900; color:#111827; line-height:1.85; white-space:nowrap; }
+  .renew-119 .r119-list li span { color:#ea580c; margin-right:4px; }
+  /* 119 버튼: 세로형으로 세 가지 질문 오른쪽에 (PC·휴대폰 같은 모양) */
+  .renew-119 .r119-row a { margin:0; flex-shrink:0; flex-direction:column; justify-content:center; gap:4px;
+                           min-width:96px; padding:14px 16px; font-size:14px; line-height:1.35; text-align:center; border-radius:12px; }
+  .renew-119 .r119-row a .r119-ico { font-size:24px; line-height:1; }
+  .renew-119 .r119-go { font-size:16px; font-weight:900; color:#c2410c; margin:4px 0 0; padding-bottom:6px; line-height:1.6; }
+  .renew-119 h3 { font-size:17px !important; }
+  /* 오른쪽(휴대폰) 모양으로 PC도 통일 */
+  .renew-119 h3 { font-size:15.5px !important; } .renew-119 .r119-list li { font-size:15.5px; } .renew-119 .r119-go { font-size:14.5px; } .renew-119 .r119-row a { min-width:84px; padding:12px; }
+  .r119-next { text-align:center; margin:14px 4px 10px; padding-bottom:4px; line-height:1.6; font-size:18px; font-weight:900; color:#111827; }
   .renew-119 a { display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:#dc2626; color:#fff !important; padding:9px 18px; border-radius:10px; font-weight:900; font-size:14px; text-decoration:none; }
   .renew-info { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px 16px; font-size:13px; font-weight:700; color:#374151; line-height:1.7; word-break:keep-all; box-shadow:0 1px 3px rgba(0,0,0,.05); }
   .renew-info b { color:#111827; }
@@ -176,9 +189,17 @@
         <!-- ★ 생명·안전 위험은 119 먼저 -->
         <div class="renew-119">
             <h3>🚒 위험이 큰 상황이면 119가 먼저입니다</h3>
-            <p>불길·연기가 보이거나, 가스 냄새가 진하거나, 사람이 다쳤거나, 승강기에 사람이 갇혔다면 먼저 119에 신고하세요.<br>그 정도는 아니지만 무엇부터 해야 할지 막막할 때는 바로 아래에서 전화상담을 접수하시면 됩니다.</p>
-            <a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a>
+            <div class="r119-row">
+                <ol class="r119-list">
+                    <li><span>①</span> 불길·연기가 보이나요?</li>
+                    <li><span>②</span> 가스 냄새가 진한가요?</li>
+                    <li><span>③</span> 사람이 다쳤나요?</li>
+                </ol>
+                <a href="tel:119" onclick="return call119(event)"><span class="r119-ico">📞</span><span>119<br>전화하기</span></a>
+            </div>
+            <p class="r119-go">하나라도 해당되면 먼저 119에 신고하세요.</p>
         </div>
+        <p class="r119-next">이 정도가 아니면 계속 진행하세요</p>
 
         <!-- ★ 서비스 안내 (운영 시간) -->
         <div class="renew-info">
