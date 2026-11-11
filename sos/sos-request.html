@@ -460,7 +460,7 @@
   .rank-2 { background:#2563eb; }
   .cat-guide { font-size:13px; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px; margin:-6px 0 14px; line-height:1.5; word-break:keep-all; }
   .cat-limit { display:none; font-size:12px; color:#dc2626; font-weight:700; margin:8px 0 0; }
-  .safety-119 { display:none; margin-top:12px; border:2px solid #dc2626; background:#fef2f2; color:#991b1b; border-radius:12px; padding:12px 14px; font-size:13px; font-weight:800; line-height:1.6; word-break:keep-all; }
+  .safety-119 { display:none; margin-top:12px; border:2px solid #fb923c; background:#fff7ed; color:#9a3412; border-radius:12px; padding:12px 14px; font-size:13px; font-weight:800; line-height:1.6; word-break:keep-all; }
   .safety-119 a { display:inline-block; margin-top:8px; background:#dc2626; color:#fff !important; padding:8px 16px; border-radius:8px; font-weight:900; text-decoration:none; }
 </style>
 <style id="pay-card-css">
@@ -491,8 +491,8 @@
 <!-- ★ 2026-11 리뉴얼: 출동 서비스 중단 → '전화상담' 중심. 출동 관련 화면은 지우지 않고 숨겨 둡니다 (SOS_DISPATCH_ENABLED 로 되살릴 수 있음) -->
 <style id="renew-css">
   [data-dispatch-only] { display:none !important; }
-  .renew-119 { background:#fef2f2; border:2px solid #dc2626; border-radius:16px; padding:16px 18px; color:#991b1b; word-break:keep-all; }
-  .renew-119 h3 { margin:0 0 6px; font-size:16px; font-weight:900; color:#b91c1c; }
+  .renew-119 { background:#fff7ed; border:2px solid #fb923c; border-radius:16px; padding:16px 18px; color:#9a3412; word-break:keep-all; }
+  .renew-119 h3 { margin:0 0 6px; font-size:16px; font-weight:900; color:#c2410c; }
   .renew-119 p { margin:0; font-size:13px; font-weight:700; line-height:1.65; }
   .renew-119 a { display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:#dc2626; color:#fff !important; padding:9px 18px; border-radius:10px; font-weight:900; font-size:14px; text-decoration:none; }
   .renew-info { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px 16px; font-size:13px; font-weight:700; color:#374151; line-height:1.7; word-break:keep-all; box-shadow:0 1px 3px rgba(0,0,0,.05); }
@@ -1002,8 +1002,8 @@
 
         <!-- ★ 생명·안전 위험은 119 먼저 -->
         <div class="renew-119">
-            <h3>🚒 생명·안전이 위험하면 지금 바로 119</h3>
-            <p>화재 · 가스 냄새 · 사람이 다쳤을 때 · 승강기에 사람이 갇혔을 때는 전화상담을 기다리지 마시고 먼저 119에 신고하세요.</p>
+            <h3>🚒 위험이 큰 상황이면 119가 먼저입니다</h3>
+            <p>불길·연기가 보이거나, 가스 냄새가 진하거나, 사람이 다쳤거나, 승강기에 사람이 갇혔다면 먼저 119에 신고하세요.<br>그 정도는 아니지만 무엇부터 해야 할지 막막할 때는 바로 아래에서 전화상담을 접수하시면 됩니다.</p>
             <a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a>
         </div>
 
@@ -1076,7 +1076,7 @@
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타입력</span></button>
             </div>
             <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-            <div id="safety-classic" class="safety-119">🚨 화재·가스누출·사람이 다친 경우·승강기 갇힘 등 생명이 위험하면 전화상담을 기다리지 말고 <u>먼저 119에 신고</u>하세요.<br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
+            <div id="safety-classic" class="safety-119">🚒 <b>불길·연기가 보이거나, 가스 냄새가 진하거나, 다친 사람이 있으면</b> 먼저 119에 신고하세요.<br>그 정도가 아니라면(경보기가 울리는데 불은 안 보임, 냄새가 약간 남, 조치 방법이 궁금함 등) 그대로 전화상담을 접수하시면 됩니다.<br><span style="font-weight:700;">가스 냄새가 나면 밸브를 잠그고 창문을 열어 주세요. 전기 스위치·불꽃은 건드리지 마세요.</span><br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
         </div>
 
         <!-- 3. 연락처 -->
@@ -1170,7 +1170,7 @@
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타(입력)</span></button>
                 </div>
                 <input type="text" id="q-category-custom" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-                <div id="safety-quick" class="safety-119">🚨 화재·가스누출·사람이 다친 경우·승강기 갇힘 등 생명이 위험하면 전화상담을 기다리지 말고 <u>먼저 119에 신고</u>하세요.<br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
+                <div id="safety-quick" class="safety-119">🚒 <b>불길·연기가 보이거나, 가스 냄새가 진하거나, 다친 사람이 있으면</b> 먼저 119에 신고하세요.<br>그 정도가 아니라면(경보기가 울리는데 불은 안 보임, 냄새가 약간 남, 조치 방법이 궁금함 등) 그대로 전화상담을 접수하시면 됩니다.<br><span style="font-weight:700;">가스 냄새가 나면 밸브를 잠그고 창문을 열어 주세요. 전기 스위치·불꽃은 건드리지 마세요.</span><br><a href="tel:119" onclick="return call119(event)">📞 119 전화하기</a></div>
             </div>
 
             <div class="mb-6">
@@ -1296,7 +1296,7 @@
             <div class="consent-card">
                 <p style="font-size:14px; font-weight:700; color:#374151; line-height:1.7; margin:0 0 14px; word-break:keep-all;">
                     <i class="fa-solid fa-circle-info" style="color:#9ca3af; margin-right:4px;"></i><strong>이용 전 꼭 확인해 주세요</strong><br>
-                    대한집합건물관리협회는 신청자와 전문가를 전화로 연결하는 서비스만 제공합니다. 전문가의 안내는 참고용 조언이며, 현장 조치·수리·공사의 최종 판단과 책임은 이용자와 시공업체에 있습니다. 생명·안전이 위험한 상황은 반드시 119에 먼저 신고해 주세요.
+                    대한집합건물관리협회는 신청자와 전문가를 전화로 연결하는 서비스만 제공합니다. 전문가의 안내는 참고용 조언이며, 현장 조치·수리·공사의 최종 판단과 책임은 이용자와 시공업체에 있습니다. 불길·연기, 진한 가스 냄새, 다친 사람이 있는 등 생명·안전이 위험한 상황은 119에 먼저 신고해 주세요.
                 </p>
                 <label class="consent-label">
                     <input type="checkbox" class="consent-chk" ${consentChecked ? 'checked' : ''} onchange="onConsentChange(this.checked)" style="margin-top:2px;">
@@ -1772,7 +1772,7 @@
 
         // ★ 생명·안전 위험 상황은 119 먼저 (확인 후에만 접수 진행)
         if (selectedCats[gridId].some(c => c === '화재' || c === '가스')) {
-            if (!confirm('화재·가스누출은 생명과 직결됩니다.\n\n119에 먼저 신고하셨나요?\n(아직이라면 \'취소\'를 누르고 119에 먼저 전화해 주세요)\n\n[확인]을 누르면 전화상담 접수를 계속합니다.')) return;
+            if (!confirm('🚒 불길·연기가 보이거나, 가스 냄새가 진하거나, 다친 사람이 있나요?\n그렇다면 [취소]를 누르고 먼저 119에 신고해 주세요.\n\n그 정도가 아니라면 [확인]을 눌러 전화상담 접수를 계속하세요.\n(가스 냄새가 나면 밸브를 잠그고 창문을 열어 주세요. 전기 스위치·불꽃은 금지)')) return;
         }
         // ★ 운영 시간 외 안내 (접수는 가능)
         if (!isOpenHours()) {
