@@ -824,6 +824,7 @@
                 <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-points.html'">포인트 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
                 <div class="side-menu-tab-active">승인 관리</div>
                 <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
             </div>
@@ -1007,7 +1008,10 @@
                     <td>${esc(b.status || '-')}</td>
                     <td>${esc(b.participants_count || 0)}${b.target_count ? ' / ' + esc(b.target_count) : ''}</td>
                     <td>${formatDate(b.deadline || b.end_date)}</td>
-                    <td><button class="btn-act btn-gray" onclick="closeJointBid('${esc(b.id)}', this)">마감 처리</button></td>
+                    <td><div class="flex gap-2 justify-center">
+                        <button class="btn-act btn-gray" onclick="closeJointBid('${esc(b.id)}', this)">마감 처리</button>
+                        <button class="btn-act btn-no" onclick="deleteJointBid('${esc(b.id)}', this)">삭제</button>
+                    </div></td>
                 </tr>
             `).join('');
         }
@@ -1041,6 +1045,23 @@
         async function closeJointBid(id, btn) {
             if (!confirm('이 공고를 마감할까요?\n마감하면 더 이상 참여 신청을 받지 않습니다.')) return;
             if (await updateJointBidStatus(id, '마감', btn)) { loadJointBids(); }
+        }
+
+        // 모집 중인 공고 삭제 (참여 신청 기록이 남아 있으면 삭제가 막힐 수 있음 → 그때는 마감 처리)
+        async function deleteJointBid(id, btn) {
+            if (!confirm('이 공고를 완전히 삭제할까요?\n삭제하면 되돌릴 수 없습니다.\n(목록에서만 내리려면 [마감 처리]를 쓰세요)')) return;
+            btn.disabled = true;
+            const { data, error } = await supabaseClient
+                .from('joint_bids').delete().eq('id', id).select('id');
+            if (error || !data || data.length === 0) {
+                btn.disabled = false;
+                const m = error ? String(error.message || '') : '';
+                if (/foreign key|violates|23503/i.test(m)) alert('참여 신청 기록이 연결되어 있어 삭제할 수 없습니다.\n대신 [마감 처리]를 눌러 목록에서 내려 주세요.');
+                else alert('삭제하지 못했습니다: ' + (error ? m : '권한이 없거나 이미 삭제된 글입니다.'));
+                return;
+            }
+            alert('삭제했습니다.');
+            loadJointBids();
         }
 
         async function rejectJointBid(id, btn) {
