@@ -152,34 +152,86 @@
             </div>`;
     }
 
-    // ---------- 아직 회원사와 연결되지 않음 ----------
+    // ---------- 아직 회원사와 연결되지 않음: 처음 화면(선택) → 직원 연결 / 회사 가입 ----------
+    //   주소 끝 #staff / #company 로 화면을 구분 (뒤로가기로 처음 화면 복귀)
+    function noneView() { const h = location.hash.replace('#', ''); return (h === 'staff' || h === 'company') ? h : 'choose'; }
+    function goView(v) { if (v === 'choose') history.pushState(null, '', location.pathname + location.search); else location.hash = v; render(); }
+    window.addEventListener('hashchange', () => { if (me && !me.member) render(); });
+    window.addEventListener('popstate', () => { if (me && !me.member) render(); });
+
+    const SOS_EXIT = `
+            <a href="sos-request.html" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fef2f2;border:2px solid #fca5a5;border-radius:12px;padding:10px 14px;text-decoration:none;color:#b91c1c;font-weight:900;font-size:14px;word-break:keep-all;">
+                <span>🚨 지금 급한 상황이면 → 바로 긴급 상담하기</span><span>→</span>
+            </a>`;
+    const BACK_BTN = `<button onclick="goView('choose')" style="background:none;border:0;color:#374151;font-weight:800;font-size:14px;cursor:pointer;padding:4px 0;">← 처음으로</button>`;
+
     function renderNone() {
+        const v = noneView();
+        if (v === 'staff') return renderJoinStaff();
+        if (v === 'company') return renderJoinCompany();
         document.getElementById('co-root').innerHTML = `
+            ${SOS_EXIT}
             <div class="co-card" style="background:#ecfdf5;border-color:#a7f3d0;">
                 <p class="co-h">🏢 회원사가 되면</p>
                 <ul class="co-steps">
                     <li>직원은 SOS 접수 때 <b>결제 없이</b> 바로 전문가와 연결됩니다.</li>
                     <li>관리 건물 주소가 <b>자동으로</b> 채워집니다.</li>
-                    <li>이용한 만큼만 매월 초 <b>등록 카드로 한 번에</b> 청구됩니다. (월 회비 없음)</li>
-                    <li>담당자는 건물별·직원별 이용 내역을 언제든 확인할 수 있습니다.</li>
+                    <li>이용한 만큼만 매월 초 <b>회사 카드로 한 번에</b> 청구됩니다. (월 회비 없음)</li>
                 </ul>
             </div>
+            <p style="font-size:15px;font-weight:900;color:#111827;margin:6px 2px 0;">어떤 분이신가요?</p>
+            <button onclick="goView('staff')" class="co-card" style="width:100%;text-align:left;cursor:pointer;border:2px solid #6ee7b7;display:flex;align-items:center;gap:12px;">
+                <span style="font-size:30px;">👷</span>
+                <span style="flex:1;"><b style="font-size:16px;color:#065f46;display:block;">직원으로 연결하기</b>
+                    <span style="font-size:13px;color:#4b5563;font-weight:600;">회사에서 <b>건물 코드</b>를 받으셨나요? 코드만 입력하면 됩니다.</span></span>
+                <span style="font-size:20px;font-weight:900;color:#059669;">→</span>
+            </button>
+            <button onclick="goView('company')" class="co-card" style="width:100%;text-align:left;cursor:pointer;border:2px solid #a5b4fc;display:flex;align-items:center;gap:12px;">
+                <span style="font-size:30px;">🏢</span>
+                <span style="flex:1;"><b style="font-size:16px;color:#3730a3;display:block;">회사(담당자)로 가입하기</b>
+                    <span style="font-size:13px;color:#4b5563;font-weight:600;">관리회사·건물을 대표해 <b>처음 가입</b>합니다. 가입 후 직원들에게 코드를 나눠 줍니다.</span></span>
+                <span style="font-size:20px;font-weight:900;color:#4f46e5;">→</span>
+            </button>`;
+    }
 
+    function renderJoinStaff() {
+        document.getElementById('co-root').innerHTML = `
+            ${BACK_BTN}
             <div class="co-card">
-                <p class="co-h">👷 직원이신가요? 건물 코드로 연결</p>
-                <p class="co-sub">회사 담당자에게 받은 <b>6자리 건물 코드</b>를 입력하세요. 담당자가 승인하면 바로 이용할 수 있습니다.</p>
+                <p class="co-h">👷 직원으로 연결하기</p>
+                <p class="co-sub">회사 담당자에게 받은 <b>6자리 건물 코드</b>를 입력하세요. 담당자가 승인하면 바로 회원사로 이용할 수 있습니다.</p>
                 <label class="co-label">건물 코드</label>
                 <input id="j-code" class="co-input" maxlength="6" placeholder="예: K7PX3M" style="text-transform:uppercase;letter-spacing:2px;font-weight:900;">
                 <label class="co-label">이름</label>
                 <input id="j-name" class="co-input" maxlength="30" placeholder="홍길동">
                 <label class="co-label">연락처</label>
                 <input id="j-phone" class="co-input" type="tel" maxlength="13" placeholder="010-0000-0000">
+                <p class="co-sub" style="margin:8px 0 0;">전문가가 이 번호로 연락합니다. 방재실 공용 휴대폰이면 담당자가 '공용 계정'으로 승인하고, 접수할 때마다 호출자를 입력하게 됩니다.</p>
                 <button class="co-btn green" onclick="doJoin()">연결 신청하기</button>
             </div>
+            <div class="co-card" style="background:#f9fafb;">
+                <p class="co-sub" style="margin:0;">🔑 <b>건물 코드가 없나요?</b> 회사 담당자에게 요청하세요. 담당자는 회원사 센터의 '관리 건물'에서 코드를 복사해 카톡·문자로 보낼 수 있습니다.<br>
+                회사가 아직 회원사가 아니라면 담당자가 먼저 <a href="#company" style="color:#4f46e5;font-weight:800;">회사로 가입</a>해야 합니다.</p>
+            </div>
+            ${SOS_EXIT}`;
+        bindPhone('j-phone');
+    }
 
+    function renderJoinCompany() {
+        const step = (n, t, d) => `<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;">
+                <span style="flex-shrink:0;width:24px;height:24px;border-radius:999px;background:#4f46e5;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;">${n}</span>
+                <span style="font-size:13px;line-height:1.55;word-break:keep-all;"><b style="color:#111827;">${t}</b><br><span style="color:#6b7280;font-weight:600;">${d}</span></span></div>`;
+        document.getElementById('co-root').innerHTML = `
+            ${BACK_BTN}
+            <div class="co-card" style="background:#eef2ff;border-color:#c7d2fe;">
+                <p class="co-h" style="color:#312e81;">🏢 회사 가입 순서</p>
+                ${step(1, '가입 신청', '지금 이 화면에서 회사 정보를 보냅니다.')}
+                ${step(2, '협회 승인', '협회가 확인 후 승인합니다.')}
+                ${step(3, '카드 등록 (필수)', '승인 후 회원사 센터에서 결제 카드를 등록합니다. 매월 초 전월 이용분만 청구, 월 회비 없음.')}
+                ${step(4, '건물 등록 · 직원 연결', '건물마다 나오는 6자리 코드를 직원에게 보내고, 연결 신청을 승인합니다.')}
+            </div>
             <div class="co-card">
-                <p class="co-h">🧑‍💼 회사 담당자이신가요? 회원사 가입 신청</p>
-                <p class="co-sub">신청 → 협회 승인 → <b>카드 등록(필수)</b> → 건물 등록 → 직원에게 건물 코드 전달 순서로 진행됩니다.</p>
+                <p class="co-h">📝 회사 정보</p>
                 <label class="co-label">회사명 *</label>
                 <input id="a-name" class="co-input" maxlength="60" placeholder="○○관리(주)">
                 <label class="co-label">사업자등록번호</label>
@@ -190,10 +242,11 @@
                 <input id="a-mphone" class="co-input" type="tel" maxlength="13" placeholder="010-0000-0000">
                 <label class="co-label">이용 내역서 받을 이메일</label>
                 <input id="a-email" class="co-input" type="email" maxlength="100" placeholder="account@company.com">
-                <p class="co-sub" style="margin-top:10px;">💳 이용료는 매월 초 전월 이용분을 <b>등록한 카드로 청구</b>합니다. 카드 등록은 협회 승인 후 이 화면에서 합니다. 월 회비는 없습니다.</p>
+                <p class="co-sub" style="margin-top:10px;">지금 로그인한 계정이 회사 <b>담당자 계정</b>이 됩니다. 담당자는 직원 승인, 건물 관리, 이용 내역 확인을 합니다.</p>
                 <button class="co-btn blue" onclick="doApply()">회원사 가입 신청하기</button>
-            </div>`;
-        bindPhone('j-phone'); bindPhone('a-mphone');
+            </div>
+            ${SOS_EXIT}`;
+        bindPhone('a-mphone');
     }
     function bindPhone(id) {
         const el = document.getElementById(id); if (!el) return;
@@ -215,7 +268,7 @@
             OTHER_COMPANY: '이미 다른 회원사에 연결되어 있습니다. 먼저 연결을 끊어 주세요.',
             BAD_INPUT: '이름과 연락처를 정확히 입력해 주세요.'
         });
-        if (d) { setData(d); alert('연결 신청이 접수되었습니다.\n회사 담당자가 승인하면 회원사로 이용할 수 있습니다.'); }
+        if (d) { history.replaceState(null, '', location.pathname + location.search); setData(d); alert('연결 신청이 접수되었습니다.\n회사 담당자가 승인하면 회원사로 이용할 수 있습니다.'); }
     }
     async function doApply() {
         const v = id => document.getElementById(id).value.trim();
@@ -224,7 +277,7 @@
         const d = await call('sos_company_apply', { p_name: v('a-name'), p_biz_no: v('a-biz'), p_manager_name: v('a-mname'), p_manager_phone: v('a-mphone'), p_tax_email: v('a-email') }, {
             ALREADY_MEMBER: '이미 회원사에 연결된 계정입니다.', BAD_INPUT: '입력 내용을 다시 확인해 주세요.'
         });
-        if (d) { setData(d); alert('가입 신청이 접수되었습니다.\n협회 승인 후 이 화면에서 카드를 등록해 주세요.'); }
+        if (d) { history.replaceState(null, '', location.pathname + location.search); setData(d); alert('가입 신청이 접수되었습니다.\n협회 승인 후 이 화면에서 카드를 등록해 주세요.'); }
     }
 
     // ---------- 직원: 승인 대기 ----------
