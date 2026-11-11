@@ -125,6 +125,7 @@
                 <div class="sos-tab" id="tab-btn-experts" onclick="switchTab('experts')">전문가 관리</div>
                 <div class="sos-tab" id="tab-btn-applications" onclick="switchTab('applications')">지원자 심사 <span id="app-pending-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
                 <div class="sos-tab" id="tab-btn-disputes" onclick="switchTab('disputes')">끊김·연결불가 신고 <span id="dispute-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
+                <div class="sos-tab" id="tab-btn-settle" onclick="switchTab('settle')">💰 월 정산</div>
                 <div class="sos-tab" id="tab-btn-night" onclick="switchTab('night')">🌙 심야 당번·09시 예약 <span id="night-badge" class="hidden ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full align-middle"></span></div>
             </div>
 
@@ -311,7 +312,7 @@
             <!-- ================= 탭5: 심야 당번 · 09시 연결 예약 (2026-11) ================= -->
             <div id="tab-night" class="hidden flex-col gap-4">
                 <div style="background:#f5f3ff;border:1px solid #c4b5fd;color:#4c1d95;border-radius:10px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.7;word-break:keep-all;">
-                    당번 날짜는 <b>그날 21:00 ~ 다음 날 09:00</b>입니다. 당번 전문가는 요청자 목록 맨 위에 '🌙 오늘 심야 당번'으로 표시되고, 전문가 대기 화면에도 당번 안내가 나옵니다.<br>
+                    당번 날짜는 <b>그날 21:00 ~ 다음 날 09:00</b>입니다. 당번 전문가는 대기를 켜면 요청자 목록에서 <b>우선 배치</b>됩니다(요청자에게 당번 표시는 없음). 전문가 대기 화면에는 당번 안내가 나옵니다. 당번이 아니어도 누구나 심야에 대기를 켤 수 있습니다.<br>
                     심야에 대기 중인 전문가가 1명도 없으면 접수가 막히고 고객은 <b>09시 연결 예약</b>을 남깁니다. 아침에 아래 목록을 보고 먼저 연락해 주세요.
                 </div>
                 <div class="bg-white rounded-xl border border-gray-200 p-4">
@@ -329,6 +330,29 @@
                 </div>
             </div>
             <!-- ================= /탭5 ================= -->
+
+            <!-- ================= 탭6: 월 정산 (정률 수수료 20%) ================= -->
+            <div id="tab-settle" class="hidden flex-col gap-4">
+                <div style="background:#f0fdf4;border:1px solid #86efac;color:#14532d;border-radius:10px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.7;word-break:keep-all;">
+                    상담료와 연장 요금의 <b>20%</b>가 플랫폼 수수료, <b>80%</b>가 전문가 지급액입니다. 초기 모집 전문가는 지정한 날짜까지 <b>10%</b>가 적용됩니다.<br>
+                    끊김·연결불가 신고가 처리 중인 상담은 <b>보류</b>로 따로 표시되며 지급액에서 빠집니다. 환불한 상담은 다음 달 지급액에서 직접 빼 주세요. 지급액이 1만 원 미만이면 다음 달로 이월합니다.
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <h3 class="font-black text-gray-800 mr-auto">전문가별 정산표</h3>
+                        <input type="month" id="settle-month" style="border:1px solid #d1d5db;border-radius:8px;padding:5px 8px;font-size:13px;">
+                        <button onclick="fetchSettlement()" style="background:#16a34a;color:#fff;border:0;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer;">조회</button>
+                        <button onclick="downloadSettlementCsv()" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:800;cursor:pointer;">엑셀(CSV) 받기</button>
+                    </div>
+                    <div id="settle-list" style="overflow-x:auto;"><p class="text-sm text-gray-400">월을 고르고 조회를 눌러 주세요.</p></div>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <h3 class="font-black text-gray-800 mb-1">초기 모집 수수료(10%) 적용 기간</h3>
+                    <p class="text-[12.5px] text-gray-500 font-bold mb-3">승인일로부터 6개월이 되는 날짜를 넣어 주세요. 비우고 저장하면 기본 20%로 돌아갑니다.</p>
+                    <div id="early-list" class="flex flex-col gap-1"><p class="text-sm text-gray-400">불러오는 중...</p></div>
+                </div>
+            </div>
+            <!-- ================= /탭6 ================= -->
 
         </section>
     </main>
@@ -434,6 +458,11 @@
             const isApp = tab === 'applications';
             const isDis = tab === 'disputes';
             const isNight = tab === 'night';
+            const isSettle = tab === 'settle';
+            document.getElementById('tab-settle').classList.toggle('hidden', !isSettle);
+            document.getElementById('tab-settle').classList.toggle('flex', isSettle);
+            document.getElementById('tab-btn-settle').classList.toggle('active', isSettle);
+            if (isSettle) { initSettleMonth(); fetchSettlement(); fetchEarlyRates(); }
             document.getElementById('tab-night').classList.toggle('hidden', !isNight);
             document.getElementById('tab-night').classList.toggle('flex', isNight);
             document.getElementById('tab-btn-night').classList.toggle('active', isNight);
@@ -535,6 +564,70 @@
             const { error } = await supabaseClient.from('sos_morning_reservations').update({ status: 'done', admin_note: note, handled_at: new Date().toISOString() }).eq('id', id);
             if (error) { alert('처리하지 못했습니다: ' + error.message); return; }
             fetchReservations();
+        }
+
+        // ================= 💰 월 정산 (정률 수수료 20%) =================
+        let settleRows = [];
+        const wonS = n => Number(n || 0).toLocaleString() + '원';
+        function initSettleMonth() {
+            const el = document.getElementById('settle-month');
+            if (el.value) return;
+            const k = new Date(Date.now() + 9 * 3600 * 1000);
+            k.setUTCDate(1); k.setUTCMonth(k.getUTCMonth() - 1);   // 기본: 지난달
+            el.value = k.toISOString().slice(0, 7);
+        }
+        async function fetchSettlement() {
+            const box = document.getElementById('settle-list');
+            const m = document.getElementById('settle-month').value;
+            if (!m) return;
+            box.innerHTML = '<p class="text-sm text-gray-400">불러오는 중...</p>';
+            const { data, error } = await supabaseClient.rpc('admin_sos_settlement', { p_month: m + '-01' });
+            if (error) { box.innerHTML = '<p class="text-sm text-red-500">정산표를 불러오지 못했습니다. (sos_commission_2026-11.sql 을 실행했는지 확인해 주세요)</p>'; console.error(error); return; }
+            settleRows = data || [];
+            if (!settleRows.length) { box.innerHTML = `<p class="text-sm text-gray-400">${m} 에 정산할 상담이 없습니다.</p>`; return; }
+            const sum = k => settleRows.reduce((a, r) => a + Number(r[k] || 0), 0);
+            const th = (x = '') => `style="padding:8px 6px;border-bottom:2px solid #e5e7eb;text-align:right;font-weight:900;color:#374151;white-space:nowrap;${x}"`;
+            const td = (x = '') => `style="padding:8px 6px;border-bottom:1px solid #f3f4f6;text-align:right;white-space:nowrap;${x}"`;
+            box.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <tr><th ${th('text-align:left;')}>전문가</th><th ${th()}>상담</th><th ${th()}>상담료</th><th ${th()}>연장</th><th ${th()}>연장 요금</th><th ${th()}>보류</th><th ${th()}>합계</th><th ${th()}>수수료</th><th ${th()}>지급액</th></tr>
+                ${settleRows.map(r => `<tr>
+                    <td ${td('text-align:left;font-weight:800;')}>${escapeHtml(r.expert_name || '-')}</td>
+                    <td ${td()}>${r.consult_count}건</td><td ${td()}>${wonS(r.consult_amount)}</td>
+                    <td ${td()}>${r.extend_count}건</td><td ${td()}>${wonS(r.extend_amount)}</td>
+                    <td ${td(`color:${r.held_count ? '#dc2626' : '#9ca3af'};`)}>${r.held_count ? r.held_count + '건 · ' + wonS(r.held_amount) : '-'}</td>
+                    <td ${td()}>${wonS(r.gross_amount)}</td><td ${td('color:#6b7280;')}>${wonS(r.commission)}</td>
+                    <td ${td(`font-weight:900;color:${r.below_minimum ? '#9ca3af' : '#15803d'};`)}>${wonS(r.payout)}${r.below_minimum ? '<br><span style="font-size:11px;">이월</span>' : ''}</td>
+                </tr>`).join('')}
+                <tr><td ${td('text-align:left;font-weight:900;')}>합계</td><td ${td()}>${sum('consult_count')}건</td><td ${td()}>${wonS(sum('consult_amount'))}</td><td ${td()}>${sum('extend_count')}건</td><td ${td()}>${wonS(sum('extend_amount'))}</td><td ${td()}>${wonS(sum('held_amount'))}</td><td ${td('font-weight:900;')}>${wonS(sum('gross_amount'))}</td><td ${td('font-weight:900;')}>${wonS(sum('commission'))}</td><td ${td('font-weight:900;color:#15803d;')}>${wonS(sum('payout'))}</td></tr>
+            </table>`;
+        }
+        function downloadSettlementCsv() {
+            if (!settleRows.length) { alert('먼저 조회해 주세요.'); return; }
+            const m = document.getElementById('settle-month').value;
+            const head = ['전문가', '상담 건수', '상담료', '연장 건수', '연장 요금', '보류 건수', '보류 금액', '합계', '수수료', '지급액', '이월'];
+            const lines = [head].concat(settleRows.map(r => [r.expert_name, r.consult_count, r.consult_amount, r.extend_count, r.extend_amount, r.held_count, r.held_amount, r.gross_amount, r.commission, r.payout, r.below_minimum ? '이월' : '']));
+            const csv = '\ufeff' + lines.map(l => l.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+            a.download = `SOS_정산_${m}.csv`; a.click();
+        }
+        async function fetchEarlyRates() {
+            const box = document.getElementById('early-list');
+            const { data, error } = await supabaseClient.from('sos_experts').select('*').eq('is_active', true).order('name');
+            if (error) { box.innerHTML = '<p class="text-sm text-red-500">전문가 목록을 불러오지 못했습니다.</p>'; return; }
+            if (!data || !data.length) { box.innerHTML = '<p class="text-sm text-gray-400">승인된 전문가가 없습니다.</p>'; return; }
+            box.innerHTML = data.map(e => `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                <span style="flex:1;min-width:140px;font-weight:800;font-size:13.5px;">${escapeHtml(e.name || '-')} <span style="color:#9ca3af;font-weight:600;font-size:12px;">${escapeHtml(e.category || '')}</span></span>
+                <span style="font-size:12.5px;font-weight:800;color:${e.early_rate_until ? '#15803d' : '#6b7280'};">${e.early_rate_until ? '10% (' + escapeHtml(e.early_rate_until) + '까지)' : '20%'}</span>
+                <input type="date" id="early-${escapeHtml(e.id)}" value="${escapeHtml(e.early_rate_until || '')}" style="border:1px solid #d1d5db;border-radius:8px;padding:4px 8px;font-size:13px;">
+                <button onclick="saveEarlyRate('${escapeHtml(e.id)}')" style="background:#374151;color:#fff;border:0;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:800;cursor:pointer;">저장</button>
+            </div>`).join('');
+        }
+        async function saveEarlyRate(id) {
+            const v = document.getElementById('early-' + id).value || null;
+            const { error } = await supabaseClient.rpc('admin_set_early_rate', { p_expert_id: id, p_until: v });
+            if (error) { alert('저장하지 못했습니다: ' + error.message); return; }
+            fetchEarlyRates();
         }
 
         // ================= 끊김·연결불가 신고 =================
