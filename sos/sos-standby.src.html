@@ -1061,7 +1061,8 @@
     document.getElementById('to-setup-btn').addEventListener('click', () => showView('setup'));
 
     // ===================== 긴급 SOS 요청현황 (엑셀형 게시판) =====================
-    const CAT_SHORT = { '화재': '소방', '전기': '전기', '누수': '배관', '가스': '가스', '화장실': '화장실', '기타': '기타' };
+    // 2026-11-13: 분야는 소방/전기/누수/기타 4개. 예전 접수(화재·가스·화장실)도 알아보기 쉽게 표시
+    const CAT_SHORT = { '소방': '경보기', '화재': '경보기', '전기': '정전', '누수': '누수', '화장실': '누수', '가스': '가스', '기타': '기타' };
     const TYPE_LABEL = { phone: '전화', dispatch: '전화+(출동)', dispatch_only: '출동' };
     const BOARD_MAX = 3;
     let boardRows = [];                 // 서버에서 받은 행 (화면용으로 가공)

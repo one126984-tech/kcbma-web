@@ -39,7 +39,7 @@
     .load-msg { margin: 8px 2px 0; font-size: 13px; font-weight: 800; color: #1d4ed8; word-break: keep-all; line-height: 1.5; }
     @keyframes flashSec { 0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); } 30%, 70% { box-shadow: 0 0 0 4px rgba(37,99,235,.45); } }
     .flash { animation: flashSec 1.4s ease 1; border-radius: 12px; }
-    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .cat-btn { position: relative; border: 2px solid #e5e7eb; border-radius: 12px; padding: 11px 4px; font-weight: 800; font-size: 13px; background: #fff; color: #1f2937; cursor: pointer; }
     .cat-btn.on { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
     .rank { position: absolute; top: -9px; left: -6px; color: #fff; font-size: 11px; font-weight: 900; padding: 1px 7px; border-radius: 999px; background: #dc2626; }
@@ -208,10 +208,21 @@
     const isPractice = new URLSearchParams(location.search).get('practice') === '1';   // 연습: 로그인·저장 없이 실제와 같은 화면
     const MODAL_URL = 'sos-request.html?expert=1' + (isPractice ? '&practice=1' : '');
     const CATS = [
-        { key: '화재', label: '🔥 화재/소방' }, { key: '전기', label: '⚡ 정전/전기' }, { key: '누수', label: '💧 누수/배관' },
-        { key: '가스', label: '🧯 가스누출' }, { key: '화장실', label: '🚽 화장실 기기' }, { key: '기타', label: '✏️ 기타(입력)' }
+        // 2026-11-13: 전화로 해결되는 4개 분야로 정리 (요청 화면: 경보기 오작동·전기 정전·배관 누수·기타)
+        { key: '소방', label: '🔔 소방(경보기)' }, { key: '전기', label: '⚡ 전기(정전)' },
+        { key: '누수', label: '💧 배관(누수)' }, { key: '기타', label: '✏️ 기타(입력)' }
     ];
     const MAX_CATS = 2;
+    // 예전 분야 이름(화재·화장실·가스 등)도 새 분야(소방/전기/누수/기타)로 맞춤
+    function normCats(t) {
+        const map = { '기타': '기타', '화재': '소방', '소방': '소방', '경보': '소방', '전기': '전기', '정전': '전기', '누수': '누수', '배관': '누수', '화장실': '누수', '가스': '기타', '승강기': '기타' };
+        const out = [];
+        String(t || '').split(',').forEach(part => {
+            const k = Object.keys(map).find(x => part.includes(x));
+            if (k && !out.includes(map[k])) out.push(map[k]);
+        });
+        return out.slice(0, MAX_CATS);
+    }
     const MAJORS = ['전국', '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
     const SVC_TITLE = { phone: '📞 전화상담 범위', dispatch: '🚚 출동서비스 범위' };
 
@@ -528,7 +539,7 @@
             document.getElementById('step-tag').textContent = '[연습] 3단계 · 콜대기 조건 설정';
             document.getElementById('step-tag').style.background = '#7c3aed';
             me = { id: 'practice', name: '한국전기 홍길동', can_dispatch: true, contact_mode: 'call' };
-            draft = Object.assign(draft || {}, { name: (draft && draft.name) || '한국전기 홍길동', phone: '010-0000-1234', intro: (draft && draft.intro) || '연습용 소개', cats: (draft && draft.cats && draft.cats.length) ? draft.cats.slice(0, MAX_CATS) : ['전기', '화재'] });
+            draft = Object.assign(draft || {}, { name: (draft && draft.name) || '한국전기 홍길동', phone: '010-0000-1234', intro: (draft && draft.intro) || '연습용 소개', cats: (draft && draft.cats && draft.cats.length) ? normCats(draft.cats.join(',')) : ['전기', '소방'] });
             scope = draft.scope ? normalizeScope(draft.scope) : { phone: { on: true, regions: ['전국 전체'], all_day: false, times: [{ from: '09:00', to: '18:00' }] }, dispatch: { on: false, regions: [], all_day: true, times: [] } };
             contactMode = draft.contactMode === 'text' ? 'text' : 'call';
             me.service_scope = JSON.parse(JSON.stringify(scope));   // '기존 정보입력' 연습용
@@ -562,7 +573,7 @@
         const src = me ? { name: me.name, phone: me.phone, intro: me.intro, cats: me.categories || me.category }
                        : { name: lastApp.name, phone: lastApp.phone, intro: lastApp.bio, cats: String(lastApp.categories || '').split(' (')[0] };
         draft = Object.assign(draft || {}, { name: src.name, phone: src.phone, intro: src.intro || '',
-            cats: String(src.cats || '').split(',').map(x => x.trim()).filter(k => CATS.some(c => c.key === k)) });
+            cats: normCats(src.cats) });
         draft.cats = (draft.cats || []).slice(0, MAX_CATS);
         if (draft.scope) scope = normalizeScope(draft.scope);
         else if (me) scope = me.service_scope ? normalizeScope(me.service_scope) : legacyScope(me);

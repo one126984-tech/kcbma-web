@@ -819,6 +819,7 @@
 
         <section class="flex-1 min-w-0 flex flex-col gap-6">
             <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">통계 대시보드</div>
+            <div id="stats-notice" style="display:none; border:1px solid #e2e8f0; border-radius:10px; padding:14px 16px; font-size:14px; font-weight:600;"></div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="summary-card">
@@ -900,62 +901,19 @@
             return true;
         }
 
-        const dummyCourses = [
-            { id: 1, title: '기전당직 실무 교육과정' },
-            { id: 2, title: '전기방재안전 실시간 화상 강의 과정' },
-            { id: 3, title: '기계설비유지관리사 이론 및 실무 종합과정' },
-            { id: 4, title: '영선 실무 교육과정' },
-            { id: 5, title: '배관시설관리사 실무 심화과정' }
-        ];
-
-        function genDummyEnrollments() {
-            const list = [];
-            let id = 1;
-            const now = new Date();
-            dummyCourses.forEach((course, ci) => {
-                const total = 20 + ci * 6;
-                for (let i = 0; i < total; i++) {
-                    const monthsAgo = Math.floor(Math.random() * 6);
-                    const d = new Date(now.getFullYear(), now.getMonth() - monthsAgo, 1 + Math.floor(Math.random() * 27));
-                    const isCompleted = Math.random() < (0.35 + ci * 0.05);
-                    list.push({
-                        id: id++,
-                        course_id: course.id,
-                        enrolled_at: d.toISOString(),
-                        status: isCompleted ? 'COMPLETED' : 'ACTIVE'
-                    });
-                }
-            });
-            return list;
+        // 실제 DB 자료만 사용합니다. (예전에는 자료가 없으면 무작위 가짜 숫자를 보여 줬으나 삭제함)
+        function showStatsNotice(msg, isError) {
+            const box = document.getElementById('stats-notice');
+            if (!box) return;
+            box.textContent = msg;
+            box.style.display = 'block';
+            box.style.background = isError ? '#fef2f2' : '#f1f5f9';
+            box.style.color = isError ? '#b91c1c' : '#475569';
+            box.style.borderColor = isError ? '#fecaca' : '#e2e8f0';
         }
-
-        function genDummyCertificates(enrollments) {
-            return enrollments
-                .filter(e => e.status === 'COMPLETED' && Math.random() < 0.85)
-                .map((e, i) => ({ id: i + 1, course_id: e.course_id }));
-        }
-
-        function genDummyExamAttempts() {
-            const list = [];
-            let id = 1;
-            dummyCourses.forEach((course, ci) => {
-                const total = 15 + ci * 5;
-                for (let i = 0; i < total; i++) {
-                    list.push({
-                        id: id++,
-                        course_id: course.id,
-                        is_passed: Math.random() < (0.5 + ci * 0.06)
-                    });
-                }
-            });
-            return list;
-        }
-
-        const dummyEnrollments = genDummyEnrollments();
-        const dummyCertificates = genDummyCertificates(dummyEnrollments);
-        const dummyExamAttempts = genDummyExamAttempts();
 
         async function fetchAllData() {
+            const empty = { courses: [], enrollments: [], certificates: [], attempts: [] };
             try {
                 const [coursesRes, enrollmentsRes, certificatesRes, attemptsRes, examsRes] = await Promise.all([
                     supabaseClient.from('cert_courses').select('id, title'),
@@ -969,30 +927,26 @@
                     .map(r => r.error).filter(Boolean);
                 if (errors.length > 0) throw errors[0];
 
-                const courses = (coursesRes.data && coursesRes.data.length > 0) ? coursesRes.data : dummyCourses;
-                const enrollments = (enrollmentsRes.data && enrollmentsRes.data.length > 0) ? enrollmentsRes.data : dummyEnrollments;
-                const certificates = (certificatesRes.data && certificatesRes.data.length > 0) ? certificatesRes.data : dummyCertificates;
+                const courses = coursesRes.data || [];
+                const enrollments = enrollmentsRes.data || [];
+                const certificates = certificatesRes.data || [];
                 const exams = examsRes.data || [];
 
                 const examToCourse = {};
                 exams.forEach(ex => { examToCourse[ex.id] = ex.course_id; });
+                const attempts = (attemptsRes.data || []).map(a => ({ ...a, course_id: examToCourse[a.exam_id] }));
 
-                let attempts = attemptsRes.data || [];
-                if (attempts.length > 0 && exams.length > 0) {
-                    attempts = attempts.map(a => ({ ...a, course_id: examToCourse[a.exam_id] }));
-                } else {
-                    attempts = dummyExamAttempts;
+                if (courses.length === 0) {
+                    showStatsNotice('아직 등록된 교육과정이 없습니다. 과정을 등록하면 이곳에 통계가 표시됩니다.', false);
+                } else if (enrollments.length === 0) {
+                    showStatsNotice('아직 수강 신청 기록이 없습니다. 수강생이 생기면 실제 숫자로 채워집니다.', false);
                 }
 
                 return { courses, enrollments, certificates, attempts };
             } catch (e) {
                 console.error('통계 데이터 조회 실패:', e);
-                return {
-                    courses: dummyCourses,
-                    enrollments: dummyEnrollments,
-                    certificates: dummyCertificates,
-                    attempts: dummyExamAttempts
-                };
+                showStatsNotice('통계 자료를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.', true);
+                return empty;
             }
         }
 

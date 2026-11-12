@@ -607,7 +607,7 @@
 
         <section class="flex-1 min-w-0 bg-white p-6 md:p-8 border border-gray-200 rounded shadow-sm">
 
-            <h1 class="text-[20px] font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">견적의뢰 등록</h1>
+            <h1 id="page-title" class="text-[20px] font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">견적의뢰 등록</h1>
 
             <form id="bid-form" onsubmit="submitBid(event)">
                 <table class="form-table">
@@ -686,15 +686,21 @@
     </div>
 
     <script>
-        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
-        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        // 로그인한 회원 정보를 알아야 등록·수정할 수 있으므로, 헤더와 같은 로그인 연결(window.sb)을 사용합니다.
+        // (예전엔 로그인 정보를 버리는 임시 연결이라 로그인해도 항상 '로그인이 필요합니다'가 떴음)
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+        const supabaseClient = window.sb || (window.supabase ? (window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)) : null);
 
         const DB_TABLE_NAME = 'bids'; 
 
-        function initApp() {
+        // ?id=값이 있으면 '수정' 모드, 없으면 '새 등록' 모드
+        const editId = new URLSearchParams(window.location.search).get('id');
+        const isEditMode = !!editId;
+
+        async function initApp() {
             initForm();
+            if (isEditMode) await loadBidForEdit();
         }
 
         function initForm() {
@@ -723,6 +729,67 @@
             }
         }
 
+        // 날짜 값(예: 2026-11-13T00:00:00)을 date 입력칸 형식(2026-11-13)으로 맞춤
+        function toDateInput(v) {
+            if (!v) return '';
+            return String(v).slice(0, 10);
+        }
+
+        // 선택 목록에 없는 값(예전 분류·지역)도 사라지지 않도록 항목을 추가한 뒤 선택
+        function setSelectValue(id, value) {
+            const sel = document.getElementById(id);
+            if (!value) return;
+            if (![...sel.options].some(o => o.value === value)) {
+                const opt = document.createElement('option');
+                opt.value = value; opt.text = value;
+                sel.appendChild(opt);
+            }
+            sel.value = value;
+        }
+
+        async function loadBidForEdit() {
+            document.getElementById('page-title').innerText = '견적의뢰 수정';
+            document.title = '견적의뢰 수정 | 대한집합건물관리협회';
+            const submitBtn = document.getElementById('btn-submit');
+            submitBtn.innerText = '수정하기';
+
+            if (!supabaseClient) { alert('데이터베이스 연결에 실패했습니다.'); return; }
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) {
+                alert('로그인이 필요합니다.');
+                location.href = '../../login.html';
+                return;
+            }
+
+            const { data: bid, error } = await supabaseClient.from(DB_TABLE_NAME).select('*').eq('id', editId).single();
+            if (error || !bid) {
+                alert('존재하지 않거나 삭제된 견적의뢰입니다.');
+                location.href = 'bid-list.html';
+                return;
+            }
+
+            const isAdmin = !!(user.app_metadata && user.app_metadata.role === 'admin');
+            if (!isAdmin && bid.created_by !== user.id) {
+                alert('본인이 등록한 견적의뢰만 수정할 수 있습니다.');
+                location.href = `bid-detail.html?id=${encodeURIComponent(editId)}`;
+                return;
+            }
+
+            // 상세 내용이 예전 형식(JSON {intro: ...})으로 저장된 경우 본문만 꺼내서 보여 줌
+            let desc = bid.description || '';
+            try { const parsed = JSON.parse(desc); if (parsed && parsed.intro) desc = parsed.intro; } catch (e) {}
+
+            document.getElementById('f-title').value = bid.title || '';
+            document.getElementById('f-company').value = bid.company_name || '';
+            setSelectValue('f-category', bid.category || bid.type || '');
+            setSelectValue('f-region', bid.region || '');
+            document.getElementById('f-location').value = bid.location || bid.address || '';
+            document.getElementById('f-start-date').value = toDateInput(bid.start_date || bid.created_at);
+            document.getElementById('f-end-date').value = toDateInput(bid.end_date);
+            document.getElementById('f-description').value = desc;
+        }
+
         async function submitBid(event) {
             event.preventDefault();
 
@@ -732,10 +799,9 @@
             }
 
             const { data: authData } = await supabaseClient.auth.getUser();
-            
-            // 테스트용으로는 주석 처리하여 누구나 등록할 수 있게 하려면 아래 코드를 주석처리 하세요.
-            if (!authData.user) {
+            if (!authData || !authData.user) {
                 alert('로그인이 필요합니다.');
+                location.href = '../../login.html';
                 return;
             }
 
@@ -754,40 +820,56 @@
             }
 
             const submitBtn = document.getElementById('btn-submit');
+            const btnLabel = isEditMode ? '수정하기' : '등록하기';
             submitBtn.disabled = true;
-            submitBtn.innerText = '등록 중...';
+            submitBtn.innerText = isEditMode ? '수정 중...' : '등록 중...';
             submitBtn.style.opacity = '0.7';
 
+            const fields = {
+                title: title,
+                company_name: company,
+                category: category,
+                region: region,
+                location: locationStr,
+                start_date: startDate,
+                end_date: endDate,
+                description: description
+            };
+
             try {
-                const { data, error } = await supabaseClient
-                    .from(DB_TABLE_NAME)
-                    .insert([
-                        {
-                            title: title,
-                            company_name: company,
-                            category: category,
-                            region: region,
-                            location: locationStr,
-                            start_date: startDate,
-                            end_date: endDate,
-                            description: description,
-                            status: 'OPEN',
-                            views: 0,
-                            created_by: authData.user ? authData.user.id : null
-                        }
-                    ]);
-
-                if (error) throw error;
-
-                alert('견적의뢰가 성공적으로 등록되었습니다.');
-                window.location.href = 'bid-list.html';
+                if (isEditMode) {
+                    // 수정: 조회수·상태·작성자는 건드리지 않고 내용만 바꿈
+                    const { data, error } = await supabaseClient
+                        .from(DB_TABLE_NAME)
+                        .update(fields)
+                        .eq('id', editId)
+                        .select('id');
+                    if (error) throw error;
+                    if (!data || data.length === 0) {
+                        // DB 규칙상 수정 권한이 없으면 오류 없이 0건 수정으로 끝나므로 따로 안내
+                        throw new Error('NO_PERMISSION');
+                    }
+                    alert('견적의뢰가 수정되었습니다.');
+                    window.location.href = `bid-detail.html?id=${encodeURIComponent(editId)}`;
+                } else {
+                    const { error } = await supabaseClient
+                        .from(DB_TABLE_NAME)
+                        .insert([{ ...fields, status: 'OPEN', views: 0, created_by: authData.user.id }]);
+                    if (error) throw error;
+                    alert('견적의뢰가 성공적으로 등록되었습니다.');
+                    window.location.href = 'bid-list.html';
+                }
 
             } catch (error) {
-                console.error('Insert error:', error);
-                alert('공고 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                console.error(isEditMode ? 'Update error:' : 'Insert error:', error);
+                if (error && error.message === 'NO_PERMISSION') {
+                    alert('수정 권한이 없습니다. 본인이 등록한 견적의뢰만 수정할 수 있습니다.');
+                } else {
+                    alert((isEditMode ? '수정' : '공고 등록') + ' 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                }
 
                 submitBtn.disabled = false;
-                submitBtn.innerText = '등록하기';
+                submitBtn.innerText = btnLabel;
                 submitBtn.style.opacity = '1';
             }
         }

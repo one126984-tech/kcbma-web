@@ -948,6 +948,7 @@
 
                 <div class="btn-wrap">
                     <button class="btn-list" onclick="location.href='bid-list.html'">목록으로</button>
+                    <button id="btn-edit-bid" class="btn-edit" style="display:none;" onclick="editBid()">수정하기</button>
                 </div>
             </div>
 
@@ -963,10 +964,11 @@
             fetchBidDetail();
         });
 
-        const dummyStorage = { getItem:()=>null, setItem:()=>{}, removeItem:()=>{} };
-        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co'; 
+        // 로그인한 회원 정보를 알아야 '수정하기' 버튼을 보여 줄 수 있으므로, 헤더와 같은 로그인 연결(window.sb)을 사용합니다.
+        // (예전엔 로그인 정보를 버리는 임시 연결이라 작성자 확인이 불가능했음)
+        const SUPABASE_URL = 'https://ehrahnnowwjkgycvlbzk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk';
-        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storage: dummyStorage}}) : null;
+        const supabaseClient = window.sb || (window.supabase ? (window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)) : null);
 
         const DB_TABLE_NAME = 'bids'; 
 
@@ -993,6 +995,7 @@
                 }
 
                 renderBidDetail(data);
+                showEditButtonIfAllowed(data);
 
             } catch (error) {
                 document.getElementById('loading-spinner').innerHTML = '<span class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</span>';
@@ -1061,10 +1064,23 @@
             document.getElementById('bid-content').innerHTML = contentStr;
         }
 
+        // 작성자 본인 또는 관리자에게만 '수정하기' 버튼을 보여 줍니다.
+        // (실제 수정 권한은 DB 규칙(RLS)이 한 번 더 확인하므로, 버튼을 억지로 띄워도 남의 글은 고쳐지지 않습니다)
+        async function showEditButtonIfAllowed(bid) {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const isAdmin = !!(user.app_metadata && user.app_metadata.role === 'admin');
+                if (isAdmin || (bid.created_by && bid.created_by === user.id)) {
+                    document.getElementById('btn-edit-bid').style.display = 'inline-block';
+                }
+            } catch (e) { /* 로그인 확인 실패 시 버튼을 숨긴 채로 둠 */ }
+        }
+
         function editBid() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const bidId = urlParams.get('id');
-            alert('수정 기능은 준비 중입니다.');
+            const bidId = new URLSearchParams(window.location.search).get('id');
+            if (!bidId) return;
+            location.href = `bid-write.html?id=${encodeURIComponent(bidId)}`;
         }
     </script>
     <script>

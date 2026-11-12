@@ -417,7 +417,7 @@
     .xp-input[readonly] { background: #f3f4f6; color: #4b5563; }
     .xp-textarea { resize: vertical; min-height: 120px; }
     .xp-count { text-align: right; font-size: 11px; color: #9ca3af; margin-top: 4px; }
-    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .cat-btn { position: relative; border: 2px solid #e5e7eb; border-radius: 12px; padding: 11px 4px; font-weight: 800; font-size: 13px; background: #fff; color: #1f2937; cursor: pointer; }
     .cat-btn.on { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
     .rank { position: absolute; top: -9px; left: -6px; color: #fff; font-size: 11px; font-weight: 900; padding: 1px 7px; border-radius: 999px; background: #dc2626; }
@@ -987,8 +987,9 @@
 
     // 요청 화면·대기실과 같은 분야 이름을 씁니다 (전문가 매칭이 이 이름으로 이루어짐)
     const CATS = [
-        { key: '화재', label: '🔥 화재/소방' }, { key: '전기', label: '⚡ 정전/전기' }, { key: '누수', label: '💧 누수/배관' },
-        { key: '가스', label: '🧯 가스누출' }, { key: '화장실', label: '🚽 화장실 기기' }, { key: '기타', label: '✏️ 기타(입력)' }
+        // 2026-11-13: 전화로 해결되는 4개 분야로 정리 (요청 화면: 경보기 오작동·전기 정전·배관 누수·기타)
+        { key: '소방', label: '🔔 소방(경보기)' }, { key: '전기', label: '⚡ 전기(정전)' },
+        { key: '누수', label: '💧 배관(누수)' }, { key: '기타', label: '✏️ 기타(입력)' }
     ];
     const MAX_CATS = 2;
     const DRAFT_KEY = 'sosExpertDraft';
@@ -1095,8 +1096,8 @@
         renderCats();
     }
     function catsFromText(t) {
-        // 예전 지원서의 분야 이름(화재/소방, 정전/전기 …)도 새 이름으로 맞춰 불러옴
-        const map = { '화재': '화재', '소방': '화재', '전기': '전기', '정전': '전기', '누수': '누수', '배관': '누수', '가스': '가스', '화장실': '화장실', '기타': '기타' };
+        // 예전 지원서의 분야 이름(화재/소방, 정전/전기, 화장실, 가스 …)도 새 분야(소방/전기/누수/기타)로 맞춰 불러옴
+        const map = { '기타': '기타', '화재': '소방', '소방': '소방', '경보': '소방', '전기': '전기', '정전': '전기', '누수': '누수', '배관': '누수', '화장실': '누수', '가스': '기타', '승강기': '기타' };
         const out = [];
         String(t || '').split(',').forEach(part => {
             const hit = Object.keys(map).find(k => part.includes(k));
@@ -1116,7 +1117,7 @@
             document.getElementById('phone-help').textContent = '[연습] 실제에서는 1단계에서 입력한 연락처가 표시됩니다.';
             document.getElementById('pf-file').disabled = true;
             document.getElementById('file-state').textContent = '[연습] 연습에서는 파일을 올리지 않습니다.';
-            fill({ name: '한국전기 홍길동', cats: ['전기', '화재'], intro: '전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 정전·누전 상황 전화 대처 안내' });
+            fill({ name: '한국전기 홍길동', cats: ['전기', '소방'], intro: '전기기사, 전기공사 기사 / 전기안전관리 경력 15년, 상가·빌딩 전문 / 정전·누전 상황 전화 대처 안내' });
             return;
         }
         try {

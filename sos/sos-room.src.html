@@ -629,7 +629,7 @@
     const PR_ADDR = params.get('addr') || '서울 강남구 역삼동 123-45';
     const PR_HOLD = 0; // 보관액 제거
     const PR_EXPERTS = [
-        { id: 'pe1', name: '한국전기 홍길동', category: '전기', categories: '전기,화재',
+        { id: 'pe1', name: '한국전기 홍길동', category: '전기', categories: '전기,소방',
           intro: '전기기사 (무제한), 전기공사 기사, 한국 전기안전관리회사 대표\n전기안전관리 경력 15년, 상가나 빌딩 전문관리,\n정전·누전 상황에서 지금 해야 할 조치를 전화로 안내해 드립니다',
           region: '서울 강남구', region_main: '서울', region_sub: '강남구', service_level: 'phone',
           avg_rating: null, total_cases: 10, provides_photo: false, avail_from: null, avail_to: null, phone: '010-0000-1234' },
@@ -639,7 +639,7 @@
           avg_rating: null, total_cases: 25, provides_photo: false, avail_from: null, avail_to: null, phone: '010-0000-5678' }
     ];
     const PR_EMERGENCY = [
-        { id: 'pe3', name: '김포설비 박비상', category: '누수', categories: '누수,화장실',
+        { id: 'pe3', name: '김포설비 박비상', category: '누수', categories: '누수',
           intro: '배관·설비 경력 20년, 아파트·오피스텔 누수 전문\n대기 중이 아닐 때도 급한 문의는 문자 주시면 연락드립니다',
           region: '경기 김포시', region_main: '경기', region_sub: '김포시', service_level: 'phone',
           avg_rating: 4.8, total_cases: 41, provides_photo: true, avail_from: null, avail_to: null, phone: '010-0000-9999', emergency: true }
@@ -883,7 +883,7 @@
         const c = category || '';
         if (c.includes('누수') || c.includes('배관')) return 'fa-user-tie';
         if (c.includes('전기') || c.includes('정전')) return 'fa-user-gear';
-        if (c.includes('화재') || c.includes('소방')) return 'fa-helmet-safety';
+        if (c.includes('화재') || c.includes('소방') || c.includes('경보')) return 'fa-bell';
         if (c.includes('화장실')) return 'fa-wrench';
         if (c.includes('가스')) return 'fa-fire-flame-simple';
         return 'fa-user-tie';

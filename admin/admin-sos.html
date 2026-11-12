@@ -1141,12 +1141,10 @@
             <div class="modal-field">
                 <label>전문분야 <span class="text-red-500">*</span></label>
                 <select id="expert-form-category">
-                    <option value="화재">화재 / 소방</option>
-                    <option value="누수">누수 / 배관</option>
-                    <option value="전기">정전 / 전기</option>
-                    <option value="가스">가스 누출</option>
-                    <option value="화장실">화장실 막힘</option>
-                    <option value="기타">기타 (승강기 등)</option>
+                    <option value="소방">소방 (경보기 오작동)</option>
+                    <option value="전기">전기 (정전)</option>
+                    <option value="누수">배관 (누수)</option>
+                    <option value="기타">기타</option>
                 </select>
             </div>
             <div class="modal-field">
@@ -1207,9 +1205,9 @@
         let allRequests = [], allMatches = [], filteredRequests = [];
         let allExperts = [];
 
-        // ★ 2026-11: SOS 분야 이름 통일 (화재/전기/누수/가스/화장실/기타). 예전 표기(화재/소방, 정전, 배관, 승강기 …)도 같은 분야로 읽음
+        // ★ 2026-11-13: SOS 분야는 소방/전기/누수/기타 4개 (예전 화재→소방, 화장실→누수, 가스→기타). 예전 표기(화재/소방, 정전, 배관, 승강기 …)도 같은 분야로 읽음
         function sosCats(t) {
-            const map = [['화재','화재'],['소방','화재'],['전기','전기'],['정전','전기'],['누수','누수'],['배관','누수'],['가스','가스'],['화장실','화장실'],['기타','기타'],['승강기','기타']];
+            const map = [['기타','기타'],['화재','소방'],['소방','소방'],['경보','소방'],['전기','전기'],['정전','전기'],['누수','누수'],['배관','누수'],['화장실','누수'],['가스','기타'],['승강기','기타']];
             const out = [];
             String(t || '').split(',').forEach(part => {
                 const hit = map.find(([k]) => part.includes(k));
@@ -1827,7 +1825,7 @@
                     <tr>
                         <td class="font-bold">${escapeHtml(e.name)}</td>
                         <td class="whitespace-nowrap">${escapeHtml(e.phone)}</td>
-                        <td>${escapeHtml(e.category)}</td>
+                        <td>${escapeHtml(sosCats(e.categories || e.category).join('·') || e.category || '-')}</td>
                         <td class="text-left">${escapeHtml(region)}</td>
                         <td>
                             <span class="${e.is_available ? 'badge-avail-y' : 'badge-avail-n'} cursor-pointer" onclick="toggleExpertAvailability('${KC.esc(e.id)}', ${KC.esc(e.is_available)})">
@@ -1862,7 +1860,7 @@
             } else {
                 document.getElementById('expert-form-name').value = '';
                 document.getElementById('expert-form-phone').value = '';
-                document.getElementById('expert-form-category').value = '화재';
+                document.getElementById('expert-form-category').value = '전기';
                 document.getElementById('expert-form-region-main').value = '';
                 document.getElementById('expert-form-region-sub').value = '';
                 document.getElementById('expert-form-available').checked = true;
@@ -1891,6 +1889,8 @@
             }
 
             const payload = { name, phone, category, region_main, region_sub, is_available, memo, last_active_at: new Date().toISOString() };
+            // 새로 등록할 때는 콜 매칭용 categories도 같이 채움 (수정할 때는 DB가 대표 분야를 맨 앞으로 자동 정리)
+            if (!id) payload.categories = category;
 
             const { error } = id
                 ? await supabaseClient.from('sos_experts').update(payload).eq('id', id)
@@ -2054,16 +2054,19 @@
             const region_main = regionParts[0] || null;
             const region_sub = regionParts.slice(1).join(' ') || null;
 
-            // sos_experts.category는 단일 값 컬럼이라, 지원 시 선택한 여러 분야 중 첫 번째를 대표 분야로 등록하고
-            // 나머지는 memo에 전체 목록으로 남겨둠 (필요 시 "전문가 관리" 탭에서 수정 가능)
-            const categoryList = (app.categories || '').split(',').map(s => s.trim()).filter(Boolean);
+            // 분야는 짧은 이름(소방/전기/누수/기타)으로 맞춰 저장합니다.
+            // category = 대표 분야(1순위), categories = 전체 분야(최대 2개, 콜 매칭에 쓰임).
+            // 예전엔 categories를 비워 둬서 승인된 전문가가 2순위 분야 콜을 못 받았음 → 함께 저장하도록 수정
+            const categoryList = sosCats(app.categories);
             const primaryCategory = categoryList[0] || '기타';
+            const allCategories = (categoryList.length ? categoryList : ['기타']).slice(0, 2).join(',');
             const memo = `[지원서 승인] 전체 지원 분야: ${app.categories || '-'}${app.bio ? `\n소개/경력: ${app.bio}` : ''}`;
 
             const { error: expertError } = await supabaseClient.from('sos_experts').insert([{
                 name: app.name,
                 phone: app.phone,
                 category: primaryCategory,
+                categories: allCategories,
                 region_main,
                 region_sub,
                 is_available: true,
@@ -2118,9 +2121,10 @@
             document.getElementById('assign-manual-phone').value = '';
             document.getElementById('assign-modal-category').innerText = req ? `상황: ${req.category} / 위치: ${req.region || '-'}` : '';
 
-            // ★ 2026-11: 요청 분야가 2개(예: "화재,전기")이거나 전문가 분야가 여러 개여도, 하나라도 겹치면 '분야일치'
+            // ★ 2026-11: 요청 분야가 2개(예: "누수,전기")이거나 전문가 분야가 여러 개여도, 하나라도 겹치면 '분야일치'
             const reqCats = sosCats(req && req.category);
-            const catMatch = (e) => reqCats.length > 0 && sosCats(e.categories || e.category).some(c => reqCats.includes(c));
+            // '기타' 접수는 분야 상관없이 모든 전문가를 후보로 봄 (DB의 콜 매칭 규칙과 같음)
+            const catMatch = (e) => reqCats.length > 0 && (reqCats.includes('기타') || sosCats(e.categories || e.category).some(c => reqCats.includes(c)));
             const candidates = allExperts.filter(e => e.is_active !== false && catMatch(e));
             const others = allExperts.filter(e => e.is_active !== false && !catMatch(e));
             const list = [...candidates, ...others];
@@ -2137,7 +2141,7 @@
                         <div class="expert-pick-card" id="pick-${KC.esc(e.id)}" onclick="selectExpertCandidate('${KC.esc(e.id)}')">
                             <div class="flex-1 min-w-0">
                                 <div class="name">${escapeHtml(e.name)} ${sameCat ? '<span class="text-blue-600 text-[11px] font-bold">(분야일치)</span>' : ''}</div>
-                                <div class="meta">${escapeHtml(e.category)} · ${escapeHtml(region)} · ${rating} · 누적 ${KC.esc(e.total_cases || 0)}건</div>
+                                <div class="meta">${escapeHtml(sosCats(e.categories || e.category).join('·') || e.category || '-')} · ${escapeHtml(region)} · ${rating} · 누적 ${KC.esc(e.total_cases || 0)}건</div>
                             </div>
                             <div>${e.is_available ? '<span class="badge-avail-y">응답가능</span>' : '<span class="badge-avail-n">응답불가</span>'}</div>
                         </div>`;
