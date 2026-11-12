@@ -77,6 +77,25 @@
     #room-bar-spacer { display: none; }
     #room-content { padding-bottom: 240px !important; }
   }
+
+  /* 2026-11-13: 전문가가 응답하면 바로 뜨는 안내창 */
+  #resp-modal-bg { position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:3000; display:none; align-items:center; justify-content:center; padding:16px; }
+  #resp-modal-bg.open { display:flex; }
+  #resp-modal { background:#fff; border-radius:18px; width:100%; max-width:400px; max-height:90vh; overflow-y:auto; padding:22px 20px 18px; box-shadow:0 20px 50px rgba(0,0,0,.25); text-align:center; word-break:keep-all; animation:respPop .25s ease-out; }
+  @keyframes respPop { from { transform:scale(.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+  #resp-modal .rm-badge { display:inline-block; background:#dbeafe; color:#1d4ed8; font-weight:900; font-size:14px; padding:5px 14px; border-radius:999px; }
+  #resp-modal .rm-title { font-size:20px; font-weight:900; color:#111827; margin:12px 0 2px; }
+  #resp-modal .rm-name { font-size:17px; font-weight:900; color:#1e3a8a; margin:14px 0 2px; }
+  #resp-modal .rm-cats { font-size:13px; font-weight:800; color:#2563eb; margin:0; }
+  #resp-modal .rm-info { text-align:left; background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px 14px; margin:12px 0 0; font-size:13.5px; font-weight:700; color:#374151; line-height:1.75; }
+  #resp-modal .rm-intro { text-align:left; font-size:13px; font-weight:500; color:#4b5563; line-height:1.6; margin:10px 0 0; white-space:pre-line; }
+  #resp-modal .rm-fee { margin:14px 0 0; font-size:13.5px; font-weight:700; color:#374151; }
+  #resp-modal .rm-fee b { color:#dc2626; font-size:16px; }
+  #resp-modal .rm-call { display:block; width:100%; margin-top:12px; background:#2563eb; color:#fff; border:none; border-radius:12px; padding:15px 10px; font-size:18px; font-weight:900; cursor:pointer; }
+  #resp-modal .rm-call:hover { background:#1d4ed8; }
+  #resp-modal .rm-sub { display:flex; gap:8px; margin-top:8px; }
+  #resp-modal .rm-sub button { flex:1; background:#fff; border:1px solid #d1d5db; color:#374151; border-radius:10px; padding:11px 6px; font-size:13.5px; font-weight:800; cursor:pointer; }
+  #resp-modal .rm-note { font-size:12px; font-weight:600; color:#6b7280; margin:10px 0 0; line-height:1.55; }
 </style>
 <!-- ★ 2026-11 리뉴얼: 전화상담 중심 안내 -->
 <style id="renew-room-css">
@@ -463,8 +482,8 @@
     // 잔액이 있으면(또는 후불 회원사이면) 결제 없이 바로 선택되고, 잔액이 부족할 때만 이 자리에서 결제창을 엽니다.
     const PAY_STORE_ID = 'imp38872420';
     const PAY_CHANNEL_KEY = 'channel-key-00ff5d17-d191-4de1-a1c6-2a221c26f3f6';
-    // ★ 요금 A안: 상담료는 접수 시각 기준 (주간 4만 / 야간·주말·공휴일 6만). 서버 값(get_sos_request_fee)을 우선 사용
-    const PAY_AMOUNT_DEFAULT = 40000;
+    // ★ 요금 (2026-11-13): 상담료는 접수 시각 기준 (평일 09~21시 3만 / 그 외 5만). 서버 값(get_sos_request_fee)을 우선 사용
+    const PAY_AMOUNT_DEFAULT = 30000;
     function payAmount() {
         if (requestInfo && requestInfo.base_fee) return Number(requestInfo.base_fee);
         if (sess && sess.base_fee) return Number(sess.base_fee);
@@ -542,11 +561,11 @@
     }
 
     // 전문가 선택. 잔액이 부족하면 결제 후 같은 선택을 자동으로 이어서 진행
-    async function assignWithPayment(rpcName, args) {
+    async function assignWithPayment(rpcName, args, skipConfirm) {
         if (paying) return { error: null, cancelled: true };
         let { error } = await supabaseClient.rpc(rpcName, args);
         if (error && String(error.message || '').includes('INSUFFICIENT_BALANCE')) {
-            if (!confirm('상담료 ' + won(payAmount()) + '을 결제하면 전문가 연락처가 바로 표시됩니다.\n지금 결제할까요?\n(통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있고, 이때는 추가 결제가 없습니다)')) {
+            if (!skipConfirm && !confirm('상담료 ' + won(payAmount()) + '을 결제하면 전문가 연락처가 바로 표시됩니다.\n지금 결제할까요?\n(통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있고, 이때는 추가 결제가 없습니다)')) {
                 return { error: null, cancelled: true };
             }
             paying = true;
@@ -623,7 +642,7 @@
     // ★ 2026-11 리뉴얼: 출동 서비스 중단 → 전화상담만 (true 로 바꾸면 출동 표시가 다시 나타남)
     const SOS_DISPATCH_ENABLED = false;
     const PR_SVC = (SOS_DISPATCH_ENABLED && params.get('svc') === 'dispatch') ? 'dispatch' : 'phone';
-    const PR_BASE = parseInt(params.get('base')) || 40000;
+    const PR_BASE = parseInt(params.get('base')) || 30000;
     const PR_EXT  = parseInt(params.get('ext')) || Math.round(PR_BASE / 2);
     const PR_CATS = params.get('cats') || '누수,전기';
     const PR_ADDR = params.get('addr') || '서울 강남구 역삼동 123-45';
@@ -987,18 +1006,91 @@
             `;
             grid.appendChild(card);
         });
+        announceNewResponders();
     }
 
-    async function requestExpert(expertId) {
+    // ================= 전문가가 응답하면 바로 안내창 띄우기 =================
+    // 새로 응답한 전문가가 생기면 상세 정보 + 큰 '전화번호 보기' 버튼을 안내창으로 보여 줌 (같은 전문가는 한 번만)
+    const RESP_SEEN_KEY = () => 'sosRespSeen:' + (isPractice ? 'practice' : requestId);
+    function loadRespSeen() { try { return new Set(JSON.parse(sessionStorage.getItem(RESP_SEEN_KEY()) || '[]')); } catch (e) { return new Set(); } }
+    function saveRespSeen(set) { try { sessionStorage.setItem(RESP_SEEN_KEY(), JSON.stringify([...set])); } catch (e) {} }
+    const EXPERT_CAT_LABEL = { '소방': '소방(경보기)', '화재': '소방(경보기)', '전기': '전기(정전)', '누수': '배관(누수)', '화장실': '배관(누수)', '기타': '기타' };
+    let respModalExpertId = null;
+
+    function announceNewResponders() {
+        if (currentMatch || !allActiveExperts.length) return;
+        const seen = loadRespSeen();
+        const fresh = allActiveExperts.filter(e => !seen.has(e.id));
+        if (!fresh.length) return;
+        fresh.forEach(e => seen.add(e.id));
+        saveRespSeen(seen);
+        if (document.getElementById('resp-modal-bg') && document.getElementById('resp-modal-bg').classList.contains('open')) return;   // 이미 하나 보여 주는 중
+        fresh.sort((a, b) => new Date(b.offered_at || 0) - new Date(a.offered_at || 0));
+        openRespModal(fresh[0], allActiveExperts.length - 1);
+    }
+
+    function ensureRespModal() {
+        let bg = document.getElementById('resp-modal-bg');
+        if (bg) return bg;
+        bg = document.createElement('div');
+        bg.id = 'resp-modal-bg';
+        bg.innerHTML = '<div id="resp-modal" role="dialog" aria-modal="true" aria-labelledby="rm-title"></div>';
+        bg.addEventListener('click', e => { if (e.target === bg) closeRespModal(); });
+        document.body.appendChild(bg);
+        return bg;
+    }
+    function closeRespModal() {
+        const bg = document.getElementById('resp-modal-bg');
+        if (bg) bg.classList.remove('open');
+        respModalExpertId = null;
+    }
+
+    function openRespModal(e, othersCount) {
+        const bg = ensureRespModal();
+        respModalExpertId = e.id;
+        const cats = String(e.categories || e.category || '').split(',').map(x => x.trim()).filter(Boolean)
+            .map(c => EXPERT_CAT_LABEL[c] || c).join(' · ');
+        const rating = e.avg_rating ? '★ ' + Number(e.avg_rating).toFixed(1) : '★ 신규';
+        const hours = (e.avail_from && e.avail_to) ? `${e.avail_from}~${e.avail_to}` : '24시간';
+        const others = othersCount > 0 ? `<p class="rm-note">다른 전문가 ${othersCount}명도 응답했습니다. 닫으면 목록에서 비교할 수 있습니다.</p>` : '';
+        document.getElementById('resp-modal').innerHTML = `
+            <span class="rm-badge">🔵 응답함 · 지금 통화 가능</span>
+            <p class="rm-title" id="rm-title">전문가가 응답했습니다!</p>
+            <p class="rm-name">${escapeHtml(e.name || '전문가')}</p>
+            ${cats ? `<p class="rm-cats">${escapeHtml(cats)}</p>` : ''}
+            ${e.intro ? `<p class="rm-intro">${escapeHtml(e.intro)}</p>` : ''}
+            <div class="rm-info">
+                📍 ${escapeHtml(e.region || '지역 미등록')}<br>
+                ${escapeHtml(contactLabel(e.id))}<br>
+                🕘 ${escapeHtml(hours)} · ${rating} · ${Number(e.total_cases || 0)}건
+            </div>
+            <p class="rm-fee">상담료 <b>${won(payAmount())}</b> ${isPractice ? '(연습: 실제 결제 없음)' : '· 결제 후 바로 전화번호가 표시됩니다'}</p>
+            <button type="button" class="rm-call" id="rm-call-btn">📞 전화번호 보기</button>
+            <div class="rm-sub">
+                <button type="button" id="rm-detail-btn">전문가 상세 소개</button>
+                <button type="button" id="rm-close-btn">다른 전문가 더 보기</button>
+            </div>
+            <p class="rm-note">통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.</p>
+            ${others}
+        `;
+        document.getElementById('rm-call-btn').onclick = () => { const id = respModalExpertId; closeRespModal(); requestExpert(id, true); };
+        document.getElementById('rm-detail-btn').onclick = () => openExpertDetail(e.id);
+        document.getElementById('rm-close-btn').onclick = closeRespModal;
+        bg.classList.add('open');
+        try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (err) {}
+    }
+
+    // fromModal: 응답 안내창에서 누른 경우 (안내창에 금액·안내가 이미 있으므로 확인창을 다시 띄우지 않음)
+    async function requestExpert(expertId, fromModal) {
         if (!isPractice && !requestId) return;
         const expert = allActiveExperts.find(e => e.id === expertId);
         if (!expert) return;
 
         if (currentMatch) { alert('이미 배정된 전문가가 있습니다.'); return; }
-        if (!confirm(`${expert.name} 전문가의 전화번호를 확인하시겠습니까?\n상담료가 결제(또는 포인트 차감)되고 연락처가 표시됩니다.\n통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.`)) return;
+        if (!fromModal && !confirm(`${expert.name} 전문가의 전화번호를 확인하시겠습니까?\n상담료가 결제(또는 포인트 차감)되고 연락처가 표시됩니다.\n통화가 안 되면 10분 안에 무료로 다른 전문가를 선택할 수 있습니다.`)) return;
         if (isPractice) { await practiceSelect(expert); return; }
 
-        const res = await assignWithPayment('assign_expert', { p_request_id: requestId, p_expert_id: expert.id });
+        const res = await assignWithPayment('assign_expert', { p_request_id: requestId, p_expert_id: expert.id }, !!fromModal);
         if (res.cancelled) return;
         if (res.error) { handleAssignError(res.error); return; }
         notifySelected();
