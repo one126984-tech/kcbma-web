@@ -145,7 +145,12 @@
   /* 오른쪽(휴대폰) 모양으로 PC도 통일 */
   .renew-119 h3 { font-size:15.5px !important; } .renew-119 .r119-list li { font-size:15.5px; } .renew-119 .r119-go { font-size:14.5px; } .renew-119 .r119-row a { min-width:84px; padding:12px; }
   /* 2026-11-13: 119 안내를 짧은 한 줄로 (상황 버튼 바로 아래 + 첫 화면) */
+  /* 상황 버튼: 2줄(2×2) 고정, 글씨 크게 */
+  #category-grid button, #quick-category-grid button { padding-top:14px !important; padding-bottom:14px !important; }
+  #category-grid button span, #quick-category-grid button span { font-size:16px !important; }
   .s119-line { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; background:#fff7ed; border:1.5px solid #fdba74; border-radius:10px; padding:10px 12px; color:#9a3412; font-size:13.5px; font-weight:800; line-height:1.55; word-break:keep-all; }
+  .s119-txt { display:flex; align-items:flex-start; gap:6px; }
+  .s119-ico { flex-shrink:0; }
   .s119-line a { flex-shrink:0; display:inline-flex; align-items:center; gap:4px; background:#dc2626; color:#fff !important; padding:8px 12px; border-radius:8px; font-weight:900; font-size:14px; text-decoration:none; white-space:nowrap; }
   .r119-next { text-align:center; margin:14px 4px 10px; padding-bottom:4px; line-height:1.6; font-size:18px; font-weight:900; color:#111827; }
   .renew-119 a { display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:#dc2626; color:#fff !important; padding:9px 18px; border-radius:10px; font-weight:900; font-size:14px; text-decoration:none; }
@@ -222,7 +227,7 @@
         </div>
 
         <!-- ★ 위험한 상황은 119 (짧은 안내) -->
-        <p class="s119-line"><span>🚒 화재 발생·가스 누출·승강기 갇힘·다친 사람이 있으면 바로 119에 신고하세요</span><a href="tel:119" onclick="return call119(event)">📞 119</a></p>
+        <p class="s119-line"><span class="s119-txt"><span class="s119-ico">🚒</span><span>화재 발생·가스 누출·승강기 갇힘·다친 사람이 있으면 바로 119에 신고하세요</span></span><a href="tel:119" onclick="return call119(event)">📞 119</a></p>
 
         <!-- ★ 서비스 안내 (운영 시간) -->
         <div class="renew-info">
@@ -293,14 +298,14 @@
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-end justify-between"><span>2. 어떤 상황인가요?</span> <span class="text-sm font-normal text-blue-600">(최대 2개)</span></h2>
             <p class="cat-guide">👆 <b>1순위, 2순위 순서대로 클릭해 주세요.</b> (최대 2개)</p>
             <p id="cat-limit-msg-classic" class="cat-limit"></p>
-            <div id="category-grid" class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div id="category-grid" class="grid grid-cols-2 gap-2">
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="소방"><span>🔔</span><span class="text-[13px] font-bold text-gray-800">경보기 오작동</span></button>
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="전기"><span>⚡</span><span class="text-[13px] font-bold text-gray-800">전기 정전</span></button>
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="누수"><span>💦</span><span class="text-[13px] font-bold text-gray-800">배관 누수</span></button>
                 <button type="button" class="cat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타 입력</span></button>
             </div>
             <input type="text" id="category-custom-input" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-            <p class="s119-line"><span>🚒 화재 발생·가스 누출·승강기 갇힘·다친 사람이 있으면 바로 119에 신고하세요</span><a href="tel:119" onclick="return call119(event)">📞 119</a></p>
+            <p class="s119-line"><span class="s119-txt"><span class="s119-ico">🚒</span><span>화재 발생·가스 누출·승강기 갇힘·다친 사람이 있으면 바로 119에 신고하세요</span></span><a href="tel:119" onclick="return call119(event)">📞 119</a></p>
         </div>
 
         <!-- 3. 연락처 -->
@@ -385,14 +390,14 @@
                 <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-end justify-between"><span>2. 현장 상황</span> <span class="text-sm font-normal text-blue-600">(최대 2개)</span></h2>
                 <p class="cat-guide">👆 <b>1순위, 2순위 순서대로 클릭해 주세요.</b> (최대 2개)</p>
                 <p id="cat-limit-msg-quick" class="cat-limit"></p>
-                <div id="quick-category-grid" class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div id="quick-category-grid" class="grid grid-cols-2 gap-2">
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="소방"><span>🔔</span><span class="text-[13px] font-bold text-gray-800">경보기 오작동</span></button>
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="전기"><span>⚡</span><span class="text-[13px] font-bold text-gray-800">전기 정전</span></button>
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="누수"><span>💦</span><span class="text-[13px] font-bold text-gray-800">배관 누수</span></button>
                     <button type="button" class="qcat-btn border border-gray-300 bg-white rounded-lg py-2.5 flex items-center justify-center gap-1.5 transition" data-cat="기타"><span>✏️</span><span class="text-[13px] font-bold text-gray-800">기타 입력</span></button>
                 </div>
                 <input type="text" id="q-category-custom" placeholder="상황을 직접 입력해 주세요" class="hidden input-box bg-white mt-3">
-                <p class="s119-line"><span>🚒 화재 발생·가스 누출·승강기 갇힘·다친 사람이 있으면 바로 119에 신고하세요</span><a href="tel:119" onclick="return call119(event)">📞 119</a></p>
+                <p class="s119-line"><span class="s119-txt"><span class="s119-ico">🚒</span><span>화재 발생·가스 누출·승강기 갇힘·다친 사람이 있으면 바로 119에 신고하세요</span></span><a href="tel:119" onclick="return call119(event)">📞 119</a></p>
             </div>
 
             <div class="mb-6">
