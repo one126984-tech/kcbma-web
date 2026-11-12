@@ -531,6 +531,14 @@
   .renew-119 a { display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:#dc2626; color:#fff !important; padding:9px 18px; border-radius:10px; font-weight:900; font-size:14px; text-decoration:none; }
   .renew-info { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px 16px; font-size:13px; font-weight:700; color:#374151; line-height:1.7; word-break:keep-all; box-shadow:0 1px 3px rgba(0,0,0,.05); }
   .renew-info b { color:#111827; }
+  /* 2026-11-13: 아이콘 옆으로 줄 맞춤 (두 번째 줄이 아이콘 아래로 내려가지 않게) */
+  .renew-info { font-size:14.5px !important; padding:16px 18px !important; }
+  .renew-info .ri-row { display:flex; align-items:flex-start; gap:8px; }
+  .renew-info .ri-ico { flex-shrink:0; width:20px; text-align:center; }
+  .renew-info .ri-now { margin:8px 0 0; }
+  .renew-info .ri-now .hours-now { margin-left:0; font-size:13px; padding:3px 10px; }
+  .renew-info .ri-now .hours-now:empty { display:none; }
+  .renew-info .ri-sub { margin:6px 0 0 28px; font-weight:500; color:#6b7280; line-height:1.65; }
   .renew-info .hours-now { display:inline-block; margin-left:4px; padding:1px 8px; border-radius:999px; font-size:12px; font-weight:900; }
   .renew-info .hours-now.on { background:#dcfce7; color:#166534; }
   .renew-info .hours-now.off { background:#fef3c7; color:#92400e; }
@@ -1058,8 +1066,10 @@
 
         <!-- ★ 서비스 안내 (운영 시간) -->
         <div class="renew-info">
-            <p style="margin:0;">📞 <b>전화상담 서비스입니다.</b> 전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내해 드립니다. (현장 출동은 하지 않습니다)</p>
-            <p style="margin:6px 0 0;">🕘 <b>운영 시간</b> <span id="sos-hours-text">24시간 (심야 21:00~09:00는 당번 전문가 연결)</span><span id="sos-hours-now" class="hours-now"></span><br><span id="sos-hours-sub" style="font-weight:500;color:#6b7280;">심야에는 대기 중인 전문가가 있을 때만 접수됩니다. 없으면 09시 연결 예약을 도와드립니다.</span></p>
+            <div class="ri-row"><span class="ri-ico">📞</span><div><b>전화상담 서비스입니다.</b><br>전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내해 드립니다.</div></div>
+            <div class="ri-row" style="margin-top:8px;"><span class="ri-ico">🕘</span><div><b>운영 시간</b> <span id="sos-hours-text">24시간 (심야 21:00~09:00는 당번 전문가 연결)</span></div></div>
+            <div class="ri-now"><span id="sos-hours-now" class="hours-now"></span></div>
+            <p id="sos-hours-sub" class="ri-sub">심야에는 대기 중인 전문가가 있을 때만 접수됩니다.<br>없으면 09시 연결 예약을 도와드립니다.</p>
         </div>
 
         <!-- ★ 현장 작업이 필요하면 견적의뢰로 -->

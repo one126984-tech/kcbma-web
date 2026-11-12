@@ -2063,6 +2063,8 @@
             const memo = `[지원서 승인] 전체 지원 분야: ${app.categories || '-'}${app.bio ? `\n소개/경력: ${app.bio}` : ''}`;
 
             const { error: expertError } = await supabaseClient.from('sos_experts').insert([{
+                // 지원자의 회원 계정을 전문가와 연결 (예전엔 빠져 있어서 승인돼도 대기실에서 '승인되지 않음'으로 나왔음)
+                user_id: app.user_id || null,
                 name: app.name,
                 phone: app.phone,
                 category: primaryCategory,
