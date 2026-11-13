@@ -456,6 +456,8 @@
   .svc-call.ready { background:#2563eb; color:#fff !important; border-color:#1d4ed8; }
   .svc-call.ready small { color:#dbeafe; }
   .svc-call:active { transform:translateY(1px); box-shadow:none; }
+  .svc-call.green { background:#16a34a; color:#fff !important; border-color:#15803d; box-shadow:0 2px 0 #14532d; }
+  .svc-call.green small { color:#dcfce7; }
   .invite-chk:active { transform:translateY(1px); box-shadow:none; }
   .invite-chk { position:relative; white-space:nowrap; }
   .invite-chk input { position:absolute; opacity:0; width:1px !important; height:1px !important; margin:0; pointer-events:none; }   /* 체크칸은 숨기고 버튼 전체를 눌러 선택 (✅ 표시로 대신) */
@@ -1114,9 +1116,14 @@
                         <div id="session-panel" class="w-full" style="display:none;"></div>
 
                         <div class="w-full relative">
-                            <!-- 2026-11-13: 접수 내역의 '전화상담하기' 버튼과 같은 파란 버튼 모양 -->
-                            <div id="match-call-wrap" class="relative">
-                                <a id="match-call-btn" href="#" class="svc-call ready" style="padding:16px 10px; font-size:22px;">📞 전화상담하기 클릭<small id="match-call-sub" style="font-size:14px;">-</small></a>
+                            <!-- 2026-11-13: 접수 내역처럼 표(칸) 안에 같은 크기의 버튼, 색은 초록으로 구분 -->
+                            <div id="match-call-wrap" class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                                <div class="flex items-center px-4 py-3 gap-3">
+                                    <span class="w-20 shrink-0 text-xs font-bold text-gray-400">전화</span>
+                                    <div class="flex-1 min-w-0">
+                                        <a id="match-call-btn" href="#" class="svc-call green">📞 전화상담하기 클릭<small id="match-call-sub">-</small></a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -2451,7 +2458,8 @@
             return;
           }
           nameEl.innerHTML = `${escapeHtml(expert.name)} <span class="text-[12px] text-gray-400 font-medium">전문가</span>`;
-          const cats = expert.categories ? expert.categories.split(',').map(x => x.trim()).filter(Boolean).join('·') : expert.category;
+          const CAT_NAME = { '소방': '소방(경보기)', '화재': '소방(경보기)', '전기': '전기(정전)', '누수': '배관(누수)', '화장실': '배관(누수)', '기타': '기타' };
+          const cats = String(expert.categories || expert.category || '').split(',').map(x => x.trim()).filter(Boolean).map(x => CAT_NAME[x] || x).join('·');
           detailEl.innerText = `${cats || '-'} · ${expert.region || '-'}`;
           const introEl = document.getElementById('match-intro');
           introEl.innerHTML = expert.intro ? escapeHtml(expert.intro).replace(/\n/g, '<br>') : '등록된 소개가 없습니다.';
