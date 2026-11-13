@@ -200,6 +200,8 @@
             <!-- 승인된 전문가 화면 -->
             <div id="state-ready" class="hidden flex-1 flex-col bg-gray-50">
 
+                <!-- ★ 앱처럼 쓰기 안내를 닫은 뒤 다시 보는 작은 링크 -->
+                <button type="button" id="app-tip-open" onclick="showAppTipAgain()" style="display:none; margin:10px 20px 0; background:none; border:none; padding:0; font-size:12.5px; font-weight:800; color:#c2410c; text-decoration:underline; cursor:pointer;">📲 홈 화면에 앱 추가하는 방법 보기</button>
                 <!-- ★ 앱처럼 쓰기 안내 (홈 화면 아이콘으로 열었거나 '닫기'를 누르면 안 보임) -->
                 <div id="app-tip" style="display:none; margin:12px 20px 0; background:#fff7ed; border:1.5px solid #fdba74; border-radius:12px; padding:12px 14px; font-size:13px; font-weight:700; color:#9a3412; line-height:1.65; word-break:keep-all;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
@@ -533,12 +535,17 @@
 
     // ★ 앱처럼 쓰기 안내: 홈 화면 아이콘(앱 모드)으로 열었으면 숨김
     function isAppMode() { try { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (e) { return false; } }
-    function hideAppTip() { try { localStorage.setItem('sosAppTipHidden', '1'); } catch (e) {} const t = document.getElementById('app-tip'); if (t) t.style.display = 'none'; }
+    function setAppTip(open) {
+        const t = document.getElementById('app-tip'), o = document.getElementById('app-tip-open');
+        if (t) t.style.display = open ? 'block' : 'none';
+        if (o) o.style.display = open ? 'none' : 'inline-block';
+    }
+    function hideAppTip() { try { localStorage.setItem('sosAppTipHidden', '1'); } catch (e) {} setAppTip(false); }
+    function showAppTipAgain() { try { localStorage.removeItem('sosAppTipHidden'); } catch (e) {} setAppTip(true); }
     (function showAppTip() {
+        if (isAppMode() || !/Android|iPhone|iPad/i.test(navigator.userAgent)) return;   // 이미 앱으로 열었거나 PC면 안내 없음
         let hidden = false; try { hidden = localStorage.getItem('sosAppTipHidden') === '1'; } catch (e) {}
-        if (!hidden && !isAppMode() && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            const t = document.getElementById('app-tip'); if (t) t.style.display = 'block';
-        }
+        setAppTip(!hidden);   // 닫았으면 '방법 보기' 작은 링크만 보임
     })();
 
     async function loadMe() {
