@@ -22,6 +22,17 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <!-- 전문가용 앱 설정: 이 화면에서 '홈 화면에 추가'하면 SOS 아이콘으로, 누르면 대기실이 바로 열림 (아래 공통 설정보다 먼저 있어야 함) -->
+  <link rel="manifest" href="/manifest-sos-expert.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/sos-apple-180.png">
+  <meta name="apple-mobile-web-app-title" content="SOS 전문가">
+<!-- [앱처럼 쓰기] 홈 화면에 추가하면 주소창 없이 앱처럼 열림 (2026-11-13). 전문가 대기실은 자기 페이지에 전문가용 설정을 먼저 넣어 둠 -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#12387a">
+<link rel="apple-touch-icon" href="/assets/icons/app-apple-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KCBMA">
 <script>
     /* [XSS 방어] 게시글 제목·이름·내용 등 DB에서 온 글자를 화면 HTML에 넣을 때 반드시 KC.esc()로 감쌀 것.
        <, >, &, 따옴표를 글자 그대로 보이게 바꿔서, 글 안에 넣은 스크립트가 실행되지 않게 함. */
@@ -1023,6 +1034,18 @@
             <!-- 승인된 전문가 화면 -->
             <div id="state-ready" class="hidden flex-1 flex-col bg-gray-50">
 
+                <!-- ★ 앱처럼 쓰기 안내 (홈 화면 아이콘으로 열었거나 '닫기'를 누르면 안 보임) -->
+                <div id="app-tip" style="display:none; margin:12px 20px 0; background:#fff7ed; border:1.5px solid #fdba74; border-radius:12px; padding:12px 14px; font-size:13px; font-weight:700; color:#9a3412; line-height:1.65; word-break:keep-all;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                        <b style="font-size:14.5px; color:#c2410c;">📲 휴대폰 홈 화면에 'SOS 전문가' 앱 추가하기</b>
+                        <button type="button" onclick="hideAppTip()" style="flex-shrink:0; background:none; border:none; color:#9a3412; font-size:12px; font-weight:800; cursor:pointer; text-decoration:underline;">닫기</button>
+                    </div>
+                    <div style="margin-top:4px;">아이콘을 누르면 이 대기실이 바로 열립니다.<br>
+                    · <b>크롬</b>: 오른쪽 위 ⋮ → <b>홈 화면에 추가</b>(또는 앱 설치)<br>
+                    · <b>삼성 인터넷</b>: 아래 ≡ → <b>현재 페이지 추가</b> → 홈 화면<br>
+                    · <b>아이폰 사파리</b>: 아래 공유 버튼 → <b>홈 화면에 추가</b></div>
+                </div>
+
                 <!-- ===================== ★ 진행 중인 상담 (상담 세션) ===================== -->
                 <div id="session-section" class="hidden px-5 pt-4 pb-1">
                     <div class="practice-note" style="margin-bottom:10px;">💡 <b>연습 안내</b><br>고객에게 전화를 걸면 30분 상담이 시작됩니다(고객이 연장하면 30분씩 늘어납니다). 그 안에는 통화가 끊겨도 같은 고객과 다시 통화하며 추가 요금이 없습니다. 연습에서는 8초 뒤 고객이 "통화가 끊겼어요"를 누른 상황(소리·진동 알림)을 보여 드립니다.</div>
@@ -1341,6 +1364,16 @@
         if (!me || !me.avail_from || !me.avail_to) return '24시간';
         return String(me.avail_from).slice(0, 5) + '~' + String(me.avail_to).slice(0, 5);
     }
+
+    // ★ 앱처럼 쓰기 안내: 홈 화면 아이콘(앱 모드)으로 열었으면 숨김
+    function isAppMode() { try { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (e) { return false; } }
+    function hideAppTip() { try { localStorage.setItem('sosAppTipHidden', '1'); } catch (e) {} const t = document.getElementById('app-tip'); if (t) t.style.display = 'none'; }
+    (function showAppTip() {
+        let hidden = false; try { hidden = localStorage.getItem('sosAppTipHidden') === '1'; } catch (e) {}
+        if (!hidden && !isAppMode() && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            const t = document.getElementById('app-tip'); if (t) t.style.display = 'block';
+        }
+    })();
 
     async function loadMe() {
         if (isPractice) { me = practiceMe(); return true; }

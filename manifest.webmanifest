@@ -1,0 +1,24 @@
+{
+  "id": "/",
+  "name": "대한집합건물관리협회",
+  "short_name": "KCBMA",
+  "description": "집합건물 관리 정보·구인구직·견적의뢰·교육, 긴급 SOS 전화상담",
+  "lang": "ko",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#12387a",
+  "icons": [
+    { "src": "/assets/icons/app-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/app-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/assets/icons/app-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "긴급 SOS 전화상담", "short_name": "긴급 SOS", "url": "/sos/sos-request.html?source=app", "icons": [{ "src": "/assets/icons/sos-192.png", "sizes": "192x192" }] },
+    { "name": "SOS 전문가 대기실", "short_name": "전문가 대기실", "url": "/sos/sos-standby.html?source=app", "icons": [{ "src": "/assets/icons/sos-192.png", "sizes": "192x192" }] },
+    { "name": "마이페이지", "url": "/mypage/dashboard.html?source=app" }
+  ]
+}
