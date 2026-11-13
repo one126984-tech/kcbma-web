@@ -1,19 +1,39 @@
 {
-  "id": "/sos-expert",
+  "id": "/sos/sos-standby.html?app=expert",
   "name": "KCBMA SOS 전문가",
   "short_name": "SOS 전문가",
   "description": "대한집합건물관리협회 긴급 SOS 전문가 대기실 — 콜 확인·응답",
   "lang": "ko",
   "start_url": "/sos/sos-standby.html?source=app",
-  "scope": "/",
+  "scope": "/sos/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#dc2626",
   "icons": [
-    { "src": "/assets/icons/sos-192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/assets/icons/sos-512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/assets/icons/sos-maskable-192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/assets/icons/sos-maskable-512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/assets/icons/sos-192.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/sos-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/sos-maskable-192.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/icons/sos-maskable-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
