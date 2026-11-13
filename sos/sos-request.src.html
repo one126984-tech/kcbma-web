@@ -153,7 +153,7 @@
   .svc-phone-only .svc-ico { flex-shrink:0; line-height:1.6; }
   /* 회원사 후불 안내 (눈에 띄게) */
   .postpaid-go { margin-top:12px; background:#dcfce7; border:2px solid #22c55e; border-radius:12px; padding:14px 16px; word-break:keep-all; }
-  .postpaid-go .pg-main { font-size:17px; font-weight:900; color:#14532d; margin:0; line-height:1.5; }
+  .postpaid-go .pg-main { font-size:clamp(17px, 4.6vw, 25px); font-weight:900; color:#dc2626; margin:0; line-height:1.4; letter-spacing:-0.3px; }
   .postpaid-go .pg-sub { font-size:13px; font-weight:700; color:#166534; margin:6px 0 0; line-height:1.6; }
   .s119-line { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; background:#fff7ed; border:1.5px solid #fdba74; border-radius:10px; padding:10px 12px; color:#9a3412; font-size:13.5px; font-weight:800; line-height:1.55; word-break:keep-all; }
   .s119-txt { display:flex; align-items:flex-start; gap:6px; }
@@ -505,6 +505,7 @@
     let consentChecked = false;
     let submitting = false;
     let savedProfile = null;
+    let companyMeTried = false;  // 회원사 정보 다시 불러오기를 한 번만 하도록
     let companyMe = null;        // ★ 회원사: sos_company_me 결과 (승인된 직원이면 관리 건물 목록 포함)
     function companyReady() { return !!(companyMe && companyMe.member && companyMe.member.status === 'active' && companyMe.company && companyMe.company.ready); }
     async function loadCompanyMe() {
@@ -616,6 +617,11 @@
         const freeMode = FREE_REQUEST && !isPracticeMode && !isPostpaidMember;
 
         let balRowHtml = '';
+        // 후불 회원인데 회원사 정보를 아직 못 불러왔으면 불러온 뒤 다시 그림 (회사 이름이 바로 나오게)
+        if (isPostpaidMember && !isPracticeMode && !companyMe && !companyMeTried) {
+            companyMeTried = true;
+            loadCompanyMe().then(() => { if (companyMe) renderPayCards(); });
+        }
         if (isPostpaidMember) {
             // 회원사 직원: 결제 없이 바로 진행된다는 것을 크게 보여 줌
             balRowHtml = `<div class="postpaid-go">
