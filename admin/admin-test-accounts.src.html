@@ -1,0 +1,255 @@
+<!-- 파일명: admin-test-accounts.src.html -->
+<!-- @var BASE: ../../ -->
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta name="google" content="notranslate" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>테스트 계정 | 대한집합건물관리협회</title>
+
+<!-- @include critical-css -->
+
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=optional" rel="stylesheet" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{BASE}}assets/css/tailwind.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
+    <script src="{{BASE}}assets/js/supabase-config.js"></script>
+
+<!-- @include common-css -->
+
+    <style>
+        /* 이 페이지(테스트 계정) 전용 CSS */
+        html, body { overflow-y: scroll; }
+        .section-card { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:24px; }
+        .section-title { font-size:18px; font-weight:900; color:#12387a; margin-bottom:14px; padding-bottom:12px; border-bottom:2px solid #e0e7ff; }
+        .ta-note { font-size:13.5px; color:#475569; line-height:1.75; word-break:keep-all; }
+        .ta-note b { color:#0B2A5B; }
+        .ta-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:14px; }
+        .ta-fixed { font-size:15px; font-weight:800; color:#334155; }
+        .ta-input, .ta-select { border:1px solid #cbd5e1; border-radius:6px; padding:9px 11px; font-size:14.5px; outline:none; }
+        .ta-input { width:160px; }
+        .ta-input:focus, .ta-select:focus { border-color:#2563eb; }
+        .ta-btn { background:#12387a; color:#fff; border:none; border-radius:6px; padding:10px 16px; font-size:14px; font-weight:800; cursor:pointer; }
+        .ta-btn:hover { background:#0B2A5B; }
+        .ta-btn.sub { background:#fff; color:#12387a; border:1px solid #12387a; }
+        .ta-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+        .ta-chip { background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; border-radius:999px; padding:5px 11px; font-size:12.5px; font-weight:800; cursor:pointer; }
+        .ta-chip:hover { background:#e0e7ff; }
+        .ta-result { display:none; margin-top:16px; background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:14px 16px; }
+        .ta-result p { margin:0 0 8px; font-size:13.5px; color:#166534; font-weight:700; word-break:keep-all; line-height:1.6; }
+        .ta-link { width:100%; box-sizing:border-box; font-size:12.5px; padding:9px; border:1px solid #bbf7d0; border-radius:6px; background:#fff; color:#334155; }
+        .ta-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+        .ta-table th { background:#f8fafc; color:#1e3a8a; font-weight:bold; padding:10px; border-bottom:2px solid #e5e7eb; text-align:center; white-space:nowrap; }
+        .ta-table td { padding:10px; border-bottom:1px dashed #e5e7eb; text-align:center; vertical-align:middle; }
+        .ta-table td.l { text-align:left; }
+        .ta-warn { background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:10px 12px; font-size:13px; color:#9a3412; font-weight:700; margin-top:12px; line-height:1.6; word-break:keep-all; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+<!-- @include header -->
+
+    <div id="sub-header-bar" class="w-full bg-[#12387a] flex items-center"></div>
+<!-- @include header-close -->
+
+    <main class="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        <aside class="w-full md:w-[220px] shrink-0 md:sticky md:top-[88px] h-fit">
+            <div class="bg-white border border-gray-200 rounded shadow-sm mb-6 p-3 flex flex-col gap-1">
+                <div class="side-menu-tab" onclick="window.location.href='admin-dashboard.html'">대시보드</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-courses.html'">과정 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-field-courses.html'">현장 교육 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-curriculum.html'">커리큘럼 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-exams.html'">시험 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-enrollments.html'">수강생 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-certs.html'">수료증 발급</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-sos.html'">SOS 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-approvals.html'">승인 관리</div>
+                <div class="side-menu-tab" onclick="window.location.href='admin-stats.html'">통계</div>
+                <div class="side-menu-tab-active">테스트 계정</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 flex flex-col gap-6">
+            <div class="text-xl md:text-2xl font-black text-[#0B2A5B]">🧪 테스트 계정</div>
+
+            <div class="section-card">
+                <div class="section-title">로그인 링크 만들기</div>
+                <p class="ta-note">역할 이름을 넣고 <b>링크 만들기</b>를 누르면, 메일 없이 그 테스트 계정의 <b>1회용 로그인 링크</b>가 만들어집니다. 계정이 없으면 새로 만들어집니다.<br>
+                링크를 복사해서 <b>시크릿 창(Ctrl+Shift+N)이나 다른 브라우저</b>에 붙여넣으세요.</p>
+                <div class="ta-row">
+                    <span class="ta-fixed" id="ta-prefix">one126984+</span>
+                    <input id="ta-tag" class="ta-input" placeholder="예: hq" maxlength="30" autocomplete="off">
+                    <span class="ta-fixed" id="ta-suffix">@gmail.com</span>
+                </div>
+                <div class="ta-row">
+                    <span class="ta-fixed" style="font-size:14px;">로그인 후 이동</span>
+                    <select id="ta-next" class="ta-select">
+                        <option value="/">홈</option>
+                        <option value="/sos/sos-request.html">긴급 SOS 접수</option>
+                        <option value="/sos/sos-standby.html">SOS 전문가 대기실</option>
+                        <option value="/sos/sos-partner-apply.html">SOS 전문가 지원</option>
+                        <option value="/sos/sos-company.html">회원사 (관리회사·건물)</option>
+                        <option value="/mypage/dashboard.html">마이페이지</option>
+                        <option value="/bid/bid-write.html">견적의뢰 등록</option>
+                        <option value="/jobs/resume-write.html">이력서 작성</option>
+                        <option value="/cert/cert-list.html">교육과정</option>
+                    </select>
+                    <button type="button" class="ta-btn" id="ta-make">링크 만들기</button>
+                </div>
+                <div class="ta-chips" id="ta-chips"></div>
+                <div class="ta-result" id="ta-result">
+                    <p id="ta-result-msg"></p>
+                    <input id="ta-link" class="ta-link" readonly>
+                    <div class="ta-row" style="margin-top:10px;">
+                        <button type="button" class="ta-btn" id="ta-copy">📋 링크 복사</button>
+                    </div>
+                </div>
+                <div class="ta-warn">⚠ 링크는 <b>한 번만</b> 쓸 수 있고 약 1시간 뒤 만료됩니다.<br>
+                ⚠ 지금 이 관리자 창에 붙여넣으면 관리자 로그인이 테스트 계정으로 바뀝니다. 꼭 <b>시크릿 창</b>에 붙여넣으세요.<br>
+                ⚠ 테스트 전문가에게 아무 번호나 넣으면 콜 문자가 모르는 사람에게 갈 수 있습니다. 연락처는 본인·세컨폰 번호만 쓰세요.</div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span>만들어진 테스트 계정</span>
+                    <button type="button" class="ta-btn sub" id="ta-reload" style="padding:6px 12px;font-size:13px;">새로고침</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="ta-table">
+                        <thead><tr><th>역할</th><th>이메일</th><th>만든 날</th><th>마지막 로그인</th><th>로그인</th></tr></thead>
+                        <tbody id="ta-list"><tr><td colspan="5" style="color:#9ca3af;padding:24px;">불러오는 중...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+    <div id="footer-container"></div>
+    <script src="{{BASE}}assets/js/footer.js?v=1.3"></script>
+        </section>
+    </main>
+
+    <script>
+        const supabaseClient = window.sb;
+        // 추천 역할 (누르면 칸에 채워짐)
+        const ROLE_PRESETS = [
+            ['hq', '회원사 본사'], ['site1', '관리소장 A'], ['site2', '관리소장 B'],
+            ['sos-water1', '전문가 배관1'], ['sos-water2', '전문가 배관2'], ['sos-water3', '전문가 배관3'],
+            ['sos-fire', '전문가 소방'], ['sos-elec', '전문가 전기'],
+            ['vendor', '협력업체'], ['board', '관리단'], ['person', '구직·교육신청'], ['employer', '구인업체']
+        ];
+        const ROLE_LABEL = Object.fromEntries(ROLE_PRESETS);
+        const fmt = (t) => t ? new Date(t).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+
+        async function checkAdmin() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user || user.app_metadata?.role !== 'admin') {
+                alert('관리자 권한이 필요합니다.');
+                location.href = '{{BASE}}index.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function callFn(body) {
+            const { data, error } = await supabaseClient.functions.invoke('admin-test-login', { body });
+            if (error) {
+                let detail = '';
+                try { const j = await error.context.json(); detail = j.error || ''; } catch (e) {}
+                throw new Error(detail || error.message || '서버 함수 오류');
+            }
+            return data;
+        }
+
+        function errText(code) {
+            return ({
+                NOT_TEST_EMAIL: '역할 이름은 영어 소문자·숫자·- _ . 만 쓸 수 있습니다. (최대 30자)',
+                ADMIN_ONLY: '관리자만 사용할 수 있습니다.',
+                LOGIN_REQUIRED: '로그인이 필요합니다.'
+            })[code] || code;
+        }
+
+        async function makeLink(tag) {
+            tag = String(tag || '').trim().toLowerCase();
+            if (!tag) { alert('역할 이름을 입력해 주세요. (예: hq)'); return; }
+            const btn = document.getElementById('ta-make');
+            btn.disabled = true; btn.textContent = '만드는 중...';
+            try {
+                const data = await callFn({ action: 'link', tag });
+                const next = document.getElementById('ta-next').value;
+                const link = `${location.origin}/test-login.html?th=${encodeURIComponent(data.token_hash)}&next=${encodeURIComponent(next)}`;
+                document.getElementById('ta-link').value = link;
+                document.getElementById('ta-result-msg').textContent =
+                    `${data.email} ${data.created ? '계정을 새로 만들었습니다.' : '계정의 로그인 링크입니다.'} 아래 링크를 복사해 시크릿 창에 붙여넣으세요.`;
+                document.getElementById('ta-result').style.display = 'block';
+                loadList();
+            } catch (e) {
+                alert('링크를 만들지 못했습니다.\n' + errText(e.message) +
+                      (/Failed to send|not found|404/i.test(e.message) ? '\n(Supabase에 admin-test-login 함수가 배포되어 있는지 확인해 주세요)' : ''));
+            } finally {
+                btn.disabled = false; btn.textContent = '링크 만들기';
+            }
+        }
+
+        async function loadList() {
+            const tbody = document.getElementById('ta-list');
+            try {
+                const data = await callFn({ action: 'list' });
+                if (data.base) {
+                    const [local, domain] = data.base.split('@');
+                    document.getElementById('ta-prefix').textContent = local + '+';
+                    document.getElementById('ta-suffix').textContent = '@' + domain;
+                }
+                const users = (data.users || []).sort((a, b) => a.tag.localeCompare(b.tag));
+                if (!users.length) { tbody.innerHTML = '<tr><td colspan="5" style="color:#9ca3af;padding:24px;">아직 만든 테스트 계정이 없습니다.</td></tr>'; return; }
+                tbody.innerHTML = users.map(u => `
+                    <tr>
+                        <td class="font-bold">${KC.esc(ROLE_LABEL[u.tag] || u.tag)}</td>
+                        <td class="l">${KC.esc(u.email)}</td>
+                        <td>${KC.esc(fmt(u.created_at))}</td>
+                        <td>${KC.esc(fmt(u.last_sign_in_at))}</td>
+                        <td><button type="button" class="ta-btn sub" style="padding:5px 10px;font-size:12.5px;" data-tag="${KC.esc(u.tag)}">링크 만들기</button></td>
+                    </tr>`).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:#b91c1c;padding:24px;">목록을 불러오지 못했습니다. (${KC.esc(errText(e.message))})<br>Supabase에 admin-test-login 함수가 배포되어 있는지 확인해 주세요.</td></tr>`;
+            }
+        }
+
+        async function init() {
+            if (!(await checkAdmin())) return;
+            document.getElementById('ta-chips').innerHTML = ROLE_PRESETS.map(([tag, label]) =>
+                `<button type="button" class="ta-chip" data-tag="${tag}">${label} <span style="opacity:.6;">${tag}</span></button>`).join('');
+            document.getElementById('ta-chips').addEventListener('click', e => {
+                const b = e.target.closest('[data-tag]'); if (!b) return;
+                document.getElementById('ta-tag').value = b.dataset.tag;
+                if (b.dataset.tag.startsWith('sos-')) document.getElementById('ta-next').value = '/sos/sos-partner-apply.html';
+                else if (['hq', 'site1', 'site2'].includes(b.dataset.tag)) document.getElementById('ta-next').value = '/sos/sos-company.html';
+            });
+            document.getElementById('ta-list').addEventListener('click', e => {
+                const b = e.target.closest('[data-tag]'); if (!b) return;
+                document.getElementById('ta-tag').value = b.dataset.tag;
+                makeLink(b.dataset.tag);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            document.getElementById('ta-make').addEventListener('click', () => makeLink(document.getElementById('ta-tag').value));
+            document.getElementById('ta-tag').addEventListener('keydown', e => { if (e.key === 'Enter') makeLink(e.target.value); });
+            document.getElementById('ta-reload').addEventListener('click', loadList);
+            document.getElementById('ta-copy').addEventListener('click', async () => {
+                const el = document.getElementById('ta-link');
+                try { await navigator.clipboard.writeText(el.value); } catch (e) { el.select(); document.execCommand('copy'); }
+                document.getElementById('ta-copy').textContent = '✅ 복사됨';
+                setTimeout(() => document.getElementById('ta-copy').textContent = '📋 링크 복사', 1500);
+            });
+            loadList();
+        }
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+    <script>
+      window.BASE_PATH = '/';
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>테스트 계정 로그인 | 대한집합건물관리협회</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
+    <style>
+        body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f1f5f9; font-family:'Noto Sans KR', sans-serif; }
+        .box { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:28px 24px; max-width:380px; width:90%; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,.06); word-break:keep-all; }
+        .box h1 { font-size:18px; margin:0 0 10px; color:#0B2A5B; }
+        .box p { font-size:14px; color:#374151; line-height:1.7; margin:0; }
+        .box a { display:inline-block; margin-top:16px; background:#12387a; color:#fff; padding:10px 18px; border-radius:8px; font-weight:700; text-decoration:none; font-size:14px; }
+        .err { color:#b91c1c !important; }
+    </style>
+</head>
+<body>
+    <!-- 관리자 '테스트 계정' 화면이 만든 1회용 링크로 테스트 계정에 로그인하는 페이지 (2026-11-13) -->
+    <div class="box">
+        <h1>🧪 테스트 계정 로그인</h1>
+        <p id="msg">로그인하는 중입니다...</p>
+    </div>
+    <script>
+    (async () => {
+        const msg = document.getElementById('msg');
+        const fail = (t) => { msg.className = 'err'; msg.innerHTML = t + '<br><a href="/admin/admin-test-accounts.html">테스트 계정 화면으로</a>'; };
+        try {
+            const p = new URLSearchParams(location.search);
+            const th = p.get('th');
+            let next = p.get('next') || '/';
+            if (!/^\/(?!\/)/.test(next)) next = '/';   // 이 사이트 안의 주소로만 이동
+            if (!th) { fail('잘못된 링크입니다.'); return; }
+
+            const sb = window.supabase.createClient(
+                'https://ehrahnnowwjkgycvlbzk.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVocmFobm5vd3dqa2d5Y3ZsYnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzQ1NjQsImV4cCI6MjA5NzYxMDU2NH0.A0MfXNI4W7sPUM4UwSn7_kY5n2gEhp3N8ubH7uBZZwk'
+            );
+            // 이 창에 남아 있던 로그인만 정리 (다른 기기·다른 창의 로그인은 건드리지 않음)
+            try { await sb.auth.signOut({ scope: 'local' }); } catch (e) {}
+
+            const { data, error } = await sb.auth.verifyOtp({ token_hash: th, type: 'magiclink' });
+            if (error || !data || !data.session) {
+                fail('링크가 만료됐거나 이미 사용된 링크입니다.<br>관리자 화면에서 링크를 다시 만들어 주세요.');
+                return;
+            }
+            msg.textContent = (data.user && data.user.email ? data.user.email : '테스트 계정') + ' 로 로그인했습니다. 이동합니다...';
+            setTimeout(() => location.replace(next), 600);
+        } catch (e) {
+            fail('로그인 중 오류가 발생했습니다: ' + (e && e.message ? e.message : e));
+        }
+    })();
+    </script>
+</body>
+</html>
