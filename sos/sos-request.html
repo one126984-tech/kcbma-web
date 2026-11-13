@@ -2479,6 +2479,21 @@
       });
     }
   })();
+
+    // ★ PC에서는 전화를 걸 수 없으므로, 전화 링크(tel:)를 누르면 번호를 크게 알려 주고 복사해 둠 (휴대폰에서는 그대로 전화 연결)
+    function isPhoneDevice() {
+        try { return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && window.innerWidth < 900); }
+        catch (e) { return false; }
+    }
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest && e.target.closest('a[href^="tel:"]');
+        if (!a || isPhoneDevice() || e.defaultPrevented) return;
+        e.preventDefault();
+        const raw = a.getAttribute('href').replace(/^tel:/, '').replace(/[^0-9+]/g, '');
+        const shown = raw.length === 11 ? raw.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : (raw.length === 10 ? raw.replace(/(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3') : raw);
+        const done = () => alert(`이 컴퓨터에서는 전화를 걸 수 없습니다.\n휴대폰으로 아래 번호에 전화해 주세요.\n\n📞 ${shown}\n\n(번호를 복사해 두었습니다)`);
+        try { navigator.clipboard.writeText(shown).then(done, done); } catch (err) { done(); }
+    });   // 연습 모드 안내(화면 각자의 클릭 처리)가 먼저 실행되도록 기본 순서로 받음
 </script>
 </body>
 </html>
