@@ -85,9 +85,7 @@
   .invite-sent.waiting { background:#dc2626; color:#fff; border:3px solid #dc2626; font-size:13px; padding:8px 6px; border-radius:10px; animation:waitBlink 1s ease-in-out infinite; }
   .invite-sent .wait-line { display:block; white-space:nowrap; font-size:13px; letter-spacing:-0.4px; overflow:hidden; }
   /* 콜 문자에 응답이 없던 전문가가 있으면 '다른 전문가들 연락하기' 제목을 빨간 글씨로 깜빡임 */
-  #other-experts-title.alert-blink { color:#dc2626 !important; animation:textBlink 1s ease-in-out infinite; }
-  @keyframes textBlink { 0%, 100% { opacity:1; } 50% { opacity:.25; } }
-  @media (prefers-reduced-motion: reduce) { #other-experts-title.alert-blink { animation:none; } }
+  #other-experts-title.alert-blink { color:#dc2626 !important; }   /* 깜빡임 없이 빨간 글씨만 */
   @keyframes waitBlink { 0%, 100% { border-color:#fde047; box-shadow:0 0 0 2px rgba(253,224,71,.6); } 50% { border-color:#dc2626; box-shadow:none; } }
   @media (prefers-reduced-motion: reduce) { .invite-sent.waiting { animation:none; border-color:#fde047; } }
   #invite-bar { position:sticky; bottom:0; margin-top:12px; background:#ecfdf5; border:2px solid #15803d; border-radius:12px; padding:12px; }
@@ -251,7 +249,7 @@
                     <div id="other-experts-section" class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 text-center hidden">
                         <h3 id="other-experts-title" class="font-black text-gray-800 text-[16px] mb-4">다른 전문가들 연락하기</h3>
                         <div class="space-y-3">
-                            <button id="kakao-share-btn" class="w-full bg-[#FEE500] hover:bg-[#ebd300] text-[#000000] font-black text-[14px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
+                            <button id="kakao-share-btn" style="color:#dc2626;" class="w-full bg-[#FEE500] hover:bg-[#ebd300] text-[#000000] font-black text-[14px] py-3.5 rounded-xl shadow-sm transition flex justify-center items-center gap-2">
                                 <i class="fa-solid fa-comment text-lg"></i> 카카오톡으로 다른 전문가 호출하기
                             </button>
                             <button id="wait-cancel-btn" type="button" onclick="cancelRequest(this)" class="w-full bg-white border-2 border-gray-300 text-gray-700 font-bold text-[14px] py-3 rounded-xl hover:bg-gray-100 transition flex justify-center items-center gap-2">
