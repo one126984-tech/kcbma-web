@@ -75,7 +75,8 @@
   .svc-call.ready small { color:#dbeafe; }
   .svc-call:active { transform:translateY(1px); box-shadow:none; }
   .invite-chk:active { transform:translateY(1px); box-shadow:none; }
-  .invite-chk input { width:20px !important; height:20px !important; accent-color:#dc2626; cursor:pointer; margin:0; }
+  .invite-chk { position:relative; white-space:nowrap; }
+  .invite-chk input { position:absolute; opacity:0; width:1px !important; height:1px !important; margin:0; pointer-events:none; }   /* 체크칸은 숨기고 버튼 전체를 눌러 선택 (✅ 표시로 대신) */
   .invite-chk.on { background:#dc2626; border-color:#b91c1c; color:#fff; box-shadow:0 2px 0 #7f1d1d; }
   .invite-sent { margin-top:8px; font-size:11.5px; font-weight:800; color:#b45309; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:4px 6px; }
   #invite-bar { position:sticky; bottom:0; margin-top:12px; background:#ecfdf5; border:2px solid #15803d; border-radius:12px; padding:12px; }
@@ -1159,7 +1160,7 @@
                 : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 3분 안에 응답이 없었습니다<br>다른 전문가를 함께 살펴보세요</div>`;
         } else {
             const on = inviteChecked.has(e.id);
-            inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 보낼 전문가로 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
+            inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
         }
         const card = document.createElement('div');
         card.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-col items-center text-center shadow-sm relative overflow-hidden';
@@ -1200,7 +1201,7 @@
                 : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 아직 응답이 없습니다<br>다른 전문가도 함께 살펴보세요</div>`;
         } else {
             const on = inviteChecked.has(e.id);
-            inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 보낼 전문가로 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
+            inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
         }
         const card = document.createElement('div');
         card.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-col items-center text-center shadow-sm relative overflow-hidden';
@@ -1267,7 +1268,7 @@
         if (lab) {
             lab.classList.toggle('on', el.checked);
             const t = lab.querySelector('.ic-txt');
-            if (t) t.textContent = el.checked ? '✅ 콜 문자 보낼 전문가로 선택됨' : '📩 콜 문자 보내기';
+            if (t) t.textContent = el.checked ? '✅ 콜 문자 선택됨' : '📩 콜 문자 보내기';
         }
         renderInviteBar();
     }
