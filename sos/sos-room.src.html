@@ -1161,7 +1161,7 @@
             const leftSec = 180 - Math.floor((Date.now() - new Date(p.invited_at).getTime()) / 1000);
             inviteHtml = leftSec > 0
                 ? `<div class="invite-sent waiting">📩 콜 문자 보냄 · 응답 대기중<br>약 ${Math.ceil(leftSec / 60)}분 안에 응답합니다</div>`
-                : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 3분 안에 응답이 없었습니다<br>다른 전문가를 함께 살펴보세요</div>`;
+                : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 3분 안에 응답이 없었습니다<br><span style="color:#dc2626;">다른 전문가를 함께 살펴보세요</span></div>`;
         } else {
             const on = inviteChecked.has(e.id);
             inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
@@ -1202,7 +1202,7 @@
             const leftSec = 180 - Math.floor((Date.now() - new Date(p.invited_at).getTime()) / 1000);
             inviteHtml = leftSec > 0
                 ? `<div class="invite-sent waiting">📩 콜 문자 보냄 · 응답 대기중<br>대기 중이 아니라 답이 늦을 수 있습니다</div>`
-                : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 아직 응답이 없습니다<br>다른 전문가도 함께 살펴보세요</div>`;
+                : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 아직 응답이 없습니다<br><span style="color:#dc2626;">다른 전문가도 함께 살펴보세요</span></div>`;
         } else {
             const on = inviteChecked.has(e.id);
             inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
