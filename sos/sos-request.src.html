@@ -153,7 +153,7 @@
   .svc-phone-only .svc-ico { flex-shrink:0; line-height:1.6; }
   /* 회원사 후불 안내 (눈에 띄게) */
   .postpaid-go { margin-top:12px; background:#dcfce7; border:2px solid #22c55e; border-radius:12px; padding:14px 16px; word-break:keep-all; }
-  .postpaid-go .pg-main { font-size:clamp(17px, 4.6vw, 25px); font-weight:900; color:#dc2626; margin:0; line-height:1.4; letter-spacing:-0.3px; }
+  .postpaid-go .pg-main { font-size:26px; font-weight:900; color:#dc2626; margin:0; line-height:1.35; letter-spacing:-0.5px; white-space:nowrap; overflow:hidden; }
   .postpaid-go .pg-sub { font-size:13px; font-weight:700; color:#166534; margin:6px 0 0; line-height:1.6; }
   .s119-line { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; background:#fff7ed; border:1.5px solid #fdba74; border-radius:10px; padding:10px 12px; color:#9a3412; font-size:13.5px; font-weight:800; line-height:1.55; word-break:keep-all; }
   .s119-txt { display:flex; align-items:flex-start; gap:6px; }
@@ -608,6 +608,17 @@
     function setPracticeBalance(v) { sessionStorage.setItem('sosPracticeBalance', String(v)); }
     function currentBalance() { return isPracticeMode ? getPracticeBalance() : realBalance; }
 
+    // '후불 결제됩니다…' 문장을 상자 폭 한 줄 안에서 최대한 크게 (글자 크기를 줄여 가며 맞춤)
+    function fitPostpaidText() {
+        document.querySelectorAll('.postpaid-go .pg-main').forEach(el => {
+            if (!el.clientWidth) return;
+            let size = 30;
+            el.style.fontSize = size + 'px';
+            while (el.scrollWidth > el.clientWidth && size > 13) { size -= 0.5; el.style.fontSize = size + 'px'; }
+        });
+    }
+    window.addEventListener('resize', () => fitPostpaidText());
+
     function renderPayCards() {
         const base = currentBasePrice * 10000;
         const dispatch = SOS_DISPATCH_ENABLED && selectedType === 'dispatch';
@@ -666,6 +677,7 @@
             ${isPracticeMode ? `<div class="pay-practice">💡 <b>연습 안내</b><br>연습 포인트는 ${won(80000)}으로 시작합니다. 필요 포인트가 잔액보다 크면 '충전하기'가 나타나고, 충전하기 전에는 동의해도 접수가 되지 않습니다. 상담료는 전문가 번호를 확인한 뒤 10분이 지나거나 종료할 때 차감됩니다.</div>` : ''}
         `;
         document.querySelectorAll('.pay-slot').forEach(el => { el.innerHTML = html; });
+        requestAnimationFrame(fitPostpaidText);
         updateSubmitButtons();
     }
 
@@ -865,6 +877,7 @@
     });
 
     function showStep(stepId) {
+        setTimeout(fitPostpaidText, 50);   // 화면이 바뀌어 상자가 보이게 되면 글자 크기 다시 맞춤
         ['step-intro', 'step-quick', 'step-1-situation'].forEach(id => {
             const el = document.getElementById(id);
             if(el) { el.classList.add('hidden'); el.classList.remove('flex', 'block'); }
