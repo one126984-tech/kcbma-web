@@ -1114,13 +1114,9 @@
                         <div id="session-panel" class="w-full" style="display:none;"></div>
 
                         <div class="w-full relative">
-                            <div id="match-call-wrap" class="bg-[#dc2626] rounded-xl p-4 text-center cursor-pointer hover:bg-red-700 transition relative overflow-hidden group">
-                                <a id="match-call-btn" href="#" class="block text-white font-black text-[32px] tracking-wider decoration-transparent drop-shadow-md py-2">
-                                    -
-                                </a>
-                                <div class="bg-red-600 py-1.5 mt-1">
-                                    <p class="text-yellow-300 text-[13px] font-black">터치하면 바로 전화가 걸립니다</p>
-                                </div>
+                            <!-- 2026-11-13: 접수 내역의 '전화상담하기' 버튼과 같은 파란 버튼 모양 -->
+                            <div id="match-call-wrap" class="relative">
+                                <a id="match-call-btn" href="#" class="svc-call ready" style="padding:16px 10px; font-size:22px;">📞 전화상담하기 클릭<small id="match-call-sub" style="font-size:14px;">-</small></a>
                             </div>
                         </div>
 
@@ -2416,11 +2412,13 @@
       card.classList.remove('hidden');
       card.classList.add('flex');
 
+      const callSub = document.getElementById('match-call-sub');
       if (match.expert_phone) {
-        callBtn.innerText = formatPhoneDisplay(match.expert_phone);
+        if (callSub) callSub.textContent = formatPhoneDisplay(match.expert_phone) + ' · 누르면 바로 전화가 걸립니다';
         callBtn.href = 'tel:' + match.expert_phone.replace(/[^0-9]/g, '');
       } else {
-        callBtn.innerText = '-'; callBtn.href = '#';
+        if (callSub) callSub.textContent = '-';
+        callBtn.href = '#';
       }
 
       if (isPractice) {
