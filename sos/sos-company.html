@@ -1341,7 +1341,7 @@
     function findAddr() {
         const run = () => new daum.Postcode({ oncomplete: d => { document.getElementById('b-addr').value = d.roadAddress || d.jibunAddress; if (!document.getElementById('b-name').value && d.buildingName) document.getElementById('b-name').value = d.buildingName; } }).open();
         if (window.daum && daum.Postcode) return run();
-        const s = document.createElement('script'); s.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'; s.onload = run; document.head.appendChild(s);
+        const s = document.createElement('script'); s.src = 'https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'; s.onload = run; document.head.appendChild(s);
     }
 
     // 월별 이용 내역

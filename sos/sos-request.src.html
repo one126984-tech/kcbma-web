@@ -45,7 +45,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
   <script src="{{BASE}}assets/js/supabase-config.js"></script>
-  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
 
 <!-- @include view-transition-css -->
@@ -148,6 +148,13 @@
   /* 상황 버튼: 2줄(2×2) 고정, 글씨 크게 */
   #category-grid button, #quick-category-grid button { padding-top:14px !important; padding-bottom:14px !important; }
   #category-grid button span, #quick-category-grid button span { font-size:16px !important; }
+  /* 서비스 방식 상자: 📞 아이콘을 따로 떼어 설명 줄이 '전화상담' 첫 글자에 맞춰지게 */
+  .svc-phone-only .svc-row { display:flex; align-items:flex-start; gap:6px; }
+  .svc-phone-only .svc-ico { flex-shrink:0; line-height:1.6; }
+  /* 회원사 후불 안내 (눈에 띄게) */
+  .postpaid-go { margin-top:12px; background:#dcfce7; border:2px solid #22c55e; border-radius:12px; padding:14px 16px; word-break:keep-all; }
+  .postpaid-go .pg-main { font-size:17px; font-weight:900; color:#14532d; margin:0; line-height:1.5; }
+  .postpaid-go .pg-sub { font-size:13px; font-weight:700; color:#166534; margin:6px 0 0; line-height:1.6; }
   .s119-line { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; background:#fff7ed; border:1.5px solid #fdba74; border-radius:10px; padding:10px 12px; color:#9a3412; font-size:13.5px; font-weight:800; line-height:1.55; word-break:keep-all; }
   .s119-txt { display:flex; align-items:flex-start; gap:6px; }
   .s119-ico { flex-shrink:0; }
@@ -340,8 +347,10 @@
         <div class="mb-4 mt-10">
             <h2 class="text-lg font-bold text-gray-800 mb-4">4. 서비스 방식</h2>
             <div class="svc-phone-only">
-                <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원 <span class="fee-period-label"></span></p>
-                <p class="d" style="margin:4px 0 0;">전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내합니다. 현장 수리·공사가 필요하면 견적의뢰로 지역 업체를 찾으실 수 있습니다.</p>
+                <div class="svc-row"><span class="svc-ico">📞</span><div>
+                    <p class="t" style="margin:0;">전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원 <span class="fee-period-label"></span></p>
+                    <p class="d" style="margin:4px 0 0;">전문가가 전화로 상황을 듣고 지금 해야 할 조치를 안내합니다. 현장 수리·공사가 필요하면 견적의뢰로 지역 업체를 찾으실 수 있습니다.</p>
+                </div></div>
             </div>
             <div class="space-y-3" data-dispatch-only>
                 <label class="flex items-center gap-3 p-4 border-2 border-blue-500 bg-blue-50 rounded-xl cursor-pointer svc-label selected">
@@ -413,8 +422,10 @@
             <div class="mb-6">
                 <h2 class="text-lg font-bold text-gray-800 mb-4">3. 서비스 방식</h2>
                 <div class="svc-phone-only">
-                    <p class="t" style="margin:0;">📞 전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원 <span class="fee-period-label"></span></p>
-                    <p class="d" style="margin:4px 0 0;">전문가가 전화로 지금 해야 할 조치를 안내합니다. (현장 출동은 하지 않습니다)</p>
+                    <div class="svc-row"><span class="svc-ico">📞</span><div>
+                        <p class="t" style="margin:0;">전화상담 : <span class="dynamic-time-price text-blue-600">3</span>만원 <span class="fee-period-label"></span></p>
+                        <p class="d" style="margin:4px 0 0;">전문가가 전화로 지금 해야 할 조치를 안내합니다.</p>
+                    </div></div>
                 </div>
             </div>
             <div class="mb-6" data-dispatch-only>
@@ -606,9 +617,10 @@
 
         let balRowHtml = '';
         if (isPostpaidMember) {
-            balRowHtml = `<div class="bal-row p-3 rounded-lg bg-green-50 border border-green-200 mt-3">
-                            <span class="font-bold text-green-800 text-[14px]"><i class="fa-solid fa-building-circle-check"></i> ${companyReady() ? '회원사 후불 · ' + KC.esc(companyMe.company.name) : '협회 정회원사 (후불 패스)'}</span>
-                            <span class="font-black text-green-700 text-[14px]">결제 없음 (${companyReady() ? '매월 회사 카드로 청구' : '월말 정산'})</span>
+            // 회원사 직원: 결제 없이 바로 진행된다는 것을 크게 보여 줌
+            balRowHtml = `<div class="postpaid-go">
+                            <p class="pg-main">✅ 후불 결제됩니다. 바로 진행하세요</p>
+                            <p class="pg-sub"><i class="fa-solid fa-building-circle-check"></i> ${companyReady() ? '회원사 후불 · ' + KC.esc(companyMe.company.name) : '협회 정회원사 (후불 패스)'} · 지금 결제 없음 (${companyReady() ? '매월 회사 카드로 청구' : '월말 정산'})</p>
                           </div>`;
         } else if (freeMode) {
             balRowHtml = `<div class="bal-row p-3 rounded-lg bg-blue-50 border border-blue-200 mt-3" style="display:block;">

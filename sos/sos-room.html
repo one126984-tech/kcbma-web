@@ -440,7 +440,18 @@
   .tier-live { color:#15803d; } .tier-timed { color:#6b7280; }
   .chip { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:999px; }
   .chip-live { background:#dcfce7; color:#166534; } .chip-timed { background:#f3f4f6; color:#4b5563; } .chip-resp { background:#dbeafe; color:#1e40af; }
-  .invite-chk { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:8px; font-size:12px; font-weight:800; color:#b45309; cursor:pointer; }
+  /* 2026-11-13: '콜 문자 보내기'를 급한 상황에서도 눈에 띄는 큰 버튼 모양으로 */
+  .invite-chk { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; margin-top:10px; padding:11px 8px; font-size:15px; font-weight:900; color:#92400e; background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; cursor:pointer; box-shadow:0 2px 0 #d97706; transition:background .15s, transform .05s; }
+  .invite-chk:hover { background:#fde68a; }
+  /* 접수 내역의 '전화상담하기' 큰 버튼 */
+  .svc-call { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; box-sizing:border-box; padding:12px 10px; border:2.5px solid #2563eb; border-radius:12px; background:#eff6ff; color:#1d4ed8 !important; text-decoration:none; cursor:pointer; font-size:17px; font-weight:900; line-height:1.4; box-shadow:0 2px 0 #1e40af; }
+  .svc-call small { font-size:12.5px; font-weight:700; color:#475569; margin-top:2px; }
+  .svc-call.ready { background:#2563eb; color:#fff !important; border-color:#1d4ed8; }
+  .svc-call.ready small { color:#dbeafe; }
+  .svc-call:active { transform:translateY(1px); box-shadow:none; }
+  .invite-chk:active { transform:translateY(1px); box-shadow:none; }
+  .invite-chk input { width:20px !important; height:20px !important; accent-color:#ea580c; cursor:pointer; margin:0; }
+  .invite-chk.on { background:#ea580c; border-color:#c2410c; color:#fff; box-shadow:0 2px 0 #9a3412; }
   .invite-sent { margin-top:8px; font-size:11.5px; font-weight:800; color:#b45309; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:4px 6px; }
   #invite-bar { position:sticky; bottom:0; margin-top:12px; background:#fffbeb; border:1px solid #fcd34d; border-radius:12px; padding:12px; }
   #invite-send-btn { width:100%; margin-top:8px; background:#f59e0b; color:#fff; font-weight:900; font-size:15px; padding:12px 0; border-radius:10px; border:0; cursor:pointer; }
@@ -1143,7 +1154,7 @@
                         </div>
                         <div id="room-service-row" class="hidden flex items-center px-4 py-3 gap-3">
                             <span class="w-20 shrink-0 text-xs font-bold text-gray-400">서비스</span>
-                            <span id="room-service" class="text-sm font-bold text-blue-700 break-keep">-</span>
+                            <div id="room-service" class="flex-1 min-w-0 text-sm font-bold text-blue-700 break-keep">-</div>
                         </div>
                         <div id="room-fee-row" class="hidden flex items-center px-4 py-3 gap-3">
                             <span class="w-20 shrink-0 text-xs font-bold text-gray-400">요금</span>
@@ -1689,7 +1700,7 @@
             const svcRow = document.getElementById('room-service-row');
             const feeRow = document.getElementById('room-fee-row');
             svcRow.classList.remove('hidden'); svcRow.classList.add('flex');
-            document.getElementById('room-service').innerText = requestInfo.service_type === 'dispatch' ? '전화상담 및 출동서비스 (이전 접수)' : '전화상담';
+            updateServiceCallBox();
             feeRow.classList.remove('hidden'); feeRow.classList.add('flex');
 
         } catch (e) { console.error('정보 로드 에러', e); requestInfo = null;}
@@ -1972,7 +1983,7 @@
                 : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 3분 안에 응답이 없었습니다<br>다른 전문가를 함께 살펴보세요</div>`;
         } else {
             const on = inviteChecked.has(e.id);
-            inviteHtml = `<label class="invite-chk"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)" style="width:16px;height:16px;"> 콜 문자 보내기</label>`;
+            inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 보낼 전문가로 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
         }
         const card = document.createElement('div');
         card.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-col items-center text-center shadow-sm relative overflow-hidden';
@@ -2013,7 +2024,7 @@
                 : `<div class="invite-sent" style="background:#f3f4f6;border-color:#e5e7eb;color:#6b7280;">⌛ 아직 응답이 없습니다<br>다른 전문가도 함께 살펴보세요</div>`;
         } else {
             const on = inviteChecked.has(e.id);
-            inviteHtml = `<label class="invite-chk"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)" style="width:16px;height:16px;"> 콜 문자 보내기</label>`;
+            inviteHtml = `<label class="invite-chk${on ? ' on' : ''}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleInvite('${KC.esc(e.id)}', this)"><span class="ic-txt">${on ? '✅ 콜 문자 보낼 전문가로 선택됨' : '📩 콜 문자 보내기'}</span></label>`;
         }
         const card = document.createElement('div');
         card.className = 'bg-white border border-gray-200 rounded-xl p-3 flex flex-col items-center text-center shadow-sm relative overflow-hidden';
@@ -2076,6 +2087,12 @@
             if (invitedCount() + inviteChecked.size >= INVITE_TOTAL) { el.checked = false; alert(`이 접수에서는 콜 문자를 총 ${INVITE_TOTAL}명까지 보낼 수 있습니다.`); return; }
             inviteChecked.add(id);
         } else inviteChecked.delete(id);
+        const lab = el.closest('.invite-chk');
+        if (lab) {
+            lab.classList.toggle('on', el.checked);
+            const t = lab.querySelector('.ic-txt');
+            if (t) t.textContent = el.checked ? '✅ 콜 문자 보낼 전문가로 선택됨' : '📩 콜 문자 보내기';
+        }
         renderInviteBar();
     }
 
@@ -2327,9 +2344,31 @@
         location.href = 'sos-request.html';
     }
 
+    // ★ 접수 내역의 '서비스' 칸: 큰 '전화상담하기' 버튼
+    //   전문가가 정해졌으면 누르면 바로 전화, 아직이면 전문가 목록으로 이동
+    function updateServiceCallBox() {
+        const box = document.getElementById('room-service');
+        if (!box) return;
+        if (requestInfo && requestInfo.service_type === 'dispatch') { box.innerText = '전화상담 및 출동서비스 (이전 접수)'; return; }
+        const m = currentMatch;
+        if (m && m.expert_phone) {
+            const tel = String(m.expert_phone).replace(/[^0-9]/g, '');
+            const click = isPractice ? `href="#" onclick="event.preventDefault(); alert('[연습 모드] 실제에서는 누르면 전문가에게 바로 전화가 걸립니다.');"` : `href="tel:${KC.esc(tel)}"`;
+            box.innerHTML = `<a class="svc-call ready" ${click}>📞 전화상담하기 클릭<small>${KC.esc(formatPhoneDisplay(m.expert_phone))} · 누르면 바로 전화가 걸립니다</small></a>`;
+        } else {
+            box.innerHTML = `<a class="svc-call" href="#" onclick="event.preventDefault(); goExpertList();">📞 전화상담하기 클릭<small>아래에서 전문가를 먼저 선택해 주세요</small></a>`;
+        }
+    }
+    function goExpertList() {
+        const el = document.getElementById('expert-grid-section');
+        if (el && !el.classList.contains('hidden')) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        else alert('전문가를 선택하면 이 버튼을 눌러 바로 전화할 수 있습니다.');
+    }
+
     // UI 렌더링 함수
     function renderMatchCard(match) {
       currentMatch = match;
+      updateServiceCallBox();
       const card = document.getElementById('match-info-card');
       const nameEl = document.getElementById('match-expert-name');
       const detailEl = document.getElementById('match-expert-detail');
@@ -2425,6 +2464,12 @@
       box.scrollTop = box.scrollHeight;
     }
 
+    // 접수 분야 코드 → 화면 이름 (소방 → 경보기 오작동 …), '기타(직접 입력)'는 그대로
+    function reqCatLabel(cat) {
+        const L = { '소방': '경보기 오작동', '화재': '경보기 오작동', '전기': '전기 정전', '누수': '배관 누수', '화장실': '배관 누수' };
+        const out = String(cat || '').split(',').map(x => x.trim()).filter(Boolean).map(x => L[x] || x);
+        return out.length ? out.join(', ') : '-';
+    }
     function escapeHtml(str) {
       const div = document.createElement('div');
       div.innerText = str || '';
@@ -2578,7 +2623,7 @@
       }
 
       showOnly('room-content');
-      document.getElementById('room-category').innerText = data.category || '-';
+      document.getElementById('room-category').innerText = reqCatLabel(data.category);
       document.getElementById('room-location').innerText = data.region || '-';
       document.getElementById('room-phone').innerText = formatPhoneDisplay(data.contact_phone);
 

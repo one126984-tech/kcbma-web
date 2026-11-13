@@ -831,7 +831,7 @@
             <div class="section-card">
                 <div class="section-title">로그인 링크 만들기</div>
                 <p class="ta-note">역할 이름을 넣고 <b>링크 만들기</b>를 누르면, 메일 없이 그 테스트 계정의 <b>1회용 로그인 링크</b>가 만들어집니다. 계정이 없으면 새로 만들어집니다.<br>
-                링크를 복사해서 <b>시크릿 창(Ctrl+Shift+N)이나 다른 브라우저</b>에 붙여넣으세요.</p>
+                링크를 복사해서 <b>관리자로 로그인하지 않은 다른 브라우저·크롬 프로필·시크릿 창</b>에 붙여넣으세요.</p>
                 <div class="ta-row">
                     <span class="ta-fixed" id="ta-prefix">one126984+</span>
                     <input id="ta-tag" class="ta-input" placeholder="예: hq" maxlength="30" autocomplete="off">
@@ -861,7 +861,7 @@
                     </div>
                 </div>
                 <div class="ta-warn">⚠ 링크는 <b>한 번만</b> 쓸 수 있고 약 1시간 뒤 만료됩니다.<br>
-                ⚠ 지금 이 관리자 창에 붙여넣으면 관리자 로그인이 테스트 계정으로 바뀝니다. 꼭 <b>시크릿 창</b>에 붙여넣으세요.<br>
+                ⚠ 지금 이 관리자 브라우저(새 탭 포함)에 붙여넣으면 관리자 로그인이 테스트 계정으로 바뀝니다. <b>다른 브라우저나 시크릿 창</b>에 붙여넣으세요.<br>
                 ⚠ 테스트 전문가에게 아무 번호나 넣으면 콜 문자가 모르는 사람에게 갈 수 있습니다. 연락처는 본인·세컨폰 번호만 쓰세요.</div>
             </div>
 
@@ -933,7 +933,7 @@
                 const link = `${location.origin}/test-login.html?th=${encodeURIComponent(data.token_hash)}&next=${encodeURIComponent(next)}`;
                 document.getElementById('ta-link').value = link;
                 document.getElementById('ta-result-msg').textContent =
-                    `${data.email} ${data.created ? '계정을 새로 만들었습니다.' : '계정의 로그인 링크입니다.'} 아래 링크를 복사해 시크릿 창에 붙여넣으세요.`;
+                    `${data.email} ${data.created ? '계정을 새로 만들었습니다.' : '계정의 로그인 링크입니다.'} 아래 링크를 복사해 관리자 창이 아닌 다른 브라우저(또는 시크릿 창)에 붙여넣으세요.`;
                 document.getElementById('ta-result').style.display = 'block';
                 loadList();
             } catch (e) {
